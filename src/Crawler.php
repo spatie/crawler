@@ -165,6 +165,8 @@ class SiteCrawler
                 return $this->normalizeUrl($url);
             })
             ->filter(function (Url $url) {
+                if (is_null($this->crawlProfile)) return true;
+
                 return $this->crawlProfile->shouldCrawl($url);
             })
             ->map(function (Url $url) {
