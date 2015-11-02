@@ -218,9 +218,8 @@ class SiteCrawler
     protected function normalizeUrl(Url $url)
     {
         if ($url->isRelative()) {
-            return $url
-                ->setScheme($this->baseUrl->scheme)
-                ->setHost($this->baseUrl->host);
+             $url->setScheme($this->baseUrl->scheme)
+                 ->setHost($this->baseUrl->host);
         }
 
         if ($url->isProtocolIndependent()) {
