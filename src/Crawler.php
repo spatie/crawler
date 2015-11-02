@@ -100,12 +100,16 @@ class Crawler
     /**
      * Start the crawling process.
      *
-     * @param \Spatie\Crawler\Url $baseUrl
+     * @param \Spatie\Crawler\Url|string $baseUrl
      *
      * @throws \Spatie\Crawler\Exceptions\InvalidBaseUrl
      */
-    public function startCrawling(Url $baseUrl)
+    public function startCrawling($baseUrl)
     {
+        if (! $baseUrl instanceof Url) {
+            $baseUrl = Url::create($baseUrl);
+        }
+
         if ($baseUrl->isRelative()) {
             throw new InvalidBaseUrl();
         }
