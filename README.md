@@ -9,9 +9,9 @@
 
 This package provides a class to crawl all links on a website.
 
-## Install
+## Installation
 
-Via Composer
+This package can be installed via Composer:
 
 ``` bash
 composer require spatie/crawler
@@ -19,7 +19,53 @@ composer require spatie/crawler
 
 ## Usage
 
-Coming soon
+The crawler can be instantiated like this
+
+```php
+Crawler::create()
+    ->setObserver(<implementation of \Spatie\Crawler\CrawlObserver)
+    ->startCrawling($url);
+```
+
+The argument passed to `setObserver` must be an instance that implement the `\Spatie\Crawler\CrawlObserver`-interface:
+
+```php
+/**
+ * Called when the crawler will crawl the given url.
+ *
+ * @param \Spatie\Crawler\Url $url
+ */
+public function willCrawl(Url $url);
+
+/**
+ * Called when the crawler has crawled the given url.
+ *
+ * @param \Spatie\Crawler\Url       $url
+ * @param \Psr\Http\Message\ResponseInterface $response
+ */
+public function haveCrawled(Url $url, ResponseInterface $response);
+
+/**
+ * Called when the crawl has ended.
+ */
+public function finishedCrawling();
+``` 
+
+### Filtering out certain Url's
+
+You can tell the crawler not visit certain url's by passing using the `setCrawlProfile`-function. That function expects
+an objects that implements the `Spatie\Crawler\CrawlProfile`-interface:
+
+```php
+/**
+ * Determine if the given url should be crawled.
+ *
+ * @param \Spatie\Crawler\Url $url
+ *
+ * @return bool
+ */
+public function shouldCrawl(Url $url);
+```
 
 ## Changelog
 

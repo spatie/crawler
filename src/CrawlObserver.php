@@ -7,14 +7,14 @@ use Psr\Http\Message\ResponseInterface;
 interface CrawlObserver
 {
     /**
-     * Called when the crawl will crawl the url.
+     * Called when the crawler will crawl the url.
      *
      * @param \Spatie\Crawler\Url $url
      */
     public function willCrawl(Url $url);
 
     /**
-     * Called when the crawl will crawl has crawled the given url.
+     * Called when the crawler has crawled the given url.
      *
      * @param \Spatie\Crawler\Url       $url
      * @param \Psr\Http\Message\ResponseInterface $response

@@ -28,7 +28,7 @@ class Crawler
     /**
      * @var \Spatie\Crawler\CrawlObserver
      */
-    protected $observer;
+    protected $crawlObserver;
 
     /**
      * @var \Spatie\Crawler\CrawlProfile
@@ -60,13 +60,13 @@ class Crawler
     /**
      * Set the crawl observer.
      *
-     * @param \Spatie\Crawler\CrawlObserver $observer
+     * @param \Spatie\Crawler\CrawlObserver $crawlObserver
      *
      * @return $this
      */
-    public function setObserver(CrawlObserver $observer)
+    public function setCrawlObserver(CrawlObserver $crawlObserver)
     {
-        $this->observer = $observer;
+        $this->crawlObserver = $crawlObserver;
 
         return $this;
     }
@@ -106,7 +106,7 @@ class Crawler
 
         $this->crawlUrl($baseUrl);
 
-        $this->observer->finishedCrawling();
+        $this->crawlObserver->finishedCrawling();
     }
 
     /**
@@ -124,14 +124,14 @@ class Crawler
             return;
         }
 
-        $this->observer->willCrawl($url);
+        $this->crawlObserver->willCrawl($url);
 
         try {
             $response = $this->client->request('GET', (string) $url);
         } catch (RequestException $exception) {
             $response = $exception->getResponse();
         }
-        $this->observer->haveCrawled($url, $response);
+        $this->crawlObserver->haveCrawled($url, $response);
 
         $this->crawledUrls->push($url);
 
