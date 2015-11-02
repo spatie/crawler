@@ -51,9 +51,9 @@ public function haveCrawled(Url $url, ResponseInterface $response);
 public function finishedCrawling();
 ``` 
 
-### Filtering out certain Url's
+### Filtering certain url's
 
-You can tell the crawler not visit certain url's by passing using the `setCrawlProfile`-function. That function expects
+You can tell the crawler not to visit certain url's by passing using the `setCrawlProfile`-function. That function expects
 an objects that implements the `Spatie\Crawler\CrawlProfile`-interface:
 
 ```php
