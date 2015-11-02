@@ -8,7 +8,7 @@ use GuzzleHttp\RequestOptions;
 use Spatie\Crawler\Exceptions\InvalidBaseUrl;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 
-class SiteCrawler
+class Crawler
 {
     /**
      * @var \GuzzleHttp\Client
