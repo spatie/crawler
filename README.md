@@ -43,7 +43,7 @@ public function willCrawl(Url $url);
  * @param \Spatie\Crawler\Url       $url
  * @param \Psr\Http\Message\ResponseInterface $response
  */
-public function haveCrawled(Url $url, ResponseInterface $response);
+public function hasBeenCrawled(Url $url, ResponseInterface $response);
 
 /**
  * Called when the crawl has ended.

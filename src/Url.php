@@ -19,24 +19,28 @@ class Url
      */
     public $path;
 
+    /**
+     * @param $url
+     * @return static
+     */
     public static function create($url)
     {
         return new static($url);
     }
 
+    /**
+     * Url constructor.
+     * @param $url
+     */
     public function __construct($url)
     {
         $urlProperties = parse_url($url);
 
-        collect(['scheme', 'host', 'path'])->map(function ($property) use ($urlProperties) {
-
-            if (! isset($urlProperties[$property])) {
-                return;
+        foreach(['scheme', 'host', 'path'] as $property) {
+            if (isset($urlProperties[$property])) {
+                $this->$property = strtolower($urlProperties[$property]);
             }
-
-            $this->$property = strtolower($urlProperties[$property]);
-
-        });
+        }
     }
 
     /**

@@ -35,6 +35,9 @@ class Crawler
      */
     protected $crawlProfile;
 
+    /**
+     * @return static
+     */
     public static function create()
     {
         $client = new Client([
@@ -131,7 +134,7 @@ class Crawler
         } catch (RequestException $exception) {
             $response = $exception->getResponse();
         }
-        $this->crawlObserver->haveCrawled($url, $response);
+        $this->crawlObserver->hasBeenCrawled($url, $response);
 
         $this->crawledUrls->push($url);
 
@@ -157,8 +160,6 @@ class Crawler
                 return $this->normalizeUrl($url);
             })
             ->filter(function (Url $url) {
-                if (is_null($this->crawlProfile)) return true;
-
                 return $this->crawlProfile->shouldCrawl($url);
             })
             ->map(function (Url $url) {
@@ -177,9 +178,10 @@ class Crawler
     {
         $crawler = new DomCrawler($html);
 
-        return collect($crawler->filterXpath('//a')->extract(['href']))->map(function ($url) {
-            return Url::create($url);
-        });
+        return collect($crawler->filterXpath('//a')->extract(['href']))
+            ->map(function ($url) {
+                return Url::create($url);
+            });
     }
 
     /**

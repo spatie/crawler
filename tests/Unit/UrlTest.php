@@ -14,15 +14,15 @@ class UrlTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->testUrl = new Url('https://spatie.be/opensource');
-
         parent::setUp();
+
+        $this->testUrl = new Url('https://spatie.be/opensource');
     }
 
     /**
      * @test
      */
-    public function is_can_parse_an_url()
+    public function it_can_parse_an_url()
     {
         $this->assertEquals('https', $this->testUrl->scheme);
         $this->assertEquals('spatie.be', $this->testUrl->host);
