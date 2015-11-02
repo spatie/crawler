@@ -198,7 +198,7 @@ class SiteCrawler
     protected function hasAlreadyCrawled(Url $url)
     {
         foreach ($this->crawledUrls as $crawledUrl) {
-            if ((string) $crawledUrl == (string) $url) {
+            if ((string) $crawledUrl === (string) $url) {
                 return true;
             }
         }
