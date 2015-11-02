@@ -1,6 +1,8 @@
 {
     "name": "spatie/crawler",
     "description": "Crawl all internal links found on a website",
+    "homepage": "https://github.com/spatie/crawler",
+    "license": "MIT",
     "keywords": [
         "spatie",
         "crawler",
