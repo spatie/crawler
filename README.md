@@ -23,7 +23,7 @@ The crawler can be instantiated like this
 
 ```php
 Crawler::create()
-    ->setObserver(<implementation of \Spatie\Crawler\CrawlObserver)
+    ->setObserver(<implementation of \Spatie\Crawler\CrawlObserver>)
     ->startCrawling($url);
 ```
 
