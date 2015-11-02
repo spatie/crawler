@@ -36,5 +36,10 @@
     },
     "scripts": {
         "test": "phpunit"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.0.x-dev"
+        }
     }
 }
