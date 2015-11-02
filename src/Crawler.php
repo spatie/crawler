@@ -56,20 +56,6 @@ class Crawler
     }
 
     /**
-     * Set the base url.
-     *
-     * @param string $baseUrl
-     *
-     * @return $this
-     */
-    public function setBaseUrl($baseUrl)
-    {
-        $this->baseUrl = $baseUrl;
-
-        return $this;
-    }
-
-    /**
      * Set the crawl observer.
      *
      * @param \Spatie\Crawler\CrawlObserver $observer
