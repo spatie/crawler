@@ -52,6 +52,8 @@ class Crawler
     {
         $this->client = $client;
 
+        $this->crawlProfile = new CrawlAllUrls();
+
         $this->crawledUrls = collect();
     }
 
