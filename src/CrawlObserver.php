@@ -2,7 +2,7 @@
 
 namespace Spatie\Crawler;
 
-use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
 
 interface CrawlObserver
 {
@@ -17,9 +17,9 @@ interface CrawlObserver
      * Called when the crawl will crawl has crawled the given url.
      *
      * @param \Spatie\Crawler\Url       $url
-     * @param \GuzzleHttp\Psr7\Response $response
+     * @param \Psr\Http\Message\ResponseInterface $response
      */
-    public function haveCrawled(Url $url, Response $response);
+    public function haveCrawled(Url $url, ResponseInterface $response);
 
     /**
      * Called when the crawl has ended.

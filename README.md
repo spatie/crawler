@@ -1,12 +1,13 @@
-# Crawl all unique links found on a website
+# Crawl all links found on a website
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/crawler.svg?style=flat-square)](https://packagist.org/packages/spatie/crawler)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-[![Build Status](https://img.shields.io/travis/spatie/crawler.svg?style=flat-square)](https://travis-ci.org/spatie/crawler)
+[![Build Status](https://img.shields.io/travis/spatie/crawler/master.svg?style=flat-square)](https://travis-ci.org/spatie/crawler)
+[![SensioLabsInsight](https://img.shields.io/sensiolabs/i/048cebe6-0463-4302-8317-0af7cc48e81c.svg?style=flat-square)](https://insight.sensiolabs.com/projects/048cebe6-0463-4302-8317-0af7cc48e81c)
 [![Quality Score](https://img.shields.io/scrutinizer/g/spatie/crawler.svg?style=flat-square)](https://scrutinizer-ci.com/g/spatie/crawler)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/crawler.svg?style=flat-square)](https://packagist.org/packages/spatie/crawler)
 
-*Work in progress*
+This package provides a class to crawl all links on a website.
 
 ## Install
 
