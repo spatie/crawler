@@ -181,9 +181,9 @@ class Crawler
      */
     protected function getAllLinks($html)
     {
-        $crawler = new DomCrawler($html);
+        $domCrawler = new DomCrawler($html);
 
-        return collect($crawler->filterXpath('//a')
+        return collect($domCrawler->filterXpath('//a')
             ->extract(['href']))
             ->map(function ($url) {
                 return Url::create($url);
