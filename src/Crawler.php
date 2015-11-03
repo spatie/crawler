@@ -167,7 +167,7 @@ class Crawler
             ->filter(function (Url $url) {
                 return $this->crawlProfile->shouldCrawl($url);
             })
-            ->map(function (Url $url) {
+            ->each(function (Url $url) {
                 $this->crawlUrl($url);
             });
     }
