@@ -21,6 +21,7 @@ class Url
 
     /**
      * @param $url
+     *
      * @return static
      */
     public static function create($url)
@@ -30,13 +31,14 @@ class Url
 
     /**
      * Url constructor.
+     *
      * @param $url
      */
     public function __construct($url)
     {
         $urlProperties = parse_url($url);
 
-        foreach(['scheme', 'host', 'path'] as $property) {
+        foreach (['scheme', 'host', 'path'] as $property) {
             if (isset($urlProperties[$property])) {
                 $this->$property = strtolower($urlProperties[$property]);
             }

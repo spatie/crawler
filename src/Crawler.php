@@ -97,7 +97,7 @@ class Crawler
      */
     public function startCrawling($baseUrl)
     {
-        if (! $baseUrl instanceof Url) {
+        if (!$baseUrl instanceof Url) {
             $baseUrl = Url::create($baseUrl);
         }
 
@@ -119,7 +119,7 @@ class Crawler
      */
     protected function crawlUrl(Url $url)
     {
-        if (! $this->crawlProfile->shouldCrawl($url)) {
+        if (!$this->crawlProfile->shouldCrawl($url)) {
             return;
         }
 
@@ -139,7 +139,9 @@ class Crawler
 
         $this->crawledUrls->push($url);
 
-        if (! $response) return;
+        if (!$response) {
+            return;
+        }
 
         if ($url->host === $this->baseUrl->host) {
             $this->crawlAllLinks($response->getBody()->getContents());
@@ -157,7 +159,7 @@ class Crawler
 
         collect($allLinks)
             ->filter(function (Url $url) {
-                return ! $url->isEmailUrl();
+                return !$url->isEmailUrl();
             })
             ->map(function (Url $url) {
                 return $this->normalizeUrl($url);
@@ -215,7 +217,7 @@ class Crawler
     protected function normalizeUrl(Url $url)
     {
         if ($url->isRelative()) {
-             $url->setScheme($this->baseUrl->scheme)
+            $url->setScheme($this->baseUrl->scheme)
                  ->setHost($this->baseUrl->host);
         }
 
