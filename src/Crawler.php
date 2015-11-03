@@ -183,7 +183,8 @@ class Crawler
     {
         $crawler = new DomCrawler($html);
 
-        return collect($crawler->filterXpath('//a')->extract(['href']))
+        return collect($crawler->filterXpath('//a')
+            ->extract(['href']))
             ->map(function ($url) {
                 return Url::create($url);
             });
