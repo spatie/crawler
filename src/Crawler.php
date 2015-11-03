@@ -134,9 +134,12 @@ class Crawler
         } catch (RequestException $exception) {
             $response = $exception->getResponse();
         }
+
         $this->crawlObserver->hasBeenCrawled($url, $response);
 
         $this->crawledUrls->push($url);
+
+        if (! $response) return;
 
         if ($url->host === $this->baseUrl->host) {
             $this->crawlAllLinks($response->getBody()->getContents());
