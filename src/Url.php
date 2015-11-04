@@ -40,7 +40,7 @@ class Url
 
         foreach (['scheme', 'host', 'path'] as $property) {
             if (isset($urlProperties[$property])) {
-                $this->$property = strtolower($urlProperties[$property]);
+                $this->$property = $urlProperties[$property];
             }
         }
     }
