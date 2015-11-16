@@ -9,6 +9,8 @@
 
 This package provides a class to crawl links on a website.
 
+Spatie is a webdesign agency in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
+
 ## Installation
 
 This package can be installed via Composer:
@@ -23,7 +25,7 @@ The crawler can be instantiated like this
 
 ```php
 Crawler::create()
-    ->setObserver(<implementation of \Spatie\Crawler\CrawlObserver>)
+    ->setCrawlObserver(<implementation of \Spatie\Crawler\CrawlObserver>)
     ->startCrawling($url);
 ```
 

@@ -167,7 +167,7 @@ class Crawler
             ->filter(function (Url $url) {
                 return $this->crawlProfile->shouldCrawl($url);
             })
-            ->map(function (Url $url) {
+            ->each(function (Url $url) {
                 $this->crawlUrl($url);
             });
     }
@@ -181,9 +181,10 @@ class Crawler
      */
     protected function getAllLinks($html)
     {
-        $crawler = new DomCrawler($html);
+        $domCrawler = new DomCrawler($html);
 
-        return collect($crawler->filterXpath('//a')->extract(['href']))
+        return collect($domCrawler->filterXpath('//a')
+            ->extract(['href']))
             ->map(function ($url) {
                 return Url::create($url);
             });
