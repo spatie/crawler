@@ -2,6 +2,8 @@
 
 All Notable changes to `spatie/crawler` will be documented in this file.
 
+## 1.1.1 - 2015-11-16
+- Fix for normalizing relative links when using non-80 ports
 
 ## 1.1.0 - 2015-11-16
 - Add support for custom ports
