@@ -26,6 +26,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
     {
         $this->assertEquals('https', $this->testUrl->scheme);
         $this->assertEquals('spatie.be', $this->testUrl->host);
+        $this->assertEquals(80, $this->testUrl->port);
         $this->assertEquals('/opensource', $this->testUrl->path);
     }
 
@@ -112,5 +113,26 @@ class UrlTest extends PHPUnit_Framework_TestCase
     {
         $this->assertFalse(Url::create('https://spatie.be/')->isEmailUrl());
         $this->assertTrue(Url::create('mailto:info@spatie.be')->isEmailUrl());
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_change_the_port_number()
+    {
+        $this->testUrl->setPort(3000);
+
+        $this->assertEquals(3000, $this->testUrl->port);
+        $this->assertEquals('https://spatie.be:3000/opensource', (string) $this->testUrl);
+    }
+
+    /**
+     * @test
+     */
+    public function it_wil_not_include_port_80_in_the_string()
+    {
+        $this->testUrl->setPort(80);
+
+        $this->assertEquals('https://spatie.be/opensource', (string) $this->testUrl);
     }
 }

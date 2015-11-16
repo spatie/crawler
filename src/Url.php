@@ -2,6 +2,8 @@
 
 namespace Spatie\Crawler;
 
+use Spatie\Crawler\Exceptions\InvalidPortNumber;
+
 class Url
 {
     /**
@@ -13,6 +15,11 @@ class Url
      * @var null|string
      */
     public $host;
+
+    /**
+     * @var int
+     */
+    public $port = 80;
 
     /**
      * @var null|string
@@ -38,7 +45,7 @@ class Url
     {
         $urlProperties = parse_url($url);
 
-        foreach (['scheme', 'host', 'path'] as $property) {
+        foreach (['scheme', 'host', 'path', 'port'] as $property) {
             if (isset($urlProperties[$property])) {
                 $this->$property = strtolower($urlProperties[$property]);
             }
@@ -104,6 +111,24 @@ class Url
     }
 
     /**
+     * @param int $port
+     *
+     * @return $this
+     *
+     * @throws \Spatie\Crawler\Exceptions\InvalidPortNumber
+     */
+    public function setPort($port)
+    {
+        if (!is_numeric($port)) {
+            throw new InvalidPortNumber();
+        }
+
+        $this->port = $port;
+
+        return $this;
+    }
+
+    /**
      * Remove the fragment.
      *
      * @return $this
@@ -124,6 +149,8 @@ class Url
     {
         $path = starts_with($this->path, '/') ? substr($this->path, 1) : $this->path;
 
-        return "{$this->scheme}://{$this->host}/{$path}";
+        $port = ($this->port === 80 ? '' : ":{$this->port}");
+
+        return "{$this->scheme}://{$this->host}{$port}/{$path}";
     }
 }
