@@ -218,8 +218,10 @@ class Crawler
     protected function normalizeUrl(Url $url)
     {
         if ($url->isRelative()) {
+
             $url->setScheme($this->baseUrl->scheme)
-                 ->setHost($this->baseUrl->host);
+                ->setHost($this->baseUrl->host)
+                ->setPort($this->baseUrl->port);
         }
 
         if ($url->isProtocolIndependent()) {
