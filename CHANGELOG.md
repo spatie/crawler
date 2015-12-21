@@ -2,6 +2,9 @@
 
 All Notable changes to `spatie/crawler` will be documented in this file.
 
+## 1.2.0 - 2015-12-21
+- Add support for DomCrawler 3.x
+
 ## 1.1.1 - 2015-11-16
 - Fix for normalizing relative links when using non-80 ports
 
