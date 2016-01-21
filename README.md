@@ -29,7 +29,7 @@ Crawler::create()
     ->startCrawling($url);
 ```
 
-The argument passed to `setObserver` must be an instance that implement the `\Spatie\Crawler\CrawlObserver`-interface:
+The argument passed to `setObserver` must be an object that implements the `\Spatie\Crawler\CrawlObserver`-interface:
 
 ```php
 /**
