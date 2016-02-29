@@ -83,7 +83,7 @@ class Url
     }
 
     /**
-     * Determine if this is an inline javascript
+     * Determine if this is an inline javascript.
      *
      * @return bool
      */
