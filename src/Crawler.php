@@ -161,6 +161,9 @@ class Crawler
             ->filter(function (Url $url) {
                 return !$url->isEmailUrl();
             })
+            ->filter(function (Url $url) {
+                return !$url->isJavascript();
+            })
             ->map(function (Url $url) {
                 return $this->normalizeUrl($url);
             })

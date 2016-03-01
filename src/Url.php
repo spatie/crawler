@@ -83,6 +83,17 @@ class Url
     }
 
     /**
+     * Determine if this is an inline javascript.
+     *
+     * @return bool
+     */
+    public function isJavascript()
+    {
+        return $this->scheme === 'javascript';
+    }
+
+
+    /**
      * Set the scheme.
      *
      * @param string $scheme
