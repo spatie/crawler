@@ -2,6 +2,9 @@
 
 All Notable changes to `spatie/crawler` will be documented in this file.
 
+## 1.2.1 - 2015-03-01
+- Fixed a bug where the crawler tries to follow JavaScript links
+
 ## 1.2.0 - 2015-12-21
 - Add support for DomCrawler 3.x
 
