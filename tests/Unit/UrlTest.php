@@ -111,9 +111,20 @@ class UrlTest extends PHPUnit_Framework_TestCase
      */
     public function it_can_determine_if_the_url_is_an_email_url()
     {
-        $this->assertFalse(Url::create('https://spatie.be/')->isEmailUrl());
+        $this->assertFalse(Url::create('https://spa' .
+            'tie.be/')->isEmailUrl());
         $this->assertTrue(Url::create('mailto:info@spatie.be')->isEmailUrl());
     }
+
+    /**
+     * @test
+     */
+    public function it_can_determine_if_the_url_is_javascript_url()
+    {
+        $url = (new Url('javascript:alert()'));
+        $this->assertTrue($url->isJavascript());
+    }
+
 
     /**
      * @test
