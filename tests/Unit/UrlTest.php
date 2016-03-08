@@ -16,7 +16,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        $this->testUrl = new Url('https://spatie.be/opensource');
+        $this->testUrl = new Url('https://spatie.be/opensource?expires=123&signature=456');
     }
 
     /**
@@ -28,6 +28,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('spatie.be', $this->testUrl->host);
         $this->assertEquals(80, $this->testUrl->port);
         $this->assertEquals('/opensource', $this->testUrl->path);
+        $this->assertEquals('expires=123&signature=456', $this->testUrl->query);
     }
 
     /**
@@ -35,7 +36,19 @@ class UrlTest extends PHPUnit_Framework_TestCase
      */
     public function it_can_be_converted_to_a_string()
     {
-        $this->assertEquals('https://spatie.be/opensource', (string) $this->testUrl);
+        $this->assertEquals('https://spatie.be/opensource?expires=123&signature=456', (string) $this->testUrl);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_convert_an_url_without_a_query_string()
+    {
+        $urlString = 'https://spatie.be/opensource';
+
+        $urlObject = new Url('https://spatie.be/opensource');
+
+        $this->assertEquals($urlString, (string) $urlObject);
     }
 
     /**
@@ -73,7 +86,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
     {
         $this->testUrl->setHost('google.com');
 
-        $this->assertEquals('https://google.com/opensource', (string) $this->testUrl);
+        $this->assertEquals('https://google.com/opensource?expires=123&signature=456', (string) $this->testUrl);
     }
 
     /**
@@ -83,7 +96,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
     {
         $this->testUrl->setScheme('http');
 
-        $this->assertEquals('http://spatie.be/opensource', (string) $this->testUrl);
+        $this->assertEquals('http://spatie.be/opensource?expires=123&signature=456', (string) $this->testUrl);
     }
 
     /**
@@ -111,7 +124,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
      */
     public function it_can_determine_if_the_url_is_an_email_url()
     {
-        $this->assertFalse(Url::create('https://spa' .
+        $this->assertFalse(Url::create('https://spa'.
             'tie.be/')->isEmailUrl());
         $this->assertTrue(Url::create('mailto:info@spatie.be')->isEmailUrl());
     }
@@ -125,7 +138,6 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($url->isJavascript());
     }
 
-
     /**
      * @test
      */
@@ -134,7 +146,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->testUrl->setPort(3000);
 
         $this->assertEquals(3000, $this->testUrl->port);
-        $this->assertEquals('https://spatie.be:3000/opensource', (string) $this->testUrl);
+        $this->assertEquals('https://spatie.be:3000/opensource?expires=123&signature=456', (string) $this->testUrl);
     }
 
     /**
@@ -144,6 +156,6 @@ class UrlTest extends PHPUnit_Framework_TestCase
     {
         $this->testUrl->setPort(80);
 
-        $this->assertEquals('https://spatie.be/opensource', (string) $this->testUrl);
+        $this->assertEquals('https://spatie.be/opensource?expires=123&signature=456', (string) $this->testUrl);
     }
 }

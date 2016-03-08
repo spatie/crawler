@@ -27,6 +27,11 @@ class Url
     public $path;
 
     /**
+     * @var null|string
+     */
+    public $query;
+
+    /**
      * @param $url
      *
      * @return static
@@ -45,7 +50,7 @@ class Url
     {
         $urlProperties = parse_url($url);
 
-        foreach (['scheme', 'host', 'path', 'port'] as $property) {
+        foreach (['scheme', 'host', 'path', 'port', 'query'] as $property) {
             if (isset($urlProperties[$property])) {
                 $this->$property = $urlProperties[$property];
             }
@@ -91,7 +96,6 @@ class Url
     {
         return $this->scheme === 'javascript';
     }
-
 
     /**
      * Set the scheme.
@@ -162,6 +166,8 @@ class Url
 
         $port = ($this->port === 80 ? '' : ":{$this->port}");
 
-        return "{$this->scheme}://{$this->host}{$port}/{$path}";
+        $queryString = (is_null($this->query) ? '' : "?{$this->query}");
+
+        return "{$this->scheme}://{$this->host}{$port}/{$path}{$queryString}";
     }
 }
