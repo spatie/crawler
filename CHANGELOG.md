@@ -3,7 +3,7 @@
 All Notable changes to `spatie/crawler` will be documented in this file.
 
 ## 1.2.2 - 2015-03-08
-- Fixed where the crawler would not take query strings into account
+- Fixed a bug where the crawler would not take query strings into account
 
 ## 1.2.1 - 2015-03-01
 - Fixed a bug where the crawler tries to follow JavaScript links
