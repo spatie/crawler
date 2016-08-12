@@ -3,7 +3,7 @@
 All Notable changes to `spatie/crawler` will be documented in this file.
 
 ## 1.2.3 - 2015-08-12
-- Update the required version of Guzzle to a secure version
+- Updated the required version of Guzzle to a secure version
 
 ## 1.2.2 - 2015-03-08
 - Fixed a bug where the crawler would not take query strings into account
