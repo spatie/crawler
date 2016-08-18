@@ -5,6 +5,7 @@
 [![Build Status](https://img.shields.io/travis/spatie/crawler/master.svg?style=flat-square)](https://travis-ci.org/spatie/crawler)
 [![SensioLabsInsight](https://img.shields.io/sensiolabs/i/048cebe6-0463-4302-8317-0af7cc48e81c.svg?style=flat-square)](https://insight.sensiolabs.com/projects/048cebe6-0463-4302-8317-0af7cc48e81c)
 [![Quality Score](https://img.shields.io/scrutinizer/g/spatie/crawler.svg?style=flat-square)](https://scrutinizer-ci.com/g/spatie/crawler)
+[![StyleCI](https://styleci.io/repos/45406338/shield)](https://styleci.io/repos/45406338)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/crawler.svg?style=flat-square)](https://packagist.org/packages/spatie/crawler)
 
 This package provides a class to crawl links on a website.
