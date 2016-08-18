@@ -134,7 +134,7 @@ class Url
      */
     public function setPort($port)
     {
-        if (!is_numeric($port)) {
+        if (! is_numeric($port)) {
             throw new InvalidPortNumber();
         }
 
@@ -177,7 +177,7 @@ class Url
             ->values()
             ->toArray();
 
-        if (!is_null($index)) {
+        if (! is_null($index)) {
             return $this->segment($index);
         }
 
@@ -191,7 +191,7 @@ class Url
      */
     public function segment($index)
     {
-        if (!isset($this->segments()[$index - 1])) {
+        if (! isset($this->segments()[$index - 1])) {
             return;
         }
 
