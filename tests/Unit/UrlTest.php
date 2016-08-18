@@ -7,9 +7,7 @@ use Spatie\Crawler\Url;
 
 class UrlTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @var Url
-     */
+    /** @var Url */
     protected $testUrl;
 
     public function setUp()
@@ -19,9 +17,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->testUrl = new Url('https://spatie.be/opensource?expires=123&signature=456');
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_can_parse_an_url()
     {
         $this->assertEquals('https', $this->testUrl->scheme);
@@ -31,17 +27,13 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('expires=123&signature=456', $this->testUrl->query);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_can_be_converted_to_a_string()
     {
         $this->assertEquals('https://spatie.be/opensource?expires=123&signature=456', (string) $this->testUrl);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_can_convert_an_url_without_a_query_string()
     {
         $urlString = 'https://spatie.be/opensource';
@@ -51,9 +43,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($urlString, (string) $urlObject);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_can_determine_if_an_url_is_relative()
     {
         $url = new Url('/opensource');
@@ -79,9 +69,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($url->isProtocolIndependent());
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_can_change_the_host()
     {
         $this->testUrl->setHost('google.com');
@@ -89,9 +77,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('https://google.com/opensource?expires=123&signature=456', (string) $this->testUrl);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_can_change_the_scheme()
     {
         $this->testUrl->setScheme('http');
@@ -99,9 +85,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('http://spatie.be/opensource?expires=123&signature=456', (string) $this->testUrl);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_has_factory_method_to_create_an_instance_from_a_string()
     {
         $url = 'https://spatie.be/opensource';
@@ -109,9 +93,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($url, (string) Url::create($url));
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_can_remove_the_fragment()
     {
         $url = Url::create('https://spatie.be/team#willem')->removeFragment();
@@ -119,9 +101,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('https://spatie.be/team', (string) $url);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_can_determine_if_the_url_is_an_email_url()
     {
         $this->assertFalse(Url::create('https://spa'.
@@ -129,18 +109,14 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(Url::create('mailto:info@spatie.be')->isEmailUrl());
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_can_determine_if_the_url_is_javascript_url()
     {
         $url = (new Url('javascript:alert()'));
         $this->assertTrue($url->isJavascript());
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_can_change_the_port_number()
     {
         $this->testUrl->setPort(3000);
@@ -149,13 +125,57 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('https://spatie.be:3000/opensource?expires=123&signature=456', (string) $this->testUrl);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function it_wil_not_include_port_80_in_the_string()
     {
         $this->testUrl->setPort(80);
 
         $this->assertEquals('https://spatie.be/opensource?expires=123&signature=456', (string) $this->testUrl);
+    }
+
+    /** @test */
+    public function it_can_determine_the_path()
+    {
+        $path = '/part1/part2/part3';
+
+        $this->assertEquals($path, Url::create('http://example.com/part1/part2/part3')->path());
+        $this->assertEquals($path, Url::create('/part1/part2/part3')->path());
+    }
+
+    /** @test */
+    public function it_can_get_all_segments_from_a_relative_url()
+    {
+        $segments = [
+            'part1',
+            'part2',
+            'part3'
+        ];
+
+        $this->assertEquals($segments, Url::create('/part1/part2/part3')->segments());
+    }
+
+    /** @test */
+    public function it_can_get_all_segments_from_an_absolute_url()
+    {
+        $segments = [
+            'part1',
+            'part2',
+            'part3'
+        ];
+
+        $this->assertEquals($segments, Url::create('http://example.com/part1/part2/part3')->segments());
+    }
+
+    /** @test */
+    public function it_can_get_a_specific_segment()
+    {
+        $this->assertEquals('part2', Url::create('http://example.com/part1/part2/part3')->segment(2));
+        $this->assertEquals('part2', Url::create('http://example.com/part1/part2/part3')->segments(2));
+    }
+
+    /** @test */
+    public function it_will_return_null_for_a_non_existing_segment()
+    {
+        $this->assertNull(Url::create('http://example.com/part1/part2/part3')->segment(5));
     }
 }

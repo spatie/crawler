@@ -156,6 +156,49 @@ class Url
     }
 
     /**
+     * @return null|string
+     */
+    public function path()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @param int|null $index
+     *
+     * @return array|null|string
+     */
+    public function segments($index = null)
+    {
+        $segments = collect(explode('/', $this->path()))
+            ->filter(function ($value) {
+                return $value !== '';
+            })
+            ->values()
+            ->toArray();
+
+        if (! is_null($index)) {
+            return $this->segment($index);
+        }
+
+        return $segments;
+    }
+
+    /**
+     * @param int $index
+     *
+     * @return string|null
+     */
+    public function segment($index)
+    {
+        if (! isset($this->segments()[$index - 1])) {
+            return null;
+        }
+
+        return $this->segments()[$index - 1];
+    }
+
+    /**
      * Convert the url to string.
      *
      * @return string
