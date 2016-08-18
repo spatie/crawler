@@ -2,6 +2,9 @@
 
 All Notable changes to `spatie/crawler` will be documented in this file.
 
+## 1.3.0 - 2015-08-18
+- Added `path`, `segment` and `segments` functions to `Url`
+
 ## 1.2.3 - 2015-08-12
 - Updated the required version of Guzzle to a secure version
 
