@@ -148,7 +148,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $segments = [
             'part1',
             'part2',
-            'part3'
+            'part3',
         ];
 
         $this->assertEquals($segments, Url::create('/part1/part2/part3')->segments());
@@ -160,7 +160,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
         $segments = [
             'part1',
             'part2',
-            'part3'
+            'part3',
         ];
 
         $this->assertEquals($segments, Url::create('http://example.com/part1/part2/part3')->segments());

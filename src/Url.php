@@ -128,9 +128,9 @@ class Url
     /**
      * @param int $port
      *
-     * @return $this
-     *
      * @throws \Spatie\Crawler\Exceptions\InvalidPortNumber
+     *
+     * @return $this
      */
     public function setPort($port)
     {
@@ -177,7 +177,7 @@ class Url
             ->values()
             ->toArray();
 
-        if (! is_null($index)) {
+        if (!is_null($index)) {
             return $this->segment($index);
         }
 
@@ -191,8 +191,8 @@ class Url
      */
     public function segment($index)
     {
-        if (! isset($this->segments()[$index - 1])) {
-            return null;
+        if (!isset($this->segments()[$index - 1])) {
+            return;
         }
 
         return $this->segments()[$index - 1];
