@@ -97,7 +97,7 @@ class Crawler
      */
     public function startCrawling($baseUrl)
     {
-        if (!$baseUrl instanceof Url) {
+        if (! $baseUrl instanceof Url) {
             $baseUrl = Url::create($baseUrl);
         }
 
@@ -119,7 +119,7 @@ class Crawler
      */
     protected function crawlUrl(Url $url)
     {
-        if (!$this->crawlProfile->shouldCrawl($url)) {
+        if (! $this->crawlProfile->shouldCrawl($url)) {
             return;
         }
 
@@ -139,7 +139,7 @@ class Crawler
 
         $this->crawledUrls->push($url);
 
-        if (!$response) {
+        if (! $response) {
             return;
         }
 
@@ -159,10 +159,10 @@ class Crawler
 
         collect($allLinks)
             ->filter(function (Url $url) {
-                return !$url->isEmailUrl();
+                return ! $url->isEmailUrl();
             })
             ->filter(function (Url $url) {
-                return !$url->isJavascript();
+                return ! $url->isJavascript();
             })
             ->map(function (Url $url) {
                 return $this->normalizeUrl($url);
