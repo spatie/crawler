@@ -38,7 +38,7 @@ Crawler::create()
     ->startCrawling($url);
 ```
 
-The argument passed to `setObserver` must be an object that implements the `\Spatie\Crawler\CrawlObserver`-interface:
+The argument passed to `setCrawlObserver` must be an object that implements the `\Spatie\Crawler\CrawlObserver`-interface:
 
 ```php
 /**
@@ -64,18 +64,23 @@ public function finishedCrawling();
 
 ### Filtering certain url's
 
-You can tell the crawler not to visit certain url's by passing using the `setCrawlProfile`-function. That function expects
-an objects that implements the `Spatie\Crawler\CrawlProfile`-interface:
+You can instruct the crawler not to visit certain url's by using the `setCrawlProfile` method. That method expects
+an object that implements the `Spatie\Crawler\CrawlProfile`-interface:
 
 ```php
 /**
- * Determine if the given url should be crawled.
+ * Set the crawl profile.
  *
- * @param \Spatie\Crawler\Url $url
+ * @param \Spatie\Crawler\CrawlProfile $crawlProfile
  *
- * @return bool
- */
-public function shouldCrawl(Url $url);
+ * @return $this
+*/
+public function setCrawlProfile(CrawlProfile $crawlProfile)
+{
+    $this->crawlProfile = $crawlProfile;
+    return $this;
+}
+
 ```
 
 ## Changelog
