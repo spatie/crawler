@@ -74,7 +74,7 @@ an object that implements the `Spatie\Crawler\CrawlProfile` interface:
  * @param \Spatie\Crawler\CrawlProfile $crawlProfile
  *
  * @return $this
-*/
+ */
 public function setCrawlProfile(CrawlProfile $crawlProfile)
 {
     $this->crawlProfile = $crawlProfile;
