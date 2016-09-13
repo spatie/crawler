@@ -159,11 +159,10 @@ class Crawler
 
         collect($allLinks)
             ->reject(function (Url $url) {
-                return (
+                return
                     $url->isEmailUrl() ||
                     $url->isTelUrl() ||
-                    $url->isJavascript()
-                );
+                    $url->isJavascript();
             })
             ->map(function (Url $url) {
                 return $this->normalizeUrl($url);
