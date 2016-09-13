@@ -110,6 +110,14 @@ class UrlTest extends PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function it_can_determine_if_the_url_is_a_tel_url()
+    {
+        $this->assertFalse(Url::create('https://spa'.
+            'tie.be/')->isTelUrl());
+        $this->assertTrue(Url::create('tel:+3323456789')->isTelUrl());
+    }
+
+    /** @test */
     public function it_can_determine_if_the_url_is_javascript_url()
     {
         $url = (new Url('javascript:alert()'));

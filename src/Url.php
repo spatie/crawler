@@ -88,6 +88,16 @@ class Url
     }
 
     /**
+     * Determine if this is a tel-link.
+     *
+     * @return bool
+     */
+    public function isTelUrl()
+    {
+        return $this->scheme === 'tel';
+    }
+
+    /**
      * Determine if this is an inline javascript.
      *
      * @return bool
