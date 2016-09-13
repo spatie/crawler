@@ -162,6 +162,9 @@ class Crawler
                 return ! $url->isEmailUrl();
             })
             ->filter(function (Url $url) {
+                return ! $url->isTelUrl();
+            })
+            ->filter(function (Url $url) {
                 return ! $url->isJavascript();
             })
             ->map(function (Url $url) {
