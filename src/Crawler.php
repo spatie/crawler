@@ -36,14 +36,17 @@ class Crawler
     protected $crawlProfile;
 
     /**
+     * @param array $clientOptions
      * @return static
      */
-    public static function create()
+    public static function create(array $clientOptions = array())
     {
-        $client = new Client([
+        $options = array_merge([
             RequestOptions::ALLOW_REDIRECTS => false,
             RequestOptions::COOKIES         => true,
-        ]);
+        ], $clientOptions);
+
+        $client = new Client($options);
 
         return new static($client);
     }
