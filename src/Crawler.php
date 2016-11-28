@@ -3,9 +3,10 @@
 namespace Spatie\Crawler;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
-use Spatie\Crawler\Exceptions\InvalidBaseUrl;
+use GuzzleHttp\Pool;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 
 class Crawler
@@ -23,7 +24,12 @@ class Crawler
     /**
      * @var \Illuminate\Support\Collection
      */
-    protected $crawledUrls;
+    protected $currentPoolCrawlUrls;
+
+    /**
+     * @var \Illuminate\Support\Collection
+     */
+    protected $previousPoolsCrawlUrls;
 
     /**
      * @var \Spatie\Crawler\CrawlObserver
@@ -42,7 +48,7 @@ class Crawler
     {
         $client = new Client([
             RequestOptions::ALLOW_REDIRECTS => false,
-            RequestOptions::COOKIES         => true,
+            RequestOptions::COOKIES => true,
         ]);
 
         return new static($client);
@@ -57,7 +63,9 @@ class Crawler
 
         $this->crawlProfile = new CrawlAllUrls();
 
-        $this->crawledUrls = collect();
+        $this->currentPoolCrawlUrls = collect();
+
+        $this->previousPoolsCrawlUrls = collect();
     }
 
     /**
@@ -92,60 +100,92 @@ class Crawler
      * Start the crawling process.
      *
      * @param \Spatie\Crawler\Url|string $baseUrl
-     *
-     * @throws \Spatie\Crawler\Exceptions\InvalidBaseUrl
      */
     public function startCrawling($baseUrl)
     {
-        if (! $baseUrl instanceof Url) {
+        if (!$baseUrl instanceof Url) {
             $baseUrl = Url::create($baseUrl);
-        }
-
-        if ($baseUrl->isRelative()) {
-            throw new InvalidBaseUrl();
         }
 
         $this->baseUrl = $baseUrl;
 
-        $this->crawlUrl($baseUrl);
+        $crawlUrl = CrawlUrl::create($baseUrl);
+
+        $this->currentPoolCrawlUrls->push($crawlUrl);
+
+        $this->startCrawlingCurrentPool();
 
         $this->crawlObserver->finishedCrawling();
     }
 
     /**
-     * Crawl the given url.
-     *
-     * @param \Spatie\Crawler\Url $url
+     * Crawl urls in the currentPool.
      */
-    protected function crawlUrl(Url $url)
+    protected function startCrawlingCurrentPool()
     {
-        if (! $this->crawlProfile->shouldCrawl($url)) {
-            return;
+        while ($this->currentPoolCrawlUrls->count() > 0) {
+            fwrite(STDERR, 'start new pool');
+            $pool = new Pool($this->client, $this->getRequests(), [
+                'concurrency' => 5,
+                'fulfilled' => function (ResponseInterface $response, $index) {
+                    $url = $this->currentPoolCrawlUrls[$index]->url;
+
+                    $this->crawlObserver->hasBeenCrawled($url, $response);
+
+                    $this->currentPoolCrawlUrls[$index]->status = CrawlUrl::STATUS_HAS_BEEN_CRAWLED;
+
+                    $this->addAllLinksToCurrentPool((string)$response->getBody());
+                },
+                'rejected' => function ($reason, $index) {
+                    echo 'still to implement';
+                },
+            ]);
+
+            $promise = $pool->promise();
+            $promise->wait();
+            fwrite(STDERR, 'Pool done');
+            $this->preparePools();
         }
+    }
 
-        if ($this->hasAlreadyCrawled($url)) {
-            return;
+    public function getRequests()
+    {
+        $i = 0;
+        while (isset($this->currentPoolCrawlUrls[$i])) {
+
+            $crawlUrl = $this->currentPoolCrawlUrls[$i];
+
+            if (!$this->crawlProfile->shouldCrawl($crawlUrl->url)) {
+                $i++;
+                continue;
+            }
+
+            if ($this->isBeingCrawled($crawlUrl->url)) {
+                $i++;
+                continue;
+            }
+
+            if ($this->hasAlreadyCrawled($crawlUrl->url)) {
+                $i++;
+                continue;
+            }
+
+            $this->crawlObserver->willCrawl($crawlUrl->url);
+
+            $crawlUrl->status = CrawlUrl::STATUS_BUSY_CRAWLING;
+            yield new Request('GET', $crawlUrl->url);
+            $i++;
         }
+    }
 
-        $this->crawlObserver->willCrawl($url);
-
-        try {
-            $response = $this->client->request('GET', (string) $url);
-        } catch (RequestException $exception) {
-            $response = $exception->getResponse();
-        }
-
-        $this->crawlObserver->hasBeenCrawled($url, $response);
-
-        $this->crawledUrls->push($url);
-
-        if (! $response) {
-            return;
-        }
-
-        if ($url->host === $this->baseUrl->host) {
-            $this->crawlAllLinks($response->getBody()->getContents());
-        }
+    /**
+     * @return \Spatie\Crawler\CrawlUrl|null
+     */
+    public function getNextCrawlUrl()
+    {
+        return $this->currentPoolCrawlUrls->filter(function (CrawlUrl $crawlUrl) {
+            return $crawlUrl->status === CrawlUrl::STATUS_NOT_YET_CRAWLED;
+        })->first();
     }
 
     /**
@@ -153,16 +193,16 @@ class Crawler
      *
      * @param string $html
      */
-    protected function crawlAllLinks($html)
+    protected function addAllLinksToCurrentPool($html)
     {
         $allLinks = $this->getAllLinks($html);
 
         collect($allLinks)
             ->filter(function (Url $url) {
-                return ! $url->isEmailUrl();
+                return !$url->isEmailUrl();
             })
             ->filter(function (Url $url) {
-                return ! $url->isJavascript();
+                return !$url->isJavascript();
             })
             ->map(function (Url $url) {
                 return $this->normalizeUrl($url);
@@ -170,8 +210,13 @@ class Crawler
             ->filter(function (Url $url) {
                 return $this->crawlProfile->shouldCrawl($url);
             })
+            ->reject(function (Url $url) {
+                return $this->isAlreadyRegistered($url);
+            })
             ->each(function (Url $url) {
-                $this->crawlUrl($url);
+                $crawlUrl = CrawlUrl::create($url);
+
+                $this->currentPoolCrawlUrls->push($crawlUrl);
             });
     }
 
@@ -186,11 +231,13 @@ class Crawler
     {
         $domCrawler = new DomCrawler($html);
 
-        return collect($domCrawler->filterXpath('//a')
+        $allUrls = collect($domCrawler->filterXpath('//a')
             ->extract(['href']))
             ->map(function ($url) {
                 return Url::create($url);
             });
+
+        return $allUrls;
     }
 
     /**
@@ -202,14 +249,43 @@ class Crawler
      */
     protected function hasAlreadyCrawled(Url $url)
     {
-        foreach ($this->crawledUrls as $crawledUrl) {
-            if ((string) $crawledUrl === (string) $url) {
+        $alreadyCrawled = $this->currentPoolCrawlUrls
+            ->merge($this->previousPoolsCrawlUrls)
+            ->filter(function (CrawlUrl $crawlUrl) {
+                return $crawlUrl->status === CrawlUrl::STATUS_HAS_BEEN_CRAWLED;
+            });
+
+        foreach ($alreadyCrawled as $crawledUrl) {
+            if ((string)$crawledUrl === (string)$url) {
                 return true;
             }
         }
 
         return false;
     }
+
+    /**
+     * Determine if the crawled has already crawled the given url.
+     *
+     * @param \Spatie\Crawler\Url $url
+     *
+     * @return bool
+     */
+    protected function isBeingCrawled(Url $url)
+    {
+        $currentlyCrawling = $this->currentPoolCrawlUrls->filter(function (CrawlUrl $crawlUrl) {
+            return $crawlUrl->status === CrawlUrl::STATUS_BUSY_CRAWLING;
+        });
+
+        foreach ($currentlyCrawling as $crawledUrl) {
+            if ((string)$crawledUrl->url === (string)$url) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     /**
      * Normalize the given url.
@@ -231,5 +307,32 @@ class Crawler
         }
 
         return $url->removeFragment();
+    }
+
+    public function isAlreadyRegistered(Url $url)
+    {
+        foreach ([$this->currentPoolCrawlUrls, $this->previousPoolsCrawlUrls] as $crawlUrls) {
+            foreach ($crawlUrls as $crawledUrl) {
+                if ((string)$crawledUrl->url === (string)$url) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    protected function preparePools()
+    {
+        $crawledUrls = $this->currentPoolCrawlUrls->filter(function (CrawlUrl $crawlUrl) {
+            return $crawlUrl->status != CrawlUrl::STATUS_NOT_YET_CRAWLED;
+        });
+
+        foreach ($crawledUrls as $crawlUrl) {
+            $this->previousPoolsCrawlUrls->push($crawlUrl);
+        }
+
+        $this->currentPoolCrawlUrls = $this->currentPoolCrawlUrls->filter(function (CrawlUrl $crawlUrl) {
+            return $crawlUrl->status === CrawlUrl::STATUS_NOT_YET_CRAWLED;
+        });
     }
 }

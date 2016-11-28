@@ -7,7 +7,7 @@ interface CrawlProfile
     /**
      * Determine if the given url should be crawled.
      *
-     * @param \Spatie\Crawler\Url $url
+     * @param \Spatie\Crawler\Url   $url
      *
      * @return bool
      */

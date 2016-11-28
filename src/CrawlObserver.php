@@ -7,7 +7,7 @@ interface CrawlObserver
     /**
      * Called when the crawler will crawl the url.
      *
-     * @param \Spatie\Crawler\Url $url
+     * @param \Spatie\Crawler\Url   $url
      */
     public function willCrawl(Url $url);
 
