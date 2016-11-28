@@ -8,10 +8,10 @@ class CrawlUrl
     const STATUS_BUSY_CRAWLING = 'busy_crawling';
     const STATUS_HAS_BEEN_CRAWLED = 'has_been_crawled';
 
-    /** @var  \Spatie\Crawler\Url */
+    /** @var \Spatie\Crawler\Url */
     public $url;
 
-    /** @var  string */
+    /** @var string */
     public $status;
 
     public static function create(Url $url)
@@ -32,6 +32,4 @@ class CrawlUrl
 
         return $this;
     }
-
-
 }
