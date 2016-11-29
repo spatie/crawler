@@ -42,6 +42,11 @@ class Crawler
     protected $crawlProfile;
 
     /**
+     * @var int
+     */
+    private $concurrency;
+
+    /**
      * @return static
      */
     public static function create()
@@ -54,10 +59,7 @@ class Crawler
         return new static($client);
     }
 
-    /**
-     * @param \GuzzleHttp\Client $client
-     */
-    public function __construct(Client $client)
+    public function __construct(Client $client, $concurrency = 10)
     {
         $this->client = $client;
 
@@ -66,6 +68,8 @@ class Crawler
         $this->currentPoolCrawlUrls = collect();
 
         $this->previousPoolsCrawlUrls = collect();
+
+        $this->concurrency = $concurrency;
     }
 
     /**
@@ -127,12 +131,10 @@ class Crawler
         while ($this->currentPoolCrawlUrls->count() > 0) {
 
             $pool = new Pool($this->client, $this->getRequests(), [
-                'concurrency' => 10,
+                'concurrency' => $this->concurrency,
                 'fulfilled' => function (ResponseInterface $response, $index) {
 
                     $url = $this->currentPoolCrawlUrls[$index]->url;
-
-                    fwrite(STDERR, 'fullfilled' . $url . PHP_EOL);
 
                     $this->crawlObserver->hasBeenCrawled($url, $response);
 
