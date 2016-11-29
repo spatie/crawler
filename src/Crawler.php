@@ -173,6 +173,7 @@ class Crawler
             $this->crawlObserver->willCrawl($crawlUrl->url);
 
             $crawlUrl->status = CrawlUrl::STATUS_BUSY_CRAWLING;
+            fwrite(STDERR, "yielding new request for {$crawlUrl->url}" . PHP_EOL);
             yield new Request('GET', $crawlUrl->url);
             $i++;
         }
@@ -334,5 +335,7 @@ class Crawler
         $this->currentPoolCrawlUrls = $this->currentPoolCrawlUrls->filter(function (CrawlUrl $crawlUrl) {
             return $crawlUrl->status === CrawlUrl::STATUS_NOT_YET_CRAWLED;
         });
+
+//        die("nexturl" . print_r($this->currentPoolCrawlUrls, true));
     }
 }
