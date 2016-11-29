@@ -14,7 +14,7 @@ class CrawlerTest extends PHPUnit_Framework_TestCase
     {
         parent::setUp();
 
-        static::$logPath = __DIR__ . '/temp/crawledUrls.txt';
+        static::$logPath = __DIR__.'/temp/crawledUrls.txt';
 
         file_put_contents(static::$logPath, 'start log'.PHP_EOL);
     }
@@ -29,13 +29,10 @@ class CrawlerTest extends PHPUnit_Framework_TestCase
 
     protected function assertCrawledOnce(array $urls)
     {
-
     }
 
     public static function log(string $text)
     {
-        file_put_contents(static::$logPath, $text . PHP_EOL, FILE_APPEND);
+        file_put_contents(static::$logPath, $text.PHP_EOL, FILE_APPEND);
     }
-
-
 }

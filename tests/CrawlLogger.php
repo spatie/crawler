@@ -5,8 +5,8 @@ namespace Spatie\Crawler\Test;
 use Spatie\Crawler\CrawlObserver;
 use Spatie\Crawler\Url;
 
-class CrawlLogger implements CrawlObserver {
-
+class CrawlLogger implements CrawlObserver
+{
     /**
      * Called when the crawler will crawl the url.
      *
@@ -33,6 +33,6 @@ class CrawlLogger implements CrawlObserver {
      */
     public function finishedCrawling()
     {
-        CrawlerTest::log("finished crawling");
+        CrawlerTest::log('finished crawling');
     }
 }
