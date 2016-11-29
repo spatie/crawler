@@ -107,6 +107,7 @@ class Crawler
             $baseUrl = Url::create($baseUrl);
         }
 
+
         $this->baseUrl = $baseUrl;
 
         $crawlUrl = CrawlUrl::create($baseUrl);
@@ -124,11 +125,14 @@ class Crawler
     protected function startCrawlingCurrentPool()
     {
         while ($this->currentPoolCrawlUrls->count() > 0) {
-            fwrite(STDERR, 'start new pool');
+
             $pool = new Pool($this->client, $this->getRequests(), [
-                'concurrency' => 5,
+                'concurrency' => 10,
                 'fulfilled' => function (ResponseInterface $response, $index) {
+
                     $url = $this->currentPoolCrawlUrls[$index]->url;
+
+                    fwrite(STDERR, 'fullfilled' . $url . PHP_EOL);
 
                     $this->crawlObserver->hasBeenCrawled($url, $response);
 
@@ -143,7 +147,7 @@ class Crawler
 
             $promise = $pool->promise();
             $promise->wait();
-            fwrite(STDERR, 'Pool done');
+
             $this->preparePools();
         }
     }
@@ -173,8 +177,8 @@ class Crawler
             $this->crawlObserver->willCrawl($crawlUrl->url);
 
             $crawlUrl->status = CrawlUrl::STATUS_BUSY_CRAWLING;
-            fwrite(STDERR, "yielding new request for {$crawlUrl->url}" . PHP_EOL);
-            yield new Request('GET', $crawlUrl->url);
+
+            yield new Request('GET', (string)$crawlUrl->url);
             $i++;
         }
     }
@@ -211,13 +215,12 @@ class Crawler
             ->filter(function (Url $url) {
                 return $this->crawlProfile->shouldCrawl($url);
             })
-            ->reject(function (Url $url) {
-                return $this->isAlreadyRegistered($url);
-            })
             ->each(function (Url $url) {
-                $crawlUrl = CrawlUrl::create($url);
+                if (! $this->isAlreadyRegistered($url)) {
+                    $crawlUrl = CrawlUrl::create($url);
 
-                $this->currentPoolCrawlUrls->push($crawlUrl);
+                    $this->currentPoolCrawlUrls->push($crawlUrl);
+                }
             });
     }
 
@@ -257,7 +260,7 @@ class Crawler
             });
 
         foreach ($alreadyCrawled as $crawledUrl) {
-            if ((string)$crawledUrl === (string)$url) {
+            if ((string)$crawledUrl->url === (string)$url) {
                 return true;
             }
         }
@@ -310,7 +313,7 @@ class Crawler
         return $url->removeFragment();
     }
 
-    public function isAlreadyRegistered(Url $url)
+    public function isAlreadyRegistered(Url $url): bool
     {
         foreach ([$this->currentPoolCrawlUrls, $this->previousPoolsCrawlUrls] as $crawlUrls) {
             foreach ($crawlUrls as $crawledUrl) {
@@ -334,8 +337,6 @@ class Crawler
 
         $this->currentPoolCrawlUrls = $this->currentPoolCrawlUrls->filter(function (CrawlUrl $crawlUrl) {
             return $crawlUrl->status === CrawlUrl::STATUS_NOT_YET_CRAWLED;
-        });
-
-//        die("nexturl" . print_r($this->currentPoolCrawlUrls, true));
+        })->values();
     }
 }
