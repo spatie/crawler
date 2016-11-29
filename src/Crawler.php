@@ -107,7 +107,7 @@ class Crawler
      */
     public function startCrawling($baseUrl)
     {
-        if (!$baseUrl instanceof Url) {
+        if (! $baseUrl instanceof Url) {
             $baseUrl = Url::create($baseUrl);
         }
 
@@ -129,18 +129,16 @@ class Crawler
     protected function startCrawlingCurrentPool()
     {
         while ($this->currentPoolCrawlUrls->count() > 0) {
-
             $pool = new Pool($this->client, $this->getRequests(), [
                 'concurrency' => $this->concurrency,
                 'fulfilled' => function (ResponseInterface $response, $index) {
-
                     $url = $this->currentPoolCrawlUrls[$index]->url;
 
                     $this->crawlObserver->hasBeenCrawled($url, $response);
 
                     $this->currentPoolCrawlUrls[$index]->status = CrawlUrl::STATUS_HAS_BEEN_CRAWLED;
 
-                    $this->addAllLinksToCurrentPool((string)$response->getBody());
+                    $this->addAllLinksToCurrentPool((string) $response->getBody());
                 },
                 'rejected' => function ($reason, $index) {
                     echo 'still to implement';
@@ -158,10 +156,9 @@ class Crawler
     {
         $i = 0;
         while (isset($this->currentPoolCrawlUrls[$i])) {
-
             $crawlUrl = $this->currentPoolCrawlUrls[$i];
 
-            if (!$this->crawlProfile->shouldCrawl($crawlUrl->url)) {
+            if (! $this->crawlProfile->shouldCrawl($crawlUrl->url)) {
                 $i++;
                 continue;
             }
@@ -180,7 +177,7 @@ class Crawler
 
             $crawlUrl->status = CrawlUrl::STATUS_BUSY_CRAWLING;
 
-            yield new Request('GET', (string)$crawlUrl->url);
+            yield new Request('GET', (string) $crawlUrl->url);
             $i++;
         }
     }
@@ -206,10 +203,10 @@ class Crawler
 
         collect($allLinks)
             ->filter(function (Url $url) {
-                return !$url->isEmailUrl();
+                return ! $url->isEmailUrl();
             })
             ->filter(function (Url $url) {
-                return !$url->isJavascript();
+                return ! $url->isJavascript();
             })
             ->map(function (Url $url) {
                 return $this->normalizeUrl($url);
@@ -262,7 +259,7 @@ class Crawler
             });
 
         foreach ($alreadyCrawled as $crawledUrl) {
-            if ((string)$crawledUrl->url === (string)$url) {
+            if ((string) $crawledUrl->url === (string) $url) {
                 return true;
             }
         }
@@ -284,14 +281,13 @@ class Crawler
         });
 
         foreach ($currentlyCrawling as $crawledUrl) {
-            if ((string)$crawledUrl->url === (string)$url) {
+            if ((string) $crawledUrl->url === (string) $url) {
                 return true;
             }
         }
 
         return false;
     }
-
 
     /**
      * Normalize the given url.
@@ -319,11 +315,12 @@ class Crawler
     {
         foreach ([$this->currentPoolCrawlUrls, $this->previousPoolsCrawlUrls] as $crawlUrls) {
             foreach ($crawlUrls as $crawledUrl) {
-                if ((string)$crawledUrl->url === (string)$url) {
+                if ((string) $crawledUrl->url === (string) $url) {
                     return true;
                 }
             }
         }
+
         return false;
     }
 
