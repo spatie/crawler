@@ -110,7 +110,6 @@ class Crawler
     public function startCrawling($baseUrl)
     {
         if (! $baseUrl instanceof Url) {
-
             $baseUrl = Url::create($baseUrl);
         }
 
