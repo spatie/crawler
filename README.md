@@ -51,10 +51,11 @@ public function willCrawl(Url $url);
 /**
  * Called when the crawler has crawled the given url.
  *
- * @param \Spatie\Crawler\Url       $url
+ * @param \Spatie\Crawler\Url $url
  * @param \Psr\Http\Message\ResponseInterface $response
+ * @param \Spatie\Crawler\Url $foundOn
  */
-public function hasBeenCrawled(Url $url, ResponseInterface $response);
+public function hasBeenCrawled(Url $url, ResponseInterface $response, Url $foundOn);
 
 /**
  * Called when the crawl has ended.
