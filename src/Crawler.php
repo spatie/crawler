@@ -49,11 +49,13 @@ class Crawler
     protected $previousPoolsCrawlUrls;
 
     /**
+     * @param array $clientOptions
+     *
      * @return static
      */
-    public static function create()
+    public static function create(array $clientOptions = null)
     {
-        $client = new Client([
+        $client = new Client($clientOptions ?? [
             RequestOptions::ALLOW_REDIRECTS => false,
             RequestOptions::COOKIES => true,
         ]);
