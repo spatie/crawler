@@ -19,9 +19,9 @@ interface CrawlObserver
      *
      * @param \Spatie\Crawler\Url $url
      * @param \Psr\Http\Message\ResponseInterface|null $response
-     * @param  \GuzzleHttp\Exception\ClientException $exception
+     * @param \Spatie\Crawler\Url $foundOnUrl
      */
-    public function hasBeenCrawled(Url $url, ResponseInterface $response, ClientException $exception);
+    public function hasBeenCrawled(Url $url, ResponseInterface $response, Url $foundOnUrl = null);
 
     /**
      * Called when the crawl has ended.

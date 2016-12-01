@@ -14,6 +14,9 @@ class CrawlUrl
     /** @var string */
     public $status;
 
+    /** @var \Spatie\Crawler\Url */
+    public $foundOnUrl;
+
     public static function create(Url $url)
     {
         return new static($url, static::STATUS_NOT_YET_CRAWLED);

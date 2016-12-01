@@ -149,10 +149,13 @@ class Crawler
                 'fulfilled' => function (ResponseInterface $response, int $index) {
                     $this->handleResponse($response, $index);
 
-                    $this->addAllLinksToCurrentPool((string) $response->getBody());
+                    $this->addAllLinksToCurrentPool(
+                        (string) $response->getBody(),
+                        $this->getCrawlUrlFromCurrentPool($index)->url
+                    );
                 },
                 'rejected' => function (ClientException $exception, int $index) {
-                    $this->handleResponse($exception->getResponse(), $index, $exception);
+                    $this->handleResponse($exception->getResponse(), $index);
                 },
             ]);
 
@@ -163,11 +166,11 @@ class Crawler
         }
     }
 
-    public function handleResponse(ResponseInterface $response, int $index, ClientException $exception = null)
+    public function handleResponse(ResponseInterface $response, int $index)
     {
-        $url = $this->currentPoolCrawlUrls[$index]->url;
+        $crawlUrl = $this->getCrawlUrlFromCurrentPool($index);
 
-        $this->crawlObserver->hasBeenCrawled($url, $response, $exception);
+        $this->crawlObserver->hasBeenCrawled($crawlUrl->url, $response, $crawlUrl->foundOnUrl);
 
         $this->currentPoolCrawlUrls[$index]->status = CrawlUrl::STATUS_HAS_BEEN_CRAWLED;
     }
@@ -212,7 +215,7 @@ class Crawler
         })->first();
     }
 
-    protected function addAllLinksToCurrentPool(string $html)
+    protected function addAllLinksToCurrentPool(string $html, Url $foundOnUrl)
     {
         $allLinks = $this->getAllLinks($html);
 
@@ -229,9 +232,9 @@ class Crawler
             ->filter(function (Url $url) {
                 return $this->crawlProfile->shouldCrawl($url);
             })
-            ->each(function (Url $url) {
+            ->each(function (Url $url) use ($foundOnUrl) {
                 if (! $this->isAlreadyRegistered($url)) {
-                    $crawlUrl = CrawlUrl::create($url);
+                    $crawlUrl = CrawlUrl::create($url, $foundOnUrl);
 
                     $this->currentPoolCrawlUrls->push($crawlUrl);
                 }
@@ -344,5 +347,10 @@ class Crawler
         $this->currentPoolCrawlUrls = $this->currentPoolCrawlUrls->filter(function (CrawlUrl $crawlUrl) {
             return $crawlUrl->status === CrawlUrl::STATUS_NOT_YET_CRAWLED;
         })->values();
+    }
+
+    protected function getCrawlUrlFromCurrentPool(int $index): CrawlUrl
+    {
+        return $this->currentPoolCrawlUrls[$index];
     }
 }

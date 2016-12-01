@@ -24,9 +24,9 @@ class CrawlLogger implements CrawlObserver
      *
      * @param \Spatie\Crawler\Url $url
      * @param \Psr\Http\Message\ResponseInterface|null $response
-     * @param  \GuzzleHttp\Exception\ClientException $exception
+     * @param \Spatie\Crawler\Url $foundOnUrl
      */
-    public function hasBeenCrawled(Url $url, ResponseInterface $response, ClientException $exception = null)
+    public function hasBeenCrawled(Url $url, ResponseInterface $response, Url $foundOnUrl = null)
     {
         CrawlerTest::log("hasBeenCrawled: {$url}");
     }
