@@ -8,7 +8,7 @@
 [![StyleCI](https://styleci.io/repos/45406338/shield)](https://styleci.io/repos/45406338)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/crawler.svg?style=flat-square)](https://packagist.org/packages/spatie/crawler)
 
-This package provides a class to crawl links on a website.
+This package provides a class to crawl links on a website. Under the hood Guzzle promises are used to [crawl multiple urls concurrently](http://docs.guzzlephp.org/en/latest/quickstart.html?highlight=pool#concurrent-requests).
 
 Spatie is a webdesign agency in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
 
@@ -68,15 +68,23 @@ You can tell the crawler not to visit certain url's by passing using the `setCra
 an objects that implements the `Spatie\Crawler\CrawlProfile`-interface:
 
 ```php
-/**
+/*
  * Determine if the given url should be crawled.
- *
- * @param \Spatie\Crawler\Url $url
- *
- * @return bool
  */
-public function shouldCrawl(Url $url);
+public function shouldCrawl(Url $url): bool;
 ```
+
+## Setting the number of concurrent requests
+
+To improve the speed of the crawl the package will by default currently crawl 10 urls. If you want to change that number you can use the `setConcurrency` method.
+
+```php
+Crawler::create()
+    ->setCrawlObserver(<implementation of \Spatie\Crawler\CrawlObserver>)
+    ->setConcurrency(1) //now all urls will be crawled one by one
+    ->startCrawling($url);
+```
+
 
 ## Changelog
 

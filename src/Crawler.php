@@ -61,7 +61,7 @@ class Crawler
         return new static($client);
     }
 
-    public function __construct(Client $client, $concurrency = 10)
+    public function __construct(Client $client, int $concurrency = 10)
     {
         $this->client = $client;
 
@@ -72,6 +72,18 @@ class Crawler
         $this->currentPoolCrawlUrls = collect();
 
         $this->previousPoolsCrawlUrls = collect();
+    }
+
+    /**
+     * @param int $concurrency
+     *
+     * @return $this
+     */
+    public function setConcurrency(int $concurrency)
+    {
+        $this->concurrency = $concurrency;
+
+        return $this;
     }
 
     /**
