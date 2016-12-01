@@ -2,22 +2,26 @@
 
 namespace Spatie\Crawler;
 
+use GuzzleHttp\Exception\ClientException;
+use Psr\Http\Message\ResponseInterface;
+
 interface CrawlObserver
 {
     /**
      * Called when the crawler will crawl the url.
      *
-     * @param \Spatie\Crawler\Url   $url
+     * @param \Spatie\Crawler\Url $url
      */
     public function willCrawl(Url $url);
 
     /**
      * Called when the crawler has crawled the given url.
      *
-     * @param \Spatie\Crawler\Url                      $url
+     * @param \Spatie\Crawler\Url $url
      * @param \Psr\Http\Message\ResponseInterface|null $response
+     * @param  \GuzzleHttp\Exception\ClientException $exception
      */
-    public function hasBeenCrawled(Url $url, $response);
+    public function hasBeenCrawled(Url $url, ResponseInterface $response, ClientException $exception);
 
     /**
      * Called when the crawl has ended.

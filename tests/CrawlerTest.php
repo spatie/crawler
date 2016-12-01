@@ -33,6 +33,7 @@ class CrawlerTest extends PHPUnit_Framework_TestCase
             'http://localhost:8080/link1',
             'http://localhost:8080/link2',
             'http://localhost:8080/link3',
+            'http://localhost:8080/notExists',
         ]);
     }
 
@@ -40,7 +41,7 @@ class CrawlerTest extends PHPUnit_Framework_TestCase
     public function it_uses_a_crawl_profile_to_determine_what_should_be_crawled()
     {
         $crawlProfile = new class implements CrawlProfile {
-            public function shouldCrawl(Url $url)
+            public function shouldCrawl(Url $url): bool
             {
                 return $url->path !== '/link3';
             }

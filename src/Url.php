@@ -2,8 +2,6 @@
 
 namespace Spatie\Crawler;
 
-use Spatie\Crawler\Exceptions\InvalidPortNumber;
-
 class Url
 {
     /**
@@ -32,21 +30,16 @@ class Url
     public $query;
 
     /**
-     * @param $url
+     * @param string $url
      *
      * @return static
      */
-    public static function create($url)
+    public static function create(string $url)
     {
         return new static($url);
     }
 
-    /**
-     * Url constructor.
-     *
-     * @param $url
-     */
-    public function __construct($url)
+    public function __construct(string $url)
     {
         $urlProperties = parse_url($url);
 
@@ -59,50 +52,40 @@ class Url
 
     /**
      * Determine if the url is relative.
-     *
-     * @return bool
      */
-    public function isRelative()
+    public function isRelative(): bool
     {
         return is_null($this->host);
     }
 
     /**
      * Determine if the url is protocol independent.
-     *
-     * @return bool
      */
-    public function isProtocolIndependent()
+    public function isProtocolIndependent(): bool
     {
         return is_null($this->scheme);
     }
 
     /**
      * Determine if this is a mailto-link.
-     *
-     * @return bool
      */
-    public function isEmailUrl()
+    public function isEmailUrl(): bool
     {
         return $this->scheme === 'mailto';
     }
 
     /**
      * Determine if this is a tel-link.
-     *
-     * @return bool
      */
-    public function isTelUrl()
+    public function isTelUrl(): bool
     {
         return $this->scheme === 'tel';
     }
 
     /**
      * Determine if this is an inline javascript.
-     *
-     * @return bool
      */
-    public function isJavascript()
+    public function isJavascript(): bool
     {
         return $this->scheme === 'javascript';
     }
@@ -114,7 +97,7 @@ class Url
      *
      * @return $this
      */
-    public function setScheme($scheme)
+    public function setScheme(string $scheme)
     {
         $this->scheme = $scheme;
 
@@ -128,7 +111,7 @@ class Url
      *
      * @return $this
      */
-    public function setHost($host)
+    public function setHost(string $host)
     {
         $this->host = $host;
 
@@ -136,18 +119,12 @@ class Url
     }
 
     /**
-     * @param int $port
-     *
-     * @throws \Spatie\Crawler\Exceptions\InvalidPortNumber
+     * @param $port
      *
      * @return $this
      */
-    public function setPort($port)
+    public function setPort(int $port)
     {
-        if (! is_numeric($port)) {
-            throw new InvalidPortNumber();
-        }
-
         $this->port = $port;
 
         return $this;
@@ -178,7 +155,7 @@ class Url
      *
      * @return array|null|string
      */
-    public function segments($index = null)
+    public function segments(int $index = null)
     {
         $segments = collect(explode('/', $this->path()))
             ->filter(function ($value) {
@@ -199,7 +176,7 @@ class Url
      *
      * @return string|null
      */
-    public function segment($index)
+    public function segment(int $index)
     {
         if (! isset($this->segments()[$index - 1])) {
             return;

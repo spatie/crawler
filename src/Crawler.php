@@ -2,7 +2,9 @@
 
 namespace Spatie\Crawler;
 
+use Generator;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use GuzzleHttp\Pool;
@@ -22,16 +24,6 @@ class Crawler
     protected $baseUrl;
 
     /**
-     * @var \Illuminate\Support\Collection
-     */
-    protected $currentPoolCrawlUrls;
-
-    /**
-     * @var \Illuminate\Support\Collection
-     */
-    protected $previousPoolsCrawlUrls;
-
-    /**
      * @var \Spatie\Crawler\CrawlObserver
      */
     protected $crawlObserver;
@@ -45,6 +37,16 @@ class Crawler
      * @var int
      */
     private $concurrency;
+
+    /**
+     * @var \Illuminate\Support\Collection
+     */
+    protected $currentPoolCrawlUrls;
+
+    /**
+     * @var \Illuminate\Support\Collection
+     */
+    protected $previousPoolsCrawlUrls;
 
     /**
      * @return static
@@ -63,13 +65,13 @@ class Crawler
     {
         $this->client = $client;
 
+        $this->concurrency = $concurrency;
+
         $this->crawlProfile = new CrawlAllUrls();
 
         $this->currentPoolCrawlUrls = collect();
 
         $this->previousPoolsCrawlUrls = collect();
-
-        $this->concurrency = $concurrency;
     }
 
     /**
@@ -108,9 +110,9 @@ class Crawler
     public function startCrawling($baseUrl)
     {
         if (! $baseUrl instanceof Url) {
+
             $baseUrl = Url::create($baseUrl);
         }
-
 
         $this->baseUrl = $baseUrl;
 
@@ -131,28 +133,33 @@ class Crawler
         while ($this->currentPoolCrawlUrls->count() > 0) {
             $pool = new Pool($this->client, $this->getRequests(), [
                 'concurrency' => $this->concurrency,
-                'fulfilled' => function (ResponseInterface $response, $index) {
-                    $url = $this->currentPoolCrawlUrls[$index]->url;
-
-                    $this->crawlObserver->hasBeenCrawled($url, $response);
-
-                    $this->currentPoolCrawlUrls[$index]->status = CrawlUrl::STATUS_HAS_BEEN_CRAWLED;
+                'fulfilled' => function (ResponseInterface $response, int $index) {
+                    $this->handleResponse($response, $index);
 
                     $this->addAllLinksToCurrentPool((string) $response->getBody());
                 },
-                'rejected' => function ($reason, $index) {
-                    echo 'still to implement';
+                'rejected' => function (ClientException $exception, int $index) {
+                    $this->handleResponse($exception->getResponse(), $index, $exception);
                 },
             ]);
 
             $promise = $pool->promise();
             $promise->wait();
 
-            $this->preparePools();
+            $this->preparePoolsForNextLoop();
         }
     }
 
-    public function getRequests()
+    public function handleResponse(ResponseInterface $response, int $index, ClientException $exception = null)
+    {
+        $url = $this->currentPoolCrawlUrls[$index]->url;
+
+        $this->crawlObserver->hasBeenCrawled($url, $response, $exception);
+
+        $this->currentPoolCrawlUrls[$index]->status = CrawlUrl::STATUS_HAS_BEEN_CRAWLED;
+    }
+
+    public function getRequests(): Generator
     {
         $i = 0;
         while (isset($this->currentPoolCrawlUrls[$i])) {
@@ -192,12 +199,7 @@ class Crawler
         })->first();
     }
 
-    /**
-     * Crawl all links in the given html.
-     *
-     * @param string $html
-     */
-    protected function addAllLinksToCurrentPool($html)
+    protected function addAllLinksToCurrentPool(string $html)
     {
         $allLinks = $this->getAllLinks($html);
 
@@ -230,7 +232,7 @@ class Crawler
      *
      * @return \Spatie\Crawler\Url[]
      */
-    protected function getAllLinks($html)
+    protected function getAllLinks(string $html)
     {
         $domCrawler = new DomCrawler($html);
 
@@ -245,12 +247,8 @@ class Crawler
 
     /**
      * Determine if the crawled has already crawled the given url.
-     *
-     * @param \Spatie\Crawler\Url $url
-     *
-     * @return bool
      */
-    protected function hasAlreadyCrawled(Url $url)
+    protected function hasAlreadyCrawled(Url $url): bool
     {
         $alreadyCrawled = $this->currentPoolCrawlUrls
             ->merge($this->previousPoolsCrawlUrls)
@@ -267,14 +265,10 @@ class Crawler
         return false;
     }
 
-    /**
+    /*
      * Determine if the crawled has already crawled the given url.
-     *
-     * @param \Spatie\Crawler\Url $url
-     *
-     * @return bool
      */
-    protected function isBeingCrawled(Url $url)
+    protected function isBeingCrawled(Url $url): bool
     {
         $currentlyCrawling = $this->currentPoolCrawlUrls->filter(function (CrawlUrl $crawlUrl) {
             return $crawlUrl->status === CrawlUrl::STATUS_BUSY_CRAWLING;
@@ -324,7 +318,7 @@ class Crawler
         return false;
     }
 
-    protected function preparePools()
+    protected function preparePoolsForNextLoop()
     {
         $crawledUrls = $this->currentPoolCrawlUrls->filter(function (CrawlUrl $crawlUrl) {
             return $crawlUrl->status != CrawlUrl::STATUS_NOT_YET_CRAWLED;

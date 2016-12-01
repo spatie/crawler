@@ -2,6 +2,8 @@
 
 namespace Spatie\Crawler\Test;
 
+use GuzzleHttp\Exception\ClientException;
+use Psr\Http\Message\ResponseInterface;
 use Spatie\Crawler\CrawlObserver;
 use Spatie\Crawler\Url;
 
@@ -20,10 +22,11 @@ class CrawlLogger implements CrawlObserver
     /**
      * Called when the crawler has crawled the given url.
      *
-     * @param \Spatie\Crawler\Url   $url
+     * @param \Spatie\Crawler\Url $url
      * @param \Psr\Http\Message\ResponseInterface|null $response
+     * @param  \GuzzleHttp\Exception\ClientException $exception
      */
-    public function hasBeenCrawled(Url $url, $response)
+    public function hasBeenCrawled(Url $url, ResponseInterface $response, ClientException $exception = null)
     {
         CrawlerTest::log("hasBeenCrawled: {$url}");
     }

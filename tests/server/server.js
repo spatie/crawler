@@ -15,7 +15,7 @@ app.get('/link2', function (request, response) {
 });
 
 app.get('/link3', function (request, response) {
-    response.end('You are on link3');
+    response.end('You are on link3<a href="/notExists">not exists</a>');
 });
 
 let server = app.listen(8080, function () {
