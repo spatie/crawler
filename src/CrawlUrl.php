@@ -17,16 +17,18 @@ class CrawlUrl
     /** @var \Spatie\Crawler\Url */
     public $foundOnUrl;
 
-    public static function create(Url $url)
+    public static function create(Url $url, Url $foundOnUrl = null)
     {
-        return new static($url, static::STATUS_NOT_YET_CRAWLED);
+        return new static($url, static::STATUS_NOT_YET_CRAWLED, $foundOnUrl);
     }
 
-    protected function __construct(Url $url, string $status)
+    protected function __construct(Url $url, string $status, Url $foundOnUrl = null)
     {
         $this->url = $url;
 
         $this->status = $status;
+
+        $this->foundOnUrl = $foundOnUrl;
     }
 
     public function setStatus(string $status)

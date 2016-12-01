@@ -28,7 +28,13 @@ class CrawlLogger implements CrawlObserver
      */
     public function hasBeenCrawled(Url $url, ResponseInterface $response, Url $foundOnUrl = null)
     {
-        CrawlerTest::log("hasBeenCrawled: {$url}");
+        $logText = "hasBeenCrawled: {$url}";
+
+        if ($foundOnUrl) {
+            $logText .= " - found on {$foundOnUrl}";
+        }
+
+        CrawlerTest::log($logText);
     }
 
     /**
