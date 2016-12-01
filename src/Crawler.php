@@ -334,7 +334,7 @@ class Crawler
     protected function preparePoolsForNextLoop()
     {
         $crawledUrls = $this->currentPoolCrawlUrls->filter(function (CrawlUrl $crawlUrl) {
-            return $crawlUrl->status != CrawlUrl::STATUS_NOT_YET_CRAWLED;
+            return $crawlUrl->status !== CrawlUrl::STATUS_NOT_YET_CRAWLED;
         });
 
         foreach ($crawledUrls as $crawlUrl) {
