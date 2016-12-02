@@ -185,4 +185,11 @@ class UrlTest extends TestCase
     {
         $this->assertNull(Url::create('http://example.com/part1/part2/part3')->segment(5));
     }
+
+    /** @test */
+    public function it_can_test_if_it_is_equal_to_another_url()
+    {
+        $this->assertTrue(Url::create('http://example.com')->isEqual(Url::create('http://example.com')));
+        $this->assertFalse(Url::create('http://example.com')->isEqual(Url::create('http://example2.com')));
+    }
 }
