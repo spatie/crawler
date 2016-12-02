@@ -95,7 +95,7 @@ class CrawlerTest extends TestCase
             $logMessage .= PHP_EOL;
         }
 
-        $this->assertEquals(0, substr_count($logContent, $logMessage), "Did  find {$logMessage} in the log");
+        $this->assertEquals(0, substr_count($logContent, $logMessage), "Did find {$logMessage} in the log");
     }
 
     public static function log(string $text)

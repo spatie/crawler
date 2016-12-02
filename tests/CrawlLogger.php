@@ -25,7 +25,7 @@ class CrawlLogger implements CrawlObserver
      * @param \Psr\Http\Message\ResponseInterface|null $response
      * @param \Spatie\Crawler\Url $foundOnUrl
      */
-    public function hasBeenCrawled(Url $url, ResponseInterface $response, Url $foundOnUrl = null)
+    public function hasBeenCrawled(Url $url, $response, Url $foundOnUrl = null)
     {
         $logText = "hasBeenCrawled: {$url}";
 
