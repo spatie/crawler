@@ -19,6 +19,17 @@ class CrawlQueue
         $this->processed = collect();
     }
 
+    public function add(CrawlUrl $url)
+    {
+        if ($this->has($url)) {
+            return;
+        }
+
+        $this->pending->push($url);
+
+        return $this;
+    }
+
     public function hasPendingUrls(): bool
     {
         return count($this->pending);
@@ -48,18 +59,9 @@ class CrawlQueue
         return $this->contains($this->processed, $url);
     }
 
-    public function moveToProcessed(CrawlUrl $crawlUrl)
+    public function markAsProcessed(CrawlUrl $crawlUrl)
     {
         $this->processed->push($crawlUrl);
-    }
-
-    public function add(CrawlUrl $url)
-    {
-        if ($this->has($url)) {
-            return;
-        }
-
-        $this->pending->push($url);
     }
 
     /**
@@ -84,6 +86,15 @@ class CrawlQueue
         return false;
     }
 
+    public function removeProcessedUrlsFromPending()
+    {
+        $this->pending = $this->pending
+            ->reject(function (CrawlUrl $crawlUrl) {
+                return $this->contains($this->processed, $crawlUrl);
+            })
+            ->values();
+    }
+
     protected function contains(Collection $collection, CrawlUrl $searchCrawlUrl): bool
     {
         foreach ($collection as $crawlUrl) {
@@ -95,12 +106,5 @@ class CrawlQueue
         return false;
     }
 
-    public function removeProcessedUrlsFromPending()
-    {
-        $this->pending = $this->pending
-            ->reject(function (CrawlUrl $crawlUrl) {
-                return $this->contains($this->processed, $crawlUrl);
-            })
-            ->values();
-    }
+
 }

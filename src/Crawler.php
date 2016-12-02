@@ -190,7 +190,7 @@ class Crawler
 
             $this->crawlObserver->willCrawl($crawlUrl->url);
 
-            $this->crawlQueue->moveToProcessed($crawlUrl);
+            $this->crawlQueue->markAsProcessed($crawlUrl);
 
             yield new Request('GET', (string) $crawlUrl->url);
             $i++;

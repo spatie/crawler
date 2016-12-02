@@ -2,12 +2,11 @@
 
 namespace Spatie\Crawler\Test;
 
-use PHPUnit_Framework_TestCase;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
 use Spatie\Crawler\Url;
 
-class CrawlerTest extends PHPUnit_Framework_TestCase
+class CrawlerTest extends TestCase
 {
     /** @var logPath */
     protected static $logPath;
@@ -15,6 +14,8 @@ class CrawlerTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         parent::setUp();
+
+        $this->skipIfTestServerIsNotRunning();
 
         static::$logPath = __DIR__ . '/temp/crawledUrls.txt';
 

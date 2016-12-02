@@ -197,7 +197,7 @@ class Url
      */
     public function __toString()
     {
-        $path = starts_with($this->path, '/') ? substr($this->path, 1) : $this->path;
+        $path = $this->startsWith($this->path, '/') ? substr($this->path, 1) : $this->path;
 
         $port = ($this->port === 80 ? '' : ":{$this->port}");
 
@@ -205,4 +205,21 @@ class Url
 
         return "{$this->scheme}://{$this->host}{$port}/{$path}{$queryString}";
     }
+
+    /**
+     * @param string|null $haystack
+     * @param string|array $needles
+     * @return bool
+     */
+    public function startsWith($haystack, $needles): bool
+    {
+        foreach ((array) $needles as $needle) {
+            if ($needle != '' && substr($haystack, 0, strlen($needle)) === (string) $needle) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }
