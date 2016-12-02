@@ -4,7 +4,7 @@ namespace Spatie\Crawler;
 
 use Generator;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use GuzzleHttp\Pool;
@@ -160,7 +160,7 @@ class Crawler
                         $this->getCrawlUrlFromCurrentPool($index)->url
                     );
                 },
-                'rejected' => function (ClientException $exception, int $index) {
+                'rejected' => function (RequestException $exception, int $index) {
                     $this->handleResponse($exception->getResponse(), $index);
                 },
             ]);
