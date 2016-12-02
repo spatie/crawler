@@ -150,16 +150,19 @@ class Crawler
 
                     $this->addAllLinksToCrawlQueue(
                         (string) $response->getBody(),
-                        $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index)
+                        $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index)->url
                     );
                 },
                 'rejected' => function (RequestException $exception, int $index) {
+
                     $this->handleResponse($exception->getResponse(), $index);
                 },
             ]);
 
             $promise = $pool->promise();
             $promise->wait();
+
+            $this->crawlQueue->cleanUpPending();
         }
     }
 
@@ -168,36 +171,25 @@ class Crawler
         $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index);
 
         $this->crawlObserver->hasBeenCrawled($crawlUrl->url, $response, $crawlUrl->foundOnUrl);
-
-        $this->crawlQueue->moveToProcessed($crawlUrl);
     }
 
     public function getRequests(): Generator
     {
         $i = 0;
-        while (isset($this->currentPoolCrawlUrls[$i])) {
-            $crawlUrl = $this->currentPoolCrawlUrls[$i];
-
+        while ($crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($i)) {
             if (! $this->crawlProfile->shouldCrawl($crawlUrl->url)) {
                 $i++;
                 continue;
             }
 
-            if ($this->crawlQueue->isBeingProcessed($crawlUrl->url)) {
-                $i++;
-                continue;
-            }
-
-            if ($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl->url)) {
+            if ($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl)) {
                 $i++;
                 continue;
             }
 
             $this->crawlObserver->willCrawl($crawlUrl->url);
 
-            $this->crawlQueue->moveToProcessing($crawlUrl->url);
-
-            $crawlUrl->status = CrawlUrl::STATUS_BUSY_CRAWLING;
+            $this->crawlQueue->moveToProcessed($crawlUrl);
 
             yield new Request('GET', (string) $crawlUrl->url);
             $i++;
@@ -225,7 +217,7 @@ class Crawler
                 if (! $this->crawlQueue->has($url)) {
                     $crawlUrl = CrawlUrl::create($url, $foundOnUrl);
 
-                    $this->crawlQueue->addToPending($crawlUrl);
+                    $this->crawlQueue->add($crawlUrl);
                 }
             });
     }

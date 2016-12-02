@@ -7,13 +7,19 @@ use Illuminate\Support\Collection;
 class CrawlQueue
 {
     /** @var \Illuminate\Support\Collection */
-    protected $pending;
+    public $pending;
 
     /** @var \Illuminate\Support\Collection */
-    protected $processing;
+    public $processed;
 
-    /** @var \Illuminate\Support\Collection */
-    protected $processed;
+    public function __construct()
+    {
+        $this->pending = collect();
+
+        $this->processing = collect();
+
+        $this->processed = collect();
+    }
 
     public function hasPendingUrls(): bool
     {
@@ -22,7 +28,7 @@ class CrawlQueue
 
     public function getPendingUrls(): Collection
     {
-        $this->pending->values();
+        return $this->pending->values();
     }
 
     /**
@@ -31,12 +37,11 @@ class CrawlQueue
      */
     public function getPendingUrlAtIndex(int $index)
     {
-        return $this->getPendingUrls()[$index];
-    }
+        if (!isset($this->getPendingUrls()[$index])) {
+            return null;
+        }
 
-    public function isBeingProcessed(CrawlUrl $url)
-    {
-        return $this->contains($this->processing, $url);
+        return $this->getPendingUrls()[$index];
     }
 
     public function hasAlreadyBeenProcessed(CrawlUrl $url)
@@ -44,18 +49,13 @@ class CrawlQueue
         return $this->contains($this->processed, $url);
     }
 
-    public function moveToProcessing(CrawlUrl $crawlUrl)
-    {
-        $this->move($crawlUrl, 'pending', 'processing');
-    }
-
     public function moveToProcessed(CrawlUrl $crawlUrl)
     {
-        $this->move($crawlUrl, 'processing', 'processed');
+        $this->processed->push($crawlUrl);
     }
 
-    public function add(CrawlUrl $url) {
-
+    public function add(CrawlUrl $url)
+    {
         if ($this->has($url)) {
             return;
         }
@@ -63,35 +63,31 @@ class CrawlQueue
         $this->pending->push($url);
     }
 
-    public function has(CrawlUrl $url): bool
+    /**
+     * @param CrawlUrl|Url $crawlUrl
+     * @return bool
+     */
+    public function has($crawlUrl): bool
     {
-        if ($this->contains($this->pending, $url)) {
+        if ($crawlUrl instanceof Url) {
+            $crawlUrl = CrawlUrl::create($crawlUrl);
+        }
+
+        if ($this->contains($this->pending, $crawlUrl)) {
             return true;
         }
 
-        if ($this->contains($this->processing, $url)) {
-            return true;
-        }
-
-        if ($this->contains($this->processed, $url)) {
+        if ($this->contains($this->processed, $crawlUrl)) {
             return true;
         }
 
         return false;
     }
 
-    protected function move(CrawlUrl $searchCrawlUrl, string $sourceName, string $destinationName) {
-        $this->{$sourceName} = $this->{$sourceName}->reject(function(CrawlUrl $crawlUrl) use ($searchCrawlUrl) {
-             return $crawlUrl->url->isEqual($searchCrawlUrl->url);
-        });
-
-        $this->{$destinationName}->push($searchCrawlUrl);
-    }
-
-    protected function contains($collection, CrawlUrl $searchCrawlUrl)
+    protected function contains(Collection $collection, CrawlUrl $searchCrawlUrl)
     {
-        foreach($collection as $crawlUrl) {
-            if ($crawlUrl->isEqual($searchCrawlUrl->url)) {
+        foreach ($collection as $crawlUrl) {
+            if ($crawlUrl->url->isEqual($searchCrawlUrl->url)) {
                 return true;
             }
         }
@@ -99,7 +95,12 @@ class CrawlQueue
         return false;
     }
 
-
-
-
+    public function cleanUpPending()
+    {
+        $this->pending = $this->pending
+            ->reject(function (CrawlUrl $crawlUrl) {
+                return $this->contains($this->processed, $crawlUrl);
+            })
+            ->values();
+    }
 }
