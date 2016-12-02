@@ -127,7 +127,7 @@ class Crawler
 
         $this->crawlQueue->add($crawlUrl);
 
-        $this->startCrawlingCurrentPool();
+        $this->startCrawlingQueue();
 
         $this->crawlObserver->finishedCrawling();
     }
@@ -135,7 +135,7 @@ class Crawler
     /**
      * Crawl urls in the currentPool.
      */
-    protected function startCrawlingCurrentPool()
+    protected function startCrawlingQueue()
     {
         while ($this->crawlQueue->hasPendingUrls()) {
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
@@ -166,14 +166,14 @@ class Crawler
         }
     }
 
-    public function handleResponse(ResponseInterface $response, int $index)
+    protected function handleResponse(ResponseInterface $response, int $index)
     {
         $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index);
 
         $this->crawlObserver->hasBeenCrawled($crawlUrl->url, $response, $crawlUrl->foundOnUrl);
     }
 
-    public function getCrawlRequests(): Generator
+    protected function getCrawlRequests(): Generator
     {
         $i = 0;
         while ($crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($i)) {
