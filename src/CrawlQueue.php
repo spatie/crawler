@@ -16,8 +16,6 @@ class CrawlQueue
     {
         $this->pending = collect();
 
-        $this->processing = collect();
-
         $this->processed = collect();
     }
 
