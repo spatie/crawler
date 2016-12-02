@@ -63,9 +63,9 @@ public function hasBeenCrawled(Url $url, ResponseInterface $response, Url $found
 public function finishedCrawling();
 ``` 
 
-### Filtering certain url's
+### Filtering certain urls
 
-You can tell the crawler not to visit certain url's by passing using the `setCrawlProfile`-function. That function expects
+You can tell the crawler not to visit certain urls by passing using the `setCrawlProfile`-function. That function expects
 an objects that implements the `Spatie\Crawler\CrawlProfile`-interface:
 
 ```php
@@ -77,7 +77,7 @@ public function shouldCrawl(Url $url): bool;
 
 ## Setting the number of concurrent requests
 
-To improve the speed of the crawl the package will by default currently crawl 10 urls. If you want to change that number you can use the `setConcurrency` method.
+To improve the speed of the crawl the package concurrently crawls 10 urls by default. If you want to change that number you can use the `setConcurrency` method.
 
 ```php
 Crawler::create()
