@@ -187,7 +187,7 @@ class Url
 
     public function isEqual(Url $otherUrl): bool
     {
-        return (string)$this === (string)$otherUrl;
+        return (string) $this === (string) $otherUrl;
     }
 
     /**
