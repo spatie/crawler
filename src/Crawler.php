@@ -8,6 +8,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use GuzzleHttp\Pool;
+use Illuminate\Support\Collection;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 
@@ -137,7 +138,7 @@ class Crawler
     protected function startCrawlingCurrentPool()
     {
         while ($this->crawlQueue->hasPendingUrls()) {
-            $pool = new Pool($this->client, $this->getRequests(), [
+            $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
                 'fulfilled' => function (ResponseInterface $response, int $index) {
                     $this->handleResponse($response, $index);
@@ -162,7 +163,7 @@ class Crawler
             $promise = $pool->promise();
             $promise->wait();
 
-            $this->crawlQueue->cleanUpPending();
+            $this->crawlQueue->removeProcessedUrlsFromPending();
         }
     }
 
@@ -173,7 +174,7 @@ class Crawler
         $this->crawlObserver->hasBeenCrawled($crawlUrl->url, $response, $crawlUrl->foundOnUrl);
     }
 
-    public function getRequests(): Generator
+    public function getCrawlRequests(): Generator
     {
         $i = 0;
         while ($crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($i)) {
@@ -198,7 +199,7 @@ class Crawler
 
     protected function addAllLinksToCrawlQueue(string $html, Url $foundOnUrl)
     {
-        $allLinks = $this->getAllLinks($html);
+        $allLinks = $this->extractAllLinks($html);
 
         collect($allLinks)
             ->filter(function (Url $url) {
@@ -222,14 +223,7 @@ class Crawler
             });
     }
 
-    /**
-     * Get all links in the given html.
-     *
-     * @param string $html
-     *
-     * @return \Spatie\Crawler\Url[]
-     */
-    protected function getAllLinks(string $html)
+    protected function extractAllLinks(string $html): Collection
     {
         $domCrawler = new DomCrawler($html);
 

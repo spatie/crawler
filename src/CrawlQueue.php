@@ -30,8 +30,9 @@ class CrawlQueue
     }
 
     /**
-     * @param $index
-     * @return CrawlUrl|null
+     * @param int $index
+     *
+     * @return \Spatie\Crawler\CrawlUrl|null
      */
     public function getPendingUrlAtIndex(int $index)
     {
@@ -63,6 +64,7 @@ class CrawlQueue
 
     /**
      * @param CrawlUrl|Url $crawlUrl
+     *
      * @return bool
      */
     public function has($crawlUrl): bool
@@ -82,7 +84,7 @@ class CrawlQueue
         return false;
     }
 
-    protected function contains(Collection $collection, CrawlUrl $searchCrawlUrl)
+    protected function contains(Collection $collection, CrawlUrl $searchCrawlUrl): bool
     {
         foreach ($collection as $crawlUrl) {
             if ($crawlUrl->url->isEqual($searchCrawlUrl->url)) {
@@ -93,7 +95,7 @@ class CrawlQueue
         return false;
     }
 
-    public function cleanUpPending()
+    public function removeProcessedUrlsFromPending()
     {
         $this->pending = $this->pending
             ->reject(function (CrawlUrl $crawlUrl) {
