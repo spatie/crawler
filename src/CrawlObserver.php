@@ -11,10 +11,10 @@ interface CrawlObserver
 
     /**
      * Called when the crawler has crawled the given url.
+     *
      * @param \Spatie\Crawler\Url $url
      * @param \Psr\Http\Message\ResponseInterface|null $response
      * @param \Spatie\Crawler\Url $foundOnUrl
-     * @return
      */
     public function hasBeenCrawled(Url $url, $response, Url $foundOnUrl = null);
 
