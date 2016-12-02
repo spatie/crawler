@@ -149,6 +149,12 @@ class Crawler
                 'fulfilled' => function (ResponseInterface $response, int $index) {
                     $this->handleResponse($response, $index);
 
+                    $crawlUrl = $this->getCrawlUrlFromCurrentPool($index);
+
+                    if ($crawlUrl->url->host !== $this->baseUrl->host) {
+                        return;
+                    }
+
                     $this->addAllLinksToCurrentPool(
                         (string) $response->getBody(),
                         $this->getCrawlUrlFromCurrentPool($index)->url
