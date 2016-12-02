@@ -47,7 +47,7 @@ class CrawlQueue
      */
     public function getPendingUrlAtIndex(int $index)
     {
-        if (!isset($this->getPendingUrls()[$index])) {
+        if (! isset($this->getPendingUrls()[$index])) {
             return;
         }
 

@@ -44,8 +44,8 @@ class CrawlQueueTest extends TestCase
         $this->crawlQueue->add($this->createCrawlUrl('https://example1.com/'));
         $this->crawlQueue->add($this->createCrawlUrl('https://example2.com/'));
 
-        $this->assertEquals('https://example1.com/', (string)$this->crawlQueue->getPendingUrlAtIndex(0)->url);
-        $this->assertEquals('https://example2.com/', (string)$this->crawlQueue->getPendingUrlAtIndex(1)->url);
+        $this->assertEquals('https://example1.com/', (string) $this->crawlQueue->getPendingUrlAtIndex(0)->url);
+        $this->assertEquals('https://example2.com/', (string) $this->crawlQueue->getPendingUrlAtIndex(1)->url);
     }
 
     /** @test */
@@ -88,15 +88,15 @@ class CrawlQueueTest extends TestCase
 
         $this->crawlQueue->removeProcessedUrlsFromPending();
 
-        $this->assertCount(1 , $this->crawlQueue->getPendingUrls());
+        $this->assertCount(1, $this->crawlQueue->getPendingUrls());
 
         $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex(0);
 
-        $this->assertEquals('https://example2.com/', (string)$crawlUrl->url);
+        $this->assertEquals('https://example2.com/', (string) $crawlUrl->url);
     }
 
-    protected function createCrawlUrl(string $url): CrawlUrl {
-
+    protected function createCrawlUrl(string $url): CrawlUrl
+    {
         $url = new Url($url);
 
         return CrawlUrl::create($url);
