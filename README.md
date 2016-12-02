@@ -95,6 +95,20 @@ Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recen
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
+## Testing
+
+To run the tests you'll have to start the included node based server first in a separate terminal window.
+
+```bash
+cd tests/server
+./start_server.sh
+```
+
+With the server running, you can start testing.
+```bash
+vendor/bin/phpunit
+```
+
 ## Security
 
 If you discover any security related issues, please email freek@spatie.be instead of using the issue tracker.
