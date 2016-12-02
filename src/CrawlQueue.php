@@ -54,8 +54,8 @@ class CrawlQueue
         $this->move($crawlUrl, 'processing', 'processed');
     }
 
-    public function add(CrawlUrl $url) {
-
+    public function add(CrawlUrl $url)
+    {
         if ($this->has($url)) {
             return;
         }
@@ -80,9 +80,10 @@ class CrawlQueue
         return false;
     }
 
-    protected function move(CrawlUrl $searchCrawlUrl, string $sourceName, string $destinationName) {
-        $this->{$sourceName} = $this->{$sourceName}->reject(function(CrawlUrl $crawlUrl) use ($searchCrawlUrl) {
-             return $crawlUrl->url->isEqual($searchCrawlUrl->url);
+    protected function move(CrawlUrl $searchCrawlUrl, string $sourceName, string $destinationName)
+    {
+        $this->{$sourceName} = $this->{$sourceName}->reject(function (CrawlUrl $crawlUrl) use ($searchCrawlUrl) {
+            return $crawlUrl->url->isEqual($searchCrawlUrl->url);
         });
 
         $this->{$destinationName}->push($searchCrawlUrl);
@@ -90,7 +91,7 @@ class CrawlQueue
 
     protected function contains($collection, CrawlUrl $searchCrawlUrl)
     {
-        foreach($collection as $crawlUrl) {
+        foreach ($collection as $crawlUrl) {
             if ($crawlUrl->isEqual($searchCrawlUrl->url)) {
                 return true;
             }
@@ -98,8 +99,4 @@ class CrawlQueue
 
         return false;
     }
-
-
-
-
 }
