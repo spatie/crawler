@@ -185,6 +185,11 @@ class Url
         return $this->segments()[$index - 1];
     }
 
+    public function isEqual(Url $otherUrl): bool
+    {
+        return (string)$this === (string)$otherUrl;
+    }
+
     /**
      * Convert the url to string.
      *

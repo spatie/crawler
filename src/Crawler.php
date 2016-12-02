@@ -36,17 +36,12 @@ class Crawler
     /**
      * @var int
      */
-    private $concurrency;
+    protected $concurrency;
 
     /**
-     * @var \Illuminate\Support\Collection
+     * @var \Spatie\Crawler\CrawlQueue
      */
-    protected $currentPoolCrawlUrls;
-
-    /**
-     * @var \Illuminate\Support\Collection
-     */
-    protected $previousPoolsCrawlUrls;
+    protected $crawlQueue;
 
     /**
      * @param array $clientOptions
@@ -71,9 +66,7 @@ class Crawler
 
         $this->crawlProfile = new CrawlAllUrls();
 
-        $this->currentPoolCrawlUrls = collect();
-
-        $this->previousPoolsCrawlUrls = collect();
+        $this->crawlQueue = new CrawlQueue();
     }
 
     /**
@@ -131,7 +124,7 @@ class Crawler
 
         $crawlUrl = CrawlUrl::create($baseUrl);
 
-        $this->currentPoolCrawlUrls->push($crawlUrl);
+        $this->crawlQueue->add($crawlUrl);
 
         $this->startCrawlingCurrentPool();
 
@@ -143,21 +136,21 @@ class Crawler
      */
     protected function startCrawlingCurrentPool()
     {
-        while ($this->currentPoolCrawlUrls->count() > 0) {
+        while ($this->crawlQueue->hasPendingUrls()) {
             $pool = new Pool($this->client, $this->getRequests(), [
                 'concurrency' => $this->concurrency,
                 'fulfilled' => function (ResponseInterface $response, int $index) {
                     $this->handleResponse($response, $index);
 
-                    $crawlUrl = $this->getCrawlUrlFromCurrentPool($index);
+                    $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index);
 
                     if ($crawlUrl->url->host !== $this->baseUrl->host) {
                         return;
                     }
 
-                    $this->addAllLinksToCurrentPool(
+                    $this->addAllLinksToCrawlQueue(
                         (string) $response->getBody(),
-                        $this->getCrawlUrlFromCurrentPool($index)->url
+                        $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index)
                     );
                 },
                 'rejected' => function (RequestException $exception, int $index) {
@@ -167,18 +160,16 @@ class Crawler
 
             $promise = $pool->promise();
             $promise->wait();
-
-            $this->preparePoolsForNextLoop();
         }
     }
 
     public function handleResponse(ResponseInterface $response, int $index)
     {
-        $crawlUrl = $this->getCrawlUrlFromCurrentPool($index);
+        $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index);
 
         $this->crawlObserver->hasBeenCrawled($crawlUrl->url, $response, $crawlUrl->foundOnUrl);
 
-        $this->currentPoolCrawlUrls[$index]->status = CrawlUrl::STATUS_HAS_BEEN_CRAWLED;
+        $this->crawlQueue->moveToProcessed($crawlUrl);
     }
 
     public function getRequests(): Generator
@@ -192,17 +183,19 @@ class Crawler
                 continue;
             }
 
-            if ($this->isBeingCrawled($crawlUrl->url)) {
+            if ($this->crawlQueue->isBeingProcessed($crawlUrl->url)) {
                 $i++;
                 continue;
             }
 
-            if ($this->hasAlreadyCrawled($crawlUrl->url)) {
+            if ($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl->url)) {
                 $i++;
                 continue;
             }
 
             $this->crawlObserver->willCrawl($crawlUrl->url);
+
+            $this->crawlQueue->moveToProcessing($crawlUrl->url);
 
             $crawlUrl->status = CrawlUrl::STATUS_BUSY_CRAWLING;
 
@@ -211,17 +204,7 @@ class Crawler
         }
     }
 
-    /**
-     * @return \Spatie\Crawler\CrawlUrl|null
-     */
-    public function getNextCrawlUrl()
-    {
-        return $this->currentPoolCrawlUrls->filter(function (CrawlUrl $crawlUrl) {
-            return $crawlUrl->status === CrawlUrl::STATUS_NOT_YET_CRAWLED;
-        })->first();
-    }
-
-    protected function addAllLinksToCurrentPool(string $html, Url $foundOnUrl)
+    protected function addAllLinksToCrawlQueue(string $html, Url $foundOnUrl)
     {
         $allLinks = $this->getAllLinks($html);
 
@@ -239,10 +222,10 @@ class Crawler
                 return $this->crawlProfile->shouldCrawl($url);
             })
             ->each(function (Url $url) use ($foundOnUrl) {
-                if (! $this->isAlreadyRegistered($url)) {
+                if (! $this->crawlQueue->has($url)) {
                     $crawlUrl = CrawlUrl::create($url, $foundOnUrl);
 
-                    $this->currentPoolCrawlUrls->push($crawlUrl);
+                    $this->crawlQueue->addToPending($crawlUrl);
                 }
             });
     }
@@ -287,76 +270,5 @@ class Crawler
         }
 
         return $url->removeFragment();
-    }
-
-    public function isAlreadyRegistered(Url $url): bool
-    {
-        foreach ([$this->currentPoolCrawlUrls, $this->previousPoolsCrawlUrls] as $crawlUrls) {
-            foreach ($crawlUrls as $crawledUrl) {
-                if ((string) $crawledUrl->url === (string) $url) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /*
-     * Determine if the crawled has already crawled the given url.
-     */
-    protected function hasAlreadyCrawled(Url $url): bool
-    {
-        $alreadyCrawled = $this->currentPoolCrawlUrls
-            ->merge($this->previousPoolsCrawlUrls)
-            ->filter(function (CrawlUrl $crawlUrl) {
-                return $crawlUrl->status === CrawlUrl::STATUS_HAS_BEEN_CRAWLED;
-            });
-
-        foreach ($alreadyCrawled as $crawledUrl) {
-            if ((string) $crawledUrl->url === (string) $url) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /*
-     * Determine if the crawled has already crawled the given url.
-     */
-    protected function isBeingCrawled(Url $url): bool
-    {
-        $currentlyCrawling = $this->currentPoolCrawlUrls->filter(function (CrawlUrl $crawlUrl) {
-            return $crawlUrl->status === CrawlUrl::STATUS_BUSY_CRAWLING;
-        });
-
-        foreach ($currentlyCrawling as $crawledUrl) {
-            if ((string) $crawledUrl->url === (string) $url) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    protected function preparePoolsForNextLoop()
-    {
-        $crawledUrls = $this->currentPoolCrawlUrls->filter(function (CrawlUrl $crawlUrl) {
-            return $crawlUrl->status !== CrawlUrl::STATUS_NOT_YET_CRAWLED;
-        });
-
-        foreach ($crawledUrls as $crawlUrl) {
-            $this->previousPoolsCrawlUrls->push($crawlUrl);
-        }
-
-        $this->currentPoolCrawlUrls = $this->currentPoolCrawlUrls->filter(function (CrawlUrl $crawlUrl) {
-            return $crawlUrl->status === CrawlUrl::STATUS_NOT_YET_CRAWLED;
-        })->values();
-    }
-
-    protected function getCrawlUrlFromCurrentPool(int $index): CrawlUrl
-    {
-        return $this->currentPoolCrawlUrls[$index];
     }
 }
