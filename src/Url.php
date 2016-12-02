@@ -221,5 +221,4 @@ class Url
 
         return false;
     }
-
 }
