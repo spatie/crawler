@@ -155,7 +155,6 @@ class Crawler
                     );
                 },
                 'rejected' => function (RequestException $exception, int $index) {
-
                     $this->handleResponse($exception->getResponse(), $index);
                 },
             ]);
