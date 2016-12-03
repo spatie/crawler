@@ -201,11 +201,11 @@ class Crawler
         $allLinks = $this->extractAllLinks($html);
 
         collect($allLinks)
-            ->filter(function (Url $url) {
-                return ! $url->isEmailUrl();
-            })
-            ->filter(function (Url $url) {
-                return ! $url->isJavascript();
+            ->reject(function (Url $url) {
+                return
+                    $url->isEmailUrl() ||
+                    $url->isTelUrl() ||
+                    $url->isJavascript();
             })
             ->map(function (Url $url) {
                 return $this->normalizeUrl($url);
