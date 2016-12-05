@@ -2,6 +2,9 @@
 
 All Notable changes to `spatie/crawler` will be documented in this file.
 
+## 2.0.1 - 2016-12-05
+- fix for the accidental crawling of mailto-links
+
 ## 2.0.0 - 2016-12-05
 - improve performance by concurrent crawling
 - make it possible to determine on which url a url was found

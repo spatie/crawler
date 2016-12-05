@@ -180,11 +180,11 @@ class Crawler
         $allLinks = $this->extractAllLinks($html);
 
         collect($allLinks)
-            ->map(function (Url $url) {
-                return $this->normalizeUrl($url);
-            })
             ->filter(function (Url $url) {
                 return $url->hasCrawlableScheme();
+            })
+            ->map(function (Url $url) {
+                return $this->normalizeUrl($url);
             })
             ->filter(function (Url $url) {
                 return $this->crawlProfile->shouldCrawl($url);
