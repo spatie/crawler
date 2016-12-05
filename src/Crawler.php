@@ -145,7 +145,11 @@ class Crawler
         }
     }
 
-    protected function handleResponse(ResponseInterface $response, int $index)
+    /**
+     * @param ResponseInterface|null $response
+     * @param int $index
+     */
+    protected function handleResponse($response, int $index)
     {
         $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index);
 
