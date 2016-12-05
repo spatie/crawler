@@ -3,45 +3,33 @@
 namespace Spatie\Crawler;
 
 use Generator;
+use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
-use GuzzleHttp\Pool;
 use Illuminate\Support\Collection;
 use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 
 class Crawler
 {
-    /**
-     * @var \GuzzleHttp\Client
-     */
+    /** @var \GuzzleHttp\Client */
     protected $client;
 
-    /**
-     * @var \Spatie\Crawler\Url;
-     */
+    /** @var \Spatie\Crawler\Url */
     protected $baseUrl;
 
-    /**
-     * @var \Spatie\Crawler\CrawlObserver
-     */
+    /** @var \Spatie\Crawler\CrawlObserver */
     protected $crawlObserver;
 
-    /**
-     * @var \Spatie\Crawler\CrawlProfile
-     */
+    /** @var \Spatie\Crawler\CrawlProfile */
     protected $crawlProfile;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $concurrency;
 
-    /**
-     * @var \Spatie\Crawler\CrawlQueue
-     */
+    /** @var \Spatie\Crawler\CrawlQueue */
     protected $crawlQueue;
 
     /**
@@ -83,8 +71,6 @@ class Crawler
     }
 
     /**
-     * Set the crawl observer.
-     *
      * @param \Spatie\Crawler\CrawlObserver $crawlObserver
      *
      * @return $this
@@ -97,8 +83,6 @@ class Crawler
     }
 
     /**
-     * Set the crawl profile.
-     *
      * @param \Spatie\Crawler\CrawlProfile $crawlProfile
      *
      * @return $this
@@ -111,8 +95,6 @@ class Crawler
     }
 
     /**
-     * Start the crawling process.
-     *
      * @param \Spatie\Crawler\Url|string $baseUrl
      */
     public function startCrawling($baseUrl)
@@ -132,9 +114,6 @@ class Crawler
         $this->crawlObserver->finishedCrawling();
     }
 
-    /**
-     * Crawl urls in the currentPool.
-     */
     protected function startCrawlingQueue()
     {
         while ($this->crawlQueue->hasPendingUrls()) {
@@ -201,24 +180,22 @@ class Crawler
         $allLinks = $this->extractAllLinks($html);
 
         collect($allLinks)
-            ->reject(function (Url $url) {
-                return
-                    $url->isEmailUrl() ||
-                    $url->isTelUrl() ||
-                    $url->isJavascript();
-            })
             ->map(function (Url $url) {
                 return $this->normalizeUrl($url);
             })
             ->filter(function (Url $url) {
+                return $url->hasCrawlableScheme();
+            })
+            ->filter(function (Url $url) {
                 return $this->crawlProfile->shouldCrawl($url);
             })
+            ->reject(function ($url) {
+                return $this->crawlQueue->has($url);
+            })
             ->each(function (Url $url) use ($foundOnUrl) {
-                if (! $this->crawlQueue->has($url)) {
-                    $crawlUrl = CrawlUrl::create($url, $foundOnUrl);
-
-                    $this->crawlQueue->add($crawlUrl);
-                }
+                $this->crawlQueue->add(
+                    CrawlUrl::create($url, $foundOnUrl)
+                );
             });
     }
 
@@ -226,23 +203,18 @@ class Crawler
     {
         $domCrawler = new DomCrawler($html);
 
-        $allUrls = collect($domCrawler->filterXpath('//a')
-            ->extract(['href']))
+        return collect($domCrawler->filterXpath('//a')->extract(['href']))
             ->map(function ($url) {
                 return Url::create($url);
             });
-
-        return $allUrls;
     }
 
     /**
-     * Normalize the given url.
-     *
      * @param \Spatie\Crawler\Url $url
      *
-     * @return $this
+     * @return \Spatie\Crawler\Url
      */
-    protected function normalizeUrl(Url $url)
+    protected function normalizeUrl(Url $url): Url
     {
         if ($url->isRelative()) {
             $url->setScheme($this->baseUrl->scheme)

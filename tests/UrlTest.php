@@ -57,15 +57,14 @@ class UrlTest extends TestCase
     /**
      * @test
      */
-    public function it_can_determine_if_an_url_is_protocol_independent()
+    public function it_can_determine_if_an_url_has_a_crawlable_scheme()
     {
-        $url = new Url('//google.com/test');
+        $this->assertTrue((new Url('//google.com/test'))->hasCrawlableScheme());
+        $this->assertTrue((new Url('http://google.com/test'))->hasCrawlableScheme());
+        $this->assertTrue((new Url('https://google.com/test'))->hasCrawlableScheme());
 
-        $this->assertTrue($url->isProtocolIndependent());
-
-        $url = new Url($this->testUrl);
-
-        $this->assertFalse($url->isProtocolIndependent());
+        $this->assertFalse((new Url('mailto:larry@google.com'))->hasCrawlableScheme());
+        $this->assertFalse((new Url('tel:123456789'))->hasCrawlableScheme());
     }
 
     /** @test */
@@ -98,29 +97,6 @@ class UrlTest extends TestCase
         $url = Url::create('https://spatie.be/team#willem')->removeFragment();
 
         $this->assertEquals('https://spatie.be/team', (string) $url);
-    }
-
-    /** @test */
-    public function it_can_determine_if_the_url_is_an_email_url()
-    {
-        $this->assertFalse(Url::create('https://spa'.
-            'tie.be/')->isEmailUrl());
-        $this->assertTrue(Url::create('mailto:info@spatie.be')->isEmailUrl());
-    }
-
-    /** @test */
-    public function it_can_determine_if_the_url_is_a_tel_url()
-    {
-        $this->assertFalse(Url::create('https://spa'.
-            'tie.be/')->isTelUrl());
-        $this->assertTrue(Url::create('tel:+3323456789')->isTelUrl());
-    }
-
-    /** @test */
-    public function it_can_determine_if_the_url_is_javascript_url()
-    {
-        $url = (new Url('javascript:alert()'));
-        $this->assertTrue($url->isJavascript());
     }
 
     /** @test */
