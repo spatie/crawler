@@ -2,6 +2,10 @@
 
 All Notable changes to `spatie/crawler` will be documented in this file.
 
+## 2.0.0 - 2016-12-05
+- improve performance by concurrent crawling
+- make it possible to determine on which url a url was found
+
 ## 1.3.1 - 2015-09-13
 - Ignore `tel:` links when crawling 
 
