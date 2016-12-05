@@ -180,21 +180,22 @@ class Crawler
         $allLinks = $this->extractAllLinks($html);
 
         collect($allLinks)
-            ->filter(function (Url $url) {
-                return $url->hasCrawlableScheme();
-            })
             ->map(function (Url $url) {
                 return $this->normalizeUrl($url);
             })
             ->filter(function (Url $url) {
+                return $url->hasCrawlableScheme();
+            })
+            ->filter(function (Url $url) {
                 return $this->crawlProfile->shouldCrawl($url);
             })
+            ->reject(function ($url) {
+                return $this->crawlQueue->has($url);
+            })
             ->each(function (Url $url) use ($foundOnUrl) {
-                if (! $this->crawlQueue->has($url)) {
-                    $crawlUrl = CrawlUrl::create($url, $foundOnUrl);
-
-                    $this->crawlQueue->add($crawlUrl);
-                }
+                $this->crawlQueue->add(
+                    CrawlUrl::create($url, $foundOnUrl)
+                );
             });
     }
 
@@ -202,23 +203,18 @@ class Crawler
     {
         $domCrawler = new DomCrawler($html);
 
-        $allUrls = collect($domCrawler->filterXpath('//a')
-            ->extract(['href']))
+        return collect($domCrawler->filterXpath('//a')->extract(['href']))
             ->map(function ($url) {
                 return Url::create($url);
             });
-
-        return $allUrls;
     }
 
     /**
-     * Normalize the given url.
-     *
      * @param \Spatie\Crawler\Url $url
      *
-     * @return $this
+     * @return \Spatie\Crawler\Url
      */
-    protected function normalizeUrl(Url $url)
+    protected function normalizeUrl(Url $url): Url
     {
         if ($url->isRelative()) {
             $url->setScheme($this->baseUrl->scheme)
