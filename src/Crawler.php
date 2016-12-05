@@ -3,13 +3,13 @@
 namespace Spatie\Crawler;
 
 use Generator;
+use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
-use GuzzleHttp\Pool;
 use Illuminate\Support\Collection;
 use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 
 class Crawler
