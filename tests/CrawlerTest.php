@@ -2,9 +2,9 @@
 
 namespace Spatie\Crawler\Test;
 
+use Spatie\Crawler\Url;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
-use Spatie\Crawler\Url;
 
 class CrawlerTest extends TestCase
 {
