@@ -14,34 +14,22 @@ use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 
 class Crawler
 {
-    /**
-     * @var \GuzzleHttp\Client
-     */
+    /** @var \GuzzleHttp\Client */
     protected $client;
 
-    /**
-     * @var \Spatie\Crawler\Url;
-     */
+    /** @var \Spatie\Crawler\Url */
     protected $baseUrl;
 
-    /**
-     * @var \Spatie\Crawler\CrawlObserver
-     */
+    /** @var \Spatie\Crawler\CrawlObserver */
     protected $crawlObserver;
 
-    /**
-     * @var \Spatie\Crawler\CrawlProfile
-     */
+    /** @var \Spatie\Crawler\CrawlProfile */
     protected $crawlProfile;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $concurrency;
 
-    /**
-     * @var \Spatie\Crawler\CrawlQueue
-     */
+    /** @var \Spatie\Crawler\CrawlQueue */
     protected $crawlQueue;
 
     /**
@@ -83,8 +71,6 @@ class Crawler
     }
 
     /**
-     * Set the crawl observer.
-     *
      * @param \Spatie\Crawler\CrawlObserver $crawlObserver
      *
      * @return $this
@@ -97,8 +83,6 @@ class Crawler
     }
 
     /**
-     * Set the crawl profile.
-     *
      * @param \Spatie\Crawler\CrawlProfile $crawlProfile
      *
      * @return $this
@@ -111,8 +95,6 @@ class Crawler
     }
 
     /**
-     * Start the crawling process.
-     *
      * @param \Spatie\Crawler\Url|string $baseUrl
      */
     public function startCrawling($baseUrl)
@@ -132,9 +114,6 @@ class Crawler
         $this->crawlObserver->finishedCrawling();
     }
 
-    /**
-     * Crawl urls in the currentPool.
-     */
     protected function startCrawlingQueue()
     {
         while ($this->crawlQueue->hasPendingUrls()) {
@@ -201,11 +180,8 @@ class Crawler
         $allLinks = $this->extractAllLinks($html);
 
         collect($allLinks)
-            ->reject(function (Url $url) {
-                return
-                    $url->isEmailUrl() ||
-                    $url->isTelUrl() ||
-                    $url->isJavascript();
+            ->filter(function (Url $url) {
+                return $url->hasCrawlableScheme();
             })
             ->map(function (Url $url) {
                 return $this->normalizeUrl($url);

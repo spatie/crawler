@@ -4,29 +4,19 @@ namespace Spatie\Crawler;
 
 class Url
 {
-    /**
-     * @var null|string
-     */
+    /** @var null|string */
     public $scheme;
 
-    /**
-     * @var null|string
-     */
+    /** @var null|string */
     public $host;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     public $port = 80;
 
-    /**
-     * @var null|string
-     */
+    /** @var null|string */
     public $path;
 
-    /**
-     * @var null|string
-     */
+    /** @var null|string */
     public $query;
 
     /**
@@ -50,49 +40,22 @@ class Url
         }
     }
 
-    /**
-     * Determine if the url is relative.
-     */
     public function isRelative(): bool
     {
         return is_null($this->host);
     }
 
-    /**
-     * Determine if the url is protocol independent.
-     */
     public function isProtocolIndependent(): bool
     {
         return is_null($this->scheme);
     }
 
-    /**
-     * Determine if this is a mailto-link.
-     */
-    public function isEmailUrl(): bool
+    public function hasCrawlableScheme(): bool
     {
-        return $this->scheme === 'mailto';
+        return in_array($this->scheme, [null, 'http', 'https']);
     }
 
     /**
-     * Determine if this is a tel-link.
-     */
-    public function isTelUrl(): bool
-    {
-        return $this->scheme === 'tel';
-    }
-
-    /**
-     * Determine if this is an inline javascript.
-     */
-    public function isJavascript(): bool
-    {
-        return $this->scheme === 'javascript';
-    }
-
-    /**
-     * Set the scheme.
-     *
      * @param string $scheme
      *
      * @return $this
@@ -105,8 +68,6 @@ class Url
     }
 
     /**
-     * Set the host.
-     *
      * @param string $host
      *
      * @return $this
@@ -131,8 +92,6 @@ class Url
     }
 
     /**
-     * Remove the fragment.
-     *
      * @return $this
      */
     public function removeFragment()
@@ -191,8 +150,6 @@ class Url
     }
 
     /**
-     * Convert the url to string.
-     *
      * @return string
      */
     public function __toString()
@@ -209,6 +166,7 @@ class Url
     /**
      * @param string|null $haystack
      * @param string|array $needles
+     *
      * @return bool
      */
     public function startsWith($haystack, $needles): bool
@@ -221,5 +179,4 @@ class Url
 
         return false;
     }
-
 }
