@@ -42,6 +42,7 @@ class Crawler
         $client = new Client($clientOptions ?? [
                 RequestOptions::ALLOW_REDIRECTS => false,
                 RequestOptions::COOKIES => true,
+                RequestOptions::CONNECT_TIMEOUT => 5,
             ]);
 
         return new static($client);

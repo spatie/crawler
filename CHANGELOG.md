@@ -2,6 +2,9 @@
 
 All Notable changes to `spatie/crawler` will be documented in this file.
 
+## 2.0.3 - 2016-12-13
+- set a default timeout of 5 seconds
+
 ## 2.0.2 - 2016-12-05
 - fix for non responding hosts
 
