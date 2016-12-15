@@ -6,6 +6,7 @@ use Generator;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Collection;
 use Psr\Http\Message\ResponseInterface;
@@ -42,7 +43,6 @@ class Crawler
         $client = new Client($clientOptions ?? [
                 RequestOptions::ALLOW_REDIRECTS => false,
                 RequestOptions::COOKIES => true,
-                RequestOptions::CONNECT_TIMEOUT => 5,
             ]);
 
         return new static($client);
@@ -120,6 +120,10 @@ class Crawler
         while ($this->crawlQueue->hasPendingUrls()) {
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
+                'options' => [
+                    RequestOptions::CONNECT_TIMEOUT => 5,
+                    RequestOptions::TIMEOUT => 5,
+                ],
                 'fulfilled' => function (ResponseInterface $response, int $index) {
                     $this->handleResponse($response, $index);
 
