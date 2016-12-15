@@ -2,6 +2,9 @@
 
 All Notable changes to `spatie/crawler` will be documented in this file.
 
+## 2.0.5 - 2016-12-15
+- fix detection of redirects
+
 ## 2.0.4 - 2016-12-15
 - fix the default timeout of 5 seconds
 

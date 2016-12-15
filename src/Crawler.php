@@ -40,7 +40,10 @@ class Crawler
      */
     public static function create(array $clientOptions = [])
     {
-        $client = new Client($clientOptions);
+        $client = new Client($clientOptions ?? [
+                RequestOptions::ALLOW_REDIRECTS => false,
+                RequestOptions::COOKIES => true,
+            ]);
 
         return new static($client);
     }
@@ -118,9 +121,8 @@ class Crawler
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
                 'options' => [
-                    RequestOptions::CONNECT_TIMEOUT => 5,
-                    RequestOptions::TIMEOUT => 5,
-
+                    RequestOptions::CONNECT_TIMEOUT => 10,
+                    RequestOptions::TIMEOUT => 10,
                 ],
                 'fulfilled' => function (ResponseInterface $response, int $index) {
                     $this->handleResponse($response, $index);
