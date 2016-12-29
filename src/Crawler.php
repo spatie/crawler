@@ -44,7 +44,7 @@ class Crawler
                 RequestOptions::COOKIES => true,
                 RequestOptions::CONNECT_TIMEOUT => 10,
                 RequestOptions::TIMEOUT => 10,
-                RequestOptions::ALLOW_REDIRECTS => false
+                RequestOptions::ALLOW_REDIRECTS => false,
             ]);
 
         return new static($client);
