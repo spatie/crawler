@@ -39,7 +39,7 @@ class Crawler
      */
     public static function create(array $clientOptions = [])
     {
-		$hasClientOpts = (bool) count($clientOptions);
+        $hasClientOpts = (bool) count($clientOptions);
         $client = new Client($hasClientOpts ? $clientOptions : [
                 RequestOptions::COOKIES => true,
                 RequestOptions::CONNECT_TIMEOUT => 10,
