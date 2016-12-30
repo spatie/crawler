@@ -32,6 +32,12 @@ class CrawlLogger implements CrawlObserver
             $logText .= " - found on {$foundOnUrl}";
         }
 
+        if ($response->hasHeader('X-Guzzle-Redirect-History')) {
+          $redirectHeaders = $response->getHeader('X-Guzzle-Redirect-History');
+          $finalUrl = end($redirectHeaders);
+          $logText .= " - redirects to {$finalUrl}";
+        }
+
         CrawlerTest::log($logText);
     }
 
