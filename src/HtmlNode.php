@@ -6,7 +6,6 @@ use DOMElement;
 
 class HtmlNode
 {
-
     /** @var \DOMElement */
     protected $node;
 
@@ -54,5 +53,4 @@ class HtmlNode
     {
         return $this->node->setAttribute('href', $href)->ownerDocument->saveHTML($this->node);
     }
-
 }
