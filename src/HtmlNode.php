@@ -3,7 +3,6 @@
 namespace Spatie\Crawler;
 
 use DOMElement;
-use DOMDocument;
 
 class HtmlNode
 {
@@ -23,7 +22,7 @@ class HtmlNode
 
     public function __construct(DOMElement $node)
     {
-      $this->node = $node;
+        $this->node = $node;
     }
 
     /**
@@ -33,7 +32,7 @@ class HtmlNode
      */
     public function getNode(): DOMElement
     {
-      return $this->node;
+        return $this->node;
     }
 
     /**

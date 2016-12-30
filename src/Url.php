@@ -44,7 +44,7 @@ class Url
 
     public function __construct($node, $url = null)
     {
-        if (!is_null($node)) {
+        if (! is_null($node)) {
             $url = $node->getNode()->getAttribute('href');
         } else {
             $url = $url;
@@ -56,7 +56,7 @@ class Url
                 $this->$property = $urlProperties[$property];
             }
         }
-        $this->node = (!is_null($node)) ? $node : null;
+        $this->node = (! is_null($node)) ? $node : null;
     }
 
     public function isRelative(): bool
