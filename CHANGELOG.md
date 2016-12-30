@@ -2,6 +2,9 @@
 
 All Notable changes to `spatie/crawler` will be documented in this file.
 
+## 2.0.7 - 2016-12-30
+- make sure the passed client options are being used
+
 ## 2.0.6 - 2016-12-15
 - second attempt to fix detection of redirects
 
