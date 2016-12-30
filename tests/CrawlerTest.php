@@ -50,8 +50,8 @@ class CrawlerTest extends TestCase
                     'max'             => 10,        // allow at most 10 redirects.
                     'strict'          => true,      // use "strict" RFC compliant redirects.
                     'referer'         => true,      // add a Referer header
-                    'track_redirects' => true
-                ]
+                    'track_redirects' => true,
+                ],
             ])
             ->setCrawlObserver(new CrawlLogger())
             ->startCrawling('http://localhost:8080');
