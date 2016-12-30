@@ -39,9 +39,12 @@ class Crawler
      */
     public static function create(array $clientOptions = [])
     {
-        $client = new Client($clientOptions ?? [
-
+        $hasClientOpts = (bool) count($clientOptions);
+        $client = new Client($hasClientOpts ? $clientOptions : [
                 RequestOptions::COOKIES => true,
+                RequestOptions::CONNECT_TIMEOUT => 10,
+                RequestOptions::TIMEOUT => 10,
+                RequestOptions::ALLOW_REDIRECTS => false,
             ]);
 
         return new static($client);
@@ -119,11 +122,7 @@ class Crawler
         while ($this->crawlQueue->hasPendingUrls()) {
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
-                'options' => [
-                    RequestOptions::CONNECT_TIMEOUT => 10,
-                    RequestOptions::TIMEOUT => 10,
-                    RequestOptions::ALLOW_REDIRECTS => false,
-                ],
+                'options' => $this->client->getConfig(),
                 'fulfilled' => function (ResponseInterface $response, int $index) {
                     $this->handleResponse($response, $index);
 
