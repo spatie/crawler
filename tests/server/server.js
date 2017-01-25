@@ -7,7 +7,7 @@ app.get('/', function (request, response) {
 });
 
 app.get('/link1', function (request, response) {
-    response.end('You are on link1');
+    response.end('You are on link1<a href="http://example.com/">External Link</a>');
 });
 
 app.get('/link2', function (request, response) {

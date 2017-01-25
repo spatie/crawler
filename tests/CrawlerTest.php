@@ -5,6 +5,7 @@ namespace Spatie\Crawler\Test;
 use Spatie\Crawler\Url;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
+use Spatie\Crawler\CrawlInternalUrls;
 
 class CrawlerTest extends TestCase
 {
@@ -35,6 +36,7 @@ class CrawlerTest extends TestCase
             ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
             ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
             ['url' => 'http://localhost:8080/notExists', 'foundOn' => 'http://localhost:8080/link3'],
+            ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
         ]);
     }
 
@@ -61,6 +63,23 @@ class CrawlerTest extends TestCase
 
         $this->assertNotCrawled([
             ['url' => 'http://localhost:8080/link3'],
+        ]);
+    }
+
+    /** @test */
+    public function it_uses_crawl_profile_for_internal_urls()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce([
+            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+        ]);
+
+        $this->assertNotCrawled([
+            ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/'],
         ]);
     }
 
