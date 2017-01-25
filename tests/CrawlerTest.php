@@ -79,7 +79,7 @@ class CrawlerTest extends TestCase
         ]);
 
         $this->assertNotCrawled([
-            ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://example.com/'],
         ]);
     }
 
