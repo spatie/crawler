@@ -75,6 +75,11 @@ an objects that implements the `Spatie\Crawler\CrawlProfile`-interface:
 public function shouldCrawl(Url $url): bool;
 ```
 
+This package comes with two `CrawlProfiles` out of the box:
+
+- `CrawlAllUrls`: this profile will crawl all urls on all pages including urls to an external site. 
+- `CrawlInternalUrls`: this profile will only crawl the internal urls on the pages of a host.
+
 ## Setting the number of concurrent requests
 
 To improve the speed of the crawl the package concurrently crawls 10 urls by default. If you want to change that number you can use the `setConcurrency` method.
