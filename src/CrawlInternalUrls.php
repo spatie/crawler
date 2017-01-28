@@ -13,6 +13,6 @@ class CrawlInternalUrls implements CrawlProfile
 
     public function shouldCrawl(Url $url): bool
     {
-        return $this->host === $url->host ? true : false;
+        return $this->host === $url->host;
     }
 }
