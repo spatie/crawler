@@ -191,8 +191,8 @@ class Crawler
             ->filter(function (Url $url) {
                 return $url->hasCrawlableScheme();
             })
-            ->map(function (Url $url) {
-                return $this->normalizeUrl($url);
+            ->map(function (Url $url) use ($foundOnUrl) {
+                return $this->normalizeUrl($url, $foundOnUrl);
             })
             ->filter(function (Url $url) {
                 return $this->crawlProfile->shouldCrawl($url);
@@ -219,11 +219,17 @@ class Crawler
 
     /**
      * @param \Spatie\Crawler\Url $url
+     * @param \Spatie\Crawler\Url $foundOnUrl
      *
      * @return \Spatie\Crawler\Url
      */
-    protected function normalizeUrl(Url $url): Url
+    protected function normalizeUrl(Url $url, Url $foundOnUrl): Url
     {
+        if ($url->isRelativeToPath()) {
+            $directory = $foundOnUrl->directory();
+            $url->setPath($directory.$url->path());
+        }
+
         if ($url->isRelative()) {
             $url->setScheme($this->baseUrl->scheme)
                 ->setHost($this->baseUrl->host)
