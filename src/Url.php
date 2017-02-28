@@ -135,6 +135,7 @@ class Url
     {
         $segments = $this->segments();
         array_pop($segments);
+
         return implode('/', $segments).'/';
     }
 
