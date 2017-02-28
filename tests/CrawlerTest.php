@@ -37,6 +37,9 @@ class CrawlerTest extends TestCase
             ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
             ['url' => 'http://localhost:8080/notExists', 'foundOn' => 'http://localhost:8080/link3'],
             ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
+            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
+            ['url' => 'http://localhost:8080/dir/subdir/link6', 'foundOn' => 'http://localhost:8080/dir/link5'],
         ]);
     }
 
