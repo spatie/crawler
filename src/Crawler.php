@@ -11,6 +11,7 @@ use Illuminate\Support\Collection;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
+use Symfony\Component\DomCrawler\Link;
 
 class Crawler
 {
@@ -185,14 +186,14 @@ class Crawler
 
     protected function addAllLinksToCrawlQueue(string $html, Url $foundOnUrl)
     {
-        $allLinks = $this->extractAllLinks($html);
+        $allLinks = $this->extractAllLinks($html, $foundOnUrl);
 
         collect($allLinks)
             ->filter(function (Url $url) {
                 return $url->hasCrawlableScheme();
             })
             ->map(function (Url $url) use ($foundOnUrl) {
-                return $this->normalizeUrl($url, $foundOnUrl);
+                return $this->normalizeUrl($url);
             })
             ->filter(function (Url $url) {
                 return $this->crawlProfile->shouldCrawl($url);
@@ -207,39 +208,23 @@ class Crawler
             });
     }
 
-    protected function extractAllLinks(string $html): Collection
+    protected function extractAllLinks(string $html, Url $foundOnUrl): Collection
     {
-        $domCrawler = new DomCrawler($html);
+        $domCrawler = new DomCrawler($html, $foundOnUrl);
 
-        return collect($domCrawler->filterXpath('//a')->extract(['href']))
-            ->map(function ($url) {
-                return Url::create($url);
+        return collect($domCrawler->filterXpath('//a')->links())
+            ->map(function (Link $link) {
+                return Url::create($link->getUri());
             });
     }
 
     /**
      * @param \Spatie\Crawler\Url $url
-     * @param \Spatie\Crawler\Url $foundOnUrl
      *
      * @return \Spatie\Crawler\Url
      */
-    protected function normalizeUrl(Url $url, Url $foundOnUrl): Url
+    protected function normalizeUrl(Url $url): Url
     {
-        if ($url->isRelativeToPath()) {
-            $directory = $foundOnUrl->directory();
-            $url->setPath($directory.$url->path());
-        }
-
-        if ($url->isRelative()) {
-            $url->setScheme($this->baseUrl->scheme)
-                ->setHost($this->baseUrl->host)
-                ->setPort($this->baseUrl->port);
-        }
-
-        if ($url->isProtocolIndependent()) {
-            $url->setScheme($this->baseUrl->scheme);
-        }
-
         return $url->removeFragment();
     }
 }
