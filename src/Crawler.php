@@ -6,18 +6,21 @@ use Generator;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Collection;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
+use Psr\Http\Message\UriInterface;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
+use Symfony\Component\DomCrawler\Link;
 
 class Crawler
 {
     /** @var \GuzzleHttp\Client */
     protected $client;
 
-    /** @var \Spatie\Crawler\Url */
+    /** @var UriInterface */
     protected $baseUrl;
 
     /** @var \Spatie\Crawler\CrawlObserver */
@@ -98,12 +101,12 @@ class Crawler
     }
 
     /**
-     * @param \Spatie\Crawler\Url|string $baseUrl
+     * @param UriInterface|string $baseUrl
      */
     public function startCrawling($baseUrl)
     {
-        if (! $baseUrl instanceof Url) {
-            $baseUrl = Url::create($baseUrl);
+        if (! $baseUrl instanceof UriInterface) {
+            $baseUrl = new Uri($baseUrl);
         }
 
         $this->baseUrl = $baseUrl;
@@ -128,7 +131,7 @@ class Crawler
 
                     $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index);
 
-                    if ($crawlUrl->url->host !== $this->baseUrl->host) {
+                    if ($crawlUrl->url->getHost() !== $this->baseUrl->getHost()) {
                         return;
                     }
 
@@ -178,68 +181,52 @@ class Crawler
 
             $this->crawlQueue->markAsProcessed($crawlUrl);
 
-            yield new Request('GET', (string) $crawlUrl->url);
+            yield new Request('GET', $crawlUrl->url);
             $i++;
         }
     }
 
-    protected function addAllLinksToCrawlQueue(string $html, Url $foundOnUrl)
+    protected function addAllLinksToCrawlQueue(string $html, UriInterface $foundOnUrl)
     {
-        $allLinks = $this->extractAllLinks($html);
+        $allLinks = $this->extractAllLinks($html, $foundOnUrl);
 
         collect($allLinks)
-            ->filter(function (Url $url) {
-                return $url->hasCrawlableScheme();
+            ->filter(function (UriInterface $url) {
+                return in_array($url->getScheme(), ['http', 'https']);
             })
-            ->map(function (Url $url) use ($foundOnUrl) {
-                return $this->normalizeUrl($url, $foundOnUrl);
+            ->map(function (UriInterface $url) {
+                return $this->normalizeUrl($url);
             })
-            ->filter(function (Url $url) {
+            ->filter(function (UriInterface $url) {
                 return $this->crawlProfile->shouldCrawl($url);
             })
             ->reject(function ($url) {
                 return $this->crawlQueue->has($url);
             })
-            ->each(function (Url $url) use ($foundOnUrl) {
+            ->each(function (UriInterface $url) use ($foundOnUrl) {
                 $this->crawlQueue->add(
                     CrawlUrl::create($url, $foundOnUrl)
                 );
             });
     }
 
-    protected function extractAllLinks(string $html): Collection
+    protected function extractAllLinks(string $html, UriInterface $foundOnUrl): Collection
     {
-        $domCrawler = new DomCrawler($html);
+        $domCrawler = new DomCrawler($html, $foundOnUrl);
 
-        return collect($domCrawler->filterXpath('//a')->extract(['href']))
-            ->map(function ($url) {
-                return Url::create($url);
+        return collect($domCrawler->filterXpath('//a')->links())
+            ->map(function (Link $link) {
+                return new Uri($link->getUri());
             });
     }
 
     /**
-     * @param \Spatie\Crawler\Url $url
-     * @param \Spatie\Crawler\Url $foundOnUrl
+     * @param UriInterface $url
      *
-     * @return \Spatie\Crawler\Url
+     * @return UriInterface
      */
-    protected function normalizeUrl(Url $url, Url $foundOnUrl): Url
+    protected function normalizeUrl(UriInterface $url): UriInterface
     {
-        if ($url->isRelativeToPath()) {
-            $directory = $foundOnUrl->directory();
-            $url->setPath($directory.$url->path());
-        }
-
-        if ($url->isRelative()) {
-            $url->setScheme($this->baseUrl->scheme)
-                ->setHost($this->baseUrl->host)
-                ->setPort($this->baseUrl->port);
-        }
-
-        if ($url->isProtocolIndependent()) {
-            $url->setScheme($this->baseUrl->scheme);
-        }
-
-        return $url->removeFragment();
+        return $url->withFragment('');
     }
 }
