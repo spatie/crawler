@@ -19,18 +19,36 @@ class Url
     /** @var null|string */
     public $query;
 
+    /** @var \Spatie\Crawler\HtmlNode */
+    public $node;
+
+    /**
+     * @param HtmlNode $node
+     *
+     * @return static
+     */
+    public static function create(HtmlNode $node)
+    {
+        return new static($node, null);
+    }
+
     /**
      * @param string $url
      *
      * @return static
      */
-    public static function create(string $url)
+    public static function createFromString(string $url)
     {
-        return new static($url);
+        return new static(null, $url);
     }
 
-    public function __construct(string $url)
+    public function __construct($node, $url = null)
     {
+        if (! is_null($node)) {
+            $url = $node->getNode()->getAttribute('href');
+        } else {
+            $url = $url;
+        }
         $urlProperties = parse_url($url);
 
         foreach (['scheme', 'host', 'path', 'port', 'query'] as $property) {
@@ -38,6 +56,7 @@ class Url
                 $this->$property = $urlProperties[$property];
             }
         }
+        $this->node = (! is_null($node)) ? $node : null;
     }
 
     public function isRelative(): bool

@@ -103,7 +103,7 @@ class Crawler
     public function startCrawling($baseUrl)
     {
         if (! $baseUrl instanceof Url) {
-            $baseUrl = Url::create($baseUrl);
+            $baseUrl = Url::createFromString($baseUrl);
         }
 
         $this->baseUrl = $baseUrl;
@@ -157,7 +157,7 @@ class Crawler
     {
         $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index);
 
-        $this->crawlObserver->hasBeenCrawled($crawlUrl->url, $response, $crawlUrl->foundOnUrl);
+        $this->crawlObserver->hasBeenCrawled($crawlUrl, $response);
     }
 
     protected function getCrawlRequests(): Generator
@@ -174,7 +174,7 @@ class Crawler
                 continue;
             }
 
-            $this->crawlObserver->willCrawl($crawlUrl->url);
+            $this->crawlObserver->willCrawl($crawlUrl);
 
             $this->crawlQueue->markAsProcessed($crawlUrl);
 
@@ -211,9 +211,12 @@ class Crawler
     {
         $domCrawler = new DomCrawler($html);
 
-        return collect($domCrawler->filterXpath('//a')->extract(['href']))
-            ->map(function ($url) {
-                return Url::create($url);
+        return collect($domCrawler->filterXpath('//a'))
+            ->reject(function ($value, $key) {
+                return is_null($value->getAttribute('href'));
+            })
+            ->map(function ($node) {
+                return Url::create(HtmlNode::create($node));
             });
     }
 
