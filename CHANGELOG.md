@@ -2,6 +2,9 @@
 
 All Notable changes to `spatie/crawler` will be documented in this file.
 
+## 2.1.1 - 2017-03-03
+- fix bugs around relative urls
+
 ## 2.1.0 - 2017-01-27
 - add `CrawlInternalUrls`
 
