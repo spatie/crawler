@@ -2,6 +2,7 @@
 
 namespace Spatie\Crawler\Test;
 
+use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\Url;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
@@ -32,12 +33,12 @@ class CrawlerTest extends TestCase
 
         $this->assertCrawledOnce([
             ['url' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080'],
+            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080'],
             ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
             ['url' => 'http://localhost:8080/notExists', 'foundOn' => 'http://localhost:8080/link3'],
             ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
-            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080'],
             ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
             ['url' => 'http://localhost:8080/dir/subdir/link6', 'foundOn' => 'http://localhost:8080/dir/link5'],
         ]);
@@ -47,9 +48,9 @@ class CrawlerTest extends TestCase
     public function it_uses_a_crawl_profile_to_determine_what_should_be_crawled()
     {
         $crawlProfile = new class implements CrawlProfile {
-            public function shouldCrawl(Url $url): bool
+            public function shouldCrawl(UriInterface $url): bool
             {
-                return $url->path !== '/link3';
+                return $url->getPath() !== '/link3';
             }
         };
 
@@ -60,8 +61,8 @@ class CrawlerTest extends TestCase
 
         $this->assertCrawledOnce([
             ['url' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080'],
+            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080'],
         ]);
 
         $this->assertNotCrawled([
@@ -78,7 +79,7 @@ class CrawlerTest extends TestCase
             ->startCrawling('http://localhost:8080');
 
         $this->assertCrawledOnce([
-            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080'],
         ]);
 
         $this->assertNotCrawled([

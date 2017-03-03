@@ -3,6 +3,7 @@
 namespace Spatie\Crawler;
 
 use Illuminate\Support\Collection;
+use Psr\Http\Message\UriInterface;
 
 class CrawlQueue
 {
@@ -71,7 +72,7 @@ class CrawlQueue
      */
     public function has($crawlUrl): bool
     {
-        if ($crawlUrl instanceof Url) {
+        if ($crawlUrl instanceof UriInterface) {
             $crawlUrl = CrawlUrl::create($crawlUrl);
         }
 
@@ -98,7 +99,7 @@ class CrawlQueue
     protected function contains(Collection $collection, CrawlUrl $searchCrawlUrl): bool
     {
         foreach ($collection as $crawlUrl) {
-            if ($crawlUrl->url->isEqual($searchCrawlUrl->url)) {
+            if ((string) $crawlUrl->url === (string) $searchCrawlUrl->url) {
                 return true;
             }
         }
