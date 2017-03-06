@@ -45,13 +45,6 @@ class Url
         return is_null($this->host);
     }
 
-    public function isRelativeToPath(): bool
-    {
-        $doesntStartWithForwardSlash = substr($this->path(), 0, 1) != '/';
-
-        return $this->isRelative() && $doesntStartWithForwardSlash;
-    }
-
     public function isProtocolIndependent(): bool
     {
         return is_null($this->scheme);
