@@ -8,10 +8,10 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Collection;
+use Symfony\Component\DomCrawler\Link;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
-use Symfony\Component\DomCrawler\Link;
 
 class Crawler
 {
