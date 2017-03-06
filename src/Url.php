@@ -122,6 +122,8 @@ class Url
     }
 
     /**
+     * @deprecated This function is not being used internally anymore and will be removed in the next major version.
+     *
      * @return null|string
      */
     public function directory()
@@ -133,6 +135,8 @@ class Url
     }
 
     /**
+     * @deprecated This function is not being used internally anymore and will be removed in the next major version.
+     *
      * @param int|null $index
      *
      * @return array|null|string
