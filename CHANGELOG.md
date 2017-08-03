@@ -1,6 +1,6 @@
 # Changelog
 
-All 1otable changes to `spatie/crawler` will be documented in this file.
+All notable changes to `spatie/crawler` will be documented in this file.
 
 ## 2.1.2 - 2017-03-06
 - refactor to make use of Symfony Crawler's `link` function
