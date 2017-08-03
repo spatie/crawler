@@ -4,7 +4,6 @@ namespace Spatie\Crawler;
 
 class EmptyCrawlObserver implements CrawlObserver
 {
-
     /**
      * Called when the crawler will crawl the url.
      *
@@ -14,7 +13,6 @@ class EmptyCrawlObserver implements CrawlObserver
      */
     public function willCrawl(Url $url)
     {
-
     }
 
     /**
@@ -28,7 +26,6 @@ class EmptyCrawlObserver implements CrawlObserver
      */
     public function hasBeenCrawled(Url $url, $response, Url $foundOnUrl = null)
     {
-
     }
 
     /**
@@ -38,6 +35,5 @@ class EmptyCrawlObserver implements CrawlObserver
      */
     public function finishedCrawling()
     {
-
     }
 }
