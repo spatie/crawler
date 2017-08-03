@@ -2,6 +2,9 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 2.2.0 - 2017-08-03
+- add `EmptyCrawlObserver`
+
 ## 2.1.2 - 2017-03-06
 - refactor to make use of Symfony Crawler's `link` function
  

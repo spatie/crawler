@@ -2,6 +2,7 @@
 
 namespace Spatie\Crawler\Test;
 
+use Spatie\Crawler\EmptyCrawlObserver;
 use Spatie\Crawler\Url;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
@@ -123,5 +124,15 @@ class CrawlerTest extends TestCase
     public static function log(string $text)
     {
         file_put_contents(static::$logPath, $text.PHP_EOL, FILE_APPEND);
+    }
+
+    /** @test */
+    public function the_empty_crawl_observer_does_nothing()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new EmptyCrawlObserver())
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertTrue(true);
     }
 }
