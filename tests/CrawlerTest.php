@@ -2,11 +2,11 @@
 
 namespace Spatie\Crawler\Test;
 
-use Spatie\Crawler\EmptyCrawlObserver;
 use Spatie\Crawler\Url;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
 use Spatie\Crawler\CrawlInternalUrls;
+use Spatie\Crawler\EmptyCrawlObserver;
 
 class CrawlerTest extends TestCase
 {
