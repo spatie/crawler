@@ -18,7 +18,7 @@
     "require": {
         "php": "^7.0",
         "symfony/dom-crawler": "^3.0",
-        "guzzlehttp/guzzle": "^6.2",
+        "guzzlehttp/guzzle": "^6.3",
         "tightenco/collect": "^5.3"
     },
     "require-dev": {
