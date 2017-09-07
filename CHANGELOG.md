@@ -2,6 +2,9 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 2.2.1 - 2017-09-07
+- fix deps for PHP 7.2
+
 ## 2.2.0 - 2017-08-03
 - add `EmptyCrawlObserver`
 
