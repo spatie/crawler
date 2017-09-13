@@ -87,6 +87,15 @@ class CrawlerTest extends TestCase
         ]);
     }
 
+    /** @test */
+    public function it_will_crawl_to_specified_depth()
+	{
+		Crawler::create()
+			->setCrawlObserver(new CrawlLogger())
+			->startCrawling('http://localhost:8080');
+
+	}
+
     protected function assertCrawledOnce($urls)
     {
         $logContent = file_get_contents(static::$logPath);

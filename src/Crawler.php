@@ -12,6 +12,8 @@ use Symfony\Component\DomCrawler\Link;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
+use Tree\Node\Node;
+use Tree\Visitor\PreOrderVisitor;
 
 class Crawler
 {
@@ -32,6 +34,13 @@ class Crawler
 
     /** @var \Spatie\Crawler\CrawlQueue */
     protected $crawlQueue;
+
+    /** @var int */
+    protected $depth;
+
+    private $tree;
+
+    private $rootNode;
 
     /**
      * @param array $clientOptions
@@ -74,6 +83,18 @@ class Crawler
         return $this;
     }
 
+	/**
+	 * @param int $depth
+	 *
+	 * @return $this
+	 */
+	public function setDepth(int $depth)
+	{
+		$this->depth = $depth;
+
+		return $this;
+	}
+
     /**
      * @param \Spatie\Crawler\CrawlObserver $crawlObserver
      *
@@ -113,7 +134,15 @@ class Crawler
 
         $this->crawlQueue->add($crawlUrl);
 
+        $this->tree = new Node((string)$baseUrl);
+
         $this->startCrawlingQueue();
+
+		$visitor = new PreOrderVisitor;
+
+		$yield = $this->tree->accept($visitor);
+		print_r($yield);
+		// $yield will contain nodes A, B, C, D, G, H, E, F
 
         $this->crawlObserver->finishedCrawling();
     }
@@ -147,6 +176,8 @@ class Crawler
             $promise->wait();
 
             $this->crawlQueue->removeProcessedUrlsFromPending();
+
+            echo '-----' . PHP_EOL;
         }
     }
 
@@ -202,6 +233,13 @@ class Crawler
                 return $this->crawlQueue->has($url);
             })
             ->each(function (Url $url) use ($foundOnUrl) {
+
+            	echo 'Found on URL: ' . $foundOnUrl . PHP_EOL;
+            	$parent = $this->findParentNode((string) $foundOnUrl);
+
+            	echo 'Found parent URL' . (string) $parent->getValue() . PHP_EOL;
+				$parent->addChild(new Node((string)$url));
+
                 $this->crawlQueue->add(
                     CrawlUrl::create($url, $foundOnUrl)
                 );
@@ -227,4 +265,32 @@ class Crawler
     {
         return $url->removeFragment();
     }
+
+    protected function findParentNode(string $url) {
+
+    	echo 'Searching for parent with url: ' . $url . PHP_EOL;
+
+    	$parent = $this->search($this->tree, $url);
+    	if($parent == null) {
+    		echo 'No parent' . PHP_EOL;
+    		return $this->tree;
+		}
+		else {
+    		echo 'Found parent' . PHP_EOL;
+    		return $parent;
+		}
+	}
+
+	protected function search($node, $url) {
+
+    	echo 'Current node value: ' . $node->getValue() . PHP_EOL;
+
+    	if($node->getValue() == $url) {
+    		return $node->getParent();
+		}
+
+		foreach($node->getChildren() as $node) {
+			return $this->search($node, $url);
+		}
+	}
 }
