@@ -13,7 +13,6 @@ use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 use Tree\Node\Node;
-use Tree\Visitor\PreOrderVisitor;
 
 class Crawler
 {
@@ -214,7 +213,7 @@ class Crawler
             ->filter(function (Url $url) {
                 return $url->hasCrawlableScheme();
             })
-            ->map(function (Url $url) use ($foundOnUrl) {
+            ->map(function (Url $url) {
                 return $this->normalizeUrl($url);
             })
             ->filter(function (Url $url) {
@@ -229,7 +228,7 @@ class Crawler
 
             	$this->addToLinkTree($this->linkTree, (string)$url, $foundOnUrl, $newNode);
 
-				if(($this->depth == 0) or ($newNode->getDepth() <= $this->depth)) {
+				if(($this->depth == 0) || ($newNode->getDepth() <= $this->depth)) {
 					$this->crawlQueue->add(
 						CrawlUrl::create($url, $foundOnUrl)
 					);
@@ -264,7 +263,7 @@ class Crawler
 	 * @param $parentUrl string
 	 * @param $newNode \Tree\Node\Node
 	 */
-	protected function addToLinkTree($node, $url, $parentUrl, &$newNode) {
+	protected function addToLinkTree($node, string $url, string $parentUrl, &$newNode) {
 
     	if($node->getValue() == $parentUrl) {
     		$newNode = new Node($url);
