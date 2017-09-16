@@ -35,7 +35,7 @@ class Crawler
     protected $crawlQueue;
 
     /** @var int */
-    protected $depth = 0;
+    protected $maximumDepth = 0;
 
     /** @var \Tree\Node\Node */
     protected $linkTree;
@@ -82,13 +82,13 @@ class Crawler
     }
 
 	/**
-	 * @param int $depth
+	 * @param int $maximumDepth
 	 *
 	 * @return $this
 	 */
-	public function setDepth(int $depth)
+	public function setMaximumDepth(int $maximumDepth)
 	{
-		$this->depth = $depth;
+		$this->maximumDepth = $maximumDepth;
 
 		return $this;
 	}
@@ -228,7 +228,7 @@ class Crawler
 
             	$this->addToLinkTree($this->linkTree, (string)$url, $foundOnUrl, $newNode);
 
-				if(($this->depth == 0) || ($newNode->getDepth() <= $this->depth)) {
+				if(($this->maximumDepth === 0) || ($newNode->getDepth() <= $this->maximumDepth)) {
 					$this->crawlQueue->add(
 						CrawlUrl::create($url, $foundOnUrl)
 					);

@@ -92,7 +92,7 @@ class CrawlerTest extends TestCase
 	{
 		Crawler::create()
 			->setCrawlObserver(new CrawlLogger())
-			->setDepth(1)
+			->setMaximumDepth(1)
 			->startCrawling('http://localhost:8080');
 
 		$this->assertCrawledOnce([
@@ -112,7 +112,7 @@ class CrawlerTest extends TestCase
 
 		Crawler::create()
 			->setCrawlObserver(new CrawlLogger())
-			->setDepth(2)
+			->setMaximumDepth(2)
 			->startCrawling('http://localhost:8080');
 
 		$this->assertCrawledOnce([
