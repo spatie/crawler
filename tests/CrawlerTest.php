@@ -92,8 +92,44 @@ class CrawlerTest extends TestCase
 	{
 		Crawler::create()
 			->setCrawlObserver(new CrawlLogger())
+			->setDepth(1)
 			->startCrawling('http://localhost:8080');
 
+		$this->assertCrawledOnce([
+			['url' => 'http://localhost:8080/'],
+			['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+			['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+			['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+		]);
+
+		$this->assertNotCrawled([
+			['url' => 'http://example.com/'],
+			['url' => 'http://localhost:8080/link3'],
+			['url' => 'http://localhost:8080/notExists'],
+			['url' => 'http://localhost:8080/dir/link5'],
+			['url' => 'http://localhost:8080/dir/subdir/link5']
+		]);
+
+		Crawler::create()
+			->setCrawlObserver(new CrawlLogger())
+			->setDepth(2)
+			->startCrawling('http://localhost:8080');
+
+		$this->assertCrawledOnce([
+			['url' => 'http://localhost:8080/'],
+			['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+			['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+			['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+			['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
+			['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
+			['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
+		]);
+
+		$this->assertNotCrawled([
+			['url' => 'http://localhost:8080/notExists'],
+			['url' => 'http://localhost:8080/dir/link5'],
+			['url' => 'http://localhost:8080/dir/subdir/link5']
+		]);
 	}
 
     protected function assertCrawledOnce($urls)

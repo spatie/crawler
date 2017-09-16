@@ -36,11 +36,10 @@ class Crawler
     protected $crawlQueue;
 
     /** @var int */
-    protected $depth;
+    protected $depth = 0;
 
-    private $tree;
-
-    private $rootNode;
+    /** @var \Tree\Node\Node */
+    protected $linkTree;
 
     /**
      * @param array $clientOptions
@@ -134,22 +133,16 @@ class Crawler
 
         $this->crawlQueue->add($crawlUrl);
 
-        $this->tree = new Node((string)$baseUrl);
+        $this->linkTree = new Node((string)$this->baseUrl);
 
         $this->startCrawlingQueue();
-
-		$visitor = new PreOrderVisitor;
-
-		$yield = $this->tree->accept($visitor);
-		print_r($yield);
-		// $yield will contain nodes A, B, C, D, G, H, E, F
 
         $this->crawlObserver->finishedCrawling();
     }
 
     protected function startCrawlingQueue()
     {
-        while ($this->crawlQueue->hasPendingUrls()) {
+    	while ($this->crawlQueue->hasPendingUrls()) {
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
                 'options' => $this->client->getConfig(),
@@ -176,8 +169,6 @@ class Crawler
             $promise->wait();
 
             $this->crawlQueue->removeProcessedUrlsFromPending();
-
-            echo '-----' . PHP_EOL;
         }
     }
 
@@ -234,15 +225,15 @@ class Crawler
             })
             ->each(function (Url $url) use ($foundOnUrl) {
 
-            	echo 'Found on URL: ' . $foundOnUrl . PHP_EOL;
-            	$parent = $this->findParentNode((string) $foundOnUrl);
+				$newNode = null;
 
-            	echo 'Found parent URL' . (string) $parent->getValue() . PHP_EOL;
-				$parent->addChild(new Node((string)$url));
+            	$this->addToLinkTree($this->linkTree, (string)$url, $foundOnUrl, $newNode);
 
-                $this->crawlQueue->add(
-                    CrawlUrl::create($url, $foundOnUrl)
-                );
+				if(($this->depth == 0) or ($newNode->getDepth() <= $this->depth)) {
+					$this->crawlQueue->add(
+						CrawlUrl::create($url, $foundOnUrl)
+					);
+				}
             });
     }
 
@@ -266,31 +257,23 @@ class Crawler
         return $url->removeFragment();
     }
 
-    protected function findParentNode(string $url) {
 
-    	echo 'Searching for parent with url: ' . $url . PHP_EOL;
+	/**
+	 * @param $node \Tree\Node\Node
+	 * @param $url string
+	 * @param $parentUrl string
+	 * @param $newNode \Tree\Node\Node
+	 */
+	protected function addToLinkTree($node, $url, $parentUrl, &$newNode) {
 
-    	$parent = $this->search($this->tree, $url);
-    	if($parent == null) {
-    		echo 'No parent' . PHP_EOL;
-    		return $this->tree;
-		}
-		else {
-    		echo 'Found parent' . PHP_EOL;
-    		return $parent;
-		}
-	}
-
-	protected function search($node, $url) {
-
-    	echo 'Current node value: ' . $node->getValue() . PHP_EOL;
-
-    	if($node->getValue() == $url) {
-    		return $node->getParent();
+    	if($node->getValue() == $parentUrl) {
+    		$newNode = new Node($url);
+			$node->addChild($newNode);
 		}
 
-		foreach($node->getChildren() as $node) {
-			return $this->search($node, $url);
+		foreach($node->getChildren() as $currentNode) {
+			$this->addToLinkTree($currentNode, $url, $parentUrl, $newNode);
 		}
 	}
+
 }
