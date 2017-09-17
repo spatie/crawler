@@ -224,11 +224,9 @@ class Crawler
             })
             ->each(function (Url $url) use ($foundOnUrl) {
 
-				$newNode = null;
+            	$node = $this->addToLinkTree($this->linkTree, (string)$url, $foundOnUrl);
 
-            	$this->addToLinkTree($this->linkTree, (string)$url, $foundOnUrl, $newNode);
-
-				if(($this->maximumDepth === 0) || ($newNode->getDepth() <= $this->maximumDepth)) {
+				if(($this->maximumDepth === 0) || ($node->getDepth() <= $this->maximumDepth)) {
 					$this->crawlQueue->add(
 						CrawlUrl::create($url, $foundOnUrl)
 					);
@@ -261,18 +259,26 @@ class Crawler
 	 * @param $node \Tree\Node\Node
 	 * @param $url string
 	 * @param $parentUrl string
-	 * @param $newNode \Tree\Node\Node
 	 */
-	protected function addToLinkTree($node, string $url, string $parentUrl, &$newNode) {
+	protected function addToLinkTree($node, string $url, string $parentUrl) {
+		
+		$returnNode = null;
 
     	if($node->getValue() == $parentUrl) {
     		$newNode = new Node($url);
 			$node->addChild($newNode);
+			return $newNode;
 		}
 
 		foreach($node->getChildren() as $currentNode) {
-			$this->addToLinkTree($currentNode, $url, $parentUrl, $newNode);
+			$returnNode = $this->addToLinkTree($currentNode, $url, $parentUrl);
+
+			if($returnNode != null) {
+				break;
+			}
 		}
+
+		return $returnNode;
 	}
 
 }
