@@ -37,6 +37,9 @@ class Crawler
     /** @var false */
     protected $executeJavaScript = false;
 
+    /** @var string|null */
+    protected $pathToChromeBinary = null;
+
     /**
      * @param array $clientOptions
      *
@@ -81,9 +84,11 @@ class Crawler
     /**
      * @return $this
      */
-    public function executeJavaScript()
+    public function executeJavaScript($pathToChromeBinary = null)
     {
         $this->executeJavaScript = true;
+
+        $this->pathToChromeBinary = $pathToChromeBinary;
 
         return $this;
     }
@@ -253,7 +258,13 @@ class Crawler
 
     protected function getBodyAfterExecutingJavaScript(Url $foundOnUrl): string
     {
-        $html = Browsershot::url((string) $foundOnUrl)->bodyHtml();
+        $browsershot = Browsershot::url((string) $foundOnUrl);
+
+        if ($this->pathToChromeBinary) {
+            $browsershot->setChromePath($this->pathToChromeBinary);
+        }
+
+        $html = $browsershot->bodyHtml();
 
         return html_entity_decode($html);
     }

@@ -64,6 +64,26 @@ public function hasBeenCrawled(Url $url, ResponseInterface $response, Url $found
 public function finishedCrawling();
 ``` 
 
+### Executing JavaScript
+
+By default the crawler will not execute JavaScript. This is how you can enable the execution of JavaScript:
+
+```php
+Crawler::create()
+    ->executeJavaScript()
+    ...
+```
+
+Under the hood [headless Chrome](https://github.com/spatie/browsershot) is used to execute JavaScript. Here are some pointers on [how to install it on your system](https://github.com/spatie/browsershot#requirements).
+
+The package will make an educated guess as to where Chrome is installed on your system. You can also pass the location of the Chrome binary to  `executeJavaScript()`
+
+```php
+Crawler::create()
+    ->executeJavaScript($pathToChrome)
+    ...
+```
+
 ### Filtering certain urls
 
 You can tell the crawler not to visit certain urls by passing using the `setCrawlProfile`-function. That function expects
