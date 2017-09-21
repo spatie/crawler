@@ -19,9 +19,9 @@ class CrawlerTest extends TestCase
 
         $this->skipIfTestServerIsNotRunning();
 
-        static::$logPath = __DIR__.'/temp/crawledUrls.txt';
+        static::$logPath = __DIR__ . '/temp/crawledUrls.txt';
 
-        file_put_contents(static::$logPath, 'start log'.PHP_EOL);
+        file_put_contents(static::$logPath, 'start log' . PHP_EOL);
     }
 
     /** @test */
@@ -31,23 +31,25 @@ class CrawlerTest extends TestCase
             ->setCrawlObserver(new CrawlLogger())
             ->startCrawling('http://localhost:8080');
 
-        $this->assertCrawledOnce([
-            ['url' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
-            ['url' => 'http://localhost:8080/notExists', 'foundOn' => 'http://localhost:8080/link3'],
-            ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
-            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
-            ['url' => 'http://localhost:8080/dir/subdir/link6', 'foundOn' => 'http://localhost:8080/dir/link5'],
-        ]);
+        $this->assertCrawledOnce($this->getAllUrls());
+    }
+
+    /** @test */
+    public function it_will_also_crawl_all_found_urls_when_executing_javascript()
+    {
+        Crawler::create()
+            ->executeJavaScript()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce($this->getAllUrls());
     }
 
     /** @test */
     public function it_uses_a_crawl_profile_to_determine_what_should_be_crawled()
     {
-        $crawlProfile = new class implements CrawlProfile {
+        $crawlProfile = new class implements CrawlProfile
+        {
             public function shouldCrawl(Url $url): bool
             {
                 return $url->path !== '/link3';
@@ -123,7 +125,7 @@ class CrawlerTest extends TestCase
 
     public static function log(string $text)
     {
-        file_put_contents(static::$logPath, $text.PHP_EOL, FILE_APPEND);
+        file_put_contents(static::$logPath, $text . PHP_EOL, FILE_APPEND);
     }
 
     /** @test */
@@ -135,4 +137,20 @@ class CrawlerTest extends TestCase
 
         $this->assertTrue(true);
     }
+
+    protected function getAllUrls(): array
+    {
+        return [
+            ['url' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
+            ['url' => 'http://localhost:8080/notExists', 'foundOn' => 'http://localhost:8080/link3'],
+            ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
+            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
+            ['url' => 'http://localhost:8080/dir/subdir/link6', 'foundOn' => 'http://localhost:8080/dir/link5'],
+        ];
+    }
+
 }

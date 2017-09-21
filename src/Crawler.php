@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Collection;
+use Spatie\Browsershot\Browsershot;
 use Symfony\Component\DomCrawler\Link;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
@@ -32,6 +33,9 @@ class Crawler
 
     /** @var \Spatie\Crawler\CrawlQueue */
     protected $crawlQueue;
+
+    /** @var false */
+    protected $executeJavaScript = false;
 
     /**
      * @param array $clientOptions
@@ -70,6 +74,26 @@ class Crawler
     public function setConcurrency(int $concurrency)
     {
         $this->concurrency = $concurrency;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function executeJavaScript()
+    {
+        $this->executeJavaScript = true;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function doNotExecuteJavaScript()
+    {
+        $this->executeJavaScript = false;
 
         return $this;
     }
@@ -210,6 +234,10 @@ class Crawler
 
     protected function extractAllLinks(string $html, Url $foundOnUrl): Collection
     {
+        if ($this->executeJavaScript) {
+            $html = $this->getBodyAfterExecutingJavaScript($foundOnUrl);
+        }
+
         $domCrawler = new DomCrawler($html, $foundOnUrl);
 
         return collect($domCrawler->filterXpath('//a')->links())
@@ -218,13 +246,15 @@ class Crawler
             });
     }
 
-    /**
-     * @param \Spatie\Crawler\Url $url
-     *
-     * @return \Spatie\Crawler\Url
-     */
     protected function normalizeUrl(Url $url): Url
     {
         return $url->removeFragment();
+    }
+
+    protected function getBodyAfterExecutingJavaScript(Url $foundOnUrl): string
+    {
+        $html = Browsershot::url((string)$foundOnUrl)->bodyHtml();
+
+        return html_entity_decode($html);
     }
 }
