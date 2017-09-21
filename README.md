@@ -9,6 +9,8 @@
 
 This package provides a class to crawl links on a website. Under the hood Guzzle promises are used to [crawl multiple urls concurrently](http://docs.guzzlephp.org/en/latest/quickstart.html?highlight=pool#concurrent-requests).
 
+Because the crawler can execute JavaScript, it can crawl JavaScript rendered site. Under the hood [headless Chrome](https://github.com/spatie/browsershot) is used to power this feature.
+
 Spatie is a webdesign agency in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
 
 ## Postcardware
@@ -61,6 +63,26 @@ public function hasBeenCrawled(Url $url, ResponseInterface $response, Url $found
  */
 public function finishedCrawling();
 ``` 
+
+### Executing JavaScript
+
+By default the crawler will not execute JavaScript. This is how you can enable the execution of JavaScript:
+
+```php
+Crawler::create()
+    ->executeJavaScript()
+    ...
+```
+
+Under the hood [headless Chrome](https://github.com/spatie/browsershot) is used to execute JavaScript. Here are some pointers on [how to install it on your system](https://github.com/spatie/browsershot#requirements).
+
+The package will make an educated guess as to where Chrome is installed on your system. You can also pass the location of the Chrome binary to  `executeJavaScript()`
+
+```php
+Crawler::create()
+    ->executeJavaScript($pathToChrome)
+    ...
+```
 
 ### Filtering certain urls
 

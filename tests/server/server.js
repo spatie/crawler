@@ -7,7 +7,11 @@ app.get('/', function (request, response) {
 });
 
 app.get('/link1', function (request, response) {
-    response.end('You are on link1<a href="http://example.com/">External Link</a>');
+    response.end('<html><body><script>var url = \'/javascript\';document.body.innerHTML = document.body.innerHTML + "<a href=\'" + url + "\'>Javascript Link</a>"</script>You are on link1<a href="http://example.com/">External Link</a></body></html>');
+});
+
+app.get('/javascript', function (request, response) {
+    response.end('This page can only be reached if JavaScript is being executed');
 });
 
 app.get('/link2', function (request, response) {
