@@ -2,6 +2,9 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 2.3.0 - 2017-09-21
+- add JavaScript execution
+
 ## 2.2.1 - 2017-09-07
 - fix deps for PHP 7.2
 
