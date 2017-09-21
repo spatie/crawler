@@ -253,7 +253,7 @@ class Crawler
 
     protected function getBodyAfterExecutingJavaScript(Url $foundOnUrl): string
     {
-        $html = Browsershot::url((string)$foundOnUrl)->bodyHtml();
+        $html = Browsershot::url((string) $foundOnUrl)->bodyHtml();
 
         return html_entity_decode($html);
     }
