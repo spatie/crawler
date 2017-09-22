@@ -76,7 +76,7 @@ Crawler::create()
 
 Under the hood [headless Chrome](https://github.com/spatie/browsershot) is used to execute JavaScript. Here are some pointers on [how to install it on your system](https://github.com/spatie/browsershot#requirements).
 
-The package will make an educated guess as to where Chrome is installed on your system. You can also pass the location of the Chrome binary to  `executeJavaScript()`
+The package will make an educated guess as to where Chrome is installed on your system. You can also manually pass the location of the Chrome binary to  `executeJavaScript()`
 
 ```php
 Crawler::create()
