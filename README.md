@@ -56,7 +56,7 @@ public function willCrawl(Url $url);
  * @param \Psr\Http\Message\ResponseInterface $response
  * @param \Spatie\Crawler\Url $foundOn
  */
-public function hasBeenCrawled(Url $url, ResponseInterface $response, Url $foundOn);
+public function hasBeenCrawled(Url $url, $response, Url $foundOn = null);
 
 /**
  * Called when the crawl has ended.
