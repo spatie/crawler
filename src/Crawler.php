@@ -233,7 +233,7 @@ class Crawler {
 
 				$node = $this->addToLinkTree($this->linkTree, (string)$url, $foundOnUrl);
 
-				if(($this->maximumDepth == 0) or ($node->getDepth() <= $this->maximumDepth)) {
+				if(($this->maximumDepth == 0) || ($node->getDepth() <= $this->maximumDepth)) {
 					$this->crawlQueue->add(
 						CrawlUrl::create($url, $foundOnUrl)
 					);
@@ -267,7 +267,7 @@ class Crawler {
 	 * @param $url string
 	 * @param $parentUrl string
 	 */
-	protected function addToLinkTree($node, string $url, string $parentUrl) {
+	protected function addToLinkTree(Node $node, string $url, string $parentUrl) {
 
 		$returnNode = null;
 		if($node->getValue() == $parentUrl) {
@@ -278,7 +278,7 @@ class Crawler {
 		}
 		foreach($node->getChildren() as $currentNode) {
 			$returnNode = $this->addToLinkTree($currentNode, $url, $parentUrl);
-			if($returnNode != null) {
+			if($returnNode !== null) {
 				break;
 			}
 		}
