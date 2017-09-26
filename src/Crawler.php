@@ -242,7 +242,7 @@ class Crawler
             ->filter(function (Url $url) {
                 return $url->hasCrawlableScheme();
             })
-            ->map(function (Url $url) use ($foundOnUrl) {
+            ->map(function (Url $url) {
                 return $this->normalizeUrl($url);
             })
             ->filter(function (Url $url) {

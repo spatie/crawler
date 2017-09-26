@@ -20,7 +20,7 @@
         "symfony/dom-crawler": "^3.0",
         "guzzlehttp/guzzle": "^6.3",
         "tightenco/collect": "^5.3",
-        "nicmart/tree": "^0.2.7"
+        "nicmart/tree": "^0.2.7",
         "spatie/browsershot": "^2.4"
     },
     "require-dev": {
