@@ -39,7 +39,7 @@ class Crawler
 	protected $maximumDepth = 0;
 
 	/** @var \Tree\Node\Node */
-	protected $linkTree;
+	protected $depthTree;
 
     /** @var false */
     protected $executeJavaScript = false;
@@ -161,7 +161,7 @@ class Crawler
 
         $this->crawlQueue->add($crawlUrl);
 
-		$this->linkTree = new Node((string)$this->baseUrl);
+		$this->depthTree = new Node((string)$this->baseUrl);
 
         $this->startCrawlingQueue();
 
@@ -214,6 +214,7 @@ class Crawler
     protected function getCrawlRequests(): Generator
     {
         $i = 0;
+
         while ($crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($i)) {
             if (! $this->crawlProfile->shouldCrawl($crawlUrl->url)) {
                 $i++;
@@ -252,14 +253,23 @@ class Crawler
                 return $this->crawlQueue->has($url);
             })
             ->each(function (Url $url) use ($foundOnUrl) {
-				$node = $this->addToLinkTree($this->linkTree, (string)$url, $foundOnUrl);
+				$node = $this->addtoDepthTree($this->depthTree, (string)$url, $foundOnUrl);
 
-				if(($this->maximumDepth == 0) || ($node->getDepth() <= $this->maximumDepth)) {
+				if($this->shouldCrawlAtDepth($node->getDepth())) {
 					$this->crawlQueue->add(
 						CrawlUrl::create($url, $foundOnUrl)
 					);
 				}
             });
+    }
+
+    protected function shouldCrawlAtDepth(int $depth): bool
+    {
+        if ($this->maximumDepth === 0) {
+            return true;
+        }
+
+        return $depth <= $this->maximumDepth;
     }
 
     protected function extractAllLinks(string $html, Url $foundOnUrl): Collection
@@ -281,23 +291,22 @@ class Crawler
         return $url->removeFragment();
     }
 
-	/**
-	 * @param $node \Tree\Node\Node
-	 * @param $url string
-	 * @param $parentUrl string
-	 */
-	protected function addToLinkTree(Node $node, string $url, string $parentUrl) {
+	protected function addtoDepthTree(Node $node, string $url, string $parentUrl) {
 
 		$returnNode = null;
-		if($node->getValue() == $parentUrl) {
+
+		if($node->getValue() === $parentUrl) {
 			$newNode = new Node($url);
+
 			$node->addChild($newNode);
 
 			return $newNode;
 		}
+
 		foreach($node->getChildren() as $currentNode) {
-			$returnNode = $this->addToLinkTree($currentNode, $url, $parentUrl);
-			if($returnNode !== null) {
+			$returnNode = $this->addtoDepthTree($currentNode, $url, $parentUrl);
+
+			if(! is_null($returnNode)) {
 				break;
 			}
 		}
@@ -317,5 +326,4 @@ class Crawler
 
         return html_entity_decode($html);
     }
-
 }

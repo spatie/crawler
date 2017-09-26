@@ -107,9 +107,7 @@ To improve the speed of the crawl the package concurrently crawls 10 urls by def
 
 ```php
 Crawler::create()
-    ->setCrawlObserver(<implementation of \Spatie\Crawler\CrawlObserver>)
     ->setConcurrency(1) //now all urls will be crawled one by one
-    ->startCrawling($url);
 ```
 
 ## Setting the maximum crawl depth
@@ -118,7 +116,6 @@ By default, the crawler continues until it has crawled every page of the supplie
 
 ```php
 Crawler::create()
-    ->setCrawlObserver(<implementation of \Spatie\Crawler\CrawlObserver>)
     ->setMaximumDepth(2) 
 ```
     

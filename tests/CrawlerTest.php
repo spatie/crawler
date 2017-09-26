@@ -154,7 +154,6 @@ class CrawlerTest extends TestCase
     protected function assertCrawledOnce($urls)
     {
         $logContent = file_get_contents(static::$logPath);
-        //die($logContent);
 
         foreach ($urls as $url) {
             $logMessage = "hasBeenCrawled: {$url['url']}";
