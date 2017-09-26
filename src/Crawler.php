@@ -13,6 +13,7 @@ use Symfony\Component\DomCrawler\Link;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
+use Tree\Node\Node;
 
 class Crawler
 {
@@ -33,6 +34,12 @@ class Crawler
 
     /** @var \Spatie\Crawler\CrawlQueue */
     protected $crawlQueue;
+
+	/** @var int */
+	protected $maximumDepth = 0;
+
+	/** @var \Tree\Node\Node */
+	protected $linkTree;
 
     /** @var false */
     protected $executeJavaScript = false;
@@ -80,6 +87,18 @@ class Crawler
 
         return $this;
     }
+
+	/**
+	 * @param int $maximumDepth
+	 *
+	 * @return $this
+	 */
+	public function setMaximumDepth(int $maximumDepth) {
+
+		$this->maximumDepth = $maximumDepth;
+
+		return $this;
+	}
 
     /**
      * @return $this
@@ -141,6 +160,8 @@ class Crawler
         $crawlUrl = CrawlUrl::create($baseUrl);
 
         $this->crawlQueue->add($crawlUrl);
+
+		$this->linkTree = new Node((string)$this->baseUrl);
 
         $this->startCrawlingQueue();
 
@@ -221,7 +242,7 @@ class Crawler
             ->filter(function (Url $url) {
                 return $url->hasCrawlableScheme();
             })
-            ->map(function (Url $url) use ($foundOnUrl) {
+            ->map(function (Url $url) {
                 return $this->normalizeUrl($url);
             })
             ->filter(function (Url $url) {
@@ -231,9 +252,13 @@ class Crawler
                 return $this->crawlQueue->has($url);
             })
             ->each(function (Url $url) use ($foundOnUrl) {
-                $this->crawlQueue->add(
-                    CrawlUrl::create($url, $foundOnUrl)
-                );
+				$node = $this->addToLinkTree($this->linkTree, (string)$url, $foundOnUrl);
+
+				if(($this->maximumDepth == 0) || ($node->getDepth() <= $this->maximumDepth)) {
+					$this->crawlQueue->add(
+						CrawlUrl::create($url, $foundOnUrl)
+					);
+				}
             });
     }
 
@@ -256,6 +281,30 @@ class Crawler
         return $url->removeFragment();
     }
 
+	/**
+	 * @param $node \Tree\Node\Node
+	 * @param $url string
+	 * @param $parentUrl string
+	 */
+	protected function addToLinkTree(Node $node, string $url, string $parentUrl) {
+
+		$returnNode = null;
+		if($node->getValue() == $parentUrl) {
+			$newNode = new Node($url);
+			$node->addChild($newNode);
+
+			return $newNode;
+		}
+		foreach($node->getChildren() as $currentNode) {
+			$returnNode = $this->addToLinkTree($currentNode, $url, $parentUrl);
+			if($returnNode !== null) {
+				break;
+			}
+		}
+
+		return $returnNode;
+	}
+
     protected function getBodyAfterExecutingJavaScript(Url $foundOnUrl): string
     {
         $browsershot = Browsershot::url((string) $foundOnUrl);
@@ -268,4 +317,5 @@ class Crawler
 
         return html_entity_decode($html);
     }
+
 }
