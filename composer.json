@@ -21,9 +21,11 @@
         "guzzlehttp/guzzle": "^6.3",
         "tightenco/collect": "^5.3",
         "nicmart/tree": "^0.2.7"
+        "spatie/browsershot": "^2.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "^5.0"
+        "phpunit/phpunit": "^5.0",
+        "larapack/dd": "^1.1"
     },
     "autoload": {
         "psr-4": {

@@ -31,17 +31,36 @@ class CrawlerTest extends TestCase
             ->setCrawlObserver(new CrawlLogger())
             ->startCrawling('http://localhost:8080');
 
-        $this->assertCrawledOnce([
-            ['url' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
-            ['url' => 'http://localhost:8080/notExists', 'foundOn' => 'http://localhost:8080/link3'],
-            ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
-            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
-            ['url' => 'http://localhost:8080/dir/subdir/link6', 'foundOn' => 'http://localhost:8080/dir/link5'],
-        ]);
+        $this->assertCrawledOnce($this->regularUrls());
+
+        $this->assertNotCrawled($this->javascriptInjectedUrls());
+    }
+
+    /** @test */
+    public function it_can_crawl_all_links_rendered_by_javascript()
+    {
+        Crawler::create()
+            ->executeJavaScript()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce($this->regularUrls());
+
+        $this->assertCrawledOnce($this->javascriptInjectedUrls());
+    }
+
+    /** @test */
+    public function it_has_a_method_to_disable_executing_javascript()
+    {
+        Crawler::create()
+            ->executeJavaScript()
+            ->doNotExecuteJavaScript()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce($this->regularUrls());
+
+        $this->assertNotCrawled($this->javascriptInjectedUrls());
     }
 
     /** @test */
@@ -135,6 +154,7 @@ class CrawlerTest extends TestCase
     protected function assertCrawledOnce($urls)
     {
         $logContent = file_get_contents(static::$logPath);
+        //die($logContent);
 
         foreach ($urls as $url) {
             $logMessage = "hasBeenCrawled: {$url['url']}";
@@ -146,7 +166,7 @@ class CrawlerTest extends TestCase
             $logMessage .= PHP_EOL;
         }
 
-        $this->assertEquals(1, substr_count($logContent, $logMessage), "Did not find {$logMessage} exactly one time in the log");
+        $this->assertEquals(1, substr_count($logContent, $logMessage), "Did not find {$logMessage} exactly one time in the log but ".substr_count($logContent, $logMessage)." times. Contents of log {$logContent}");
     }
 
     protected function assertNotCrawled($urls)
@@ -179,5 +199,27 @@ class CrawlerTest extends TestCase
             ->startCrawling('http://localhost:8080');
 
         $this->assertTrue(true);
+    }
+
+    protected function regularUrls(): array
+    {
+        return [
+            ['url' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
+            ['url' => 'http://localhost:8080/notExists', 'foundOn' => 'http://localhost:8080/link3'],
+            ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
+            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
+            ['url' => 'http://localhost:8080/dir/subdir/link6', 'foundOn' => 'http://localhost:8080/dir/link5'],
+        ];
+    }
+
+    protected function javascriptInjectedUrls(): array
+    {
+        return [
+            ['url' => 'http://localhost:8080/javascript', 'foundOn' => 'http://localhost:8080/link1'],
+        ];
     }
 }
