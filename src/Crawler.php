@@ -3,6 +3,7 @@
 namespace Spatie\Crawler;
 
 use Generator;
+use Tree\Node\Node;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
@@ -13,7 +14,6 @@ use Symfony\Component\DomCrawler\Link;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
-use Tree\Node\Node;
 
 class Crawler
 {
@@ -35,11 +35,11 @@ class Crawler
     /** @var \Spatie\Crawler\CrawlQueue */
     protected $crawlQueue;
 
-	/** @var int */
-	protected $maximumDepth = 0;
+    /** @var int */
+    protected $maximumDepth = 0;
 
-	/** @var \Tree\Node\Node */
-	protected $depthTree;
+    /** @var \Tree\Node\Node */
+    protected $depthTree;
 
     /** @var false */
     protected $executeJavaScript = false;
@@ -88,17 +88,17 @@ class Crawler
         return $this;
     }
 
-	/**
-	 * @param int $maximumDepth
-	 *
-	 * @return $this
-	 */
-	public function setMaximumDepth(int $maximumDepth) {
+    /**
+     * @param int $maximumDepth
+     *
+     * @return $this
+     */
+    public function setMaximumDepth(int $maximumDepth)
+    {
+        $this->maximumDepth = $maximumDepth;
 
-		$this->maximumDepth = $maximumDepth;
-
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * @return $this
@@ -161,7 +161,7 @@ class Crawler
 
         $this->crawlQueue->add($crawlUrl);
 
-		$this->depthTree = new Node((string)$this->baseUrl);
+        $this->depthTree = new Node((string) $this->baseUrl);
 
         $this->startCrawlingQueue();
 
@@ -253,13 +253,13 @@ class Crawler
                 return $this->crawlQueue->has($url);
             })
             ->each(function (Url $url) use ($foundOnUrl) {
-				$node = $this->addtoDepthTree($this->depthTree, (string)$url, $foundOnUrl);
+                $node = $this->addtoDepthTree($this->depthTree, (string) $url, $foundOnUrl);
 
-				if($this->shouldCrawlAtDepth($node->getDepth())) {
-					$this->crawlQueue->add(
-						CrawlUrl::create($url, $foundOnUrl)
-					);
-				}
+                if ($this->shouldCrawlAtDepth($node->getDepth())) {
+                    $this->crawlQueue->add(
+                        CrawlUrl::create($url, $foundOnUrl)
+                    );
+                }
             });
     }
 
@@ -291,28 +291,28 @@ class Crawler
         return $url->removeFragment();
     }
 
-	protected function addtoDepthTree(Node $node, string $url, string $parentUrl) {
+    protected function addtoDepthTree(Node $node, string $url, string $parentUrl)
+    {
+        $returnNode = null;
 
-		$returnNode = null;
+        if ($node->getValue() === $parentUrl) {
+            $newNode = new Node($url);
 
-		if($node->getValue() === $parentUrl) {
-			$newNode = new Node($url);
+            $node->addChild($newNode);
 
-			$node->addChild($newNode);
+            return $newNode;
+        }
 
-			return $newNode;
-		}
+        foreach ($node->getChildren() as $currentNode) {
+            $returnNode = $this->addtoDepthTree($currentNode, $url, $parentUrl);
 
-		foreach($node->getChildren() as $currentNode) {
-			$returnNode = $this->addtoDepthTree($currentNode, $url, $parentUrl);
+            if (! is_null($returnNode)) {
+                break;
+            }
+        }
 
-			if(! is_null($returnNode)) {
-				break;
-			}
-		}
-
-		return $returnNode;
-	}
+        return $returnNode;
+    }
 
     protected function getBodyAfterExecutingJavaScript(Url $foundOnUrl): string
     {
