@@ -36,7 +36,13 @@ class Crawler
     protected $crawlQueue;
 
     /** @var int */
-    protected $maximumDepth = 0;
+    protected $crawledUrlCount = 0;
+
+    /** @var int|null */
+    protected $maximumCrawlCount = null;
+
+    /** @var int|null */
+    protected $maximumDepth = null;
 
     /** @var \Tree\Node\Node */
     protected $depthTree;
@@ -47,6 +53,13 @@ class Crawler
     /** @var string|null */
     protected $pathToChromeBinary = null;
 
+    protected static $defaultClientOptions = [
+        RequestOptions::COOKIES => true,
+        RequestOptions::CONNECT_TIMEOUT => 10,
+        RequestOptions::TIMEOUT => 10,
+        RequestOptions::ALLOW_REDIRECTS => false,
+    ];
+
     /**
      * @param array $clientOptions
      *
@@ -54,13 +67,11 @@ class Crawler
      */
     public static function create(array $clientOptions = [])
     {
-        $hasClientOpts = (bool) count($clientOptions);
-        $client = new Client($hasClientOpts ? $clientOptions : [
-                RequestOptions::COOKIES => true,
-                RequestOptions::CONNECT_TIMEOUT => 10,
-                RequestOptions::TIMEOUT => 10,
-                RequestOptions::ALLOW_REDIRECTS => false,
-            ]);
+        $clientOptions = (count($clientOptions))
+            ? $clientOptions
+            : self::$defaultClientOptions;
+
+        $client = new Client($clientOptions);
 
         return new static($client);
     }
@@ -84,6 +95,18 @@ class Crawler
     public function setConcurrency(int $concurrency)
     {
         $this->concurrency = $concurrency;
+
+        return $this;
+    }
+
+    /**
+     * @param int $maximumCrawlCount
+     *
+     * @return $this
+     */
+    public function setMaximumCrawlCount(int $maximumCrawlCount)
+    {
+        $this->maximumCrawlCount = $maximumCrawlCount;
 
         return $this;
     }
@@ -159,7 +182,7 @@ class Crawler
 
         $crawlUrl = CrawlUrl::create($baseUrl);
 
-        $this->crawlQueue->add($crawlUrl);
+        $this->addToCrawlQueue($crawlUrl);
 
         $this->depthTree = new Node((string) $this->baseUrl);
 
@@ -255,17 +278,23 @@ class Crawler
             ->each(function (Url $url) use ($foundOnUrl) {
                 $node = $this->addtoDepthTree($this->depthTree, (string) $url, $foundOnUrl);
 
-                if ($this->shouldCrawlAtDepth($node->getDepth())) {
-                    $this->crawlQueue->add(
-                        CrawlUrl::create($url, $foundOnUrl)
-                    );
+                if (! $this->shouldCrawlAtDepth($node->getDepth())) {
+                    return;
                 }
+
+                if ($this->maximumCrawlCountReached()) {
+                    return;
+                }
+
+                $crawlUrl = CrawlUrl::create($url, $foundOnUrl);
+
+                $this->addToCrawlQueue($crawlUrl);
             });
     }
 
     protected function shouldCrawlAtDepth(int $depth): bool
     {
-        if ($this->maximumDepth === 0) {
+        if (is_null($this->maximumDepth)) {
             return true;
         }
 
@@ -325,5 +354,23 @@ class Crawler
         $html = $browsershot->bodyHtml();
 
         return html_entity_decode($html);
+    }
+
+    protected function addToCrawlQueue(CrawlUrl $crawlUrl)
+    {
+        $this->crawledUrlCount++;
+
+        $this->crawlQueue->add($crawlUrl);
+
+        return $this;
+    }
+
+    protected function maximumCrawlCountReached(): bool
+    {
+        if (is_null($this->maximumCrawlCount)) {
+            return false;
+        }
+
+        return $this->crawledUrlCount >= $this->maximumCrawlCount;
     }
 }
