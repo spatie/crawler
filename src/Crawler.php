@@ -36,6 +36,12 @@ class Crawler
     protected $crawlQueue;
 
     /** @var int */
+    protected $crawledUrlCount = 0;
+
+    /** @var int|null */
+    protected $maximumCrawledUrlCount = null;
+
+    /** @var int */
     protected $maximumDepth = 0;
 
     /** @var \Tree\Node\Node */
@@ -47,6 +53,13 @@ class Crawler
     /** @var string|null */
     protected $pathToChromeBinary = null;
 
+    protected static $defaultClientOptions = [
+        RequestOptions::COOKIES => true,
+        RequestOptions::CONNECT_TIMEOUT => 10,
+        RequestOptions::TIMEOUT => 10,
+        RequestOptions::ALLOW_REDIRECTS => false,
+    ];
+
     /**
      * @param array $clientOptions
      *
@@ -54,13 +67,11 @@ class Crawler
      */
     public static function create(array $clientOptions = [])
     {
-        $hasClientOpts = (bool) count($clientOptions);
-        $client = new Client($hasClientOpts ? $clientOptions : [
-                RequestOptions::COOKIES => true,
-                RequestOptions::CONNECT_TIMEOUT => 10,
-                RequestOptions::TIMEOUT => 10,
-                RequestOptions::ALLOW_REDIRECTS => false,
-            ]);
+        $clientOptions = (count($clientOptions))
+            ? $clientOptions
+            : self::$defaultClientOptions;
+
+        $client = new Client($clientOptions);
 
         return new static($client);
     }
@@ -84,6 +95,18 @@ class Crawler
     public function setConcurrency(int $concurrency)
     {
         $this->concurrency = $concurrency;
+
+        return $this;
+    }
+
+    /**
+     * @param int $maximumUrls
+     *
+     * @return $this
+     */
+    public function setMaximumUrls(int $maximumUrls)
+    {
+        $this->maximumUrls = $maximumUrls;
 
         return $this;
     }
@@ -151,7 +174,7 @@ class Crawler
      */
     public function startCrawling($baseUrl)
     {
-        if (! $baseUrl instanceof Url) {
+        if (!$baseUrl instanceof Url) {
             $baseUrl = Url::create($baseUrl);
         }
 
@@ -161,7 +184,7 @@ class Crawler
 
         $this->crawlQueue->add($crawlUrl);
 
-        $this->depthTree = new Node((string) $this->baseUrl);
+        $this->depthTree = new Node((string)$this->baseUrl);
 
         $this->startCrawlingQueue();
 
@@ -184,7 +207,7 @@ class Crawler
                     }
 
                     $this->addAllLinksToCrawlQueue(
-                        (string) $response->getBody(),
+                        (string)$response->getBody(),
                         $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index)->url
                     );
                 },
@@ -216,7 +239,7 @@ class Crawler
         $i = 0;
 
         while ($crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($i)) {
-            if (! $this->crawlProfile->shouldCrawl($crawlUrl->url)) {
+            if (!$this->crawlProfile->shouldCrawl($crawlUrl->url)) {
                 $i++;
                 continue;
             }
@@ -230,7 +253,7 @@ class Crawler
 
             $this->crawlQueue->markAsProcessed($crawlUrl);
 
-            yield new Request('GET', (string) $crawlUrl->url);
+            yield new Request('GET', (string)$crawlUrl->url);
             $i++;
         }
     }
@@ -253,13 +276,21 @@ class Crawler
                 return $this->crawlQueue->has($url);
             })
             ->each(function (Url $url) use ($foundOnUrl) {
-                $node = $this->addtoDepthTree($this->depthTree, (string) $url, $foundOnUrl);
+                $node = $this->addtoDepthTree($this->depthTree, (string)$url, $foundOnUrl);
 
-                if ($this->shouldCrawlAtDepth($node->getDepth())) {
-                    $this->crawlQueue->add(
-                        CrawlUrl::create($url, $foundOnUrl)
-                    );
+                if (! $this->shouldCrawlAtDepth($node->getDepth())) {
+                   return;
                 }
+
+                if ($this->maximumCrawlCountExceeded()) {
+                    return;
+                }
+
+                $this->crawledUrlCount++;
+
+                $this->crawlQueue->add(
+                    CrawlUrl::create($url, $foundOnUrl)
+                );
             });
     }
 
@@ -306,7 +337,7 @@ class Crawler
         foreach ($node->getChildren() as $currentNode) {
             $returnNode = $this->addtoDepthTree($currentNode, $url, $parentUrl);
 
-            if (! is_null($returnNode)) {
+            if (!is_null($returnNode)) {
                 break;
             }
         }
@@ -316,7 +347,7 @@ class Crawler
 
     protected function getBodyAfterExecutingJavaScript(Url $foundOnUrl): string
     {
-        $browsershot = Browsershot::url((string) $foundOnUrl);
+        $browsershot = Browsershot::url((string)$foundOnUrl);
 
         if ($this->pathToChromeBinary) {
             $browsershot->setChromePath($this->pathToChromeBinary);
@@ -325,5 +356,14 @@ class Crawler
         $html = $browsershot->bodyHtml();
 
         return html_entity_decode($html);
+    }
+
+    protected function maximumCrawlCountExceeded(): bool
+    {
+        if (is_null($this->maximumCrawledUrlCount)) {
+            return false;
+        }
+dd($this->maximumCrawledUrlCount);
+        return $this->crawledUrlCount > $this->maximumCrawledUrlCount;
     }
 }
