@@ -2,6 +2,9 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 2.5.0 - 2017-09-27
+- add crawl count limit
+
 ## 2.4.0 - 2017-09-21
 - add depth limit
 

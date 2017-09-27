@@ -19,9 +19,7 @@ class CrawlerTest extends TestCase
 
         $this->skipIfTestServerIsNotRunning();
 
-        static::$logPath = __DIR__.'/temp/crawledUrls.txt';
-
-        file_put_contents(static::$logPath, 'start log'.PHP_EOL);
+        $this->resetLog();
     }
 
     /** @test */
@@ -104,6 +102,22 @@ class CrawlerTest extends TestCase
         $this->assertNotCrawled([
             ['url' => 'http://example.com/'],
         ]);
+    }
+
+    /** @test */
+    public function it_respects_the_maximum_amount_of_urls_to_be_crawled()
+    {
+        foreach(range(1, 8) as $maximumCrawlCount) {
+            $this->resetLog();
+
+            Crawler::create()
+                ->setMaximumCrawlCount($maximumCrawlCount)
+                ->setCrawlObserver(new CrawlLogger())
+                ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
+                ->startCrawling('http://localhost:8080');
+
+            $this->assertCrawledUrlCount($maximumCrawlCount);
+        }
     }
 
     /** @test */
@@ -229,5 +243,12 @@ class CrawlerTest extends TestCase
         $actualCount = substr_count($logContent, 'hasBeenCrawled');
 
         $this->assertEquals($count, $actualCount, "Crawled `{$actualCount}` urls instead of the expected {$count}");
+    }
+
+    public function resetLog()
+    {
+        static::$logPath = __DIR__ . '/temp/crawledUrls.txt';
+
+        file_put_contents(static::$logPath, 'start log' . PHP_EOL);
     }
 }

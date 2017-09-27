@@ -39,10 +39,10 @@ class Crawler
     protected $crawledUrlCount = 0;
 
     /** @var int|null */
-    protected $maximumCrawledUrlCount = null;
+    protected $maximumCrawlCount = null;
 
-    /** @var int */
-    protected $maximumDepth = 0;
+    /** @var int|null */
+    protected $maximumDepth = null;
 
     /** @var \Tree\Node\Node */
     protected $depthTree;
@@ -100,13 +100,13 @@ class Crawler
     }
 
     /**
-     * @param int $maximumUrls
+     * @param int $maximumCrawlCount
      *
      * @return $this
      */
-    public function setMaximumUrls(int $maximumUrls)
+    public function setMaximumCrawlCount(int $maximumCrawlCount)
     {
-        $this->maximumUrls = $maximumUrls;
+        $this->maximumCrawlCount = $maximumCrawlCount;
 
         return $this;
     }
@@ -182,7 +182,7 @@ class Crawler
 
         $crawlUrl = CrawlUrl::create($baseUrl);
 
-        $this->crawlQueue->add($crawlUrl);
+        $this->addToCrawlQueue($crawlUrl);
 
         $this->depthTree = new Node((string)$this->baseUrl);
 
@@ -282,21 +282,19 @@ class Crawler
                    return;
                 }
 
-                if ($this->maximumCrawlCountExceeded()) {
+                if ($this->maximumCrawlCountReached()) {
                     return;
                 }
 
-                $this->crawledUrlCount++;
+                $crawlUrl = CrawlUrl::create($url, $foundOnUrl);
 
-                $this->crawlQueue->add(
-                    CrawlUrl::create($url, $foundOnUrl)
-                );
+                $this->addToCrawlQueue($crawlUrl);
             });
     }
 
     protected function shouldCrawlAtDepth(int $depth): bool
     {
-        if ($this->maximumDepth === 0) {
+        if (is_null($this->maximumDepth)) {
             return true;
         }
 
@@ -358,12 +356,21 @@ class Crawler
         return html_entity_decode($html);
     }
 
-    protected function maximumCrawlCountExceeded(): bool
+    protected function addToCrawlQueue(CrawlUrl $crawlUrl)
     {
-        if (is_null($this->maximumCrawledUrlCount)) {
+        $this->crawledUrlCount++;
+
+        $this->crawlQueue->add($crawlUrl);
+
+        return $this;
+    }
+
+    protected function maximumCrawlCountReached(): bool
+    {
+        if (is_null($this->maximumCrawlCount)) {
             return false;
         }
-dd($this->maximumCrawledUrlCount);
-        return $this->crawledUrlCount > $this->maximumCrawledUrlCount;
+
+        return $this->crawledUrlCount >= $this->maximumCrawlCount;
     }
 }

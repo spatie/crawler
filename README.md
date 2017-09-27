@@ -110,6 +110,17 @@ Crawler::create()
     ->setConcurrency(1) //now all urls will be crawled one by one
 ```
 
+## Setting the maximum crawl count
+
+By default, the crawler continues until it has crawled every page of the supplied URL. If you want to limit the amount of urls the crawler should crawl you can use the `setMaximumCrawlCount` method.
+
+```php
+// stop crawling after 5 urls
+
+Crawler::create()
+    ->setMaximumCrawlCount(5) 
+```
+
 ## Setting the maximum crawl depth
 
 By default, the crawler continues until it has crawled every page of the supplied URL. If you want to limit the depth of the crawler you can use the `setMaximumDepth` method.
@@ -119,7 +130,6 @@ Crawler::create()
     ->setMaximumDepth(2) 
 ```
     
-
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
