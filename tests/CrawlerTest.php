@@ -107,7 +107,7 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_respects_the_maximum_amount_of_urls_to_be_crawled()
     {
-        foreach(range(1, 8) as $maximumCrawlCount) {
+        foreach (range(1, 8) as $maximumCrawlCount) {
             $this->resetLog();
 
             Crawler::create()
@@ -247,8 +247,8 @@ class CrawlerTest extends TestCase
 
     public function resetLog()
     {
-        static::$logPath = __DIR__ . '/temp/crawledUrls.txt';
+        static::$logPath = __DIR__.'/temp/crawledUrls.txt';
 
-        file_put_contents(static::$logPath, 'start log' . PHP_EOL);
+        file_put_contents(static::$logPath, 'start log'.PHP_EOL);
     }
 }
