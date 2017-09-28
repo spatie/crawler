@@ -2,6 +2,7 @@
 
 namespace Spatie\Crawler\Test;
 
+use Spatie\Crawler\CrawlInternalWithSubdomainUrls;
 use Spatie\Crawler\Url;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
@@ -180,6 +181,30 @@ class CrawlerTest extends TestCase
             ->startCrawling('http://localhost:8080');
 
         $this->assertTrue(true);
+    }
+
+    /** @test */
+    public function it_crawls_a_domain_and_its_subdomains()
+    {
+
+        $baseUrl = 'http://spatie.be';
+
+        $urls = [
+            'http://spatie.be' => true,
+            'http://subdomain.spatie.be' => true,
+            'https://www.subdomain.spatie.be' => true,
+            'https://sub.dom.ain.spatie.be' => true,
+            'https://subdomain.localhost:8080' => false,
+            'https://localhost:8080' => false
+
+        ];
+
+        $profile = new CrawlInternalWithSubdomainUrls($baseUrl);
+
+        foreach($urls as $url => $bool) {
+            $this->assertEquals($bool, $profile->shouldCrawl(new Url($url)));
+        }
+
     }
 
     protected function regularUrls(): array
