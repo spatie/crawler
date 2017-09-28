@@ -2,12 +2,10 @@
 
 namespace Spatie\Crawler;
 
-
 use LayerShifter\TLDExtract\Extract;
 
 class CrawlInternalWithSubdomainUrls implements CrawlProfile
 {
-
     protected $host = '';
 
     /** @var Extract */

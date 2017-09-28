@@ -2,12 +2,12 @@
 
 namespace Spatie\Crawler\Test;
 
-use Spatie\Crawler\CrawlInternalWithSubdomainUrls;
 use Spatie\Crawler\Url;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
 use Spatie\Crawler\CrawlInternalUrls;
 use Spatie\Crawler\EmptyCrawlObserver;
+use Spatie\Crawler\CrawlInternalWithSubdomainUrls;
 
 class CrawlerTest extends TestCase
 {
@@ -65,7 +65,8 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_uses_a_crawl_profile_to_determine_what_should_be_crawled()
     {
-        $crawlProfile = new class implements CrawlProfile {
+        $crawlProfile = new class implements CrawlProfile
+        {
             public function shouldCrawl(Url $url): bool
             {
                 return $url->path !== '/link3';
@@ -170,7 +171,7 @@ class CrawlerTest extends TestCase
 
     public static function log(string $text)
     {
-        file_put_contents(static::$logPath, $text.PHP_EOL, FILE_APPEND);
+        file_put_contents(static::$logPath, $text . PHP_EOL, FILE_APPEND);
     }
 
     /** @test */
@@ -186,7 +187,6 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_crawls_a_domain_and_its_subdomains()
     {
-
         $baseUrl = 'http://spatie.be';
 
         $urls = [
@@ -195,15 +195,14 @@ class CrawlerTest extends TestCase
             'https://www.subdomain.spatie.be' => true,
             'https://sub.dom.ain.spatie.be' => true,
             'https://subdomain.localhost:8080' => false,
-            'https://localhost:8080' => false
+            'https://localhost:8080' => false,
         ];
 
         $profile = new CrawlInternalWithSubdomainUrls($baseUrl);
 
-        foreach($urls as $url => $bool) {
+        foreach ($urls as $url => $bool) {
             $this->assertEquals($bool, $profile->shouldCrawl(new Url($url)));
         }
-
     }
 
     protected function regularUrls(): array
@@ -273,8 +272,8 @@ class CrawlerTest extends TestCase
 
     public function resetLog()
     {
-        static::$logPath = __DIR__.'/temp/crawledUrls.txt';
+        static::$logPath = __DIR__ . '/temp/crawledUrls.txt';
 
-        file_put_contents(static::$logPath, 'start log'.PHP_EOL);
+        file_put_contents(static::$logPath, 'start log' . PHP_EOL);
     }
 }
