@@ -196,7 +196,6 @@ class CrawlerTest extends TestCase
             'https://sub.dom.ain.spatie.be' => true,
             'https://subdomain.localhost:8080' => false,
             'https://localhost:8080' => false
-
         ];
 
         $profile = new CrawlInternalWithSubdomainUrls($baseUrl);
