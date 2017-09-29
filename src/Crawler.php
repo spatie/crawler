@@ -174,7 +174,7 @@ class Crawler
      */
     public function startCrawling($baseUrl)
     {
-        if (! $baseUrl instanceof Url) {
+        if (!$baseUrl instanceof Url) {
             $baseUrl = Url::create($baseUrl);
         }
 
@@ -184,7 +184,7 @@ class Crawler
 
         $this->addToCrawlQueue($crawlUrl);
 
-        $this->depthTree = new Node((string) $this->baseUrl);
+        $this->depthTree = new Node((string)$this->baseUrl);
 
         $this->startCrawlingQueue();
 
@@ -202,12 +202,14 @@ class Crawler
 
                     $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index);
 
-                    if ($crawlUrl->url->host !== $this->baseUrl->host) {
-                        return;
+                    if (!$this->crawlProfile instanceof CrawlInternalWithSubdomainUrls) {
+                        if ($crawlUrl->url->host !== $this->baseUrl->host) {
+                            return;
+                        }
                     }
 
                     $this->addAllLinksToCrawlQueue(
-                        (string) $response->getBody(),
+                        (string)$response->getBody(),
                         $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index)->url
                     );
                 },
@@ -239,7 +241,7 @@ class Crawler
         $i = 0;
 
         while ($crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($i)) {
-            if (! $this->crawlProfile->shouldCrawl($crawlUrl->url)) {
+            if (!$this->crawlProfile->shouldCrawl($crawlUrl->url)) {
                 $i++;
                 continue;
             }
@@ -253,7 +255,7 @@ class Crawler
 
             $this->crawlQueue->markAsProcessed($crawlUrl);
 
-            yield new Request('GET', (string) $crawlUrl->url);
+            yield new Request('GET', (string)$crawlUrl->url);
             $i++;
         }
     }
@@ -276,9 +278,9 @@ class Crawler
                 return $this->crawlQueue->has($url);
             })
             ->each(function (Url $url) use ($foundOnUrl) {
-                $node = $this->addtoDepthTree($this->depthTree, (string) $url, $foundOnUrl);
+                $node = $this->addtoDepthTree($this->depthTree, (string)$url, $foundOnUrl);
 
-                if (! $this->shouldCrawlAtDepth($node->getDepth())) {
+                if (!$this->shouldCrawlAtDepth($node->getDepth())) {
                     return;
                 }
 
@@ -335,7 +337,7 @@ class Crawler
         foreach ($node->getChildren() as $currentNode) {
             $returnNode = $this->addtoDepthTree($currentNode, $url, $parentUrl);
 
-            if (! is_null($returnNode)) {
+            if (!is_null($returnNode)) {
                 break;
             }
         }
@@ -345,7 +347,7 @@ class Crawler
 
     protected function getBodyAfterExecutingJavaScript(Url $foundOnUrl): string
     {
-        $browsershot = Browsershot::url((string) $foundOnUrl);
+        $browsershot = Browsershot::url((string)$foundOnUrl);
 
         if ($this->pathToChromeBinary) {
             $browsershot->setChromePath($this->pathToChromeBinary);
