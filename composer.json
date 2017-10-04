@@ -21,8 +21,7 @@
         "guzzlehttp/guzzle": "^6.3",
         "tightenco/collect": "^5.3",
         "nicmart/tree": "^0.2.7",
-        "spatie/browsershot": "^2.4",
-        "layershifter/tld-extract": "^1.2"
+        "spatie/browsershot": "^2.4"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.0",
