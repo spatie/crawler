@@ -143,6 +143,8 @@ class CrawlerTest extends TestCase
             ['url' => 'http://localhost:8080/dir/subdir/link5'],
         ]);
 
+        $this->resetLog();
+
         Crawler::create()
             ->setCrawlObserver(new CrawlLogger())
             ->setMaximumDepth(2)
@@ -214,9 +216,9 @@ class CrawlerTest extends TestCase
             }
 
             $logMessage .= PHP_EOL;
-        }
 
-        $this->assertEquals(1, substr_count($logContent, $logMessage), "Did not find {$logMessage} exactly one time in the log but ".substr_count($logContent, $logMessage)." times. Contents of log {$logContent}");
+            $this->assertEquals(1, substr_count($logContent, $logMessage), "Did not find {$logMessage} exactly one time in the log but ".substr_count($logContent, $logMessage)." times. Contents of log {$logContent}");
+        }
     }
 
     protected function assertNotCrawled($urls)
@@ -231,9 +233,9 @@ class CrawlerTest extends TestCase
             }
 
             $logMessage .= PHP_EOL;
-        }
 
-        $this->assertEquals(0, substr_count($logContent, $logMessage), "Did find {$logMessage} in the log");
+            $this->assertEquals(0, substr_count($logContent, $logMessage), "Did find {$logMessage} in the log");
+        }
     }
 
     protected function assertCrawledUrlCount(int $count)
