@@ -13,6 +13,11 @@ class CrawlInternalWithSubdomainUrls implements CrawlProfile
 
     public function shouldCrawl(Url $url): bool
     {
+        return $this->isSubdomainOfHost($url);
+    }
+
+    protected function isSubdomainOfHost(Url $url)
+    {
         return substr($url->host, -strlen($this->host)) === $this->host;
     }
 }
