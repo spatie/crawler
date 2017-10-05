@@ -15,7 +15,7 @@ app.get('/javascript', function (request, response) {
 });
 
 app.get('/link2', function (request, response) {
-    response.end('You are on link2<a href="/link3">Link3</a>');
+    response.end('You are on link2<a href="/link3">Link3</a><a href="http://sub.localhost:8080/subdomainpage">Subdomain</a><a href="http://subdomain.sub.localhost:8080/subdomainpage">Subdomain2</a>');
 });
 
 app.get('/link3', function (request, response) {
