@@ -203,7 +203,7 @@ class CrawlerTest extends TestCase
         $protectedMethod->setAccessible(true);
 
         foreach ($urls as $url => $bool) {
-            $this->assertEquals($bool, $protectedMethod->invokeArgs($profile, array(new Url($url))));
+            $this->assertEquals($bool, $protectedMethod->invokeArgs($profile, [new Url($url)]));
         }
     }
 
