@@ -199,11 +199,8 @@ class CrawlerTest extends TestCase
 
         $profile = new CrawlInternalWithSubdomainUrls($baseUrl);
 
-        $protectedMethod = (new \ReflectionClass(CrawlInternalWithSubdomainUrls::class))->getMethod('isSubdomainOfHost');
-        $protectedMethod->setAccessible(true);
-
         foreach ($urls as $url => $bool) {
-            $this->assertEquals($bool, $protectedMethod->invokeArgs($profile, [new Url($url)]));
+            $this->assertEquals($bool, $profile->isSubdomainOfHost(new Url($url)));
         }
     }
 
