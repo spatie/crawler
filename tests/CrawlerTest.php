@@ -7,6 +7,7 @@ use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
 use Spatie\Crawler\CrawlInternalUrls;
 use Spatie\Crawler\EmptyCrawlObserver;
+use Spatie\Crawler\CrawlInternalWithSubdomainUrls;
 
 class CrawlerTest extends TestCase
 {
@@ -180,6 +181,57 @@ class CrawlerTest extends TestCase
             ->startCrawling('http://localhost:8080');
 
         $this->assertTrue(true);
+    }
+
+    /** @test */
+    public function profile_crawls_a_domain_and_its_subdomains()
+    {
+        $baseUrl = 'http://spatie.be';
+
+        $urls = [
+            'http://spatie.be' => true,
+            'http://subdomain.spatie.be' => true,
+            'https://www.subdomain.spatie.be' => true,
+            'https://sub.dom.ain.spatie.be' => true,
+            'https://subdomain.localhost:8080' => false,
+            'https://localhost:8080' => false,
+        ];
+
+        $profile = new CrawlInternalWithSubdomainUrls($baseUrl);
+
+        foreach ($urls as $url => $bool) {
+            $this->assertEquals($bool, $profile->isSubdomainOfHost(new Url($url)));
+        }
+    }
+
+    /** @test */
+    public function it_crawls_subdomains()
+    {
+        $baseUrl = 'http://localhost:8080';
+
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->setMaximumDepth(2)
+            ->setCrawlProfile(new CrawlInternalWithSubdomainUrls($baseUrl))
+            ->startCrawling($baseUrl);
+
+        $this->assertCrawledOnce([
+            ['url' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
+            ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
+            ['url' => 'http://sub.localhost:8080/subdomainpage', 'foundOn' => 'http://localhost:8080/link2'],
+            ['url' => 'http://subdomain.sub.localhost:8080/subdomainpage', 'foundOn' => 'http://localhost:8080/link2'],
+        ]);
+
+        $this->assertNotCrawled([
+            ['url' => 'http://localhost:8080/notExists'],
+            ['url' => 'http://localhost:8080/dir/link5'],
+            ['url' => 'http://localhost:8080/dir/subdir/link5'],
+            ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
+        ]);
     }
 
     protected function regularUrls(): array
