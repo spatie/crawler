@@ -5,9 +5,9 @@ namespace Spatie\Crawler\Test;
 use Spatie\Crawler\Url;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
+use Spatie\Crawler\CrawlSubdomains;
 use Spatie\Crawler\CrawlInternalUrls;
 use Spatie\Crawler\EmptyCrawlObserver;
-use Spatie\Crawler\CrawlSubdomains;
 
 class CrawlerTest extends TestCase
 {
