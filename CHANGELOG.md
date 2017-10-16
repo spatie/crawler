@@ -2,6 +2,9 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 2.6.0 - 2017-10-16
+- add `CrawlSubdomains` profile
+
 ## 2.5.0 - 2017-09-27
 - add crawl count limit
 

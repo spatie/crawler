@@ -202,7 +202,8 @@ class Crawler
 
                     $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index);
 
-                    if (! $this->crawlProfile instanceof CrawlInternalWithSubdomainUrls) {
+                    if (! $this->crawlProfile instanceof CrawlSubdomains) {
+
                         if ($crawlUrl->url->host !== $this->baseUrl->host) {
                             return;
                         }

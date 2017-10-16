@@ -100,7 +100,7 @@ This package comes with three `CrawlProfiles` out of the box:
 
 - `CrawlAllUrls`: this profile will crawl all urls on all pages including urls to an external site. 
 - `CrawlInternalUrls`: this profile will only crawl the internal urls on the pages of a host.
-- `CrawlInternalWithSubdomainUrls`: this profile will only crawl the internal urls and its subdomains on the pages of a host.
+- `CrawlSubdomainUrls`: this profile will only crawl the internal urls and its subdomains on the pages of a host.
 
 ## Setting the number of concurrent requests
 

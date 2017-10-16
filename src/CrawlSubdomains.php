@@ -2,7 +2,7 @@
 
 namespace Spatie\Crawler;
 
-class CrawlInternalWithSubdomainUrls implements CrawlProfile
+class CrawlSubdomains implements CrawlProfile
 {
     protected $host = '';
 

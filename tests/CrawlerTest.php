@@ -7,7 +7,7 @@ use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
 use Spatie\Crawler\CrawlInternalUrls;
 use Spatie\Crawler\EmptyCrawlObserver;
-use Spatie\Crawler\CrawlInternalWithSubdomainUrls;
+use Spatie\Crawler\CrawlSubdomains;
 
 class CrawlerTest extends TestCase
 {
@@ -197,7 +197,7 @@ class CrawlerTest extends TestCase
             'https://localhost:8080' => false,
         ];
 
-        $profile = new CrawlInternalWithSubdomainUrls($baseUrl);
+        $profile = new CrawlSubdomains($baseUrl);
 
         foreach ($urls as $url => $bool) {
             $this->assertEquals($bool, $profile->isSubdomainOfHost(new Url($url)));
@@ -212,7 +212,7 @@ class CrawlerTest extends TestCase
         Crawler::create()
             ->setCrawlObserver(new CrawlLogger())
             ->setMaximumDepth(2)
-            ->setCrawlProfile(new CrawlInternalWithSubdomainUrls($baseUrl))
+            ->setCrawlProfile(new CrawlSubdomains($baseUrl))
             ->startCrawling($baseUrl);
 
         $this->assertCrawledOnce([
