@@ -19,6 +19,9 @@ class Url
     /** @var null|string */
     public $query;
 
+    /** @var null|string */
+    protected $toString;
+
     /**
      * @param string $url
      *
@@ -63,6 +66,7 @@ class Url
     public function setScheme(string $scheme)
     {
         $this->scheme = $scheme;
+        $this->toString = null;
 
         return $this;
     }
@@ -75,6 +79,7 @@ class Url
     public function setHost(string $host)
     {
         $this->host = $host;
+        $this->toString = null;
 
         return $this;
     }
@@ -87,6 +92,7 @@ class Url
     public function setPort(int $port)
     {
         $this->port = $port;
+        $this->toString = null;
 
         return $this;
     }
@@ -97,6 +103,7 @@ class Url
     public function removeFragment()
     {
         $this->path = explode('#', $this->path)[0];
+        $this->toString = null;
 
         return $this;
     }
@@ -109,6 +116,7 @@ class Url
     public function setPath(string $path)
     {
         $this->path = $path;
+        $this->toString = null;
 
         return $this;
     }
@@ -181,13 +189,17 @@ class Url
      */
     public function __toString()
     {
-        $path = $this->startsWith($this->path, '/') ? substr($this->path, 1) : $this->path;
+        if ($this->toString === null) {
+            $path = $this->startsWith($this->path, '/') ? substr($this->path, 1) : $this->path;
 
-        $port = ($this->port === 80 ? '' : ":{$this->port}");
+            $port = ($this->port === 80 ? '' : ":{$this->port}");
 
-        $queryString = (is_null($this->query) ? '' : "?{$this->query}");
+            $queryString = (is_null($this->query) ? '' : "?{$this->query}");
 
-        return "{$this->scheme}://{$this->host}{$port}/{$path}{$queryString}";
+            $this->toString = "{$this->scheme}://{$this->host}{$port}/{$path}{$queryString}";
+        }
+
+        return $this->toString;
     }
 
     /**

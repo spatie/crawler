@@ -168,4 +168,63 @@ class UrlTest extends TestCase
         $this->assertTrue(Url::create('http://example.com')->isEqual(Url::create('http://example.com')));
         $this->assertFalse(Url::create('http://example.com')->isEqual(Url::create('http://example2.com')));
     }
+
+    /** @test */
+    public function it_can_test_to_string_changes_when_change_scheme()
+    {
+        $this->checkUrlChange(function (Url $url) {
+            $url->setScheme('https');
+        });
+    }
+
+    /** @test */
+    public function it_can_test_to_string_changes_when_change_host()
+    {
+        $this->checkUrlChange(function (Url $url) {
+            $url->setHost('foo.com');
+        });
+    }
+
+    /** @test */
+    public function it_can_test_to_string_changes_when_change_port()
+    {
+        $this->checkUrlChange(function (Url $url) {
+            $url->setPort(8080);
+        });
+    }
+
+    /** @test */
+    public function it_can_test_to_string_changes_when_change_path()
+    {
+        $this->checkUrlChange(function (Url $url) {
+            $url->setPath('/path');
+        });
+    }
+
+    /** @test */
+    public function it_can_test_to_string_changes_when_remove_fragment()
+    {
+        $url = Url::create('http://example.com/');
+        $url->setPath('foo#bar');
+        $urlString = (string) $url;
+
+        $url->removeFragment();
+        $urlString2 = (string) $url;
+
+        $this->assertNotEquals($urlString, $urlString2);
+    }
+
+    /**
+     * @param \Closure $closure
+     */
+    private function checkUrlChange(\Closure $closure)
+    {
+        $url = Url::create('http://example.com/foo-bar#test');
+        $urlString = (string) $url;
+
+        $closure($url);
+        $urlString2 = (string) $url;
+
+        $this->assertNotEquals($urlString, $urlString2);
+    }
 }
