@@ -84,7 +84,7 @@ class Crawler
 
         $this->crawlProfile = new CrawlAllUrls();
 
-        $this->crawlQueue = new CrawlQueue();
+        $this->crawlQueue = new CollectionCrawlQueue();
     }
 
     /**
@@ -119,6 +119,17 @@ class Crawler
     public function setMaximumDepth(int $maximumDepth)
     {
         $this->maximumDepth = $maximumDepth;
+
+        return $this;
+    }
+
+    /**
+     * @param CrawlQueue $crawlQueue
+     * @return $this
+     */
+    public function setCrawlQueue(CrawlQueue $crawlQueue)
+    {
+        $this->crawlQueue = $crawlQueue;
 
         return $this;
     }
@@ -198,9 +209,8 @@ class Crawler
                 'concurrency' => $this->concurrency,
                 'options' => $this->client->getConfig(),
                 'fulfilled' => function (ResponseInterface $response, int $index) {
-                    $this->handleResponse($response, $index);
-
-                    $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index);
+                    $crawlUrl = $this->crawlQueue->getUrlById($index);
+                    $this->handleResponse($response, $crawlUrl);
 
                     if (! $this->crawlProfile instanceof CrawlSubdomains) {
                         if ($crawlUrl->url->host !== $this->baseUrl->host) {
@@ -210,44 +220,39 @@ class Crawler
 
                     $this->addAllLinksToCrawlQueue(
                         (string) $response->getBody(),
-                        $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index)->url
+                        $crawlUrl->url
                     );
                 },
                 'rejected' => function (RequestException $exception, int $index) {
-                    $this->handleResponse($exception->getResponse(), $index);
+                    $this->handleResponse(
+                        $exception->getResponse(),
+                        $this->crawlQueue->getUrlById($index)
+                    );
                 },
             ]);
 
             $promise = $pool->promise();
             $promise->wait();
-
-            $this->crawlQueue->removeProcessedUrlsFromPending();
         }
     }
 
     /**
      * @param ResponseInterface|null $response
-     * @param int $index
+     * @param CrawlUrl $crawlUrl
      */
-    protected function handleResponse($response, int $index)
+    protected function handleResponse($response, CrawlUrl $crawlUrl)
     {
-        $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($index);
-
         $this->crawlObserver->hasBeenCrawled($crawlUrl->url, $response, $crawlUrl->foundOnUrl);
     }
 
     protected function getCrawlRequests(): Generator
     {
-        $i = 0;
-
-        while ($crawlUrl = $this->crawlQueue->getPendingUrlAtIndex($i)) {
+        while ($crawlUrl = $this->crawlQueue->getFirstPendingUrl()) {
             if (! $this->crawlProfile->shouldCrawl($crawlUrl->url)) {
-                $i++;
                 continue;
             }
 
             if ($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl)) {
-                $i++;
                 continue;
             }
 
@@ -255,8 +260,7 @@ class Crawler
 
             $this->crawlQueue->markAsProcessed($crawlUrl);
 
-            yield new Request('GET', (string) $crawlUrl->url);
-            $i++;
+            yield $crawlUrl->getId() => new Request('GET', (string) $crawlUrl->url);
         }
     }
 

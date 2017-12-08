@@ -122,6 +122,16 @@ By default, the crawler continues until it has crawled every page of the supplie
 Crawler::create()
     ->setMaximumDepth(2) 
 ```
+
+## Setting the crawl queue 
+
+You can change the crawler queue handler. By default, the crawler uses a collection based crawl queue. 
+That function expects an objects that implements the `Spatie\Crawler\CrawlQueue`-interface: 
+
+```php
+Crawler::create()
+    ->setCrawlQueue(<implementation of \Spatie\Crawler\CrawlQueue>) 
+```
     
 ## Changelog
 

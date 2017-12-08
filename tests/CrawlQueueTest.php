@@ -4,7 +4,7 @@ namespace Spatie\Crawler\Test;
 
 use Spatie\Crawler\Url;
 use Spatie\Crawler\CrawlUrl;
-use Spatie\Crawler\CrawlQueue;
+use Spatie\Crawler\CollectionCrawlQueue;
 
 class CrawlQueueTest extends TestCase
 {
@@ -17,15 +17,16 @@ class CrawlQueueTest extends TestCase
     {
         parent::setUp();
 
-        $this->crawlQueue = new CrawlQueue();
+        $this->crawlQueue = new CollectionCrawlQueue();
     }
 
     /** @test */
     public function an_url_can_be_added()
     {
-        $this->crawlQueue->add($this->createCrawlUrl('https://example.com'));
+        $crawlUrl = $this->createCrawlUrl('https://example.com');
+        $this->crawlQueue->add($crawlUrl);
 
-        $this->assertCount(1, $this->crawlQueue->getPendingUrls());
+        $this->assertEquals($crawlUrl, $this->crawlQueue->getFirstPendingUrl());
     }
 
     /** @test */
@@ -39,13 +40,22 @@ class CrawlQueueTest extends TestCase
     }
 
     /** @test */
-    public function it_can_get_a_pending_url_at_the_specified_index()
+    public function it_can_get_an_url_at_the_specified_index()
     {
-        $this->crawlQueue->add($this->createCrawlUrl('https://example1.com/'));
-        $this->crawlQueue->add($this->createCrawlUrl('https://example2.com/'));
+        $url1 = $this->createCrawlUrl('https://example1.com/');
+        $url2 = $this->createCrawlUrl('https://example2.com/');
 
-        $this->assertEquals('https://example1.com/', (string) $this->crawlQueue->getPendingUrlAtIndex(0)->url);
-        $this->assertEquals('https://example2.com/', (string) $this->crawlQueue->getPendingUrlAtIndex(1)->url);
+        $this->crawlQueue->add($url1);
+        $this->crawlQueue->add($url2);
+
+        $this->assertEquals(
+            'https://example1.com/',
+            (string) $this->crawlQueue->getUrlById($url1->getId())->url
+        );
+        $this->assertEquals(
+            'https://example2.com/',
+            (string) $this->crawlQueue->getUrlById($url2->getId())->url
+        );
     }
 
     /** @test */
@@ -86,13 +96,13 @@ class CrawlQueueTest extends TestCase
 
         $this->crawlQueue->markAsProcessed($crawlUrl1);
 
-        $this->crawlQueue->removeProcessedUrlsFromPending();
+        $pendingUrlCount = 0;
+        while ($url = $this->crawlQueue->getFirstPendingUrl()) {
+            $pendingUrlCount++;
+            $this->crawlQueue->markAsProcessed($url);
+        }
 
-        $this->assertCount(1, $this->crawlQueue->getPendingUrls());
-
-        $crawlUrl = $this->crawlQueue->getPendingUrlAtIndex(0);
-
-        $this->assertEquals('https://example2.com/', (string) $crawlUrl->url);
+        $this->assertEquals(1, $pendingUrlCount);
     }
 
     protected function createCrawlUrl(string $url): CrawlUrl
