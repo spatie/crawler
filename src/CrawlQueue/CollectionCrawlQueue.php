@@ -1,9 +1,11 @@
 <?php
 
-namespace Spatie\Crawler;
+namespace Spatie\Crawler\CrawlQueue;
 
 use Illuminate\Support\Collection;
 use Spatie\Crawler\Exception\UrlNotFoundByIndex;
+use Spatie\Crawler\CrawlUrl;
+use Spatie\Crawler\Url;
 
 class CollectionCrawlQueue implements CrawlQueue
 {
@@ -53,7 +55,7 @@ class CollectionCrawlQueue implements CrawlQueue
         return $this->urls->values()[$id];
     }
 
-    public function hasAlreadyBeenProcessed(CrawlUrl $url)
+    public function hasAlreadyBeenProcessed(CrawlUrl $url): bool
     {
         return ! $this->contains($this->pendingUrls, $url) && $this->contains($this->urls, $url);
     }

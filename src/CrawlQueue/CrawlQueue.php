@@ -1,6 +1,8 @@
 <?php
 
-namespace Spatie\Crawler;
+namespace Spatie\Crawler\CrawlQueue;
+
+use Spatie\Crawler\CrawlUrl;
 
 interface CrawlQueue
 {
@@ -15,7 +17,7 @@ interface CrawlQueue
     /** @return \Spatie\Crawler\CrawlUrl|null */
     public function getFirstPendingUrl();
 
-    public function hasAlreadyBeenProcessed(CrawlUrl $url);
+    public function hasAlreadyBeenProcessed(CrawlUrl $url): bool;
 
     public function markAsProcessed(CrawlUrl $crawlUrl);
 }

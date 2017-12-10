@@ -13,6 +13,8 @@ use Spatie\Browsershot\Browsershot;
 use Symfony\Component\DomCrawler\Link;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
+use Spatie\Crawler\CrawlQueue\CrawlQueue;
+use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 
 class Crawler
@@ -32,7 +34,7 @@ class Crawler
     /** @var int */
     protected $concurrency;
 
-    /** @var \Spatie\Crawler\CrawlQueue */
+    /** @var \Spatie\Crawler\CrawlQueue\CrawlQueue */
     protected $crawlQueue;
 
     /** @var int */

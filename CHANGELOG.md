@@ -2,6 +2,9 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 2.7.0 - 2017-12-10
+- added the ability to change the crawl queue
+
 ## 2.6.2 - 2017-12-10
 - more performance improvements
 

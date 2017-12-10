@@ -4,7 +4,7 @@ namespace Spatie\Crawler\Test;
 
 use Spatie\Crawler\Url;
 use Spatie\Crawler\CrawlUrl;
-use Spatie\Crawler\CollectionCrawlQueue;
+use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 
 class CrawlQueueTest extends TestCase
 {
