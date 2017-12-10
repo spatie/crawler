@@ -280,7 +280,7 @@ class Crawler
             ->each(function (Url $url) use ($foundOnUrl) {
                 $node = $this->addtoDepthTree($this->depthTree, (string) $url, $foundOnUrl);
 
-                if (! $this->shouldCrawlAtDepth($node->getDepth())) {
+                if (! $this->shouldCrawl($node)) {
                     return;
                 }
 
@@ -294,13 +294,13 @@ class Crawler
             });
     }
 
-    protected function shouldCrawlAtDepth(int $depth): bool
+    protected function shouldCrawl(Node $node): bool
     {
         if (is_null($this->maximumDepth)) {
             return true;
         }
 
-        return $depth <= $this->maximumDepth;
+        return $node->getDepth() <= $this->maximumDepth;
     }
 
     protected function extractAllLinks(string $html, Url $foundOnUrl): Collection
