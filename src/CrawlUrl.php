@@ -10,9 +10,17 @@ class CrawlUrl
     /** @var \Spatie\Crawler\Url */
     public $foundOnUrl;
 
-    public static function create(Url $url, Url $foundOnUrl = null)
+    /** @var int */
+    protected $id;
+
+    public static function create(Url $url, Url $foundOnUrl = null, int $id = null)
     {
-        return new static($url, $foundOnUrl);
+        $static = new static($url, $foundOnUrl);
+        if ($id !== null) {
+            $static->setId($id);
+        }
+
+        return $static;
     }
 
     protected function __construct(Url $url, Url $foundOnUrl = null)
@@ -20,5 +28,15 @@ class CrawlUrl
         $this->url = $url;
 
         $this->foundOnUrl = $foundOnUrl;
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setId(int $id)
+    {
+        $this->id = $id;
     }
 }
