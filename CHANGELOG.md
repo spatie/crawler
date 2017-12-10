@@ -2,6 +2,9 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 2.6.1 - 2017-12-10
+- performance improvements
+
 ## 2.6.0 - 2017-10-16
 - add `CrawlSubdomains` profile
 

@@ -19,8 +19,11 @@ class Url
     /** @var null|string */
     public $query;
 
-    /** @var null|string */
-    protected $toString;
+    /** @var bool */
+    public $shouldRerenderString = true;
+
+    /** @var string */
+    protected $renderedString = '';
 
     /**
      * @param string $url
@@ -66,7 +69,8 @@ class Url
     public function setScheme(string $scheme)
     {
         $this->scheme = $scheme;
-        $this->toString = null;
+
+        $this->shouldRerenderString = true;
 
         return $this;
     }
@@ -79,7 +83,8 @@ class Url
     public function setHost(string $host)
     {
         $this->host = $host;
-        $this->toString = null;
+
+        $this->shouldRerenderString = true;
 
         return $this;
     }
@@ -92,7 +97,8 @@ class Url
     public function setPort(int $port)
     {
         $this->port = $port;
-        $this->toString = null;
+
+        $this->shouldRerenderString = true;
 
         return $this;
     }
@@ -103,7 +109,8 @@ class Url
     public function removeFragment()
     {
         $this->path = explode('#', $this->path)[0];
-        $this->toString = null;
+
+        $this->shouldRerenderString = true;
 
         return $this;
     }
@@ -116,7 +123,8 @@ class Url
     public function setPath(string $path)
     {
         $this->path = $path;
-        $this->toString = null;
+
+        $this->shouldRerenderString = true;
 
         return $this;
     }
@@ -189,17 +197,19 @@ class Url
      */
     public function __toString()
     {
-        if ($this->toString === null) {
+        if ($this->shouldRerenderString) {
             $path = $this->startsWith($this->path, '/') ? substr($this->path, 1) : $this->path;
 
             $port = ($this->port === 80 ? '' : ":{$this->port}");
 
             $queryString = (is_null($this->query) ? '' : "?{$this->query}");
 
-            $this->toString = "{$this->scheme}://{$this->host}{$port}/{$path}{$queryString}";
+            $this->renderedString = "{$this->scheme}://{$this->host}{$port}/{$path}{$queryString}";
+
+            $this->shouldRerenderString = false;
         }
 
-        return $this->toString;
+        return $this->renderedString;
     }
 
     /**
