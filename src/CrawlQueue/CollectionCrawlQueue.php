@@ -2,10 +2,10 @@
 
 namespace Spatie\Crawler\CrawlQueue;
 
+use Spatie\Crawler\Url;
+use Spatie\Crawler\CrawlUrl;
 use Illuminate\Support\Collection;
 use Spatie\Crawler\Exception\UrlNotFoundByIndex;
-use Spatie\Crawler\CrawlUrl;
-use Spatie\Crawler\Url;
 
 class CollectionCrawlQueue implements CrawlQueue
 {
