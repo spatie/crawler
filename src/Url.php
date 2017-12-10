@@ -179,7 +179,7 @@ class Url
         return $this->segments()[$index - 1];
     }
 
-    public function isEqual(Url $otherUrl): bool
+    public function isEqual(self $otherUrl): bool
     {
         return (string) $this === (string) $otherUrl;
     }
