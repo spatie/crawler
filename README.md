@@ -123,13 +123,13 @@ Crawler::create()
     ->setMaximumDepth(2) 
 ```
 
-## Setting the crawl queue 
+## Using a custom crawl queue 
 
 When crawling a site the crawler will put urls to be crawled in a queue. By default this queue is stored in memory using the built in `CollectionCrawlQueue`. 
 
 When a site is very large you may want to store that queue elsewhere, maybe a database. In such cases you can write your own crawl queue. 
 
-A valid crawel queue is any class that implements the `Spatie\Crawler\CrawlQueue\CrawlQueue`-interface. You can pass your custom crawl queue via the `setCrawlQueue` method on the crawler. 
+A valid crawl queue is any class that implements the `Spatie\Crawler\CrawlQueue\CrawlQueue`-interface. You can pass your custom crawl queue via the `setCrawlQueue` method on the crawler. 
 
 ```php
 Crawler::create()
