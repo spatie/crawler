@@ -150,6 +150,7 @@ To run the tests you'll have to start the included node based server first in a 
 
 ```bash
 cd tests/server
+npm install
 ./start_server.sh
 ```
 
