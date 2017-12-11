@@ -21,7 +21,7 @@
         "guzzlehttp/guzzle": "^6.3",
         "tightenco/collect": "^5.3",
         "nicmart/tree": "^0.2.7",
-        "spatie/browsershot": "^2.4"
+        "spatie/browsershot": "^3.14"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.4",
