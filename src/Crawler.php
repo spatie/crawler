@@ -276,7 +276,7 @@ class Crawler
                 return $this->crawlQueue->has($url);
             })
             ->each(function (Url $url) use ($foundOnUrl) {
-                $node = $this->addtoDepthTree($this->depthTree, (string) $url, $foundOnUrl);
+                $node = $this->addToDepthTree($this->depthTree, (string) $url, $foundOnUrl);
 
                 if (! $this->shouldCrawlAtDepth($node->getDepth())) {
                     return;
@@ -320,7 +320,7 @@ class Crawler
         return $url->removeFragment();
     }
 
-    protected function addtoDepthTree(Node $node, string $url, string $parentUrl)
+    protected function addToDepthTree(Node $node, string $url, string $parentUrl)
     {
         $returnNode = null;
 
@@ -333,7 +333,7 @@ class Crawler
         }
 
         foreach ($node->getChildren() as $currentNode) {
-            $returnNode = $this->addtoDepthTree($currentNode, $url, $parentUrl);
+            $returnNode = $this->addToDepthTree($currentNode, $url, $parentUrl);
 
             if (! is_null($returnNode)) {
                 break;
