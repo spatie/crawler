@@ -66,13 +66,17 @@ Crawler::create()
     ...
 ```
 
-Under the hood [headless Chrome](https://github.com/spatie/browsershot) is used to execute JavaScript. Here are some pointers on [how to install it on your system](https://github.com/spatie/browsershot#requirements).
+In order to make it possible to get the body html after the javascript has been executed, this package depends on 
+our [Browsershot](https://github.com/spatie/browsershot) package. 
+This package uses [Puppeteer](https://github.com/GoogleChrome/puppeteer) under the hood. Here are some pointers on [how to install it on your system](https://github.com/spatie/browsershot#requirements).
 
-The package will make an educated guess as to where Chrome is installed on your system. You can also manually pass the location of the Chrome binary to  `executeJavaScript()`
+Browsershot will make an educated guess as to where its dependencies are installed on your system. 
+By default the Crawler will instanciate a new Browsershot instance. You may find the need to set a custom created instance using the `setBrowsershot(Browsershot $browsershot)` method.
 
 ```php
 Crawler::create()
-    ->executeJavaScript($pathToChrome)
+    ->setBrowsershot($browsershot)
+    ->executeJavaScript()
     ...
 ```
 
