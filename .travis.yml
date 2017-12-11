@@ -10,7 +10,7 @@ php:
   - 7.2
 
 node_js:
-  - "6"
+  - "7"
 
 env:
   matrix:
@@ -18,6 +18,8 @@ env:
     - COMPOSER_FLAGS=""
 
 before_script:
+  - nvm install 7.6
+  - npm install -g puppeteer
   - ./tests/server/start_server.sh
   - sleep 5 # give server some time to start
   - travis_retry composer self-update
