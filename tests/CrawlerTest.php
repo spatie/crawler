@@ -5,6 +5,7 @@ namespace Spatie\Crawler\Test;
 use Spatie\Crawler\Url;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
+use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\CrawlSubdomains;
 use Spatie\Crawler\CrawlInternalUrls;
 use Spatie\Crawler\EmptyCrawlObserver;
@@ -39,6 +40,22 @@ class CrawlerTest extends TestCase
     public function it_can_crawl_all_links_rendered_by_javascript()
     {
         Crawler::create()
+            ->executeJavaScript()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce($this->regularUrls());
+
+        $this->assertCrawledOnce($this->javascriptInjectedUrls());
+    }
+
+    /** @test */
+    public function it_allows_for_a_browsershot_instance_to_be_set()
+    {
+        $browsershot = new Browsershot();
+
+        Crawler::create()
+            ->setBrowsershot($browsershot)
             ->executeJavaScript()
             ->setCrawlObserver(new CrawlLogger())
             ->startCrawling('http://localhost:8080');
