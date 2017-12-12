@@ -363,7 +363,7 @@ class Crawler
         return $this->browsershot;
     }
 
-    protected function setBrowsershot(Browsershot $browsershot)
+    public function setBrowsershot(Browsershot $browsershot)
     {
         $this->browsershot = $browsershot;
 
