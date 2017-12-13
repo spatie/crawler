@@ -122,6 +122,19 @@ By default, the crawler continues until it has crawled every page of the supplie
 Crawler::create()
     ->setMaximumDepth(2) 
 ```
+
+## Using a custom crawl queue 
+
+When crawling a site the crawler will put urls to be crawled in a queue. By default this queue is stored in memory using the built in `CollectionCrawlQueue`. 
+
+When a site is very large you may want to store that queue elsewhere, maybe a database. In such cases you can write your own crawl queue. 
+
+A valid crawl queue is any class that implements the `Spatie\Crawler\CrawlQueue\CrawlQueue`-interface. You can pass your custom crawl queue via the `setCrawlQueue` method on the crawler. 
+
+```php
+Crawler::create()
+    ->setCrawlQueue(<implementation of \Spatie\Crawler\CrawlQueue\CrawlQueue>) 
+```
     
 ## Changelog
 
@@ -137,6 +150,7 @@ To run the tests you'll have to start the included node based server first in a 
 
 ```bash
 cd tests/server
+npm install
 ./start_server.sh
 ```
 

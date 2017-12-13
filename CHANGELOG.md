@@ -2,6 +2,12 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 2.7.1 - 2017-12-13
+- allow symfony 4 crawler
+
+## 2.7.0 - 2017-12-10
+- added the ability to change the crawl queue
+
 ## 2.6.2 - 2017-12-10
 - more performance improvements
 
@@ -28,7 +34,7 @@ All notable changes to `spatie/crawler` will be documented in this file.
 
 ## 2.1.2 - 2017-03-06
 - refactor to make use of Symfony Crawler's `link` function
- 
+
 ## 2.1.1 - 2017-03-03
 - fix bugs around relative urls
 
@@ -61,7 +67,7 @@ All notable changes to `spatie/crawler` will be documented in this file.
 - make it possible to determine on which url a url was found
 
 ## 1.3.1 - 2015-09-13
-- Ignore `tel:` links when crawling 
+- Ignore `tel:` links when crawling
 
 ## 1.3.0 - 2015-08-18
 - Added `path`, `segment` and `segments` functions to `Url`
