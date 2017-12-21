@@ -2,6 +2,11 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 3.0.0 - 2017-XX-XX
+- use `\Psr\Http\Message\UriInterface` for all urls
+- use Puppeteer
+- drop support from PHP 7.0
+
 ## 2.7.1 - 2017-12-13
 - allow symfony 4 crawler
 
