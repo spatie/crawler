@@ -2,23 +2,52 @@
 
 namespace Spatie\Crawler;
 
+use GuzzleHttp\Psr7\Uri;
+use Psr\Http\Message\UriInterface;
+
 class CrawlUrl
 {
-    /** @var \Spatie\Crawler\Url */
+    /** @var \Psr\Http\Message\UriInterface */
     public $url;
 
-    /** @var \Spatie\Crawler\Url */
+    /** @var \Psr\Http\Message\UriInterface */
     public $foundOnUrl;
 
-    public static function create(Url $url, Url $foundOnUrl = null)
+    /** @var int */
+    protected $id;
+
+    public static function create($url, $foundOnUrl = null, int $id = null)
     {
-        return new static($url, $foundOnUrl);
+        if (! $url instanceof UriInterface) {
+            $url = new Uri($url);
+        }
+
+        if ($foundOnUrl !== null && ! $foundOnUrl instanceof UriInterface) {
+            $foundOnUrl = new Uri($foundOnUrl);
+        }
+
+        $static = new static($url, $foundOnUrl);
+
+        if ($id !== null) {
+            $static->setId($id);
+        }
+
+        return $static;
     }
 
-    protected function __construct(Url $url, Url $foundOnUrl = null)
+    protected function __construct(UriInterface $url, $foundOnUrl = null)
     {
         $this->url = $url;
-
         $this->foundOnUrl = $foundOnUrl;
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setId(int $id)
+    {
+        $this->id = $id;
     }
 }
