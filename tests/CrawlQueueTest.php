@@ -2,14 +2,13 @@
 
 namespace Spatie\Crawler\Test;
 
-use Spatie\Crawler\Url;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 
 class CrawlQueueTest extends TestCase
 {
     /**
-     * @var \Spatie\Crawler\CrawlQueue
+     * @var \Spatie\Crawler\CrawlQueue\CollectionCrawlQueue
      */
     protected $crawlQueue;
 
@@ -107,8 +106,6 @@ class CrawlQueueTest extends TestCase
 
     protected function createCrawlUrl(string $url): CrawlUrl
     {
-        $url = new Url($url);
-
         return CrawlUrl::create($url);
     }
 }
