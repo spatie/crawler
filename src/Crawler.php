@@ -3,14 +3,14 @@
 namespace Spatie\Crawler;
 
 use Generator;
-use GuzzleHttp\Psr7\Uri;
-use Psr\Http\Message\UriInterface;
 use Tree\Node\Node;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Collection;
+use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Symfony\Component\DomCrawler\Link;
 use Psr\Http\Message\ResponseInterface;
