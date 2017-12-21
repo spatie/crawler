@@ -2,8 +2,8 @@
 
 namespace Spatie\Crawler\Test;
 
-use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\CrawlObserver;
+use Psr\Http\Message\UriInterface;
 
 class CrawlLogger implements CrawlObserver
 {
