@@ -2,7 +2,6 @@
 
 namespace Spatie\Crawler\CrawlQueue;
 
-use Spatie\Crawler\Url;
 use Spatie\Crawler\CrawlUrl;
 use Illuminate\Support\Collection;
 use Spatie\Crawler\Exception\UrlNotFoundByIndex;
@@ -64,18 +63,18 @@ class CollectionCrawlQueue implements CrawlQueue
     {
         $this->pendingUrls = $this->pendingUrls
             ->reject(function (CrawlUrl $crawlUrlItem) use ($crawlUrl) {
-                return $crawlUrlItem->url->isEqual($crawlUrl->url);
+                return (string) $crawlUrlItem->url === (string) $crawlUrl->url;
             });
     }
 
     /**
-     * @param CrawlUrl|Url $crawlUrl
+     * @param CrawlUrl|\Psr\Http\Message\UriInterface|string $crawlUrl
      *
      * @return bool
      */
     public function has($crawlUrl): bool
     {
-        if ($crawlUrl instanceof Url) {
+        if (! $crawlUrl instanceof CrawlUrl) {
             $crawlUrl = CrawlUrl::create($crawlUrl);
         }
 
@@ -89,7 +88,7 @@ class CollectionCrawlQueue implements CrawlQueue
     private function contains(Collection $collection, CrawlUrl $searchCrawlUrl): bool
     {
         foreach ($collection as $crawlUrl) {
-            if ($crawlUrl->url->isEqual($searchCrawlUrl->url)) {
+            if ((string) $crawlUrl->url === (string) $searchCrawlUrl->url) {
                 return true;
             }
         }

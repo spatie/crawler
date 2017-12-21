@@ -2,7 +2,7 @@
 
 namespace Spatie\Crawler\Test;
 
-use Spatie\Crawler\Url;
+use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\CrawlObserver;
 
 class CrawlLogger implements CrawlObserver
@@ -10,9 +10,9 @@ class CrawlLogger implements CrawlObserver
     /**
      * Called when the crawler will crawl the url.
      *
-     * @param \Spatie\Crawler\Url   $url
+     * @param \Psr\Http\Message\UriInterface   $url
      */
-    public function willCrawl(Url $url)
+    public function willCrawl(UriInterface $url)
     {
         CrawlerTest::log("willCrawl: {$url}");
     }
@@ -20,15 +20,15 @@ class CrawlLogger implements CrawlObserver
     /**
      * Called when the crawler has crawled the given url.
      *
-     * @param \Spatie\Crawler\Url $url
+     * @param \Psr\Http\Message\UriInterface $url
      * @param \Psr\Http\Message\ResponseInterface|null $response
-     * @param \Spatie\Crawler\Url $foundOnUrl
+     * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
      */
-    public function hasBeenCrawled(Url $url, $response, Url $foundOnUrl = null)
+    public function hasBeenCrawled(UriInterface $url, $response, ?UriInterface $foundOnUrl = null)
     {
         $logText = "hasBeenCrawled: {$url}";
 
-        if ($foundOnUrl) {
+        if ((string) $foundOnUrl) {
             $logText .= " - found on {$foundOnUrl}";
         }
 
