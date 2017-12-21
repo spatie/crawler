@@ -54,8 +54,8 @@ class Crawler
     /** @var false */
     protected $executeJavaScript = false;
 
-    /** @var string|null */
-    protected $pathToChromeBinary = null;
+    /** @var Browsershot */
+    protected $browsershot = null;
 
     protected static $defaultClientOptions = [
         RequestOptions::COOKIES => true,
@@ -141,11 +141,9 @@ class Crawler
     /**
      * @return $this
      */
-    public function executeJavaScript($pathToChromeBinary = null)
+    public function executeJavaScript()
     {
         $this->executeJavaScript = true;
-
-        $this->pathToChromeBinary = $pathToChromeBinary;
 
         return $this;
     }
@@ -352,7 +350,7 @@ class Crawler
         }
 
         foreach ($node->getChildren() as $currentNode) {
-            $returnNode = $this->addtoDepthTree($currentNode, $url, $parentUrl);
+            $returnNode = $this->addToDepthTree($currentNode, $url, $parentUrl);
 
             if (! is_null($returnNode)) {
                 break;
@@ -364,15 +362,29 @@ class Crawler
 
     protected function getBodyAfterExecutingJavaScript(UriInterface $foundOnUrl): string
     {
-        $browsershot = Browsershot::url((string) $foundOnUrl);
+        $browsershot = $this->getBrowsershot();
 
-        if ($this->pathToChromeBinary) {
-            $browsershot->setChromePath($this->pathToChromeBinary);
-        }
-
-        $html = $browsershot->bodyHtml();
+        $html = $browsershot->url((string) $foundOnUrl)->bodyHtml();
 
         return html_entity_decode($html);
+    }
+
+    protected function getBrowsershot(): Browsershot
+    {
+        if ($this->browsershot) {
+            return $this->browsershot;
+        }
+
+        $this->browsershot = new Browsershot();
+
+        return $this->browsershot;
+    }
+
+    public function setBrowsershot(Browsershot $browsershot)
+    {
+        $this->browsershot = $browsershot;
+
+        return $this;
     }
 
     protected function addToCrawlQueue(CrawlUrl $crawlUrl)
