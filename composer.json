@@ -17,12 +17,12 @@
     ],
     "require": {
         "php": "^7.1",
-        "symfony/dom-crawler": "^3.0|^4.0",
         "guzzlehttp/guzzle": "^6.3",
         "guzzlehttp/psr7": "^1.4",
-        "tightenco/collect": "^5.3",
         "nicmart/tree": "^0.2.7",
-        "spatie/browsershot": "^3.14"
+        "spatie/browsershot": "^3.14",
+        "symfony/dom-crawler": "^3.0|^4.0",
+        "tightenco/collect": "^5.3"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.4",
@@ -45,5 +45,8 @@
         "branch-alias": {
             "dev-master": "0.0.x-dev"
         }
+    },
+    "config": {
+        "sort-packages": true
     }
 }
