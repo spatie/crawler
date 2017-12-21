@@ -37,18 +37,18 @@ The argument passed to `setCrawlObserver` must be an object that implements the 
 /**
  * Called when the crawler will crawl the given url.
  *
- * @param \Spatie\Crawler\Url $url
+ * @param \Psr\Http\Message\UriInterface $url
  */
-public function willCrawl(Url $url);
+public function willCrawl(UriInterface $url);
 
 /**
  * Called when the crawler has crawled the given url.
  *
- * @param \Spatie\Crawler\Url $url
+ * @param \Psr\Http\Message\UriInterface $url
  * @param \Psr\Http\Message\ResponseInterface $response
- * @param \Spatie\Crawler\Url $foundOn
+ * @param \Psr\Http\Message\UriInterface $foundOn
  */
-public function hasBeenCrawled(Url $url, $response, Url $foundOn = null);
+public function hasBeenCrawled(UriInterface $url, $response, ?UriInterface $foundOn = null);
 
 /**
  * Called when the crawl has ended.
@@ -85,7 +85,7 @@ an objects that implements the `Spatie\Crawler\CrawlProfile`-interface:
 /*
  * Determine if the given url should be crawled.
  */
-public function shouldCrawl(Url $url): bool;
+public function shouldCrawl(UriInterface $url): bool;
 ```
 
 This package comes with three `CrawlProfiles` out of the box:
