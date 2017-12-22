@@ -71,7 +71,7 @@ our [Browsershot](https://github.com/spatie/browsershot) package.
 This package uses [Puppeteer](https://github.com/GoogleChrome/puppeteer) under the hood. Here are some pointers on [how to install it on your system](https://github.com/spatie/browsershot#requirements).
 
 Browsershot will make an educated guess as to where its dependencies are installed on your system. 
-By default the Crawler will instanciate a new Browsershot instance. You may find the need to set a custom created instance using the `setBrowsershot(Browsershot $browsershot)` method.
+By default the Crawler will instantiate a new Browsershot instance. You may find the need to set a custom created instance using the `setBrowsershot(Browsershot $browsershot)` method.
 
 ```php
 Crawler::create()
@@ -79,6 +79,9 @@ Crawler::create()
     ->executeJavaScript()
     ...
 ```
+
+Note that the crawler will still work even if you don't have the system dependencies required by Browsershot.
+These system dependencies are only required if you're calling `executeJavaScript()`.
 
 ### Filtering certain urls
 
