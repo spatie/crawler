@@ -9,7 +9,7 @@
 
 This package provides a class to crawl links on a website. Under the hood Guzzle promises are used to [crawl multiple urls concurrently](http://docs.guzzlephp.org/en/latest/quickstart.html?highlight=pool#concurrent-requests).
 
-Because the crawler can execute JavaScript, it can crawl JavaScript rendered site. Under the hood [headless Chrome](https://github.com/spatie/browsershot) is used to power this feature.
+Because the crawler can execute JavaScript, it can crawl JavaScript rendered sites. Under the hood [Chrome and Puppeteer](https://github.com/spatie/browsershot) are used to power this feature.
 
 Spatie is a webdesign agency in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
 
@@ -54,7 +54,7 @@ public function hasBeenCrawled(UriInterface $url, $response, ?UriInterface $foun
  * Called when the crawl has ended.
  */
 public function finishedCrawling();
-``` 
+```
 
 ### Executing JavaScript
 
@@ -66,11 +66,11 @@ Crawler::create()
     ...
 ```
 
-In order to make it possible to get the body html after the javascript has been executed, this package depends on 
-our [Browsershot](https://github.com/spatie/browsershot) package. 
+In order to make it possible to get the body html after the javascript has been executed, this package depends on
+our [Browsershot](https://github.com/spatie/browsershot) package.
 This package uses [Puppeteer](https://github.com/GoogleChrome/puppeteer) under the hood. Here are some pointers on [how to install it on your system](https://github.com/spatie/browsershot#requirements).
 
-Browsershot will make an educated guess as to where its dependencies are installed on your system. 
+Browsershot will make an educated guess as to where its dependencies are installed on your system.
 By default the Crawler will instantiate a new Browsershot instance. You may find the need to set a custom created instance using the `setBrowsershot(Browsershot $browsershot)` method.
 
 ```php
@@ -97,7 +97,7 @@ public function shouldCrawl(UriInterface $url): bool;
 
 This package comes with three `CrawlProfiles` out of the box:
 
-- `CrawlAllUrls`: this profile will crawl all urls on all pages including urls to an external site. 
+- `CrawlAllUrls`: this profile will crawl all urls on all pages including urls to an external site.
 - `CrawlInternalUrls`: this profile will only crawl the internal urls on the pages of a host.
 - `CrawlSubdomainUrls`: this profile will only crawl the internal urls and its subdomains on the pages of a host.
 
@@ -118,7 +118,7 @@ By default, the crawler continues until it has crawled every page of the supplie
 // stop crawling after 5 urls
 
 Crawler::create()
-    ->setMaximumCrawlCount(5) 
+    ->setMaximumCrawlCount(5)
 ```
 
 ## Setting the maximum crawl depth
@@ -127,22 +127,22 @@ By default, the crawler continues until it has crawled every page of the supplie
 
 ```php
 Crawler::create()
-    ->setMaximumDepth(2) 
+    ->setMaximumDepth(2)
 ```
 
-## Using a custom crawl queue 
+## Using a custom crawl queue
 
-When crawling a site the crawler will put urls to be crawled in a queue. By default this queue is stored in memory using the built in `CollectionCrawlQueue`. 
+When crawling a site the crawler will put urls to be crawled in a queue. By default this queue is stored in memory using the built in `CollectionCrawlQueue`.
 
-When a site is very large you may want to store that queue elsewhere, maybe a database. In such cases you can write your own crawl queue. 
+When a site is very large you may want to store that queue elsewhere, maybe a database. In such cases you can write your own crawl queue.
 
-A valid crawl queue is any class that implements the `Spatie\Crawler\CrawlQueue\CrawlQueue`-interface. You can pass your custom crawl queue via the `setCrawlQueue` method on the crawler. 
+A valid crawl queue is any class that implements the `Spatie\Crawler\CrawlQueue\CrawlQueue`-interface. You can pass your custom crawl queue via the `setCrawlQueue` method on the crawler.
 
 ```php
 Crawler::create()
-    ->setCrawlQueue(<implementation of \Spatie\Crawler\CrawlQueue\CrawlQueue>) 
+    ->setCrawlQueue(<implementation of \Spatie\Crawler\CrawlQueue\CrawlQueue>)
 ```
-    
+
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
@@ -187,7 +187,7 @@ We publish all received postcards [on our company website](https://spatie.be/en/
 
 Spatie is a webdesign agency based in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
 
-Does your business depend on our contributions? Reach out and support us on [Patreon](https://www.patreon.com/spatie). 
+Does your business depend on our contributions? Reach out and support us on [Patreon](https://www.patreon.com/spatie).
 All pledges will be dedicated to allocating workforce on maintenance and new awesome stuff.
 
 ## License
