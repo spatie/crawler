@@ -191,6 +191,10 @@ class Crawler
             $baseUrl = new Uri($baseUrl);
         }
 
+        if ($baseUrl->getScheme() === '') {
+            $baseUrl = $baseUrl->withScheme('http');
+        }
+
         if ($baseUrl->getPath() === '') {
             $baseUrl = $baseUrl->withPath('/');
         }

@@ -22,6 +22,10 @@ class CrawlUrl
             $url = new Uri($url);
         }
 
+        if ($url->getScheme() === '') {
+            $url = $url->withScheme('http');
+        }
+
         if ($foundOnUrl !== null && ! $foundOnUrl instanceof UriInterface) {
             $foundOnUrl = new Uri($foundOnUrl);
         }

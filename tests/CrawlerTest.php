@@ -38,6 +38,16 @@ class CrawlerTest extends TestCase
     }
 
     /** @test */
+    public function it_can_crawl_uris_without_scheme()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('localhost:8080');
+
+        $this->assertCrawledOnce($this->regularUrls());
+    }
+
+    /** @test */
     public function it_can_crawl_all_links_rendered_by_javascript()
     {
         Crawler::create()
