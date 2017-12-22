@@ -37,18 +37,18 @@ The argument passed to `setCrawlObserver` must be an object that implements the 
 /**
  * Called when the crawler will crawl the given url.
  *
- * @param \Spatie\Crawler\Url $url
+ * @param \Psr\Http\Message\UriInterface $url
  */
-public function willCrawl(Url $url);
+public function willCrawl(UriInterface $url);
 
 /**
  * Called when the crawler has crawled the given url.
  *
- * @param \Spatie\Crawler\Url $url
+ * @param \Psr\Http\Message\UriInterface $url
  * @param \Psr\Http\Message\ResponseInterface $response
- * @param \Spatie\Crawler\Url $foundOn
+ * @param \Psr\Http\Message\UriInterface $foundOn
  */
-public function hasBeenCrawled(Url $url, $response, Url $foundOn = null);
+public function hasBeenCrawled(UriInterface $url, $response, ?UriInterface $foundOn = null);
 
 /**
  * Called when the crawl has ended.
@@ -66,15 +66,22 @@ Crawler::create()
     ...
 ```
 
-Under the hood [headless Chrome](https://github.com/spatie/browsershot) is used to execute JavaScript. Here are some pointers on [how to install it on your system](https://github.com/spatie/browsershot#requirements).
+In order to make it possible to get the body html after the javascript has been executed, this package depends on 
+our [Browsershot](https://github.com/spatie/browsershot) package. 
+This package uses [Puppeteer](https://github.com/GoogleChrome/puppeteer) under the hood. Here are some pointers on [how to install it on your system](https://github.com/spatie/browsershot#requirements).
 
-The package will make an educated guess as to where Chrome is installed on your system. You can also manually pass the location of the Chrome binary to  `executeJavaScript()`
+Browsershot will make an educated guess as to where its dependencies are installed on your system. 
+By default the Crawler will instantiate a new Browsershot instance. You may find the need to set a custom created instance using the `setBrowsershot(Browsershot $browsershot)` method.
 
 ```php
 Crawler::create()
-    ->executeJavaScript($pathToChrome)
+    ->setBrowsershot($browsershot)
+    ->executeJavaScript()
     ...
 ```
+
+Note that the crawler will still work even if you don't have the system dependencies required by Browsershot.
+These system dependencies are only required if you're calling `executeJavaScript()`.
 
 ### Filtering certain urls
 
@@ -85,7 +92,7 @@ an objects that implements the `Spatie\Crawler\CrawlProfile`-interface:
 /*
  * Determine if the given url should be crawled.
  */
-public function shouldCrawl(Url $url): bool;
+public function shouldCrawl(UriInterface $url): bool;
 ```
 
 This package comes with three `CrawlProfiles` out of the box:

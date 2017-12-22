@@ -2,16 +2,18 @@
 
 namespace Spatie\Crawler\Test;
 
-use Spatie\Crawler\Url;
+use GuzzleHttp\Psr7\Uri;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
+use Psr\Http\Message\UriInterface;
+use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\CrawlSubdomains;
 use Spatie\Crawler\CrawlInternalUrls;
 use Spatie\Crawler\EmptyCrawlObserver;
 
 class CrawlerTest extends TestCase
 {
-    /** @var logPath */
+    /** @var string logPath */
     protected static $logPath;
 
     public function setUp()
@@ -36,9 +38,35 @@ class CrawlerTest extends TestCase
     }
 
     /** @test */
+    public function it_can_crawl_uris_without_scheme()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('localhost:8080');
+
+        $this->assertCrawledOnce($this->regularUrls());
+    }
+
+    /** @test */
     public function it_can_crawl_all_links_rendered_by_javascript()
     {
         Crawler::create()
+            ->executeJavaScript()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce($this->regularUrls());
+
+        $this->assertCrawledOnce($this->javascriptInjectedUrls());
+    }
+
+    /** @test */
+    public function it_allows_for_a_browsershot_instance_to_be_set()
+    {
+        $browsershot = new Browsershot();
+
+        Crawler::create()
+            ->setBrowsershot($browsershot)
             ->executeJavaScript()
             ->setCrawlObserver(new CrawlLogger())
             ->startCrawling('http://localhost:8080');
@@ -66,9 +94,9 @@ class CrawlerTest extends TestCase
     public function it_uses_a_crawl_profile_to_determine_what_should_be_crawled()
     {
         $crawlProfile = new class implements CrawlProfile {
-            public function shouldCrawl(Url $url): bool
+            public function shouldCrawl(UriInterface $url): bool
             {
-                return $url->path !== '/link3';
+                return $url->getPath() !== '/link3';
             }
         };
 
@@ -200,7 +228,7 @@ class CrawlerTest extends TestCase
         $profile = new CrawlSubdomains($baseUrl);
 
         foreach ($urls as $url => $bool) {
-            $this->assertEquals($bool, $profile->isSubdomainOfHost(new Url($url)));
+            $this->assertEquals($bool, $profile->isSubdomainOfHost(new Uri($url)));
         }
     }
 
@@ -269,7 +297,7 @@ class CrawlerTest extends TestCase
 
             $logMessage .= PHP_EOL;
 
-            $this->assertEquals(1, substr_count($logContent, $logMessage), "Did not find {$logMessage} exactly one time in the log but ".substr_count($logContent, $logMessage)." times. Contents of log {$logContent}");
+            $this->assertEquals(1, substr_count($logContent, $logMessage), "Did not find {$logMessage} exactly one time in the log but ".substr_count($logContent, $logMessage)." times. Contents of log\n{$logContent}");
         }
     }
 
