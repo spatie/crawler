@@ -16,20 +16,8 @@ class CrawlUrl
     /** @var int */
     protected $id;
 
-    public static function create($url, $foundOnUrl = null, int $id = null)
+    public static function create(UriInterface $url, ?UriInterface $foundOnUrl = null, int $id = null)
     {
-        if (! $url instanceof UriInterface) {
-            $url = new Uri($url);
-        }
-
-        if ($url->getScheme() === '') {
-            $url = $url->withScheme('http');
-        }
-
-        if ($foundOnUrl !== null && ! $foundOnUrl instanceof UriInterface) {
-            $foundOnUrl = new Uri($foundOnUrl);
-        }
-
         $static = new static($url, $foundOnUrl);
 
         if ($id !== null) {

@@ -2,6 +2,7 @@
 
 namespace Spatie\Crawler\Test;
 
+use GuzzleHttp\Psr7\Uri;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 
@@ -106,6 +107,6 @@ class CrawlQueueTest extends TestCase
 
     protected function createCrawlUrl(string $url): CrawlUrl
     {
-        return CrawlUrl::create($url);
+        return CrawlUrl::create(new Uri($url));
     }
 }

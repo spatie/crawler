@@ -201,7 +201,7 @@ class Crawler
 
         $this->baseUrl = $baseUrl;
 
-        $crawlUrl = CrawlUrl::create($baseUrl);
+        $crawlUrl = CrawlUrl::create($this->baseUrl);
 
         $this->addToCrawlQueue($crawlUrl);
 
