@@ -2,7 +2,7 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
-## 3.0.0 - 2017-XX-XX
+## 3.0.0 - 2017-12-22
 - use `\Psr\Http\Message\UriInterface` for all urls
 - use Puppeteer
 - drop support from PHP 7.0
