@@ -18,6 +18,7 @@ use Spatie\Crawler\CrawlQueue\CrawlQueue;
 use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
+use InvalidArgumentException;
 
 class Crawler
 {
@@ -327,8 +328,13 @@ class Crawler
 
         return collect($domCrawler->filterXpath('//a')->links())
             ->map(function (Link $link) {
-                return new Uri($link->getUri());
-            });
+                try {
+                    return new Uri($link->getUri());
+                } catch (InvalidArgumentException $exception) {
+                    return null;
+                }
+            })
+            ->filter();
     }
 
     protected function normalizeUrl(UriInterface $url): UriInterface

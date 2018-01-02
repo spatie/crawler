@@ -134,6 +134,26 @@ class CrawlerTest extends TestCase
     }
 
     /** @test */
+    public function it_can_handle_pages_with_invalid_urls()
+    {
+        $crawlProfile = new class implements CrawlProfile {
+            public function shouldCrawl(UriInterface $url): bool
+            {
+                return true;
+            }
+        };
+
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->setCrawlProfile($crawlProfile)
+            ->startCrawling('localhost:8080/invalid-url');
+
+        $this->assertCrawledOnce([
+                ['url' => 'http://localhost:8080/invalid-url'],
+            ]);
+    }
+
+    /** @test */
     public function it_respects_the_maximum_amount_of_urls_to_be_crawled()
     {
         foreach (range(1, 8) as $maximumCrawlCount) {

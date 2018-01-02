@@ -34,6 +34,10 @@ app.get('/dir/subdir/link6', function (request, response) {
     response.end('You are on /dir/subdir/link6<a href="/link1">link 1</a>');
 });
 
+app.get('/invalid-url', function (request, response) {
+    response.end('There is an <a href="https:///AfyaVzw">invalid</a> url');
+});
+
 let server = app.listen(8080, function () {
     const host = 'localhost';
     const port = server.address().port;

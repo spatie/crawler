@@ -2,6 +2,9 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 3.0.1 - 2018-02-01
+- fix for exception being thrown when encountering a malformatted url
+
 ## 3.0.0 - 2017-12-22
 - use `\Psr\Http\Message\UriInterface` for all urls
 - use Puppeteer
