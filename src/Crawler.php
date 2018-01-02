@@ -8,6 +8,7 @@ use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\Request;
+use InvalidArgumentException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Collection;
 use Psr\Http\Message\UriInterface;
@@ -18,7 +19,6 @@ use Spatie\Crawler\CrawlQueue\CrawlQueue;
 use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
-use InvalidArgumentException;
 
 class Crawler
 {
@@ -331,7 +331,7 @@ class Crawler
                 try {
                     return new Uri($link->getUri());
                 } catch (InvalidArgumentException $exception) {
-                    return null;
+                    return;
                 }
             })
             ->filter();
