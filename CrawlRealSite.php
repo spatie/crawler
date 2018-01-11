@@ -1,14 +1,13 @@
 <?php
 
 use Spatie\Crawler\Crawler;
-use Spatie\Crawler\CrawlInternalUrls;
 use Spatie\Crawler\CrawlObserver;
 use Psr\Http\Message\UriInterface;
+use Spatie\Crawler\CrawlInternalUrls;
 
-include "vendor/autoload.php";
+include 'vendor/autoload.php';
 
-$observer = new class implements CrawlObserver
-{
+$observer = new class implements CrawlObserver {
     /**
      * Called when the crawler will crawl the url.
      *
@@ -16,7 +15,6 @@ $observer = new class implements CrawlObserver
      */
     public function willCrawl(UriInterface $url)
     {
-
     }
 
     /**
@@ -28,7 +26,6 @@ $observer = new class implements CrawlObserver
      */
     public function hasBeenCrawled(UriInterface $url, $response, ?UriInterface $foundOnUrl = null)
     {
-
     }
 
     /**
@@ -36,10 +33,8 @@ $observer = new class implements CrawlObserver
      */
     public function finishedCrawling()
     {
-
     }
 };
-
 
 Crawler::create()
     ->setCrawlObserver($observer)
