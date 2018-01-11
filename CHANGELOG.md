@@ -2,7 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
-## 3.0.1 - 2018-02-01
+## 3.1.0 - 2018-01-11
+- add `setMaximumResponseSize`
+
+## 3.0.1 - 2018-01-02
 - fix for exception being thrown when encountering a malformatted url
 
 ## 3.0.0 - 2017-12-22

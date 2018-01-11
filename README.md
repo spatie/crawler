@@ -130,6 +130,18 @@ Crawler::create()
     ->setMaximumDepth(2)
 ```
 
+## Setting the maximum response size
+
+Most html pages are quite small. But the crawler could accidentally pick up on large files such as PDFs and MP3s. To keep memory usage low in such cases the crawler will only use the responses that are smaller than 2 MB. If, when streaming a response, it becomes larger than 2 MB, the crawler will stop streaming the response. An empty response body will be assumed.
+
+You can change the maximum response size.
+
+```php
+// let's use a 3 MB maximum.
+Crawler::create()
+    ->setMaximumResponseSize(1024 * 1024 * 3)
+```
+
 ## Using a custom crawl queue
 
 When crawling a site the crawler will put urls to be crawled in a queue. By default this queue is stored in memory using the built in `CollectionCrawlQueue`.
