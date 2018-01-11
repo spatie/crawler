@@ -3,23 +3,23 @@
 namespace Spatie\Crawler;
 
 use Generator;
-use Psr\Http\Message\StreamInterface;
 use Tree\Node\Node;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\Request;
+use InvalidArgumentException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Collection;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
+use Psr\Http\Message\StreamInterface;
 use Symfony\Component\DomCrawler\Link;
 use Psr\Http\Message\ResponseInterface;
 use Spatie\Crawler\CrawlQueue\CrawlQueue;
 use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
-use InvalidArgumentException;
 
 class Crawler
 {
@@ -83,7 +83,7 @@ class Crawler
 
         if (! isset($clientOptions[RequestOptions::STREAM])) {
             $clientOptions[RequestOptions::STREAM] = true;
-        };
+        }
 
         $client = new Client($clientOptions);
 
@@ -114,7 +114,7 @@ class Crawler
     }
 
     /**
-     * Responses that are larger that then specified value will be ignored
+     * Responses that are larger that then specified value will be ignored.
      *
      * @param int $maximumResponseSizeInBytes
      *
@@ -126,7 +126,6 @@ class Crawler
 
         return $this;
     }
-
 
     /**
      * @param int $maximumCrawlCount
@@ -273,12 +272,11 @@ class Crawler
         }
     }
 
-    function endsWith($haystack, $needle)
+    public function endsWith($haystack, $needle)
     {
         return strrpos($haystack, $needle) + strlen($needle) ===
             strlen($haystack);
     }
-
 
     protected function convertBodyToString(StreamInterface $bodyStream, $readMaximumBytes = 1024 * 1024 * 2): string
     {
@@ -392,7 +390,7 @@ class Crawler
                 try {
                     return new Uri($link->getUri());
                 } catch (InvalidArgumentException $exception) {
-                    return null;
+                    return;
                 }
             })
             ->filter();
