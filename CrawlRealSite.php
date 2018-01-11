@@ -2,7 +2,6 @@
 
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlInternalUrls;
-use Spatie\Crawler\Test\CrawlLogger;
 use Spatie\Crawler\CrawlObserver;
 use Psr\Http\Message\UriInterface;
 
@@ -44,5 +43,5 @@ $observer = new class implements CrawlObserver
 
 Crawler::create()
     ->setCrawlObserver($observer)
-    ->setCrawlProfile(new CrawlInternalUrls('https://laravel.com'))
-    ->startCrawling('https://laravel.com');
+    ->setCrawlProfile(new CrawlInternalUrls('https://spatie.be'))
+    ->startCrawling('https://spatie.be');
