@@ -67,7 +67,6 @@ class Crawler
         RequestOptions::CONNECT_TIMEOUT => 10,
         RequestOptions::TIMEOUT => 10,
         RequestOptions::ALLOW_REDIRECTS => false,
-        RequestOptions::STREAM => true,
     ];
 
     /**
@@ -80,10 +79,6 @@ class Crawler
         $clientOptions = (count($clientOptions))
             ? $clientOptions
             : self::$defaultClientOptions;
-
-        if (! isset($clientOptions[RequestOptions::STREAM])) {
-            $clientOptions[RequestOptions::STREAM] = true;
-        }
 
         $client = new Client($clientOptions);
 
@@ -252,7 +247,7 @@ class Crawler
                         }
                     }
 
-                    $body = $this->convertBodyToString($response->getBody());
+                    $body = $this->convertBodyToString($response->getBody(), $this->maximumResponseSize);
 
                     $this->addAllLinksToCrawlQueue(
                         $body,
@@ -280,20 +275,7 @@ class Crawler
 
     protected function convertBodyToString(StreamInterface $bodyStream, $readMaximumBytes = 1024 * 1024 * 2): string
     {
-        $bytesRead = 0;
-        $body = '';
-        $keepReading = true;
-
-        while (! $bodyStream->eof() && $keepReading) {
-            $readBytes = 1024 * 512;
-
-            $body .= $bodyStream->read($readBytes);
-            $bytesRead += $readBytes;
-
-            if ($bytesRead >= $readMaximumBytes) {
-                $keepReading = false;
-            }
-        }
+        $body = $bodyStream->read($readMaximumBytes);
 
         $endReached = $bodyStream->eof();
 

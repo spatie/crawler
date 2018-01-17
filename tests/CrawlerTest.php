@@ -170,6 +170,25 @@ class CrawlerTest extends TestCase
     }
 
     /** @test */
+    public function it_doesnt_extract_links_if_the_crawled_page_exceeds_the_maximum_response_size()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->setMaximumResponseSize(10)
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce([
+            ['url' => 'http://localhost:8080/'],
+        ]);
+
+        $this->assertNotCrawled([
+            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+        ]);
+    }
+
+    /** @test */
     public function it_will_crawl_to_specified_depth()
     {
         Crawler::create()
