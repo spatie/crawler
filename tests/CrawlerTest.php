@@ -3,12 +3,12 @@
 namespace Spatie\Crawler\Test;
 
 use GuzzleHttp\Psr7\Uri;
+use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlProfile;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
-use Spatie\Crawler\Crawler;
-use Spatie\Crawler\CrawlInternalUrls;
-use Spatie\Crawler\CrawlProfile;
 use Spatie\Crawler\CrawlSubdomains;
+use Spatie\Crawler\CrawlInternalUrls;
 use Spatie\Crawler\EmptyCrawlObserver;
 
 class CrawlerTest extends TestCase
