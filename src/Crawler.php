@@ -3,23 +3,23 @@
 namespace Spatie\Crawler;
 
 use Generator;
-use Tree\Node\Node;
-use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
-use InvalidArgumentException;
+use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Collection;
+use InvalidArgumentException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
-use Psr\Http\Message\StreamInterface;
-use Symfony\Component\DomCrawler\Link;
-use Psr\Http\Message\ResponseInterface;
-use Spatie\Crawler\CrawlQueue\CrawlQueue;
-use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
+use Spatie\Crawler\CrawlQueue\CrawlQueue;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
+use Symfony\Component\DomCrawler\Link;
+use Tree\Node\Node;
 
 class Crawler
 {
@@ -67,7 +67,6 @@ class Crawler
         RequestOptions::CONNECT_TIMEOUT => 10,
         RequestOptions::TIMEOUT => 10,
         RequestOptions::ALLOW_REDIRECTS => false,
-        RequestOptions::STREAM => true,
     ];
 
     /**
@@ -80,10 +79,6 @@ class Crawler
         $clientOptions = (count($clientOptions))
             ? $clientOptions
             : self::$defaultClientOptions;
-
-        if (! isset($clientOptions[RequestOptions::STREAM])) {
-            $clientOptions[RequestOptions::STREAM] = true;
-        }
 
         $client = new Client($clientOptions);
 
@@ -252,7 +247,7 @@ class Crawler
                         }
                     }
 
-                    $body = $this->convertBodyToString($response->getBody());
+                    $body = $this->convertBodyToString($response->getBody(), $this->maximumResponseSize);
 
                     $this->addAllLinksToCrawlQueue(
                         $body,
@@ -280,20 +275,7 @@ class Crawler
 
     protected function convertBodyToString(StreamInterface $bodyStream, $readMaximumBytes = 1024 * 1024 * 2): string
     {
-        $bytesRead = 0;
-        $body = '';
-        $keepReading = true;
-
-        while (! $bodyStream->eof() && $keepReading) {
-            $readBytes = 1024 * 512;
-
-            $body .= $bodyStream->read($readBytes);
-            $bytesRead += $readBytes;
-
-            if ($bytesRead >= $readMaximumBytes) {
-                $keepReading = false;
-            }
-        }
+        $body = $bodyStream->read($readMaximumBytes);
 
         $endReached = $bodyStream->eof();
 
