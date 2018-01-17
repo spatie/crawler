@@ -3,23 +3,23 @@
 namespace Spatie\Crawler;
 
 use Generator;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
+use Tree\Node\Node;
 use GuzzleHttp\Pool;
-use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Psr7\Request;
+use InvalidArgumentException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Collection;
-use InvalidArgumentException;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
-use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
-use Spatie\Crawler\CrawlQueue\CrawlQueue;
-use Symfony\Component\DomCrawler\Crawler as DomCrawler;
+use Psr\Http\Message\StreamInterface;
 use Symfony\Component\DomCrawler\Link;
-use Tree\Node\Node;
+use Psr\Http\Message\ResponseInterface;
+use Spatie\Crawler\CrawlQueue\CrawlQueue;
+use GuzzleHttp\Exception\RequestException;
+use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
+use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 
 class Crawler
 {
