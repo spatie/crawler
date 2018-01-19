@@ -277,13 +277,7 @@ class Crawler
     {
         $body = $bodyStream->read($readMaximumBytes);
 
-        $endReached = $bodyStream->eof();
-
         $bodyStream->close();
-
-        if (! $endReached) {
-            return '';
-        }
 
         return $body;
     }
