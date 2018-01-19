@@ -2,6 +2,9 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 3.1.2 - 2018-01-19
+- fix `setMaximumResponseSize`
+
 ## 3.1.1 - 2018-01-17
 - fix `setMaximumResponseSize`
 
