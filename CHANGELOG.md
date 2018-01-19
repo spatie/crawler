@@ -6,9 +6,13 @@ All notable changes to `spatie/crawler` will be documented in this file.
 - fix `setMaximumResponseSize`
 
 ## 3.1.1 - 2018-01-17
+**CONTAINS BUGS, DO NOT USE THIS VERSION**
+
 - fix `setMaximumResponseSize`
 
 ## 3.1.0 - 2018-01-11
+**CONTAINS BUGS, DO NOT USE THIS VERSION**
+
 - add `setMaximumResponseSize`
 
 ## 3.0.1 - 2018-01-02
