@@ -275,9 +275,9 @@ class Crawler
 
     protected function convertBodyToString(StreamInterface $bodyStream, $readMaximumBytes = 1024 * 1024 * 2): string
     {
-        $body = $bodyStream->read($readMaximumBytes);
+        $bodyStream->rewind();
 
-        $bodyStream->close();
+        $body = $bodyStream->read($readMaximumBytes);
 
         return $body;
     }
