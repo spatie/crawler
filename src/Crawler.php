@@ -29,8 +29,8 @@ class Crawler
     /** @var \Psr\Http\Message\UriInterface */
     protected $baseUrl;
 
-    /** @var \Spatie\Crawler\CrawlObserver */
-    protected $crawlObserver;
+    /** @var array[\Spatie\Crawler\CrawlObserver] */
+    protected $crawlObservers;
 
     /** @var \Spatie\Crawler\CrawlProfile */
     protected $crawlProfile;
@@ -178,13 +178,29 @@ class Crawler
     }
 
     /**
-     * @param \Spatie\Crawler\CrawlObserver $crawlObserver
+     * @param \Spatie\Crawler\CrawlObserver|array[\Spatie\Crawler\CrawlObserver] $crawlObserver
      *
      * @return $this
      */
-    public function setCrawlObserver(CrawlObserver $crawlObserver)
+    public function setCrawlObserver($crawlObservers)
     {
-        $this->crawlObserver = $crawlObserver;
+        if (! is_array($crawlObservers)) {
+            $crawlObservers = [$crawlObservers];
+        }
+
+        return $this->setCrawlObservers($crawlObservers);
+    }
+
+    public function setCrawlObservers(array $crawlObservers)
+    {
+        $this->crawlObservers = $crawlObservers;
+
+        return $this;
+    }
+
+    public function addCrawlObserver(CrawlObserver $crawlObserver)
+    {
+        $this->crawlObservers[] = $crawlObserver;
 
         return $this;
     }
@@ -228,7 +244,9 @@ class Crawler
 
         $this->startCrawlingQueue();
 
-        $this->crawlObserver->finishedCrawling();
+        foreach($this->crawlObservers as $crawlObserver) {
+            $crawlObserver->finishedCrawling();
+        }
     }
 
     protected function startCrawlingQueue()
@@ -288,7 +306,9 @@ class Crawler
      */
     protected function handleResponse($response, CrawlUrl $crawlUrl)
     {
-        $this->crawlObserver->hasBeenCrawled($crawlUrl->url, $response, $crawlUrl->foundOnUrl);
+        foreach($this->crawlObservers as $crawlObserver) {
+            $crawlObserver->hasBeenCrawled($crawlUrl->url, $response, $crawlUrl->foundOnUrl);
+        }
     }
 
     protected function getCrawlRequests(): Generator
@@ -302,7 +322,9 @@ class Crawler
                 continue;
             }
 
-            $this->crawlObserver->willCrawl($crawlUrl->url);
+            foreach($this->crawlObservers as $crawlObserver) {
+                $crawlObserver->willCrawl($crawlUrl->url);
+            }
 
             $this->crawlQueue->markAsProcessed($crawlUrl);
 

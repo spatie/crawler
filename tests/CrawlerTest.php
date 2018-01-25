@@ -38,6 +38,32 @@ class CrawlerTest extends TestCase
     }
 
     /** @test */
+    public function it_will_handle_multiple_observers()
+    {
+        Crawler::create()
+            ->addCrawlObserver(new CrawlLogger('Observer A'))
+            ->addCrawlObserver(new CrawlLogger('Observer B'))
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertContains('Observer A', $this->getLogContents());
+        $this->assertContains('Observer B', $this->getLogContents());
+    }
+
+    /** @test */
+    public function multiple_observers_can_be_set_at_once()
+    {
+        Crawler::create()
+            ->setCrawlObservers([
+                new CrawlLogger('Observer A'),
+                new CrawlLogger('Observer B'),
+            ])
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertContains('Observer A', $this->getLogContents());
+        $this->assertContains('Observer B', $this->getLogContents());
+    }
+
+    /** @test */
     public function it_can_crawl_uris_without_scheme()
     {
         Crawler::create()
@@ -323,9 +349,14 @@ class CrawlerTest extends TestCase
         ];
     }
 
+    public function getLogContents(): string
+    {
+        return file_get_contents(static::$logPath);
+    }
+
     protected function assertCrawledOnce($urls)
     {
-        $logContent = file_get_contents(static::$logPath);
+        $logContent = $this->getLogContents();
 
         foreach ($urls as $url) {
             $logMessage = "hasBeenCrawled: {$url['url']}";
@@ -342,7 +373,7 @@ class CrawlerTest extends TestCase
 
     protected function assertNotCrawled($urls)
     {
-        $logContent = file_get_contents(static::$logPath);
+        $logContent = $this->getLogContents();
 
         foreach ($urls as $url) {
             $logMessage = "hasBeenCrawled: {$url['url']}";

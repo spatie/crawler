@@ -7,6 +7,18 @@ use Psr\Http\Message\UriInterface;
 
 class CrawlLogger implements CrawlObserver
 {
+    /** @var string */
+    protected $observerId;
+
+    public function __construct(string $observerId = '')
+    {
+        if ($observerId !== '') {
+            $observerId .= ' - ';
+        }
+
+        $this->observerId = $observerId;
+    }
+
     /**
      * Called when the crawler will crawl the url.
      *
@@ -14,7 +26,7 @@ class CrawlLogger implements CrawlObserver
      */
     public function willCrawl(UriInterface $url)
     {
-        CrawlerTest::log("willCrawl: {$url}");
+        CrawlerTest::log("{$this->observerId}willCrawl: {$url}");
     }
 
     /**
@@ -26,7 +38,7 @@ class CrawlLogger implements CrawlObserver
      */
     public function hasBeenCrawled(UriInterface $url, $response, ?UriInterface $foundOnUrl = null)
     {
-        $logText = "hasBeenCrawled: {$url}";
+        $logText = "{$this->observerId}hasBeenCrawled: {$url}";
 
         if ((string) $foundOnUrl) {
             $logText .= " - found on {$foundOnUrl}";
@@ -40,6 +52,6 @@ class CrawlLogger implements CrawlObserver
      */
     public function finishedCrawling()
     {
-        CrawlerTest::log('finished crawling');
+        CrawlerTest::log("{$this->observerId}finished crawling");
     }
 }

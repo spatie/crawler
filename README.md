@@ -56,6 +56,30 @@ public function hasBeenCrawled(UriInterface $url, $response, ?UriInterface $foun
 public function finishedCrawling();
 ```
 
+### Using multiple observer
+
+You can set multiple observers with `setCrawlObservers`:
+
+```php
+Crawler::create()
+    ->setCrawlObservers([
+        <implementation of \Spatie\Crawler\CrawlObserver>,
+        <implementation of \Spatie\Crawler\CrawlObserver>,
+        ...
+     ])
+    ->startCrawling($url);
+```
+
+Alternatively you can set multiple observers one by one with `addCrawlObserver`:
+
+```php
+Crawler::create()
+    ->addCrawlObserver(<implementation of \Spatie\Crawler\CrawlObserver>)
+    ->addCrawlObserver(<implementation of \Spatie\Crawler\CrawlObserver>)
+    ->addCrawlObserver(<implementation of \Spatie\Crawler\CrawlObserver>)
+    ->startCrawling($url);
+```
+
 ### Executing JavaScript
 
 By default the crawler will not execute JavaScript. This is how you can enable the execution of JavaScript:

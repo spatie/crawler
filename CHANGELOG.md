@@ -2,6 +2,9 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 3.2.0 - 2018-01-25
+- add `setCrawlObservers`, `addCrawlObserver`
+
 ## 3.1.3 - 2018-01-19
 - fix `setMaximumResponseSize` (someday we'll get this right)
 
