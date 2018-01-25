@@ -244,7 +244,7 @@ class Crawler
 
         $this->startCrawlingQueue();
 
-        foreach($this->crawlObservers as $crawlObserver) {
+        foreach ($this->crawlObservers as $crawlObserver) {
             $crawlObserver->finishedCrawling();
         }
     }
@@ -306,7 +306,7 @@ class Crawler
      */
     protected function handleResponse($response, CrawlUrl $crawlUrl)
     {
-        foreach($this->crawlObservers as $crawlObserver) {
+        foreach ($this->crawlObservers as $crawlObserver) {
             $crawlObserver->hasBeenCrawled($crawlUrl->url, $response, $crawlUrl->foundOnUrl);
         }
     }
@@ -322,7 +322,7 @@ class Crawler
                 continue;
             }
 
-            foreach($this->crawlObservers as $crawlObserver) {
+            foreach ($this->crawlObservers as $crawlObserver) {
                 $crawlObserver->willCrawl($crawlUrl->url);
             }
 
