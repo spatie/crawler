@@ -56,7 +56,7 @@ class Crawler
     /** @var \Tree\Node\Node */
     protected $depthTree;
 
-    /** @var boolean */
+    /** @var bool */
     protected $executeJavaScript = false;
 
     /** @var Browsershot */
