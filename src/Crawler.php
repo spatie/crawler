@@ -56,7 +56,7 @@ class Crawler
     /** @var \Tree\Node\Node */
     protected $depthTree;
 
-    /** @var false */
+    /** @var boolean */
     protected $executeJavaScript = false;
 
     /** @var Browsershot */
@@ -178,7 +178,7 @@ class Crawler
     }
 
     /**
-     * @param \Spatie\Crawler\CrawlObserver|array[\Spatie\Crawler\CrawlObserver] $crawlObserver
+     * @param \Spatie\Crawler\CrawlObserver|array[\Spatie\Crawler\CrawlObserver] $crawlObservers
      *
      * @return $this
      */
