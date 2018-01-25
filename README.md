@@ -56,7 +56,7 @@ public function hasBeenCrawled(UriInterface $url, $response, ?UriInterface $foun
 public function finishedCrawling();
 ```
 
-### Using multiple observer
+### Using multiple observers
 
 You can set multiple observers with `setCrawlObservers`:
 
