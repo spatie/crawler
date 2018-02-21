@@ -2,6 +2,9 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 3.2.1 - 2018-02-21
+- fix endless loop
+
 ## 3.2.0 - 2018-01-25
 - add `setCrawlObservers`, `addCrawlObserver`
 
