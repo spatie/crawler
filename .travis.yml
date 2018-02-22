@@ -2,7 +2,8 @@ dist: trusty
 addons:
   chrome: stable
 
-os: osx
+before_install:
+  - google-chrome-stable --no-sandbox &
 
 language: php
 
