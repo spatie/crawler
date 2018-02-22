@@ -8,9 +8,6 @@ php:
   - 7.1
   - 7.2
 
-node_js:
-  - "9"
-
 env:
   matrix:
     - COMPOSER_FLAGS="--prefer-lowest"
@@ -20,6 +17,8 @@ before_script:
   - . $HOME/.nvm/nvm.sh
   - nvm install stable
   - nvm use stable
+  - yum install pango.x86_64 libXcomposite.x86_64 libXcursor.x86_64 libXdamage.x86_64 libXext.x86_64 libXi.x86_64 libXtst.x86_64 cups-libs.x86_64 libXScrnSaver.x86_64 libXrandr.x86_64 GConf2.x86_64 alsa-lib.x86_64 atk.x86_64 gtk3.x86_64 -y
+  - yum install ipa-gothic-fonts xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi xorg-x11-utils xorg-x11-fonts-cyrillic xorg-x11-fonts-Type1 xorg-x11-fonts-misc -y
   - npm install puppeteer
   - ./tests/server/start_server.sh
   - sleep 5 # give server some time to start
