@@ -3,15 +3,15 @@
 namespace Spatie\Crawler\CrawlQueue;
 
 use Spatie\Crawler\CrawlUrl;
-use Illuminate\Support\Collection;
+use Tightenco\Collect\Support\Collection;
 use Spatie\Crawler\Exception\UrlNotFoundByIndex;
 
 class CollectionCrawlQueue implements CrawlQueue
 {
-    /** @var \Illuminate\Support\Collection */
+    /** @var \Tightenco\Collect\Support\Collection */
     public $urls;
 
-    /** @var \Illuminate\Support\Collection */
+    /** @var \Tightenco\Collect\Support\Collection */
     public $pendingUrls;
 
     public function __construct()
