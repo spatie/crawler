@@ -3,8 +3,8 @@
 namespace Spatie\Crawler\CrawlQueue;
 
 use Spatie\Crawler\CrawlUrl;
-use Spatie\Crawler\Exception\UrlNotFoundByIndex;
 use Tightenco\Collect\Support\Collection;
+use Spatie\Crawler\Exception\UrlNotFoundByIndex;
 
 class CollectionCrawlQueue implements CrawlQueue
 {
