@@ -1,6 +1,6 @@
 dist: trusty
 addons:
-  chrome: "63.0.3239.108-1"
+  chrome: latest
 
 language: php
 
@@ -14,6 +14,9 @@ env:
     - COMPOSER_FLAGS=""
 
 before_script:
+  - 'export DISPLAY=:99.0'
+  - 'sh -e /etc/init.d/xvfb start &'
+  - sleep 3
   - nvm install stable
   - nvm use stable
   - npm install -g puppeteer
