@@ -2,10 +2,6 @@ dist: trusty
 addons:
   chrome: stable
 
-before_install:
-  - # start your web application and listen on `localhost`
-    - google-chrome-stable  --headless --disable-gpu --no-sandbox --remote-debugging-port=8080 http://localhost &
-
 language: php
 
 php:
@@ -24,6 +20,7 @@ before_script:
   - nvm install stable
   - nvm use stable
   - npm install -g puppeteer
+  - 'google-chrome-stable  --headless --disable-gpu --no-sandbox --remote-debugging-port=8080 http://localhost &'
   - ./tests/server/start_server.sh
   - sleep 5 # give server some time to start
   - travis_retry composer self-update
