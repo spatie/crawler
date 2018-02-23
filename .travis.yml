@@ -1,6 +1,6 @@
 dist: trusty
 addons:
-  chrome: "64.0"
+  chrome: stable
 
 language: php
 
