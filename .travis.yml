@@ -12,10 +12,10 @@ env:
     - COMPOSER_FLAGS=""
 
 before_script:
-  - . $HOME/.nvm/nvm.sh
   - nvm install stable
   - nvm use stable
-  - npm install puppeteer
+  - npm install ./tests/server
+  - npm install -g puppeteer
   - ./tests/server/start_server.sh
   - sleep 5 # give server some time to start
   - travis_retry composer self-update
