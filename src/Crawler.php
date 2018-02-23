@@ -450,7 +450,7 @@ class Crawler
 
     public function setBrowsershot(Browsershot $browsershot)
     {
-        $this->browsershot = $browsershot;
+        $this->browsershot = $browsershot->noSandbox();
 
         return $this;
     }
