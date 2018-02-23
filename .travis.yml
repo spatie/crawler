@@ -21,8 +21,8 @@ env:
     - COMPOSER_FLAGS=""
 
 before_script:
-  - nvm install stable
-  - nvm use stable
+  - nvm install 7.6
+  - nvm use 7.6
   - npm install -g puppeteer
   - ./tests/server/start_server.sh
   - sleep 5 # give server some time to start
