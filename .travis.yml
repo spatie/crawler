@@ -1,6 +1,10 @@
 dist: trusty
 addons:
-  chrome: latest
+  chrome: stable
+
+before_install:
+  - # start your web application and listen on `localhost`
+    - google-chrome-stable  --headless --disable-gpu --no-sandbox --remote-debugging-port=8080 http://localhost &
 
 language: php
 
