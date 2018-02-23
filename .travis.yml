@@ -23,7 +23,6 @@ before_script:
   - nvm install stable
   - nvm use stable
   - npm install -g puppeteer
-  - 'google-chrome-stable  --headless --disable-gpu --no-sandbox --remote-debugging-port=8080 http://localhost &'
   - ./tests/server/start_server.sh
   - sleep 5 # give server some time to start
   - travis_retry composer self-update
