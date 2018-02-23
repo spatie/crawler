@@ -1,4 +1,6 @@
 dist: trusty
+addons:
+  chrome: "64.0"
 
 language: php
 
@@ -14,7 +16,6 @@ env:
 before_script:
   - nvm install stable
   - nvm use stable
-  - npm install ./tests/server
   - npm install -g puppeteer
   - ./tests/server/start_server.sh
   - sleep 5 # give server some time to start
