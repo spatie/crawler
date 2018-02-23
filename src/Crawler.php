@@ -432,7 +432,7 @@ class Crawler
     {
         $browsershot = $this->getBrowsershot();
 
-        $html = $browsershot->url((string) $foundOnUrl)->bodyHtml();
+        $html = $browsershot->url((string) $foundOnUrl)->noSandbox()->bodyHtml();
 
         return html_entity_decode($html);
     }
@@ -450,7 +450,7 @@ class Crawler
 
     public function setBrowsershot(Browsershot $browsershot)
     {
-        $this->browsershot = $browsershot->noSandbox();
+        $this->browsershot = $browsershot;
 
         return $this;
     }
