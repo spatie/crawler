@@ -76,7 +76,7 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_can_crawl_all_links_rendered_by_javascript()
     {
-        Crawler::create()
+        NoSandboxCrawler::create()
             ->executeJavaScript()
             ->setCrawlObserver(new CrawlLogger())
             ->startCrawling('http://localhost:8080');
@@ -91,7 +91,7 @@ class CrawlerTest extends TestCase
     {
         $browsershot = new Browsershot();
 
-        Crawler::create()
+        NoSandboxCrawler::create()
             ->setBrowsershot($browsershot)
             ->executeJavaScript()
             ->setCrawlObserver(new CrawlLogger())
