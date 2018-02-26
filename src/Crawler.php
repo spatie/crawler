@@ -161,14 +161,11 @@ class Crawler
     }
 
     /**
-     * @param bool $noSandbox
      * @return $this
      */
-    public function executeJavaScript(bool $noSandbox = false)
+    public function executeJavaScript()
     {
         $this->executeJavaScript = true;
-
-        $this->noSandbox = $noSandbox;
 
         return $this;
     }
@@ -179,6 +176,16 @@ class Crawler
     public function doNotExecuteJavaScript()
     {
         $this->executeJavaScript = false;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function noSandbox()
+    {
+        $this->noSandbox = true;
 
         return $this;
     }
