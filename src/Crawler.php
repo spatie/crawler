@@ -415,8 +415,8 @@ class Crawler
     {
         $returnNode = null;
 
-        if ($node->getValue() === (string)$parentUrl) {
-            $newNode = new Node((string)$url);
+        if ($node->getValue() === (string) $parentUrl) {
+            $newNode = new Node((string) $url);
 
             $node->addChild($newNode);
 
@@ -439,8 +439,8 @@ class Crawler
         $browsershot = $this->getBrowsershot();
 
         $html = $this->noSandbox
-            ? $browsershot->url((string)$foundOnUrl)->noSandbox()->bodyHtml()
-            : $browsershot->url((string)$foundOnUrl)->bodyHtml();
+            ? $browsershot->url((string) $foundOnUrl)->noSandbox()->bodyHtml()
+            : $browsershot->url((string) $foundOnUrl)->bodyHtml();
 
         return html_entity_decode($html);
     }
