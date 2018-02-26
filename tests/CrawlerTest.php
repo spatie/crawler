@@ -76,18 +76,18 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_can_crawl_all_links_rendered_by_javascript()
     {
+        $browsershot = new Browsershot();
+
         if (getenv('TRAVIS')) {
-            Crawler::create()
-                ->executeJavaScript()
-                ->noSandbox()
-                ->setCrawlObserver(new CrawlLogger())
-                ->startCrawling('http://localhost:8080');
-        } else {
-            Crawler::create()
-                ->executeJavaScript()
-                ->setCrawlObserver(new CrawlLogger())
-                ->startCrawling('http://localhost:8080');
+            $browsershot->noSandbox();
         }
+
+        $browsershot->noSandbox();
+        Crawler::create()
+            ->setBrowsershot($browsershot)
+            ->executeJavaScript()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080');
 
         $this->assertCrawledOnce($this->regularUrls());
 
@@ -100,19 +100,14 @@ class CrawlerTest extends TestCase
         $browsershot = new Browsershot();
 
         if (getenv('TRAVIS')) {
-            Crawler::create()
-                ->setBrowsershot($browsershot)
-                ->executeJavaScript()
-                ->noSandbox()
-                ->setCrawlObserver(new CrawlLogger())
-                ->startCrawling('http://localhost:8080');
-        } else {
-            Crawler::create()
-                ->setBrowsershot($browsershot)
-                ->executeJavaScript()
-                ->setCrawlObserver(new CrawlLogger())
-                ->startCrawling('http://localhost:8080');
+            $browsershot->noSandbox();
         }
+
+        Crawler::create()
+            ->setBrowsershot($browsershot)
+            ->executeJavaScript()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080');
 
         $this->assertCrawledOnce($this->regularUrls());
 

@@ -181,16 +181,6 @@ class Crawler
     }
 
     /**
-     * @return $this
-     */
-    public function noSandbox()
-    {
-        $this->noSandbox = true;
-
-        return $this;
-    }
-
-    /**
      * @param \Spatie\Crawler\CrawlObserver|array[\Spatie\Crawler\CrawlObserver] $crawlObservers
      *
      * @return $this
@@ -445,9 +435,7 @@ class Crawler
     {
         $browsershot = $this->getBrowsershot();
 
-        $html = $this->noSandbox
-            ? $browsershot->url((string) $foundOnUrl)->noSandbox()->bodyHtml()
-            : $browsershot->url((string) $foundOnUrl)->bodyHtml();
+        $html = $browsershot->url((string) $foundOnUrl)->bodyHtml();
 
         return html_entity_decode($html);
     }
