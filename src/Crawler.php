@@ -62,6 +62,9 @@ class Crawler
     /** @var Browsershot */
     protected $browsershot = null;
 
+    /** @var bool */
+    protected $noSandbox = false;
+
     protected static $defaultClientOptions = [
         RequestOptions::COOKIES => true,
         RequestOptions::CONNECT_TIMEOUT => 10,
@@ -158,11 +161,14 @@ class Crawler
     }
 
     /**
+     * @param bool $noSandbox
      * @return $this
      */
-    public function executeJavaScript()
+    public function executeJavaScript(bool $noSandbox = false)
     {
         $this->executeJavaScript = true;
+
+        $this->noSandbox = $noSandbox;
 
         return $this;
     }
@@ -409,8 +415,8 @@ class Crawler
     {
         $returnNode = null;
 
-        if ($node->getValue() === (string) $parentUrl) {
-            $newNode = new Node((string) $url);
+        if ($node->getValue() === (string)$parentUrl) {
+            $newNode = new Node((string)$url);
 
             $node->addChild($newNode);
 
@@ -432,7 +438,9 @@ class Crawler
     {
         $browsershot = $this->getBrowsershot();
 
-        $html = $browsershot->url((string) $foundOnUrl)->bodyHtml();
+        $html = $this->noSandbox
+            ? $browsershot->url((string)$foundOnUrl)->noSandbox()->bodyHtml()
+            : $browsershot->url((string)$foundOnUrl)->bodyHtml();
 
         return html_entity_decode($html);
     }
