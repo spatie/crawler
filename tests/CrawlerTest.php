@@ -76,7 +76,7 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_can_crawl_all_links_rendered_by_javascript()
     {
-        $browsershot = new Browsershot();
+        $browsershot = new Browsershot;
 
         if (getenv('TRAVIS')) {
             $browsershot->noSandbox();
@@ -97,7 +97,7 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_allows_for_a_browsershot_instance_to_be_set()
     {
-        $browsershot = new Browsershot();
+        $browsershot = new Browsershot;
 
         if (getenv('TRAVIS')) {
             $browsershot->noSandbox();
