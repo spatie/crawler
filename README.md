@@ -41,14 +41,22 @@ The argument passed to `setCrawlObserver` must be an object that implements the 
  */
 public function willCrawl(UriInterface $url);
 
-/**
- * Called when the crawler has crawled the given url.
- *
- * @param \Psr\Http\Message\UriInterface $url
- * @param \Psr\Http\Message\ResponseInterface $response
- * @param \Psr\Http\Message\UriInterface $foundOn
- */
-public function hasBeenCrawled(UriInterface $url, $response, ?UriInterface $foundOn = null);
+    /**
+     * Called when the crawler has crawled the given url.
+     *
+     * @param \Psr\Http\Message\UriInterface $url
+     * @param \Psr\Http\Message\ResponseInterface|null $response
+     * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
+     * @param \GuzzleHttp\Exception\RequestException|null $exception
+     *
+     * @return void
+     */
+    public function hasBeenCrawled(
+        UriInterface $url,
+        $response,
+        ?UriInterface $foundOnUrl = null,
+        ?RequestException $exception = null
+    );
 
 /**
  * Called when the crawl has ended.
