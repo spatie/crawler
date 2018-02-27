@@ -360,6 +360,10 @@ class Crawler
             ->each(function (UriInterface $url) use ($foundOnUrl) {
                 $node = $this->addtoDepthTree($this->depthTree, $url, $foundOnUrl);
 
+                if (strpos($url->getPath(), '/tel:') === 0) {
+                    return;
+                }
+
                 if (! $this->shouldCrawl($node)) {
                     return;
                 }
@@ -379,6 +383,8 @@ class Crawler
         if (is_null($this->maximumDepth)) {
             return true;
         }
+
+
 
         return $node->getDepth() <= $this->maximumDepth;
     }
