@@ -275,7 +275,8 @@ class Crawler
                 'rejected' => function (RequestException $exception, int $index) {
                     $this->handleResponse(
                         $exception->getResponse(),
-                        $this->crawlQueue->getUrlById($index)
+                        $this->crawlQueue->getUrlById($index),
+                        $exception
                     );
                 },
             ]);
@@ -303,11 +304,17 @@ class Crawler
     /**
      * @param ResponseInterface|null $response
      * @param CrawlUrl $crawlUrl
+     * @param RequestException|null $exception
      */
-    protected function handleResponse($response, CrawlUrl $crawlUrl)
+    protected function handleResponse($response, CrawlUrl $crawlUrl, ?RequestException $exception = null)
     {
         foreach ($this->crawlObservers as $crawlObserver) {
-            $crawlObserver->hasBeenCrawled($crawlUrl->url, $response, $crawlUrl->foundOnUrl);
+            $crawlObserver->hasBeenCrawled(
+                $crawlUrl->url,
+                $response,
+                $crawlUrl->foundOnUrl,
+                $exception
+            );
         }
     }
 

@@ -2,6 +2,7 @@
 
 namespace Spatie\Crawler;
 
+use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\UriInterface;
 
 class EmptyCrawlObserver implements CrawlObserver
@@ -23,10 +24,16 @@ class EmptyCrawlObserver implements CrawlObserver
      * @param \Psr\Http\Message\UriInterface $url
      * @param \Psr\Http\Message\ResponseInterface|null $response
      * @param \Psr\Http\Message\UriInterface $foundOnUrl
+     * @param RequestException|null $exception
      *
      * @return void
      */
-    public function hasBeenCrawled(UriInterface $url, $response, UriInterface $foundOnUrl = null)
+    public function hasBeenCrawled(
+        UriInterface $url,
+        $response,
+        UriInterface $foundOnUrl = null,
+        RequestException $exception = null
+    )
     {
     }
 

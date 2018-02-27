@@ -4,6 +4,10 @@ Because there are many breaking changes an upgrade is not that easy.
 There are many edge cases this guide does not cover. 
 We accept PRs to improve this guide.
 
+## From v3 to v4
+
+- Add a fourth parameter with type `GuzzleHttp\Exception\RequestException` to the `hasBeenCrawled` method of all your implementations of `CrawlObserver`
+
 ## From v2 to v3
 
 - PHP 7.1 is now required as a minimum version.

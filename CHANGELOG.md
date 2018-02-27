@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.0.0 - 2018-XX-XX
+
+- `RequestException` was added to `hasBeenCrawled`
+
 ## 3.2.1 - 2018-02-21
 - fix endless loop
 
