@@ -62,9 +62,6 @@ class Crawler
     /** @var Browsershot */
     protected $browsershot = null;
 
-    /** @var bool */
-    protected $noSandbox = false;
-
     protected static $defaultClientOptions = [
         RequestOptions::COOKIES => true,
         RequestOptions::CONNECT_TIMEOUT => 10,
