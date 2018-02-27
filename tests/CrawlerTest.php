@@ -45,7 +45,7 @@ class CrawlerTest extends TestCase
             ->startCrawling('http://localhost:8080');
 
         $this->assertNotCrawled([
-            ['url' => 'http://localhost:8080/tel:123', 'foundOn' => 'http://localhost:8080/']
+            ['url' => 'http://localhost:8080/tel:123', 'foundOn' => 'http://localhost:8080/'],
         ]);
     }
 
@@ -145,8 +145,7 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_uses_a_crawl_profile_to_determine_what_should_be_crawled()
     {
-        $crawlProfile = new class implements CrawlProfile
-        {
+        $crawlProfile = new class implements CrawlProfile {
             public function shouldCrawl(UriInterface $url): bool
             {
                 return $url->getPath() !== '/link3';
@@ -189,8 +188,7 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_can_handle_pages_with_invalid_urls()
     {
-        $crawlProfile = new class implements CrawlProfile
-        {
+        $crawlProfile = new class implements CrawlProfile {
             public function shouldCrawl(UriInterface $url): bool
             {
                 return true;
@@ -291,7 +289,7 @@ class CrawlerTest extends TestCase
 
     public static function log(string $text)
     {
-        file_put_contents(static::$logPath, $text . PHP_EOL, FILE_APPEND);
+        file_put_contents(static::$logPath, $text.PHP_EOL, FILE_APPEND);
     }
 
     /** @test */
@@ -395,7 +393,7 @@ class CrawlerTest extends TestCase
 
             $logMessage .= PHP_EOL;
 
-            $this->assertEquals(1, substr_count($logContent, $logMessage), "Did not find {$logMessage} exactly one time in the log but " . substr_count($logContent, $logMessage) . " times. Contents of log\n{$logContent}");
+            $this->assertEquals(1, substr_count($logContent, $logMessage), "Did not find {$logMessage} exactly one time in the log but ".substr_count($logContent, $logMessage)." times. Contents of log\n{$logContent}");
         }
     }
 
@@ -427,8 +425,8 @@ class CrawlerTest extends TestCase
 
     public function resetLog()
     {
-        static::$logPath = __DIR__ . '/temp/crawledUrls.txt';
+        static::$logPath = __DIR__.'/temp/crawledUrls.txt';
 
-        file_put_contents(static::$logPath, 'start log' . PHP_EOL);
+        file_put_contents(static::$logPath, 'start log'.PHP_EOL);
     }
 }

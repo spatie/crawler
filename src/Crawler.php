@@ -384,8 +384,6 @@ class Crawler
             return true;
         }
 
-
-
         return $node->getDepth() <= $this->maximumDepth;
     }
 
