@@ -2,9 +2,9 @@
 
 namespace Spatie\Crawler\Test;
 
-use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\CrawlObserver;
 use Psr\Http\Message\UriInterface;
+use GuzzleHttp\Exception\RequestException;
 
 class CrawlLogger implements CrawlObserver
 {
@@ -43,8 +43,7 @@ class CrawlLogger implements CrawlObserver
         $response,
         ?UriInterface $foundOnUrl = null,
         ?RequestException $exception = null
-    )
-    {
+    ) {
         $logText = "{$this->observerId}hasBeenCrawled: {$url}";
 
         if ((string) $foundOnUrl) {
