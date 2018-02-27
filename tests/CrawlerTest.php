@@ -76,7 +76,17 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_can_crawl_all_links_rendered_by_javascript()
     {
-        Crawler::create()
+        $crawler = Crawler::create();
+
+        if (getenv('TRAVIS')) {
+            $browsershot = new Browsershot();
+
+            $browsershot->noSandbox();
+
+            $crawler->setBrowsershot($browsershot);
+        }
+
+        $crawler
             ->executeJavaScript()
             ->setCrawlObserver(new CrawlLogger())
             ->startCrawling('http://localhost:8080');
@@ -90,6 +100,10 @@ class CrawlerTest extends TestCase
     public function it_allows_for_a_browsershot_instance_to_be_set()
     {
         $browsershot = new Browsershot();
+
+        if (getenv('TRAVIS')) {
+            $browsershot->noSandbox();
+        }
 
         Crawler::create()
             ->setBrowsershot($browsershot)

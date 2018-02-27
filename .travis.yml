@@ -8,16 +8,14 @@ php:
   - 7.1
   - 7.2
 
-node_js:
-  - "7"
-
 env:
   matrix:
     - COMPOSER_FLAGS="--prefer-lowest"
     - COMPOSER_FLAGS=""
 
 before_script:
-  - nvm install 9.5
+  - nvm install stable
+  - nvm use stable
   - npm install -g puppeteer
   - ./tests/server/start_server.sh
   - sleep 5 # give server some time to start

@@ -432,7 +432,7 @@ class Crawler
     {
         $browsershot = $this->getBrowsershot();
 
-        $html = $browsershot->url((string) $foundOnUrl)->bodyHtml();
+        $html = $browsershot->setUrl((string) $foundOnUrl)->bodyHtml();
 
         return html_entity_decode($html);
     }
