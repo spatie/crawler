@@ -86,7 +86,8 @@ class CrawlerTest extends TestCase
             $crawler->setBrowsershot($browsershot);
         }
 
-        $crawler->executeJavaScript()
+        $crawler
+            ->executeJavaScript()
             ->setCrawlObserver(new CrawlLogger())
             ->startCrawling('http://localhost:8080');
 
