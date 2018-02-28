@@ -2,9 +2,9 @@
 
 namespace Spatie\Crawler;
 
+use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
-use GuzzleHttp\Exception\RequestException;
 
 abstract class CrawlObserver
 {
@@ -19,7 +19,7 @@ abstract class CrawlObserver
     }
 
     /**
-     * Called when the crawler has crawled the given url.
+     * Called when the crawler has crawled the given url successfully.
      *
      * @param \Psr\Http\Message\UriInterface $url
      * @param \Psr\Http\Message\ResponseInterface $response
@@ -31,6 +31,13 @@ abstract class CrawlObserver
         ?UriInterface $foundOnUrl = null
     );
 
+    /**
+     * Called when the crawler had a problem crawling the given url.
+     *
+     * @param \Psr\Http\Message\UriInterface $url
+     * @param \GuzzleHttp\Exception\RequestException $requestException
+     * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
+     */
     abstract public function crawlFailed(
         UriInterface $url,
         RequestException $requestException,

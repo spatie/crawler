@@ -27,41 +27,64 @@ The crawler can be instantiated like this
 
 ```php
 Crawler::create()
-    ->setCrawlObserver(<implementation of \Spatie\Crawler\CrawlObserver>)
+    ->setCrawlObserver(<class that extends \Spatie\Crawler\CrawlObserver>)
     ->startCrawling($url);
 ```
 
-The argument passed to `setCrawlObserver` must be an object that implements the `\Spatie\Crawler\CrawlObserver` interface:
+The argument passed to `setCrawlObserver` must be an object that extendss the `\Spatie\Crawler\CrawlObserver` abstract class:
 
 ```php
-/**
- * Called when the crawler will crawl the given url.
- *
- * @param \Psr\Http\Message\UriInterface $url
- */
-public function willCrawl(UriInterface $url);
+namespace Spatie\Crawler;
 
+use GuzzleHttp\Exception\RequestException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
+
+abstract class CrawlObserver
+{
     /**
-     * Called when the crawler has crawled the given url.
+     * Called when the crawler will crawl the url.
      *
      * @param \Psr\Http\Message\UriInterface $url
-     * @param \Psr\Http\Message\ResponseInterface|null $response
-     * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
-     * @param \GuzzleHttp\Exception\RequestException|null $exception
-     *
-     * @return void
      */
-    public function hasBeenCrawled(
+    public function willCrawl(UriInterface $url)
+    {
+
+    }
+
+    /**
+     * Called when the crawler has crawled the given url successfully.
+     *
+     * @param \Psr\Http\Message\UriInterface $url
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
+     */
+    abstract public function crawled(
         UriInterface $url,
-        $response,
-        ?UriInterface $foundOnUrl = null,
-        ?RequestException $exception = null
+        ResponseInterface $response,
+        ?UriInterface $foundOnUrl = null
     );
 
-/**
- * Called when the crawl has ended.
- */
-public function finishedCrawling();
+    /**
+     * Called when the crawler had a problem crawling the given url.
+     *
+     * @param \Psr\Http\Message\UriInterface $url
+     * @param \GuzzleHttp\Exception\RequestException $requestException
+     * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
+     */
+    abstract public function crawlFailed(
+        UriInterface $url,
+        RequestException $requestException,
+        ?UriInterface $foundOnUrl = null
+    );
+
+    /**
+     * Called when the crawl has ended.
+     */
+    public function finishedCrawling() {
+
+    }
+}
 ```
 
 ### Using multiple observers
@@ -71,8 +94,8 @@ You can set multiple observers with `setCrawlObservers`:
 ```php
 Crawler::create()
     ->setCrawlObservers([
-        <implementation of \Spatie\Crawler\CrawlObserver>,
-        <implementation of \Spatie\Crawler\CrawlObserver>,
+        <class that extends \Spatie\Crawler\CrawlObserver>,
+        <class that extends \Spatie\Crawler\CrawlObserver>,
         ...
      ])
     ->startCrawling($url);
@@ -82,9 +105,9 @@ Alternatively you can set multiple observers one by one with `addCrawlObserver`:
 
 ```php
 Crawler::create()
-    ->addCrawlObserver(<implementation of \Spatie\Crawler\CrawlObserver>)
-    ->addCrawlObserver(<implementation of \Spatie\Crawler\CrawlObserver>)
-    ->addCrawlObserver(<implementation of \Spatie\Crawler\CrawlObserver>)
+    ->addCrawlObserver(<class that extends \Spatie\Crawler\CrawlObserver>)
+    ->addCrawlObserver(<class that extends \Spatie\Crawler\CrawlObserver>)
+    ->addCrawlObserver(<class that extends \Spatie\Crawler\CrawlObserver>)
     ->startCrawling($url);
 ```
 
@@ -118,7 +141,7 @@ These system dependencies are only required if you're calling `executeJavaScript
 ### Filtering certain urls
 
 You can tell the crawler not to visit certain urls by passing using the `setCrawlProfile`-function. That function expects
-an objects that implements the `Spatie\Crawler\CrawlProfile`-interface:
+an objects that extends `Spatie\Crawler\CrawlProfile`:
 
 ```php
 /*
