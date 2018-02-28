@@ -82,7 +82,7 @@ Crawler::create()
 
 ### Executing JavaScript
 
-By default the crawler will not execute JavaScript. This is how you can enable the execution of JavaScript:
+By default, the crawler will not execute JavaScript. This is how you can enable the execution of JavaScript:
 
 ```php
 Crawler::create()
@@ -95,7 +95,7 @@ our [Browsershot](https://github.com/spatie/browsershot) package.
 This package uses [Puppeteer](https://github.com/GoogleChrome/puppeteer) under the hood. Here are some pointers on [how to install it on your system](https://github.com/spatie/browsershot#requirements).
 
 Browsershot will make an educated guess as to where its dependencies are installed on your system.
-By default the Crawler will instantiate a new Browsershot instance. You may find the need to set a custom created instance using the `setBrowsershot(Browsershot $browsershot)` method.
+By default, the Crawler will instantiate a new Browsershot instance. You may find the need to set a custom created instance using the `setBrowsershot(Browsershot $browsershot)` method.
 
 ```php
 Crawler::create()
@@ -110,7 +110,7 @@ These system dependencies are only required if you're calling `executeJavaScript
 ### Filtering certain urls
 
 You can tell the crawler not to visit certain urls by passing using the `setCrawlProfile`-function. That function expects
-an objects that implements the `Spatie\Crawler\CrawlProfile`-interface:
+an object that implements the `Spatie\Crawler\CrawlProfile`-interface:
 
 ```php
 /*
@@ -168,9 +168,9 @@ Crawler::create()
 
 ## Using a custom crawl queue
 
-When crawling a site the crawler will put urls to be crawled in a queue. By default this queue is stored in memory using the built in `CollectionCrawlQueue`.
+When crawling a site the crawler will put urls to be crawled in a queue. By default, this queue is stored in memory using the built-in `CollectionCrawlQueue`.
 
-When a site is very large you may want to store that queue elsewhere, maybe a database. In such cases you can write your own crawl queue.
+When a site is very large you may want to store that queue elsewhere, maybe a database. In such cases, you can write your own crawl queue.
 
 A valid crawl queue is any class that implements the `Spatie\Crawler\CrawlQueue\CrawlQueue`-interface. You can pass your custom crawl queue via the `setCrawlQueue` method on the crawler.
 
