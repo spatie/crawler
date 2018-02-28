@@ -145,7 +145,7 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_uses_a_crawl_profile_to_determine_what_should_be_crawled()
     {
-        $crawlProfile = new class implements CrawlProfile {
+        $crawlProfile = new class extends CrawlProfile {
             public function shouldCrawl(UriInterface $url): bool
             {
                 return $url->getPath() !== '/link3';
@@ -188,7 +188,7 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_can_handle_pages_with_invalid_urls()
     {
-        $crawlProfile = new class implements CrawlProfile {
+        $crawlProfile = new class extends CrawlProfile {
             public function shouldCrawl(UriInterface $url): bool
             {
                 return true;
@@ -290,16 +290,6 @@ class CrawlerTest extends TestCase
     public static function log(string $text)
     {
         file_put_contents(static::$logPath, $text.PHP_EOL, FILE_APPEND);
-    }
-
-    /** @test */
-    public function the_empty_crawl_observer_does_nothing()
-    {
-        Crawler::create()
-            ->setCrawlObserver(new EmptyCrawlObserver())
-            ->startCrawling('http://localhost:8080');
-
-        $this->assertTrue(true);
     }
 
     /** @test */

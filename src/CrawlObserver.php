@@ -2,10 +2,11 @@
 
 namespace Spatie\Crawler;
 
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 use GuzzleHttp\Exception\RequestException;
 
-interface CrawlObserver
+abstract class CrawlObserver
 {
     /**
      * Called when the crawler will crawl the url.
@@ -14,23 +15,30 @@ interface CrawlObserver
      *
      * @return void
      */
-    public function willCrawl(UriInterface $url);
+    public function willCrawl(UriInterface $url)
+    {
+
+    }
 
     /**
      * Called when the crawler has crawled the given url.
      *
      * @param \Psr\Http\Message\UriInterface $url
-     * @param \Psr\Http\Message\ResponseInterface|null $response
+     * @param \Psr\Http\Message\ResponseInterface $response
      * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
-     * @param \GuzzleHttp\Exception\RequestException|null $exception
      *
      * @return void
      */
-    public function hasBeenCrawled(
+    abstract public function crawled(
         UriInterface $url,
-        $response,
-        ?UriInterface $foundOnUrl = null,
-        ?RequestException $exception = null
+        ResponseInterface $response,
+        ?UriInterface $foundOnUrl = null
+    );
+
+    abstract public function crawlFailed(
+        UriInterface $url,
+        RequestException $requestException,
+        ?UriInterface $foundOnUrl = null
     );
 
     /**
@@ -38,5 +46,7 @@ interface CrawlObserver
      *
      * @return void
      */
-    public function finishedCrawling();
+    public function finishedCrawling() {
+
+    }
 }

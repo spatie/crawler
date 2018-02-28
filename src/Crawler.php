@@ -257,7 +257,7 @@ class Crawler
                 'options' => $this->client->getConfig(),
                 'fulfilled' => function (ResponseInterface $response, int $index) {
                     $crawlUrl = $this->crawlQueue->getUrlById($index);
-                    $this->handleResponse($response, $crawlUrl);
+                    $this->handleCrawled($response, $crawlUrl);
 
                     if (! $this->crawlProfile instanceof CrawlSubdomains) {
                         if ($crawlUrl->url->getHost() !== $this->baseUrl->getHost()) {
@@ -273,8 +273,8 @@ class Crawler
                     );
                 },
                 'rejected' => function (RequestException $exception, int $index) {
-                    $this->handleResponse(
-                        $exception->getResponse(),
+                    $this->handleCrawlFailed(
+                        $exception,
                         $this->crawlQueue->getUrlById($index),
                         $exception
                     );
@@ -304,16 +304,29 @@ class Crawler
     /**
      * @param ResponseInterface|null $response
      * @param CrawlUrl $crawlUrl
-     * @param RequestException|null $exception
      */
-    protected function handleResponse($response, CrawlUrl $crawlUrl, ?RequestException $exception = null)
+    protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)
     {
         foreach ($this->crawlObservers as $crawlObserver) {
-            $crawlObserver->hasBeenCrawled(
+            $crawlObserver->crawled(
                 $crawlUrl->url,
                 $response,
-                $crawlUrl->foundOnUrl,
-                $exception
+                $crawlUrl->foundOnUrl
+            );
+        }
+    }
+
+    /**
+     * @param RequestException $exception
+     * @param CrawlUrl $crawlUrl
+     */
+    protected function handleCrawlFailed(RequestException $exception, CrawlUrl $crawlUrl)
+    {
+        foreach ($this->crawlObservers as $crawlObserver) {
+            $crawlObserver->crawlFailed(
+                $crawlUrl->url,
+                $exception,
+                $crawlUrl->foundOnUrl
             );
         }
     }
