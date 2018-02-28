@@ -2,8 +2,8 @@
 
 namespace Spatie\Crawler;
 
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 
 abstract class CrawlObserver
@@ -17,7 +17,6 @@ abstract class CrawlObserver
      */
     public function willCrawl(UriInterface $url)
     {
-
     }
 
     /**
@@ -46,7 +45,7 @@ abstract class CrawlObserver
      *
      * @return void
      */
-    public function finishedCrawling() {
-
+    public function finishedCrawling()
+    {
     }
 }
