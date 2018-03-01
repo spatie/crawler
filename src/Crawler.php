@@ -257,7 +257,7 @@ class Crawler
                 'options' => $this->client->getConfig(),
                 'fulfilled' => function (ResponseInterface $response, int $index) {
                     $crawlUrl = $this->crawlQueue->getUrlById($index);
-                    $this->handleResponse($response, $crawlUrl);
+                    $this->handleCrawled($response, $crawlUrl);
 
                     if (! $this->crawlProfile instanceof CrawlSubdomains) {
                         if ($crawlUrl->url->getHost() !== $this->baseUrl->getHost()) {
@@ -273,9 +273,10 @@ class Crawler
                     );
                 },
                 'rejected' => function (RequestException $exception, int $index) {
-                    $this->handleResponse(
-                        $exception->getResponse(),
-                        $this->crawlQueue->getUrlById($index)
+                    $this->handleCrawlFailed(
+                        $exception,
+                        $this->crawlQueue->getUrlById($index),
+                        $exception
                     );
                 },
             ]);
@@ -304,10 +305,29 @@ class Crawler
      * @param ResponseInterface|null $response
      * @param CrawlUrl $crawlUrl
      */
-    protected function handleResponse($response, CrawlUrl $crawlUrl)
+    protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)
     {
         foreach ($this->crawlObservers as $crawlObserver) {
-            $crawlObserver->hasBeenCrawled($crawlUrl->url, $response, $crawlUrl->foundOnUrl);
+            $crawlObserver->crawled(
+                $crawlUrl->url,
+                $response,
+                $crawlUrl->foundOnUrl
+            );
+        }
+    }
+
+    /**
+     * @param RequestException $exception
+     * @param CrawlUrl $crawlUrl
+     */
+    protected function handleCrawlFailed(RequestException $exception, CrawlUrl $crawlUrl)
+    {
+        foreach ($this->crawlObservers as $crawlObserver) {
+            $crawlObserver->crawlFailed(
+                $crawlUrl->url,
+                $exception,
+                $crawlUrl->foundOnUrl
+            );
         }
     }
 
@@ -352,6 +372,10 @@ class Crawler
             })
             ->each(function (UriInterface $url) use ($foundOnUrl) {
                 $node = $this->addtoDepthTree($this->depthTree, $url, $foundOnUrl);
+
+                if (strpos($url->getPath(), '/tel:') === 0) {
+                    return;
+                }
 
                 if (! $this->shouldCrawl($node)) {
                     return;

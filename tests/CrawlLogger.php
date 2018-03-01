@@ -4,8 +4,10 @@ namespace Spatie\Crawler\Test;
 
 use Spatie\Crawler\CrawlObserver;
 use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Exception\RequestException;
 
-class CrawlLogger implements CrawlObserver
+class CrawlLogger extends CrawlObserver
 {
     /** @var string */
     protected $observerId;
@@ -33,10 +35,26 @@ class CrawlLogger implements CrawlObserver
      * Called when the crawler has crawled the given url.
      *
      * @param \Psr\Http\Message\UriInterface $url
-     * @param \Psr\Http\Message\ResponseInterface|null $response
+     * @param \Psr\Http\Message\ResponseInterface $response
      * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
      */
-    public function hasBeenCrawled(UriInterface $url, $response, ?UriInterface $foundOnUrl = null)
+    public function crawled(
+        UriInterface $url,
+        ResponseInterface $response,
+        ?UriInterface $foundOnUrl = null
+    ) {
+        $this->logCrawl($url, $foundOnUrl);
+    }
+
+    public function crawlFailed(
+        UriInterface $url,
+        RequestException $requestException,
+        ?UriInterface $foundOnUrl = null
+    ) {
+        $this->logCrawl($url, $foundOnUrl);
+    }
+
+    protected function logCrawl(UriInterface $url, ?UriInterface $foundOnUrl)
     {
         $logText = "{$this->observerId}hasBeenCrawled: {$url}";
 

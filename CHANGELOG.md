@@ -2,6 +2,11 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.0.0 - 2018-03-01
+
+- the `CrawlObserver` and `CrawlProfile` are upgraded from interfaces to abstract classes
+- don't crawl `tel:` links
+
 ## 3.2.1 - 2018-02-21
 - fix endless loop
 

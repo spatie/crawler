@@ -4,7 +4,7 @@ namespace Spatie\Crawler;
 
 use Psr\Http\Message\UriInterface;
 
-interface CrawlProfile
+abstract class CrawlProfile
 {
     /**
      * Determine if the given url should be crawled.
@@ -13,5 +13,5 @@ interface CrawlProfile
      *
      * @return bool
      */
-    public function shouldCrawl(UriInterface $url): bool;
+    abstract public function shouldCrawl(UriInterface $url): bool;
 }

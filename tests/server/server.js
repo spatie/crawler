@@ -3,7 +3,7 @@
 let app = require('express')();
 
 app.get('/', function (request, response) {
-    response.end('<a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a>');
+    response.end('<a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a><a href="tel:123">Telephone</a>');
 });
 
 app.get('/link1', function (request, response) {

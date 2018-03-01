@@ -9,7 +9,6 @@ use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\CrawlSubdomains;
 use Spatie\Crawler\CrawlInternalUrls;
-use Spatie\Crawler\EmptyCrawlObserver;
 
 class CrawlerTest extends TestCase
 {
@@ -35,6 +34,18 @@ class CrawlerTest extends TestCase
         $this->assertCrawledOnce($this->regularUrls());
 
         $this->assertNotCrawled($this->javascriptInjectedUrls());
+    }
+
+    /** @test */
+    public function it_will_not_crawl_tel_links()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertNotCrawled([
+            ['url' => 'http://localhost:8080/tel:123', 'foundOn' => 'http://localhost:8080/'],
+        ]);
     }
 
     /** @test */
@@ -133,7 +144,7 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_uses_a_crawl_profile_to_determine_what_should_be_crawled()
     {
-        $crawlProfile = new class implements CrawlProfile {
+        $crawlProfile = new class extends CrawlProfile {
             public function shouldCrawl(UriInterface $url): bool
             {
                 return $url->getPath() !== '/link3';
@@ -176,7 +187,7 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_can_handle_pages_with_invalid_urls()
     {
-        $crawlProfile = new class implements CrawlProfile {
+        $crawlProfile = new class extends CrawlProfile {
             public function shouldCrawl(UriInterface $url): bool
             {
                 return true;
@@ -189,8 +200,8 @@ class CrawlerTest extends TestCase
             ->startCrawling('localhost:8080/invalid-url');
 
         $this->assertCrawledOnce([
-                ['url' => 'http://localhost:8080/invalid-url'],
-            ]);
+            ['url' => 'http://localhost:8080/invalid-url'],
+        ]);
     }
 
     /** @test */
@@ -278,16 +289,6 @@ class CrawlerTest extends TestCase
     public static function log(string $text)
     {
         file_put_contents(static::$logPath, $text.PHP_EOL, FILE_APPEND);
-    }
-
-    /** @test */
-    public function the_empty_crawl_observer_does_nothing()
-    {
-        Crawler::create()
-            ->setCrawlObserver(new EmptyCrawlObserver())
-            ->startCrawling('http://localhost:8080');
-
-        $this->assertTrue(true);
     }
 
     /** @test */
