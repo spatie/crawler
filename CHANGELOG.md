@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.0.2 - 2018-03-01
+
+- improve bugs when installing into a Laravel app
+
 ## 4.0.0 - 2018-03-01
 
 - the `CrawlObserver` and `CrawlProfile` are upgraded from interfaces to abstract classes
