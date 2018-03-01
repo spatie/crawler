@@ -2,6 +2,8 @@
 
 namespace Spatie\Crawler\Exception;
 
-class UrlNotFoundByIndex extends \RuntimeException
+use RuntimeException;
+
+class UrlNotFoundByIndex extends RuntimeException
 {
 }

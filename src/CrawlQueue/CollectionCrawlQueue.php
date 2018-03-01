@@ -9,10 +9,10 @@ use Spatie\Crawler\Exception\UrlNotFoundByIndex;
 class CollectionCrawlQueue implements CrawlQueue
 {
     /** @var \Tightenco\Collect\Support\Collection */
-    public $urls;
+    protected $urls;
 
     /** @var \Tightenco\Collect\Support\Collection */
-    public $pendingUrls;
+    protected $pendingUrls;
 
     public function __construct()
     {
@@ -85,7 +85,14 @@ class CollectionCrawlQueue implements CrawlQueue
         return false;
     }
 
-    private function contains(Collection $collection, CrawlUrl $searchCrawlUrl): bool
+    /** @return \Spatie\Crawler\CrawlUrl|null */
+    public function getFirstPendingUrl()
+    {
+        return $this->pendingUrls->first();
+    }
+
+
+    protected function contains(Collection $collection, CrawlUrl $searchCrawlUrl): bool
     {
         foreach ($collection as $crawlUrl) {
             if ((string) $crawlUrl->url === (string) $searchCrawlUrl->url) {
@@ -94,11 +101,5 @@ class CollectionCrawlQueue implements CrawlQueue
         }
 
         return false;
-    }
-
-    /** @return \Spatie\Crawler\CrawlUrl|null */
-    public function getFirstPendingUrl()
-    {
-        return $this->pendingUrls->first();
     }
 }
