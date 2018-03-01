@@ -357,7 +357,7 @@ class Crawler
     {
         $allLinks = $this->extractAllLinks($html, $foundOnUrl);
 
-        collect($allLinks)
+        (new Collection($allLinks))
             ->filter(function (UriInterface $url) {
                 return $this->hasCrawlableScheme($url);
             })
@@ -408,7 +408,7 @@ class Crawler
 
         $domCrawler = new DomCrawler($html, $foundOnUrl);
 
-        return collect($domCrawler->filterXpath('//a')->links())
+        return (new Collection($domCrawler->filterXpath('//a')->links()))
             ->map(function (Link $link) {
                 try {
                     return new Uri($link->getUri());
