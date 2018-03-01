@@ -91,7 +91,6 @@ class CollectionCrawlQueue implements CrawlQueue
         return $this->pendingUrls->first();
     }
 
-
     protected function contains(Collection $collection, CrawlUrl $searchCrawlUrl): bool
     {
         foreach ($collection as $crawlUrl) {
