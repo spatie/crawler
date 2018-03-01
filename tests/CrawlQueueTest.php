@@ -8,9 +8,7 @@ use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 
 class CrawlQueueTest extends TestCase
 {
-    /**
-     * @var \Spatie\Crawler\CrawlQueue\CollectionCrawlQueue
-     */
+    /** @var \Spatie\Crawler\CrawlQueue\CollectionCrawlQueue */
     protected $crawlQueue;
 
     public function setUp()
@@ -97,6 +95,7 @@ class CrawlQueueTest extends TestCase
         $this->crawlQueue->markAsProcessed($crawlUrl1);
 
         $pendingUrlCount = 0;
+
         while ($url = $this->crawlQueue->getFirstPendingUrl()) {
             $pendingUrlCount++;
             $this->crawlQueue->markAsProcessed($url);
