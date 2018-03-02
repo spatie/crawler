@@ -2,7 +2,7 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
-## 4.0.03 - 2018-03-02
+## 4.0.3 - 2018-03-02
 
 - Support both `Illuminate`'s and `Tighten`'s `Collection`. 
 
