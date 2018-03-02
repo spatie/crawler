@@ -3,22 +3,21 @@
 namespace Spatie\Crawler\CrawlQueue;
 
 use Spatie\Crawler\CrawlUrl;
-use Tightenco\Collect\Support\Collection;
 use Spatie\Crawler\Exception\UrlNotFoundByIndex;
 
 class CollectionCrawlQueue implements CrawlQueue
 {
-    /** @var \Tightenco\Collect\Support\Collection */
+    /** @var \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection */
     protected $urls;
 
-    /** @var \Tightenco\Collect\Support\Collection */
+    /** @var \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection */
     protected $pendingUrls;
 
     public function __construct()
     {
-        $this->urls = new Collection();
+        $this->urls = collect([]);
 
-        $this->pendingUrls = new Collection();
+        $this->pendingUrls = collect([]);
     }
 
     public function add(CrawlUrl $url): CrawlQueue
@@ -91,7 +90,13 @@ class CollectionCrawlQueue implements CrawlQueue
         return $this->pendingUrls->first();
     }
 
-    protected function contains(Collection $collection, CrawlUrl $searchCrawlUrl): bool
+    /**
+     * @param \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection $collection
+     * @param \Spatie\Crawler\CrawlUrl                                             $searchCrawlUrl
+     *
+     * @return bool
+     */
+    protected function contains($collection, CrawlUrl $searchCrawlUrl): bool
     {
         foreach ($collection as $crawlUrl) {
             if ((string) $crawlUrl->url === (string) $searchCrawlUrl->url) {

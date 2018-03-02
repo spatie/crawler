@@ -16,7 +16,6 @@ use Psr\Http\Message\StreamInterface;
 use Symfony\Component\DomCrawler\Link;
 use Psr\Http\Message\ResponseInterface;
 use Spatie\Crawler\CrawlQueue\CrawlQueue;
-use Tightenco\Collect\Support\Collection;
 use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
@@ -357,7 +356,7 @@ class Crawler
     {
         $allLinks = $this->extractAllLinks($html, $foundOnUrl);
 
-        (new Collection($allLinks))
+        collect($allLinks)
             ->filter(function (UriInterface $url) {
                 return $this->hasCrawlableScheme($url);
             })
@@ -400,7 +399,13 @@ class Crawler
         return $node->getDepth() <= $this->maximumDepth;
     }
 
-    protected function extractAllLinks(string $html, UriInterface $foundOnUrl): Collection
+    /**
+     * @param string                         $html
+     * @param \Psr\Http\Message\UriInterface $foundOnUrl
+     *
+     * @return \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection|null;
+     */
+    protected function extractAllLinks(string $html, UriInterface $foundOnUrl)
     {
         if ($this->executeJavaScript) {
             $html = $this->getBodyAfterExecutingJavaScript($foundOnUrl);
@@ -408,7 +413,7 @@ class Crawler
 
         $domCrawler = new DomCrawler($html, $foundOnUrl);
 
-        return (new Collection($domCrawler->filterXpath('//a')->links()))
+        return collect($domCrawler->filterXpath('//a')->links())
             ->map(function (Link $link) {
                 try {
                     return new Uri($link->getUri());
