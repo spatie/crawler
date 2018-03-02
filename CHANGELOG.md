@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.0.03 - 2018-03-02
+
+- Support both `Illuminate`'s and `Tighten`'s `Collection`. 
+
 ## 4.0.2 - 2018-03-01
 
 - fix bugs when installing into a Laravel app
