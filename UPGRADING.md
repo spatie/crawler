@@ -6,7 +6,7 @@ We accept PRs to improve this guide.
 
 ## From v3 to v4
 
-- the `CrawlObserver` and `CrawlProfile` are upgraded from interfaces to abstract classes, so you have to convert your old observers and profiles. `crawled` now receives every successfully crawled, `crawlFailed` everyfailed one.
+- The `CrawlObserver` and `CrawlProfile` are upgraded from interfaces to abstract classes, so you have to convert your old observers and profiles. `crawled` now receives every successfully crawled uri, `crawlFailed` every failed one.
 
 ## From v2 to v3
 
