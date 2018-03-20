@@ -342,6 +342,17 @@ class CrawlerTest extends TestCase
         ]);
     }
 
+    /** @test */
+    public function it_should_not_follow_nofollow_links()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->setMaximumDepth(1)
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertNotCrawled([['url' => 'http://localhost:8080/nofollow', 'foundOn' => 'http://localhost:8080/']]);
+    }
+
     protected function regularUrls(): array
     {
         return [

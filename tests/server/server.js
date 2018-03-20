@@ -3,7 +3,7 @@
 let app = require('express')();
 
 app.get('/', function (request, response) {
-    response.end('<a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a><a href="tel:123">Telephone</a>');
+    response.end('<a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a><a href="tel:123">Telephone</a><a href="/nofollow" rel="nofollow">No follow</a>');
 });
 
 app.get('/link1', function (request, response) {
@@ -12,6 +12,10 @@ app.get('/link1', function (request, response) {
 
 app.get('/javascript', function (request, response) {
     response.end('This page can only be reached if JavaScript is being executed');
+});
+
+app.get('/nofollow', function (request, response) {
+    response.end('This page should not be crawler');
 });
 
 app.get('/link2', function (request, response) {
