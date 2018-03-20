@@ -15,7 +15,7 @@ app.get('/javascript', function (request, response) {
 });
 
 app.get('/nofollow', function (request, response) {
-    response.end('This page should not be crawler');
+    response.end('This page should not be crawled');
 });
 
 app.get('/link2', function (request, response) {
