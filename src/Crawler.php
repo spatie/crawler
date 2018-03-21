@@ -147,6 +147,7 @@ class Crawler
 
     /**
      * @param CrawlQueue $crawlQueue
+     *
      * @return $this
      */
     public function setCrawlQueue(CrawlQueue $crawlQueue)
@@ -400,10 +401,10 @@ class Crawler
     }
 
     /**
-     * @param string                         $html
+     * @param string $html
      * @param \Psr\Http\Message\UriInterface $foundOnUrl
      *
-     * @return \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection|null;
+     * @return \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection|null
      */
     protected function extractAllLinks(string $html, UriInterface $foundOnUrl)
     {
@@ -414,7 +415,7 @@ class Crawler
         $domCrawler = new DomCrawler($html, $foundOnUrl);
 
         return collect($domCrawler->filterXpath('//a')->links())
-            ->reject(function(Link $link) {
+            ->reject(function (Link $link) {
                 return $link->getNode()->getAttribute('rel') === 'nofollow';
             })
             ->map(function (Link $link) {

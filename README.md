@@ -30,7 +30,7 @@ Crawler::create()
     ->startCrawling($url);
 ```
 
-The argument passed to `setCrawlObserver` must be an object that extendss the `\Spatie\Crawler\CrawlObserver` abstract class:
+The argument passed to `setCrawlObserver` must be an object that extends the `\Spatie\Crawler\CrawlObserver` abstract class:
 
 ```php
 namespace Spatie\Crawler;
@@ -139,9 +139,8 @@ These system dependencies are only required if you're calling `executeJavaScript
 
 ### Filtering certain urls
 
-You can tell the crawler not to visit certain urls by passing using the `setCrawlProfile`-function. That function expects
+You can tell the crawler not to visit certain urls by using the `setCrawlProfile`-function. That function expects
 an object that extends `Spatie\Crawler\CrawlProfile`:
-
 
 ```php
 /*
