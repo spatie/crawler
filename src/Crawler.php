@@ -303,7 +303,7 @@ class Crawler
 
     /**
      * @param ResponseInterface|null $response
-     * @param CrawlUrl               $crawlUrl
+     * @param CrawlUrl $crawlUrl
      */
     protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)
     {
@@ -318,7 +318,7 @@ class Crawler
 
     /**
      * @param RequestException $exception
-     * @param CrawlUrl         $crawlUrl
+     * @param CrawlUrl $crawlUrl
      */
     protected function handleCrawlFailed(RequestException $exception, CrawlUrl $crawlUrl)
     {
@@ -401,7 +401,7 @@ class Crawler
     }
 
     /**
-     * @param string                         $html
+     * @param string $html
      * @param \Psr\Http\Message\UriInterface $foundOnUrl
      *
      * @return \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection|null
