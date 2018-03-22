@@ -255,7 +255,7 @@ class Crawler
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
                 'options' => $this->client->getConfig(),
-                'fulfilled' => function (ResponseInterface $response, int $index) {
+                'fulfilled' => function (ResponseInterface $response, $index) {
                     $crawlUrl = $this->crawlQueue->getUrlById($index);
                     $this->handleCrawled($response, $crawlUrl);
 
@@ -272,7 +272,7 @@ class Crawler
                         $crawlUrl->url
                     );
                 },
-                'rejected' => function (RequestException $exception, int $index) {
+                'rejected' => function (RequestException $exception, $index) {
                     $this->handleCrawlFailed(
                         $exception,
                         $this->crawlQueue->getUrlById($index),

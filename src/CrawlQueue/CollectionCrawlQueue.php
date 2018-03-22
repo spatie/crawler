@@ -40,11 +40,11 @@ class CollectionCrawlQueue implements CrawlQueue
     }
 
     /**
-     * @param int $id
+     * @param mixed $id
      *
      * @return \Spatie\Crawler\CrawlUrl|null
      */
-    public function getUrlById(int $id): CrawlUrl
+    public function getUrlById($id): CrawlUrl
     {
         if (! isset($this->urls->values()[$id])) {
             throw new UrlNotFoundByIndex("#{$id} crawl url not found in collection");
