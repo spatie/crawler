@@ -209,6 +209,14 @@ Crawler::create()
     ->setCrawlQueue(<implementation of \Spatie\Crawler\CrawlQueue\CrawlQueue>)
 ```
 
+## Honoring robots meta tag
+
+By default the crawler will honor follow/nofollow directive. You can change it with `doNotHonorMetaRobotsFollowPolicy` method or re-enable it with `honorMetaRobotsFollowPolicy`.
+```php
+Crawler::create()
+    ->doNotHonorMetaRobotsFollowPolicy()
+```
+
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
