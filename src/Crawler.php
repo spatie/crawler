@@ -58,6 +58,9 @@ class Crawler
     /** @var bool */
     protected $executeJavaScript = false;
 
+    /** @var bool */
+    protected $honorMetaRobotsFollowPolicy = true;
+
     /** @var Browsershot */
     protected $browsershot = null;
 
@@ -173,6 +176,26 @@ class Crawler
     public function doNotExecuteJavaScript()
     {
         $this->executeJavaScript = false;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function honorMetaRobotsFollowPolicy()
+    {
+        $this->honorMetaRobotsFollowPolicy = true;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function doNotHonorMetaRobotsFollowPolicy()
+    {
+        $this->honorMetaRobotsFollowPolicy = false;
 
         return $this;
     }
@@ -413,6 +436,17 @@ class Crawler
         }
 
         $domCrawler = new DomCrawler($html, $foundOnUrl);
+        if ($this->honorMetaRobotsFollowPolicy === true) {
+            $shouldFollow = $domCrawler
+                    ->filterXPath('//head/meta[@name="robots"]/@content')
+                    ->reduce(function (DomCrawler $node, $i) {
+                        return strpos($node->text(), 'nofollow') !== false;
+                    })
+                    ->count() === 0;
+            if ($shouldFollow === false) {
+                return;
+            }
+        }
 
         return collect($domCrawler->filterXpath('//a')->links())
             ->reject(function (Link $link) {

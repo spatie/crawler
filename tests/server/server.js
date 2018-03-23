@@ -3,7 +3,7 @@
 let app = require('express')();
 
 app.get('/', function (request, response) {
-    response.end('<a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a><a href="tel:123">Telephone</a><a href="/nofollow" rel="nofollow">No follow</a>');
+    response.end('<a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a><a href="tel:123">Telephone</a><a href="/nofollow" rel="nofollow">No follow</a><a href="/nofollowpage">No follow Page</a>');
 });
 
 app.get('/link1', function (request, response) {
@@ -16,6 +16,12 @@ app.get('/javascript', function (request, response) {
 
 app.get('/nofollow', function (request, response) {
     response.end('This page should not be crawled');
+});
+app.get('/nofollowpage', function (reques, response) {
+    response.end('<html><head><meta name="robots" content="noindex,nofollow"></head><a href="/unreachable">unreachable</a></html>');
+});
+app.get('/unreachable', function (reques, response) {
+    response.end('This page should be unreachable from a robots nofollow page.');
 });
 
 app.get('/link2', function (request, response) {

@@ -353,6 +353,17 @@ class CrawlerTest extends TestCase
         $this->assertNotCrawled([['url' => 'http://localhost:8080/nofollow', 'foundOn' => 'http://localhost:8080/']]);
     }
 
+    /** @test */
+    public function it_should_not_follow_links_from_nofollow_pages()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->setMaximumDepth(2)
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertNotCrawled([['url' => 'http://localhost:8080/unreachable', 'foundOn' => 'http://localhost:8080/nofollowpage']]);
+    }
+
     protected function regularUrls(): array
     {
         return [
