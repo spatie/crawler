@@ -12,10 +12,10 @@ class CrawlUrl
     /** @var \Psr\Http\Message\UriInterface */
     public $foundOnUrl;
 
-    /** @var int */
+    /** @var mixed */
     protected $id;
 
-    public static function create(UriInterface $url, ?UriInterface $foundOnUrl = null, int $id = null)
+    public static function create(UriInterface $url, ?UriInterface $foundOnUrl = null, $id = null)
     {
         $static = new static($url, $foundOnUrl);
 
@@ -32,12 +32,15 @@ class CrawlUrl
         $this->foundOnUrl = $foundOnUrl;
     }
 
-    public function getId(): int
+    /**
+     * @return mixed|null
+     */
+    public function getId()
     {
         return $this->id;
     }
 
-    public function setId(int $id)
+    public function setId($id)
     {
         $this->id = $id;
     }
