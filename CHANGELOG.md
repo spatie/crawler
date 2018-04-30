@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.0.5 - 2018-04-30
+
+- improved extensibility by removing php native type hinting of url, queue and crawler pool Closures
+
 ## 4.0.4 - 2018-03-20
 
 - do not follow links that have attribute `rel` set to `nofollow`
