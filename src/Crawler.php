@@ -155,13 +155,21 @@ class Crawler
     }
 
     /**
-     * @param bool $ignoreRobots
-     *
      * @return $this
      */
-    public function ignoreRobots(bool $ignoreRobots = true)
+    public function ignoreRobots()
     {
-        $this->ignoreRobots = $ignoreRobots;
+        $this->ignoreRobots = true;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function respectRobots()
+    {
+        $this->ignoreRobots = false;
 
         return $this;
     }
