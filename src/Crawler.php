@@ -552,7 +552,7 @@ class Crawler
         return $this->crawledUrlCount >= $this->maximumCrawlCount;
     }
 
-    protected function mayIndex(RobotsHeaders $robotsHeaders, RobotsMeta $robotsMeta): bool
+    protected function mayIndex(RobotsHeaders  $robotsHeaders, RobotsMeta $robotsMeta): bool
     {
         if ($this->ignoreRobots) {
             return true;

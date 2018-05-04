@@ -210,6 +210,7 @@ class CrawlerTest extends TestCase
             Crawler::create()
                 ->setMaximumCrawlCount($maximumCrawlCount)
                 ->setCrawlObserver(new CrawlLogger())
+                ->ignoreRobots()
                 ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
                 ->startCrawling('http://localhost:8080');
 

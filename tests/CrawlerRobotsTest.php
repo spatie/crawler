@@ -15,13 +15,10 @@ class CrawlerRobotsTest extends TestCase
         $this->resetLog();
     }
 
-
     /** @test */
     public function it_should_not_follow_robots_txt_disallowed_links()
     {
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->setMaximumDepth(1)
+        $this->createCrawler()
             ->startCrawling('http://localhost:8080');
 
         $this->assertNotCrawled([['url' => 'http://localhost:8080/txt-disallow', 'foundOn' => 'http://localhost:8080/']]);
@@ -30,10 +27,8 @@ class CrawlerRobotsTest extends TestCase
     /** @test */
     public function it_should_follow_robots_txt_disallowed_links_when_robots_are_ignored()
     {
-        Crawler::create()
+        $this->createCrawler()
             ->ignoreRobots()
-            ->setCrawlObserver(new CrawlLogger())
-            ->setMaximumDepth(1)
             ->startCrawling('http://localhost:8080');
 
         $this->assertCrawledOnce([['url' => 'http://localhost:8080/txt-disallow', 'foundOn' => 'http://localhost:8080/']]);
@@ -42,9 +37,7 @@ class CrawlerRobotsTest extends TestCase
     /** @test */
     public function it_should_not_follow_robots_meta_disallowed_links()
     {
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->setMaximumDepth(1)
+        $this->createCrawler()
             ->startCrawling('http://localhost:8080');
 
         $this->assertNotCrawled([['url' => 'http://localhost:8080/meta-disallow', 'foundOn' => 'http://localhost:8080/']]);
@@ -53,10 +46,8 @@ class CrawlerRobotsTest extends TestCase
     /** @test */
     public function it_should_follow_robots_meta_disallowed_links_when_robots_are_ignored()
     {
-        Crawler::create()
+        $this->createCrawler()
             ->ignoreRobots()
-            ->setCrawlObserver(new CrawlLogger())
-            ->setMaximumDepth(1)
             ->startCrawling('http://localhost:8080');
 
         $this->assertCrawledOnce([['url' => 'http://localhost:8080/meta-disallow', 'foundOn' => 'http://localhost:8080/']]);
@@ -65,9 +56,7 @@ class CrawlerRobotsTest extends TestCase
     /** @test */
     public function it_should_not_follow_robots_header_disallowed_links()
     {
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->setMaximumDepth(1)
+        $this->createCrawler()
             ->startCrawling('http://localhost:8080');
 
         $this->assertNotCrawled([['url' => 'http://localhost:8080/header-disallow', 'foundOn' => 'http://localhost:8080/']]);
@@ -76,12 +65,17 @@ class CrawlerRobotsTest extends TestCase
     /** @test */
     public function it_should_follow_robots_header_disallowed_links_when_robots_are_ignored()
     {
-        Crawler::create()
+        $this->createCrawler()
             ->ignoreRobots()
-            ->setCrawlObserver(new CrawlLogger())
-            ->setMaximumDepth(1)
             ->startCrawling('http://localhost:8080');
 
         $this->assertCrawledOnce([['url' => 'http://localhost:8080/header-disallow', 'foundOn' => 'http://localhost:8080/']]);
+    }
+
+    private function createCrawler(): Crawler
+    {
+        return Crawler::create()
+            ->setMaximumDepth(1)
+            ->setCrawlObserver(new CrawlLogger());
     }
 }
