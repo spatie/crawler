@@ -3,17 +3,17 @@
 namespace Spatie\Crawler;
 
 use Generator;
-use Spatie\Robots\Robots;
-use Spatie\Robots\RobotsHeaders;
-use Spatie\Robots\RobotsMeta;
-use Spatie\Robots\RobotsTxt;
 use Tree\Node\Node;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
+use Spatie\Robots\Robots;
 use GuzzleHttp\Psr7\Request;
+use Spatie\Robots\RobotsTxt;
 use InvalidArgumentException;
+use Spatie\Robots\RobotsMeta;
 use GuzzleHttp\RequestOptions;
+use Spatie\Robots\RobotsHeaders;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Psr\Http\Message\StreamInterface;
