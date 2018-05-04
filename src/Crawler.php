@@ -434,8 +434,8 @@ class Crawler
 
     protected function shouldCrawl(Node $node): bool
     {
-        if (! $this->ignoreRobots && ! $this->robotsTxt->allows($node->getValue())) {
-            return false;
+        if (! $this->ignoreRobots) {
+            return $this->robotsTxt->allows($node->getValue());
         }
 
         if (is_null($this->maximumDepth)) {
@@ -557,7 +557,15 @@ class Crawler
             return true;
         }
 
-        return $robotsHeaders->mayIndex() && $robotsMeta->mayIndex();
+        if (! $robotsHeaders->mayIndex()) {
+            return false;
+        }
+
+        if (! $robotsMeta->mayIndex()) {
+            return false;
+        }
+
+        return true;
     }
 
     protected function mayFollow(RobotsHeaders $robotsHeaders, RobotsMeta $robotsMeta): bool
@@ -566,6 +574,14 @@ class Crawler
             return true;
         }
 
-        return $robotsHeaders->mayFollow() && $robotsMeta->mayFollow();
+        if (! $robotsHeaders->mayFollow()) {
+            return false;
+        }
+
+        if (! $robotsMeta->mayFollow()) {
+            return false;
+        }
+
+        return true;
     }
 }
