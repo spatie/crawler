@@ -3,6 +3,10 @@
 namespace Spatie\Crawler;
 
 use Generator;
+use Spatie\Robots\Robots;
+use Spatie\Robots\RobotsHeaders;
+use Spatie\Robots\RobotsMeta;
+use Spatie\Robots\RobotsTxt;
 use Tree\Node\Node;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
@@ -52,6 +56,9 @@ class Crawler
     /** @var int|null */
     protected $maximumDepth = null;
 
+    /** @var bool */
+    protected $ignoreRobots = false;
+
     /** @var \Tree\Node\Node */
     protected $depthTree;
 
@@ -60,6 +67,9 @@ class Crawler
 
     /** @var Browsershot */
     protected $browsershot = null;
+
+    /** @var \Spatie\Robots\RobotsTxt */
+    private $robotsTxt = null;
 
     protected static $defaultClientOptions = [
         RequestOptions::COOKIES => true,
@@ -141,6 +151,18 @@ class Crawler
     public function setMaximumDepth(int $maximumDepth)
     {
         $this->maximumDepth = $maximumDepth;
+
+        return $this;
+    }
+
+    /**
+     * @param bool $ignoreRobots
+     *
+     * @return $this
+     */
+    public function ignoreRobots(bool $ignoreRobots = true)
+    {
+        $this->ignoreRobots = $ignoreRobots;
 
         return $this;
     }
@@ -238,6 +260,8 @@ class Crawler
 
         $crawlUrl = CrawlUrl::create($this->baseUrl);
 
+        $this->robotsTxt = $this->createRobotsTxt($crawlUrl->url);
+
         $this->addToCrawlQueue($crawlUrl);
 
         $this->depthTree = new Node((string) $this->baseUrl);
@@ -257,6 +281,17 @@ class Crawler
                 'options' => $this->client->getConfig(),
                 'fulfilled' => function (ResponseInterface $response, $index) {
                     $crawlUrl = $this->crawlQueue->getUrlById($index);
+
+                    $body = $this->convertBodyToString($response->getBody(), $this->maximumResponseSize);
+
+                    $robotsMeta = RobotsMeta::create($body);
+
+                    $robotsHeaders = RobotsHeaders::create($response->getHeaders());
+
+                    if (! $robotsMeta->mayIndex() || ! $robotsHeaders->mayIndex()) {
+                        return;
+                    }
+
                     $this->handleCrawled($response, $crawlUrl);
 
                     if (! $this->crawlProfile instanceof CrawlSubdomains) {
@@ -265,7 +300,9 @@ class Crawler
                         }
                     }
 
-                    $body = $this->convertBodyToString($response->getBody(), $this->maximumResponseSize);
+                    if (! $robotsMeta->mayFollow() || ! $robotsHeaders->mayFollow()) {
+                        return;
+                    }
 
                     $this->addAllLinksToCrawlQueue(
                         $body,
@@ -299,6 +336,11 @@ class Crawler
         $body = $bodyStream->read($readMaximumBytes);
 
         return $body;
+    }
+
+    protected function createRobotsTxt(UriInterface $uri): RobotsTxt
+    {
+        return RobotsTxt::create($uri->withPath('/robots.txt'));
     }
 
     /**
@@ -393,6 +435,10 @@ class Crawler
 
     protected function shouldCrawl(Node $node): bool
     {
+        if (! $this->ignoreRobots && ! $this->robotsTxt->allows($node->getValue())) {
+            return false;
+        }
+
         if (is_null($this->maximumDepth)) {
             return true;
         }

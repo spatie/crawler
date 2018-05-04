@@ -353,6 +353,29 @@ class CrawlerTest extends TestCase
         $this->assertNotCrawled([['url' => 'http://localhost:8080/nofollow', 'foundOn' => 'http://localhost:8080/']]);
     }
 
+    /** @test */
+    public function it_should_not_follow_disallowed_robots_links()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->setMaximumDepth(1)
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertNotCrawled([['url' => 'http://localhost:8080/not-allowed', 'foundOn' => 'http://localhost:8080/']]);
+    }
+
+    /** @test */
+    public function it_should_follow_disallowed_robots_links_when_option_is_set()
+    {
+        Crawler::create()
+            ->ignoreRobots()
+            ->setCrawlObserver(new CrawlLogger())
+            ->setMaximumDepth(1)
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce([['url' => 'http://localhost:8080/not-allowed', 'foundOn' => 'http://localhost:8080/']]);
+    }
+
     protected function regularUrls(): array
     {
         return [
