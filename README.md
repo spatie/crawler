@@ -165,6 +165,11 @@ Crawler::create()
     ...
 ```
 
+Robots data can come from either a `robots.txt` file, meta tags or response headers.
+More information on the spec can be found here: [http://www.robotstxt.org/](http://www.robotstxt.org/).
+
+Parsing robots data is done by our package [spatie/robots-txt](https://github.com/spatie/robots-txt).
+
 ## Setting the number of concurrent requests
 
 To improve the speed of the crawl the package concurrently crawls 10 urls by default. If you want to change that number you can use the `setConcurrency` method.
