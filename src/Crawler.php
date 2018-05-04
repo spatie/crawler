@@ -7,7 +7,6 @@ use Tree\Node\Node;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
-use Spatie\Robots\Robots;
 use GuzzleHttp\Psr7\Request;
 use Spatie\Robots\RobotsTxt;
 use InvalidArgumentException;
@@ -69,7 +68,7 @@ class Crawler
     protected $browsershot = null;
 
     /** @var \Spatie\Robots\RobotsTxt */
-    private $robotsTxt = null;
+    protected $robotsTxt = null;
 
     protected static $defaultClientOptions = [
         RequestOptions::COOKIES => true,
