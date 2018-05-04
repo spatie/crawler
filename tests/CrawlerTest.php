@@ -371,5 +371,4 @@ class CrawlerTest extends TestCase
             ['url' => 'http://localhost:8080/javascript', 'foundOn' => 'http://localhost:8080/link1'],
         ];
     }
-
 }

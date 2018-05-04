@@ -15,7 +15,6 @@ class CrawlerRobotsTest extends TestCase
         $this->resetLog();
     }
 
-
     /** @test */
     public function it_should_not_follow_robots_txt_disallowed_links()
     {
