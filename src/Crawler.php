@@ -56,7 +56,7 @@ class Crawler
     protected $maximumDepth = null;
 
     /** @var bool */
-    protected $ignoreRobots = false;
+    protected $respectRobots = true;
 
     /** @var \Tree\Node\Node */
     protected $depthTree;
@@ -159,7 +159,7 @@ class Crawler
      */
     public function ignoreRobots()
     {
-        $this->ignoreRobots = true;
+        $this->respectRobots = false;
 
         return $this;
     }
@@ -169,7 +169,7 @@ class Crawler
      */
     public function respectRobots()
     {
-        $this->ignoreRobots = false;
+        $this->respectRobots = true;
 
         return $this;
     }
@@ -442,7 +442,7 @@ class Crawler
 
     protected function shouldCrawl(Node $node): bool
     {
-        if (! $this->ignoreRobots) {
+        if ($this->respectRobots) {
             return $this->robotsTxt->allows($node->getValue());
         }
 
@@ -561,8 +561,8 @@ class Crawler
 
     protected function mayIndex(RobotsHeaders  $robotsHeaders, RobotsMeta $robotsMeta): bool
     {
-        if ($this->ignoreRobots) {
-            return true;
+        if (! $this->respectRobots) {
+            return false;
         }
 
         if (! $robotsHeaders->mayIndex()) {
@@ -578,8 +578,8 @@ class Crawler
 
     protected function mayFollow(RobotsHeaders $robotsHeaders, RobotsMeta $robotsMeta): bool
     {
-        if ($this->ignoreRobots) {
-            return true;
+        if (! $this->respectRobots) {
+            return false;
         }
 
         if (! $robotsHeaders->mayFollow()) {
