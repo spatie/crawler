@@ -60,8 +60,6 @@ app.get('/robots.txt', function (req, res) {
     var html = 'User-agent: *\n' +
         'Disallow: /txt-disallow';
 
-    console.log('Visited robots.txt');
-
     res.end(html);
 });
 
