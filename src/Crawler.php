@@ -284,11 +284,11 @@ class Crawler
 
                     $body = $this->convertBodyToString($response->getBody(), $this->maximumResponseSize);
 
-                    $robotsMeta = RobotsMeta::create($body);
-
                     $robotsHeaders = RobotsHeaders::create($response->getHeaders());
 
-                    if (! $robotsMeta->mayIndex() || ! $robotsHeaders->mayIndex()) {
+                    $robotsMeta = RobotsMeta::create($body);
+
+                    if (! $this->mayIndex($robotsHeaders, $robotsMeta)) {
                         return;
                     }
 
@@ -300,7 +300,7 @@ class Crawler
                         }
                     }
 
-                    if (! $robotsMeta->mayFollow() || ! $robotsHeaders->mayFollow()) {
+                    if (! $this->mayFollow($robotsHeaders, $robotsMeta)) {
                         return;
                     }
 
@@ -345,7 +345,7 @@ class Crawler
 
     /**
      * @param ResponseInterface|null $response
-     * @param CrawlUrl $crawlUrl
+     * @param CrawlUrl               $crawlUrl
      */
     protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)
     {
@@ -360,7 +360,7 @@ class Crawler
 
     /**
      * @param RequestException $exception
-     * @param CrawlUrl $crawlUrl
+     * @param CrawlUrl         $crawlUrl
      */
     protected function handleCrawlFailed(RequestException $exception, CrawlUrl $crawlUrl)
     {
@@ -447,7 +447,7 @@ class Crawler
     }
 
     /**
-     * @param string $html
+     * @param string                         $html
      * @param \Psr\Http\Message\UriInterface $foundOnUrl
      *
      * @return \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection|null
@@ -550,5 +550,23 @@ class Crawler
         }
 
         return $this->crawledUrlCount >= $this->maximumCrawlCount;
+    }
+
+    protected function mayIndex(RobotsHeaders $robotsHeaders, RobotsMeta $robotsMeta): bool
+    {
+        if ($this->ignoreRobots) {
+            return true;
+        }
+
+        return $robotsHeaders->mayIndex() && $robotsMeta->mayIndex();
+    }
+
+    protected function mayFollow(RobotsHeaders $robotsHeaders, RobotsMeta $robotsMeta): bool
+    {
+        if ($this->ignoreRobots) {
+            return true;
+        }
+
+        return $robotsHeaders->mayFollow() && $robotsMeta->mayFollow();
     }
 }
