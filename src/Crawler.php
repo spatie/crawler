@@ -562,7 +562,7 @@ class Crawler
     protected function mayIndex(RobotsHeaders  $robotsHeaders, RobotsMeta $robotsMeta): bool
     {
         if (! $this->respectRobots) {
-            return false;
+            return true;
         }
 
         if (! $robotsHeaders->mayIndex()) {
@@ -579,7 +579,7 @@ class Crawler
     protected function mayFollow(RobotsHeaders $robotsHeaders, RobotsMeta $robotsMeta): bool
     {
         if (! $this->respectRobots) {
-            return false;
+            return true;
         }
 
         if (! $robotsHeaders->mayFollow()) {
