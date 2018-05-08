@@ -25,6 +25,15 @@ class CrawlerRobotsTest extends TestCase
     }
 
     /** @test */
+    public function it_does_not_allow_a_root_ignored_url()
+    {
+        $this->createCrawler()
+            ->startCrawling('http://localhost:8080/txt-disallow');
+
+        $this->assertNotCrawled([['url' => 'http://localhost:8080/txt-disallow', 'foundOn' => 'http://localhost:8080/']]);
+    }
+
+    /** @test */
     public function it_should_follow_robots_txt_disallowed_links_when_robots_are_ignored()
     {
         $this->createCrawler()

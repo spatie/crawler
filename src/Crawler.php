@@ -269,7 +269,9 @@ class Crawler
 
         $this->robotsTxt = $this->createRobotsTxt($crawlUrl->url);
 
-        $this->addToCrawlQueue($crawlUrl);
+        if ($this->robotsTxt->allows((string) $crawlUrl->url)) {
+            $this->addToCrawlQueue($crawlUrl);
+        }
 
         $this->depthTree = new Node((string) $this->baseUrl);
 
