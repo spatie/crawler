@@ -3,7 +3,7 @@
 let app = require('express')();
 
 app.get('/', function (request, response) {
-    response.end('<a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a><a href="tel:123">Telephone</a><a href="/nofollow" rel="nofollow">No follow</a>');
+    response.end('<a href="/txt-disallow">txt disallowed</a><a href="/meta-disallow">meta disallowed</a><a href="/header-disallow">header disallowed</a><a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a><a href="tel:123">Telephone</a><a href="/nofollow" rel="nofollow">No follow</a>');
 });
 
 app.get('/link1', function (request, response) {
@@ -40,6 +40,27 @@ app.get('/dir/subdir/link6', function (request, response) {
 
 app.get('/invalid-url', function (request, response) {
     response.end('There is an <a href="https:///AfyaVzw">invalid</a> url');
+});
+
+app.get('/txt-disallow', function (request, response) {
+    response.end('Not allowed');
+});
+
+app.get('/meta-disallow', function (request, response) {
+    response.end('<meta name="robots" content="noindex, follow">');
+});
+
+app.get('/header-disallow', function (request, response) {
+    response.set({'X-Robots-Tag': '*: noindex'});
+
+    response.end('disallow by header');
+});
+
+app.get('/robots.txt', function (req, res) {
+    var html = 'User-agent: *\n' +
+        'Disallow: /txt-disallow';
+
+    res.end(html);
 });
 
 let server = app.listen(8080, function () {

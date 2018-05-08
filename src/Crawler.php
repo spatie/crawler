@@ -8,8 +8,11 @@ use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\Request;
+use Spatie\Robots\RobotsTxt;
 use InvalidArgumentException;
+use Spatie\Robots\RobotsMeta;
 use GuzzleHttp\RequestOptions;
+use Spatie\Robots\RobotsHeaders;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Psr\Http\Message\StreamInterface;
@@ -52,6 +55,9 @@ class Crawler
     /** @var int|null */
     protected $maximumDepth = null;
 
+    /** @var bool */
+    protected $respectRobots = true;
+
     /** @var \Tree\Node\Node */
     protected $depthTree;
 
@@ -60,6 +66,9 @@ class Crawler
 
     /** @var Browsershot */
     protected $browsershot = null;
+
+    /** @var \Spatie\Robots\RobotsTxt */
+    protected $robotsTxt = null;
 
     protected static $defaultClientOptions = [
         RequestOptions::COOKIES => true,
@@ -141,6 +150,26 @@ class Crawler
     public function setMaximumDepth(int $maximumDepth)
     {
         $this->maximumDepth = $maximumDepth;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function ignoreRobots()
+    {
+        $this->respectRobots = false;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function respectRobots()
+    {
+        $this->respectRobots = true;
 
         return $this;
     }
@@ -238,7 +267,11 @@ class Crawler
 
         $crawlUrl = CrawlUrl::create($this->baseUrl);
 
-        $this->addToCrawlQueue($crawlUrl);
+        $this->robotsTxt = $this->createRobotsTxt($crawlUrl->url);
+
+        if ($this->robotsTxt->allows((string) $crawlUrl->url)) {
+            $this->addToCrawlQueue($crawlUrl);
+        }
 
         $this->depthTree = new Node((string) $this->baseUrl);
 
@@ -257,6 +290,17 @@ class Crawler
                 'options' => $this->client->getConfig(),
                 'fulfilled' => function (ResponseInterface $response, $index) {
                     $crawlUrl = $this->crawlQueue->getUrlById($index);
+
+                    $body = $this->convertBodyToString($response->getBody(), $this->maximumResponseSize);
+
+                    $robotsHeaders = RobotsHeaders::create($response->getHeaders());
+
+                    $robotsMeta = RobotsMeta::create($body);
+
+                    if (! $this->mayIndex($robotsHeaders, $robotsMeta)) {
+                        return;
+                    }
+
                     $this->handleCrawled($response, $crawlUrl);
 
                     if (! $this->crawlProfile instanceof CrawlSubdomains) {
@@ -265,7 +309,9 @@ class Crawler
                         }
                     }
 
-                    $body = $this->convertBodyToString($response->getBody(), $this->maximumResponseSize);
+                    if (! $this->mayFollow($robotsHeaders, $robotsMeta)) {
+                        return;
+                    }
 
                     $this->addAllLinksToCrawlQueue(
                         $body,
@@ -301,9 +347,14 @@ class Crawler
         return $body;
     }
 
+    protected function createRobotsTxt(UriInterface $uri): RobotsTxt
+    {
+        return RobotsTxt::create($uri->withPath('/robots.txt'));
+    }
+
     /**
      * @param ResponseInterface|null $response
-     * @param CrawlUrl $crawlUrl
+     * @param CrawlUrl               $crawlUrl
      */
     protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)
     {
@@ -318,7 +369,7 @@ class Crawler
 
     /**
      * @param RequestException $exception
-     * @param CrawlUrl $crawlUrl
+     * @param CrawlUrl         $crawlUrl
      */
     protected function handleCrawlFailed(RequestException $exception, CrawlUrl $crawlUrl)
     {
@@ -393,6 +444,10 @@ class Crawler
 
     protected function shouldCrawl(Node $node): bool
     {
+        if ($this->respectRobots) {
+            return $this->robotsTxt->allows($node->getValue());
+        }
+
         if (is_null($this->maximumDepth)) {
             return true;
         }
@@ -401,7 +456,7 @@ class Crawler
     }
 
     /**
-     * @param string $html
+     * @param string                         $html
      * @param \Psr\Http\Message\UriInterface $foundOnUrl
      *
      * @return \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection|null
@@ -504,5 +559,39 @@ class Crawler
         }
 
         return $this->crawledUrlCount >= $this->maximumCrawlCount;
+    }
+
+    protected function mayIndex(RobotsHeaders  $robotsHeaders, RobotsMeta $robotsMeta): bool
+    {
+        if (! $this->respectRobots) {
+            return true;
+        }
+
+        if (! $robotsHeaders->mayIndex()) {
+            return false;
+        }
+
+        if (! $robotsMeta->mayIndex()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function mayFollow(RobotsHeaders $robotsHeaders, RobotsMeta $robotsMeta): bool
+    {
+        if (! $this->respectRobots) {
+            return true;
+        }
+
+        if (! $robotsHeaders->mayFollow()) {
+            return false;
+        }
+
+        if (! $robotsMeta->mayFollow()) {
+            return false;
+        }
+
+        return true;
     }
 }
