@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.1.0 - 2018-05-08
+
+- Respect robots.txt
+
 ## 4.0.5 - 2018-04-30
 
 - improved extensibility by removing php native type hinting of url, queue and crawler pool Closures
