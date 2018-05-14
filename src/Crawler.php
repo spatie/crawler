@@ -3,6 +3,8 @@
 namespace Spatie\Crawler;
 
 use Generator;
+use Spatie\Crawler\Handlers\CrawlRequestFailed;
+use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
 use Tree\Node\Node;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
@@ -284,50 +286,20 @@ class Crawler
 
     protected function startCrawlingQueue()
     {
+        $fulfilledHandler = $this->getFulfilledHandler();
+
+        $failedHandler= $this->getFailedHandler();
+
         while ($this->crawlQueue->hasPendingUrls()) {
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
                 'options' => $this->client->getConfig(),
-                'fulfilled' => function (ResponseInterface $response, $index) {
-                    $crawlUrl = $this->crawlQueue->getUrlById($index);
-
-                    $body = $this->convertBodyToString($response->getBody(), $this->maximumResponseSize);
-
-                    $robotsHeaders = RobotsHeaders::create($response->getHeaders());
-
-                    $robotsMeta = RobotsMeta::create($body);
-
-                    if (! $this->mayIndex($robotsHeaders, $robotsMeta)) {
-                        return;
-                    }
-
-                    $this->handleCrawled($response, $crawlUrl);
-
-                    if (! $this->crawlProfile instanceof CrawlSubdomains) {
-                        if ($crawlUrl->url->getHost() !== $this->baseUrl->getHost()) {
-                            return;
-                        }
-                    }
-
-                    if (! $this->mayFollow($robotsHeaders, $robotsMeta)) {
-                        return;
-                    }
-
-                    $this->addAllLinksToCrawlQueue(
-                        $body,
-                        $crawlUrl->url
-                    );
-                },
-                'rejected' => function (RequestException $exception, $index) {
-                    $this->handleCrawlFailed(
-                        $exception,
-                        $this->crawlQueue->getUrlById($index),
-                        $exception
-                    );
-                },
+                'fulfilled' => $fulfilledHandler,
+                'rejected' => $failedHandler,
             ]);
 
             $promise = $pool->promise();
+
             $promise->wait();
         }
     }
@@ -338,33 +310,9 @@ class Crawler
             strlen($haystack);
     }
 
-    protected function convertBodyToString(StreamInterface $bodyStream, $readMaximumBytes = 1024 * 1024 * 2): string
-    {
-        $bodyStream->rewind();
-
-        $body = $bodyStream->read($readMaximumBytes);
-
-        return $body;
-    }
-
     protected function createRobotsTxt(UriInterface $uri): RobotsTxt
     {
         return RobotsTxt::create($uri->withPath('/robots.txt'));
-    }
-
-    /**
-     * @param ResponseInterface|null $response
-     * @param CrawlUrl               $crawlUrl
-     */
-    protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)
-    {
-        foreach ($this->crawlObservers as $crawlObserver) {
-            $crawlObserver->crawled(
-                $crawlUrl->url,
-                $response,
-                $crawlUrl->foundOnUrl
-            );
-        }
     }
 
     /**
@@ -404,7 +352,7 @@ class Crawler
         }
     }
 
-    protected function addAllLinksToCrawlQueue(string $html, UriInterface $foundOnUrl)
+    public function addAllLinksToCrawlQueue(string $html, UriInterface $foundOnUrl)
     {
         $allLinks = $this->extractAllLinks($html, $foundOnUrl);
 
@@ -561,37 +509,24 @@ class Crawler
         return $this->crawledUrlCount >= $this->maximumCrawlCount;
     }
 
-    protected function mayIndex(RobotsHeaders  $robotsHeaders, RobotsMeta $robotsMeta): bool
+    protected function getFulfilledHandler(): CrawlRequestFulfilled
     {
-        if (! $this->respectRobots) {
-            return true;
-        }
-
-        if (! $robotsHeaders->mayIndex()) {
-            return false;
-        }
-
-        if (! $robotsMeta->mayIndex()) {
-            return false;
-        }
-
-        return true;
+        return new CrawlRequestFulfilled(
+            $this,
+            $this->baseUrl,
+            $this->crawlQueue,
+            $this->crawlProfile,
+            $this->crawlObservers,
+            $this->maximumResponseSize,
+            $this->respectRobots
+        );
     }
 
-    protected function mayFollow(RobotsHeaders $robotsHeaders, RobotsMeta $robotsMeta): bool
+    protected function getFailedHandler(): CrawlRequestFailed
     {
-        if (! $this->respectRobots) {
-            return true;
-        }
-
-        if (! $robotsHeaders->mayFollow()) {
-            return false;
-        }
-
-        if (! $robotsMeta->mayFollow()) {
-            return false;
-        }
-
-        return true;
+        return new CrawlRequestFailed(
+            $this->crawlQueue,
+            $this->crawlObservers
+        );
     }
 }
