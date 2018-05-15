@@ -306,7 +306,7 @@ class Crawler
                 return $this->crawlQueue->has($url);
             })
             ->each(function (UriInterface $url) use ($foundOnUrl) {
-                $node = $this->addtoDepthTree($this->depthTree, $url, $foundOnUrl);
+                $node = $this->addToDepthTree($this->depthTree, $url, $foundOnUrl);
 
                 if (strpos($url->getPath(), '/tel:') === 0) {
                     return;
@@ -377,7 +377,7 @@ class Crawler
         return in_array($uri->getScheme(), ['http', 'https']);
     }
 
-    protected function addtoDepthTree(Node $node, UriInterface $url, UriInterface $parentUrl)
+    protected function addToDepthTree(Node $node, UriInterface $url, UriInterface $parentUrl)
     {
         $returnNode = null;
 
