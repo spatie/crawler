@@ -2,15 +2,15 @@
 
 namespace Spatie\Crawler\Test;
 
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Uri;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
-use Spatie\Crawler\CrawlObserver;
+use GuzzleHttp\Psr7\Request;
 use Spatie\Crawler\CrawlUrl;
+use GuzzleHttp\Psr7\Response;
+use Spatie\Crawler\CrawlObserver;
+use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\ObserverCollection;
+use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Exception\RequestException;
 
 class ObserverCollectionTest extends TestCase
 {
@@ -24,8 +24,7 @@ class ObserverCollectionTest extends TestCase
     {
         parent::setUp();
 
-        $this->observer = new class extends CrawlObserver
-        {
+        $this->observer = new class extends CrawlObserver {
             public function crawled(
                 UriInterface $url,
                 ResponseInterface $response,
