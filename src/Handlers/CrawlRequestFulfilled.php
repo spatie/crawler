@@ -2,20 +2,21 @@
 
 namespace Spatie\Crawler\Handlers;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 use Spatie\Crawler\Crawler;
-use Spatie\Crawler\CrawlSubdomains;
 use Spatie\Crawler\CrawlUrl;
-use Spatie\Robots\RobotsHeaders;
 use Spatie\Robots\RobotsMeta;
+use Spatie\Robots\RobotsHeaders;
+use Spatie\Crawler\CrawlSubdomains;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class CrawlRequestFulfilled
 {
     /** @var \Spatie\Crawler\Crawler */
     protected $crawler;
 
-    public function __construct(Crawler $crawler) {
+    public function __construct(Crawler $crawler)
+    {
         $this->crawler = $crawler;
     }
 
