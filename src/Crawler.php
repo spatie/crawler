@@ -32,7 +32,7 @@ class Crawler
     protected $baseUrl;
 
     /** @var array[\Spatie\Crawler\CrawlObserver] */
-    protected $crawlObservers;
+    protected $crawlObservers = [];
 
     /** @var \Spatie\Crawler\CrawlProfile */
     protected $crawlProfile;
