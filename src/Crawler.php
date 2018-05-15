@@ -16,12 +16,13 @@ use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Symfony\Component\DomCrawler\Link;
-use Spatie\Crawler\CrawlQueue\CrawlQueue;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 
 class Crawler
 {
+    use CrawlerProperties;
+
     /** @var \GuzzleHttp\Client */
     protected $client;
 
@@ -99,104 +100,6 @@ class Crawler
         $this->crawlProfile = new CrawlAllUrls();
 
         $this->crawlQueue = new CollectionCrawlQueue();
-    }
-
-    public function setConcurrency(int $concurrency): self
-    {
-        $this->concurrency = $concurrency;
-
-        return $this;
-    }
-
-    public function setMaximumResponseSize(int $maximumResponseSizeInBytes): self
-    {
-        $this->maximumResponseSize = $maximumResponseSizeInBytes;
-
-        return $this;
-    }
-
-    public function setMaximumCrawlCount(int $maximumCrawlCount): self
-    {
-        $this->maximumCrawlCount = $maximumCrawlCount;
-
-        return $this;
-    }
-
-    public function setMaximumDepth(int $maximumDepth): self
-    {
-        $this->maximumDepth = $maximumDepth;
-
-        return $this;
-    }
-
-    public function ignoreRobots(): self
-    {
-        $this->respectRobots = false;
-
-        return $this;
-    }
-
-    public function respectRobots(): self
-    {
-        $this->respectRobots = true;
-
-        return $this;
-    }
-
-    public function setCrawlQueue(CrawlQueue $crawlQueue): self
-    {
-        $this->crawlQueue = $crawlQueue;
-
-        return $this;
-    }
-
-    public function executeJavaScript(): self
-    {
-        $this->executeJavaScript = true;
-
-        return $this;
-    }
-
-    public function doNotExecuteJavaScript(): self
-    {
-        $this->executeJavaScript = false;
-
-        return $this;
-    }
-
-    /**
-     * @param \Spatie\Crawler\CrawlObserver|array[\Spatie\Crawler\CrawlObserver] $crawlObservers
-     *
-     * @return $this
-     */
-    public function setCrawlObserver($crawlObservers)
-    {
-        if (! is_array($crawlObservers)) {
-            $crawlObservers = [$crawlObservers];
-        }
-
-        return $this->setCrawlObservers($crawlObservers);
-    }
-
-    public function setCrawlObservers(array $crawlObservers): self
-    {
-        $this->crawlObservers = $crawlObservers;
-
-        return $this;
-    }
-
-    public function addCrawlObserver(CrawlObserver $crawlObserver): self
-    {
-        $this->crawlObservers[] = $crawlObserver;
-
-        return $this;
-    }
-
-    public function setCrawlProfile(CrawlProfile $crawlProfile): self
-    {
-        $this->crawlProfile = $crawlProfile;
-
-        return $this;
     }
 
     /**
@@ -445,22 +348,11 @@ class Crawler
 
     protected function getFulfilledHandler(): CrawlRequestFulfilled
     {
-        return new CrawlRequestFulfilled(
-            $this,
-            $this->baseUrl,
-            $this->crawlQueue,
-            $this->crawlProfile,
-            $this->crawlObservers,
-            $this->maximumResponseSize,
-            $this->respectRobots
-        );
+        return new CrawlRequestFulfilled($this);
     }
 
     protected function getFailedHandler(): CrawlRequestFailed
     {
-        return new CrawlRequestFailed(
-            $this->crawlQueue,
-            $this->crawlObservers
-        );
+        return new CrawlRequestFailed($this);
     }
 }

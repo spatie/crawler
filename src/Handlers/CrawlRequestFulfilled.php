@@ -4,10 +4,7 @@ namespace Spatie\Crawler\Handlers;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\Crawler;
-use Spatie\Crawler\CrawlProfile;
-use Spatie\Crawler\CrawlQueue\CrawlQueue;
 use Spatie\Crawler\CrawlSubdomains;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Robots\RobotsHeaders;
@@ -18,47 +15,15 @@ class CrawlRequestFulfilled
     /** @var \Spatie\Crawler\Crawler */
     protected $crawler;
 
-    /** @var \Spatie\Crawler\CrawlQueue\CrawlQueue */
-    protected $crawlQueue;
-
-    /** @var \Spatie\Crawler\CrawlProfile */
-    protected $crawlProfile;
-
-    /** @var array[\Spatie\Crawler\CrawlObserver] */
-    protected $crawlObservers;
-
-    /** @var \Psr\Http\Message\UriInterface */
-    protected $baseUrl;
-
-    /** @var int */
-    protected $maximumResponseSize;
-
-    /** @var bool */
-    protected $respectRobots;
-
-    public function __construct(
-        Crawler $crawler,
-        UriInterface $baseUrl,
-        CrawlQueue $crawlQueue,
-        CrawlProfile $crawlProfile,
-        array $crawlObservers,
-        int $maximumResponseSize,
-        bool $respectRobots
-    ) {
+    public function __construct(Crawler $crawler) {
         $this->crawler = $crawler;
-        $this->baseUrl = $baseUrl;
-        $this->crawlQueue = $crawlQueue;
-        $this->crawlProfile = $crawlProfile;
-        $this->crawlObservers = $crawlObservers;
-        $this->maximumResponseSize = $maximumResponseSize;
-        $this->respectRobots = $respectRobots;
     }
 
     public function __invoke(ResponseInterface $response, $index)
     {
-        $crawlUrl = $this->crawlQueue->getUrlById($index);
+        $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
-        $body = $this->convertBodyToString($response->getBody(), $this->maximumResponseSize);
+        $body = $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
 
         $robotsHeaders = RobotsHeaders::create($response->getHeaders());
 
@@ -70,8 +35,8 @@ class CrawlRequestFulfilled
 
         $this->handleCrawled($response, $crawlUrl);
 
-        if (! $this->crawlProfile instanceof CrawlSubdomains) {
-            if ($crawlUrl->url->getHost() !== $this->baseUrl->getHost()) {
+        if (! $this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
+            if ($crawlUrl->url->getHost() !== $this->crawler->getBaseUrl()->getHost()) {
                 return;
             }
         }
@@ -97,7 +62,7 @@ class CrawlRequestFulfilled
 
     protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)
     {
-        foreach ($this->crawlObservers as $crawlObserver) {
+        foreach ($this->crawler->getCrawlObservers() as $crawlObserver) {
             $crawlObserver->crawled(
                 $crawlUrl->url,
                 $response,
@@ -108,7 +73,7 @@ class CrawlRequestFulfilled
 
     protected function mayIndex(RobotsHeaders $robotsHeaders, RobotsMeta $robotsMeta): bool
     {
-        if (! $this->respectRobots) {
+        if (! $this->crawler->mustRespectRobots()) {
             return true;
         }
 
@@ -125,7 +90,7 @@ class CrawlRequestFulfilled
 
     protected function mayFollow(RobotsHeaders $robotsHeaders, RobotsMeta $robotsMeta): bool
     {
-        if (! $this->respectRobots) {
+        if (! $this->crawler->mustRespectRobots()) {
             return true;
         }
 

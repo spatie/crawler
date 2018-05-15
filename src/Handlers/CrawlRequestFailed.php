@@ -3,29 +3,22 @@
 namespace Spatie\Crawler\Handlers;
 
 use GuzzleHttp\Exception\RequestException;
-use Spatie\Crawler\CrawlQueue\CrawlQueue;
+use Spatie\Crawler\Crawler;
 
 class CrawlRequestFailed
 {
-    /** @var \Spatie\Crawler\CrawlQueue\CrawlQueue */
-    protected $crawlQueue;
+    /** @var \Spatie\Crawler\Crawler */
+    private $crawler;
 
-    /** @var array[\Spatie\Crawler\CrawlObserver] */
-    protected $crawlObservers;
-
-    public function __construct(
-        CrawlQueue $crawlQueue,
-        array $crawlObservers
-    ) {
-        $this->crawlQueue = $crawlQueue;
-        $this->crawlObservers = $crawlObservers;
+    public function __construct(Crawler $crawler) {
+        $this->crawler = $crawler;
     }
 
     public function __invoke(RequestException $exception, $index)
     {
-        $crawlUrl = $this->crawlQueue->getUrlById($index);
+        $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
-        foreach ($this->crawlObservers as $crawlObserver) {
+        foreach ($this->crawler->getCrawlObservers() as $crawlObserver) {
             $crawlObserver->crawlFailed(
                 $crawlUrl->url,
                 $exception,
