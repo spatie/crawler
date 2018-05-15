@@ -2,14 +2,14 @@
 
 namespace Spatie\Crawler\Handlers;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 use Spatie\Crawler\Crawler;
-use Spatie\Crawler\CrawlSubdomains;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\LinkAdder;
-use Spatie\Robots\RobotsHeaders;
 use Spatie\Robots\RobotsMeta;
+use Spatie\Robots\RobotsHeaders;
+use Spatie\Crawler\CrawlSubdomains;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class CrawlRequestFulfilled
 {
@@ -19,7 +19,8 @@ class CrawlRequestFulfilled
     /** @var \Spatie\Crawler\LinkAdder */
     protected $linkAdder;
 
-    public function __construct(Crawler $crawler) {
+    public function __construct(Crawler $crawler)
+    {
         $this->crawler = $crawler;
 
         $this->linkAdder = new LinkAdder($this->crawler);
