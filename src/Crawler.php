@@ -140,16 +140,12 @@ class Crawler
 
     protected function startCrawlingQueue()
     {
-        $fulfilledHandler = $this->getFulfilledHandler();
-
-        $failedHandler= $this->getFailedHandler();
-
         while ($this->crawlQueue->hasPendingUrls()) {
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
                 'options' => $this->client->getConfig(),
-                'fulfilled' => $fulfilledHandler,
-                'rejected' => $failedHandler,
+                'fulfilled' => new CrawlRequestFulfilled($this),
+                'rejected' => new CrawlRequestFailed($this),
             ]);
 
             $promise = $pool->promise();
@@ -344,15 +340,5 @@ class Crawler
         }
 
         return $this->crawledUrlCount >= $this->maximumCrawlCount;
-    }
-
-    protected function getFulfilledHandler(): CrawlRequestFulfilled
-    {
-        return new CrawlRequestFulfilled($this);
-    }
-
-    protected function getFailedHandler(): CrawlRequestFailed
-    {
-        return new CrawlRequestFailed($this);
     }
 }
