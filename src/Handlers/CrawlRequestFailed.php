@@ -2,15 +2,16 @@
 
 namespace Spatie\Crawler\Handlers;
 
-use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\Crawler;
+use GuzzleHttp\Exception\RequestException;
 
 class CrawlRequestFailed
 {
     /** @var \Spatie\Crawler\Crawler */
     private $crawler;
 
-    public function __construct(Crawler $crawler) {
+    public function __construct(Crawler $crawler)
+    {
         $this->crawler = $crawler;
     }
 
