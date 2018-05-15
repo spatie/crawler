@@ -2,10 +2,10 @@
 
 namespace Spatie\Crawler;
 
+use Spatie\Robots\RobotsTxt;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\CrawlQueue\CrawlQueue;
-use Spatie\Robots\RobotsTxt;
 
 trait CrawlerProperties
 {
