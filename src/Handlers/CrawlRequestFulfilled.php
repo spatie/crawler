@@ -2,16 +2,16 @@
 
 namespace Spatie\Crawler\Handlers;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
-use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\Crawler;
-use Spatie\Crawler\CrawlProfile;
-use Spatie\Crawler\CrawlQueue\CrawlQueue;
-use Spatie\Crawler\CrawlSubdomains;
 use Spatie\Crawler\CrawlUrl;
-use Spatie\Robots\RobotsHeaders;
 use Spatie\Robots\RobotsMeta;
+use Spatie\Crawler\CrawlProfile;
+use Spatie\Robots\RobotsHeaders;
+use Psr\Http\Message\UriInterface;
+use Spatie\Crawler\CrawlSubdomains;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\ResponseInterface;
+use Spatie\Crawler\CrawlQueue\CrawlQueue;
 
 class CrawlRequestFulfilled
 {
