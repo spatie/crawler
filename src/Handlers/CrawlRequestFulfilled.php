@@ -66,13 +66,7 @@ class CrawlRequestFulfilled
 
     protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)
     {
-        foreach ($this->crawler->getCrawlObservers() as $crawlObserver) {
-            $crawlObserver->crawled(
-                $crawlUrl->url,
-                $response,
-                $crawlUrl->foundOnUrl
-            );
-        }
+        $this->crawler->getCrawlObservers()->crawled($crawlUrl, $response);
     }
 
     protected function mayIndex(RobotsHeaders $robotsHeaders, RobotsMeta $robotsMeta): bool

@@ -117,7 +117,7 @@ trait CrawlerProperties
      *
      * @return $this
      */
-    public function setCrawlObserver($crawlObservers)
+    public function setCrawlObserver($crawlObservers): self
     {
         if (! is_array($crawlObservers)) {
             $crawlObservers = [$crawlObservers];
@@ -128,22 +128,19 @@ trait CrawlerProperties
 
     public function setCrawlObservers(array $crawlObservers): self
     {
-        $this->crawlObservers = $crawlObservers;
+        $this->crawlObservers = new ObserverCollection($crawlObservers);
 
         return $this;
     }
 
     public function addCrawlObserver(CrawlObserver $crawlObserver): self
     {
-        $this->crawlObservers[] = $crawlObserver;
+        $this->crawlObservers->addObserver($crawlObserver);
 
         return $this;
     }
 
-    /**
-     * @return \Spatie\Crawler\CrawlObserver[]
-     */
-    public function getCrawlObservers(): array
+    public function getCrawlObservers(): ObserverCollection
     {
         return $this->crawlObservers;
     }
