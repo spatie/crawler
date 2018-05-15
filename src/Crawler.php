@@ -422,14 +422,13 @@ class Crawler
                 return $this->crawlQueue->has($url);
             })
             ->each(function (UriInterface $url) use ($foundOnUrl) {
-                if ($this->maximumDepth !== null) {
-                    $node = $this->addtoDepthTree($this->depthTree, $url, $foundOnUrl);
-                    if (! $this->shouldCrawl($node)) {
-                        return;
-                    }
-                }
+                $node = $this->addtoDepthTree($this->depthTree, $url, $foundOnUrl);
 
                 if (strpos($url->getPath(), '/tel:') === 0) {
+                    return;
+                }
+
+                if (! $this->shouldCrawl($node)) {
                     return;
                 }
 
@@ -497,6 +496,10 @@ class Crawler
     protected function addtoDepthTree(Node $node, UriInterface $url, UriInterface $parentUrl)
     {
         $returnNode = null;
+
+        if (is_null($this->maximumDepth)) {
+            return new Node((string) $url);
+        }
 
         if ($node->getValue() === (string) $parentUrl) {
             $newNode = new Node((string) $url);
