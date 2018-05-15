@@ -23,6 +23,11 @@ trait CrawlerProperties
         return $this;
     }
 
+    public function getMaximumResponseSize(): ?int
+    {
+        return $this->maximumResponseSize;
+    }
+
     public function setMaximumCrawlCount(int $maximumCrawlCount): self
     {
         $this->maximumCrawlCount = $maximumCrawlCount;
@@ -30,11 +35,26 @@ trait CrawlerProperties
         return $this;
     }
 
+    public function getMaximumCrawlCount(): ?int
+    {
+        return $this->maximumCrawlCount;
+    }
+
+    public function getCrawlerUrlCount(): int
+    {
+        return $this->crawledUrlCount;
+    }
+
     public function setMaximumDepth(int $maximumDepth): self
     {
         $this->maximumDepth = $maximumDepth;
 
         return $this;
+    }
+
+    public function getMaximumDepth(): ?int
+    {
+        return $this->maximumDepth;
     }
 
     public function ignoreRobots(): self
@@ -51,11 +71,26 @@ trait CrawlerProperties
         return $this;
     }
 
+    public function mustRespectRobots(): bool
+    {
+        return $this->respectRobots;
+    }
+
+    public function getRobotsTxt(): RobotsTxt
+    {
+        return $this->robotsTxt;
+    }
+
     public function setCrawlQueue(CrawlQueue $crawlQueue): self
     {
         $this->crawlQueue = $crawlQueue;
 
         return $this;
+    }
+
+    public function getCrawlQueue(): CrawlQueue
+    {
+        return $this->crawlQueue;
     }
 
     public function executeJavaScript(): self
@@ -70,6 +105,11 @@ trait CrawlerProperties
         $this->executeJavaScript = false;
 
         return $this;
+    }
+
+    public function mayExecuteJavascript(): bool
+    {
+        return $this->executeJavaScript;
     }
 
     /**
@@ -100,28 +140,6 @@ trait CrawlerProperties
         return $this;
     }
 
-    public function setCrawlProfile(CrawlProfile $crawlProfile): self
-    {
-        $this->crawlProfile = $crawlProfile;
-
-        return $this;
-    }
-
-    public function getBaseUrl(): UriInterface
-    {
-        return $this->baseUrl;
-    }
-
-    public function getCrawlQueue(): CrawlQueue
-    {
-        return $this->crawlQueue;
-    }
-
-    public function getCrawlProfile(): CrawlProfile
-    {
-        return $this->crawlProfile;
-    }
-
     /**
      * @return \Spatie\Crawler\CrawlObserver[]
      */
@@ -130,34 +148,23 @@ trait CrawlerProperties
         return $this->crawlObservers;
     }
 
-    public function getMaximumResponseSize(): ?int
+    public function setCrawlProfile(CrawlProfile $crawlProfile): self
     {
-        return $this->maximumResponseSize;
+        $this->crawlProfile = $crawlProfile;
+
+        return $this;
     }
 
-    public function mustRespectRobots(): bool
+    public function getCrawlProfile(): CrawlProfile
     {
-        return $this->respectRobots;
+        return $this->crawlProfile;
     }
 
-    public function getRobotsTxt(): RobotsTxt
+    public function setBrowsershot(Browsershot $browsershot)
     {
-        return $this->robotsTxt;
-    }
+        $this->browsershot = $browsershot;
 
-    public function getMaximumDepth(): ?int
-    {
-        return $this->maximumDepth;
-    }
-
-    public function getMaximumCrawlCount(): ?int
-    {
-        return $this->maximumCrawlCount;
-    }
-
-    public function getCrawlerUrlCount(): int
-    {
-        return $this->crawledUrlCount;
+        return $this;
     }
 
     public function getBrowsershot(): Browsershot
@@ -169,15 +176,8 @@ trait CrawlerProperties
         return $this->browsershot;
     }
 
-    public function setBrowsershot(Browsershot $browsershot)
+    public function getBaseUrl(): UriInterface
     {
-        $this->browsershot = $browsershot;
-
-        return $this;
-    }
-
-    public function mayExecuteJavascript(): bool
-    {
-        return $this->executeJavaScript;
+        return $this->baseUrl;
     }
 }
