@@ -12,16 +12,11 @@ use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\Request;
 use Spatie\Robots\RobotsTxt;
 use InvalidArgumentException;
-use Spatie\Robots\RobotsMeta;
 use GuzzleHttp\RequestOptions;
-use Spatie\Robots\RobotsHeaders;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
-use Psr\Http\Message\StreamInterface;
 use Symfony\Component\DomCrawler\Link;
-use Psr\Http\Message\ResponseInterface;
 use Spatie\Crawler\CrawlQueue\CrawlQueue;
-use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 
@@ -106,102 +101,63 @@ class Crawler
         $this->crawlQueue = new CollectionCrawlQueue();
     }
 
-    /**
-     * @param int $concurrency
-     *
-     * @return $this
-     */
-    public function setConcurrency(int $concurrency)
+    public function setConcurrency(int $concurrency): self
     {
         $this->concurrency = $concurrency;
 
         return $this;
     }
 
-    /**
-     * Responses that are larger that then specified value will be ignored.
-     *
-     * @param int $maximumResponseSizeInBytes
-     *
-     * @return $this
-     */
-    public function setMaximumResponseSize(int $maximumResponseSizeInBytes)
+    public function setMaximumResponseSize(int $maximumResponseSizeInBytes): self
     {
         $this->maximumResponseSize = $maximumResponseSizeInBytes;
 
         return $this;
     }
 
-    /**
-     * @param int $maximumCrawlCount
-     *
-     * @return $this
-     */
-    public function setMaximumCrawlCount(int $maximumCrawlCount)
+    public function setMaximumCrawlCount(int $maximumCrawlCount): self
     {
         $this->maximumCrawlCount = $maximumCrawlCount;
 
         return $this;
     }
 
-    /**
-     * @param int $maximumDepth
-     *
-     * @return $this
-     */
-    public function setMaximumDepth(int $maximumDepth)
+    public function setMaximumDepth(int $maximumDepth): self
     {
         $this->maximumDepth = $maximumDepth;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function ignoreRobots()
+    public function ignoreRobots(): self
     {
         $this->respectRobots = false;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function respectRobots()
+    public function respectRobots(): self
     {
         $this->respectRobots = true;
 
         return $this;
     }
 
-    /**
-     * @param CrawlQueue $crawlQueue
-     *
-     * @return $this
-     */
-    public function setCrawlQueue(CrawlQueue $crawlQueue)
+    public function setCrawlQueue(CrawlQueue $crawlQueue): self
     {
         $this->crawlQueue = $crawlQueue;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function executeJavaScript()
+    public function executeJavaScript(): self
     {
         $this->executeJavaScript = true;
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function doNotExecuteJavaScript()
+    public function doNotExecuteJavaScript(): self
     {
         $this->executeJavaScript = false;
 
@@ -222,26 +178,21 @@ class Crawler
         return $this->setCrawlObservers($crawlObservers);
     }
 
-    public function setCrawlObservers(array $crawlObservers)
+    public function setCrawlObservers(array $crawlObservers): self
     {
         $this->crawlObservers = $crawlObservers;
 
         return $this;
     }
 
-    public function addCrawlObserver(CrawlObserver $crawlObserver)
+    public function addCrawlObserver(CrawlObserver $crawlObserver): self
     {
         $this->crawlObservers[] = $crawlObserver;
 
         return $this;
     }
 
-    /**
-     * @param \Spatie\Crawler\CrawlProfile $crawlProfile
-     *
-     * @return $this
-     */
-    public function setCrawlProfile(CrawlProfile $crawlProfile)
+    public function setCrawlProfile(CrawlProfile $crawlProfile): self
     {
         $this->crawlProfile = $crawlProfile;
 
@@ -313,21 +264,6 @@ class Crawler
     protected function createRobotsTxt(UriInterface $uri): RobotsTxt
     {
         return RobotsTxt::create($uri->withPath('/robots.txt'));
-    }
-
-    /**
-     * @param RequestException $exception
-     * @param CrawlUrl         $crawlUrl
-     */
-    protected function handleCrawlFailed(RequestException $exception, CrawlUrl $crawlUrl)
-    {
-        foreach ($this->crawlObservers as $crawlObserver) {
-            $crawlObserver->crawlFailed(
-                $crawlUrl->url,
-                $exception,
-                $crawlUrl->foundOnUrl
-            );
-        }
     }
 
     protected function getCrawlRequests(): Generator
