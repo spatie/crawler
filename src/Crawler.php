@@ -3,8 +3,6 @@
 namespace Spatie\Crawler;
 
 use Generator;
-use Spatie\Crawler\Handlers\CrawlRequestFailed;
-use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
 use Tree\Node\Node;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
@@ -17,6 +15,8 @@ use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Symfony\Component\DomCrawler\Link;
 use Spatie\Crawler\CrawlQueue\CrawlQueue;
+use Spatie\Crawler\Handlers\CrawlRequestFailed;
+use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 
@@ -239,7 +239,7 @@ class Crawler
     {
         $fulfilledHandler = $this->getFulfilledHandler();
 
-        $failedHandler= $this->getFailedHandler();
+        $failedHandler = $this->getFailedHandler();
 
         while ($this->crawlQueue->hasPendingUrls()) {
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
