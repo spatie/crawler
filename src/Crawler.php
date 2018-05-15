@@ -11,13 +11,10 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\Request;
 use Spatie\Robots\RobotsTxt;
-use InvalidArgumentException;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
-use Symfony\Component\DomCrawler\Link;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
-use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 
 class Crawler
 {
@@ -138,6 +135,31 @@ class Crawler
         }
     }
 
+    public function addToDepthTree(UriInterface $url, UriInterface $parentUrl, Node $node = null): ?Node
+    {
+        $node = $node ?? $this->depthTree;
+
+        $returnNode = null;
+
+        if ($node->getValue() === (string) $parentUrl) {
+            $newNode = new Node((string) $url);
+
+            $node->addChild($newNode);
+
+            return $newNode;
+        }
+
+        foreach ($node->getChildren() as $currentNode) {
+            $returnNode = $this->addToDepthTree($url, $parentUrl, $currentNode);
+
+            if (! is_null($returnNode)) {
+                break;
+            }
+        }
+
+        return $returnNode;
+    }
+
     protected function startCrawlingQueue()
     {
         while ($this->crawlQueue->hasPendingUrls()) {
@@ -187,145 +209,16 @@ class Crawler
         }
     }
 
-    public function addAllLinksToCrawlQueue(string $html, UriInterface $foundOnUrl)
+    public function addToCrawlQueue(CrawlUrl $crawlUrl): self
     {
-        $allLinks = $this->extractAllLinks($html, $foundOnUrl);
-
-        collect($allLinks)
-            ->filter(function (UriInterface $url) {
-                return $this->hasCrawlableScheme($url);
-            })
-            ->map(function (UriInterface $url) {
-                return $this->normalizeUrl($url);
-            })
-            ->filter(function (UriInterface $url) {
-                return $this->crawlProfile->shouldCrawl($url);
-            })
-            ->reject(function (UriInterface $url) {
-                return $this->crawlQueue->has($url);
-            })
-            ->each(function (UriInterface $url) use ($foundOnUrl) {
-                $node = $this->addToDepthTree($this->depthTree, $url, $foundOnUrl);
-
-                if (strpos($url->getPath(), '/tel:') === 0) {
-                    return;
-                }
-
-                if (! $this->shouldCrawl($node)) {
-                    return;
-                }
-
-                if ($this->maximumCrawlCountReached()) {
-                    return;
-                }
-
-                $crawlUrl = CrawlUrl::create($url, $foundOnUrl);
-
-                $this->addToCrawlQueue($crawlUrl);
-            });
-    }
-
-    protected function shouldCrawl(Node $node): bool
-    {
-        if ($this->respectRobots) {
-            return $this->robotsTxt->allows($node->getValue());
+        if (! $this->getCrawlProfile()->shouldCrawl($crawlUrl->url)) {
+            return $this;
         }
 
-        if (is_null($this->maximumDepth)) {
-            return true;
+        if ($this->getCrawlQueue()->has($crawlUrl->url)) {
+            return $this;
         }
 
-        return $node->getDepth() <= $this->maximumDepth;
-    }
-
-    /**
-     * @param string                         $html
-     * @param \Psr\Http\Message\UriInterface $foundOnUrl
-     *
-     * @return \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection|null
-     */
-    protected function extractAllLinks(string $html, UriInterface $foundOnUrl)
-    {
-        if ($this->executeJavaScript) {
-            $html = $this->getBodyAfterExecutingJavaScript($foundOnUrl);
-        }
-
-        $domCrawler = new DomCrawler($html, $foundOnUrl);
-
-        return collect($domCrawler->filterXpath('//a')->links())
-            ->reject(function (Link $link) {
-                return $link->getNode()->getAttribute('rel') === 'nofollow';
-            })
-            ->map(function (Link $link) {
-                try {
-                    return new Uri($link->getUri());
-                } catch (InvalidArgumentException $exception) {
-                    return;
-                }
-            })
-            ->filter();
-    }
-
-    protected function normalizeUrl(UriInterface $url): UriInterface
-    {
-        return $url->withFragment('');
-    }
-
-    protected function hasCrawlableScheme(UriInterface $uri): bool
-    {
-        return in_array($uri->getScheme(), ['http', 'https']);
-    }
-
-    protected function addToDepthTree(Node $node, UriInterface $url, UriInterface $parentUrl)
-    {
-        $returnNode = null;
-
-        if ($node->getValue() === (string) $parentUrl) {
-            $newNode = new Node((string) $url);
-
-            $node->addChild($newNode);
-
-            return $newNode;
-        }
-
-        foreach ($node->getChildren() as $currentNode) {
-            $returnNode = $this->addToDepthTree($currentNode, $url, $parentUrl);
-
-            if (! is_null($returnNode)) {
-                break;
-            }
-        }
-
-        return $returnNode;
-    }
-
-    protected function getBodyAfterExecutingJavaScript(UriInterface $foundOnUrl): string
-    {
-        $browsershot = $this->getBrowsershot();
-
-        $html = $browsershot->setUrl((string) $foundOnUrl)->bodyHtml();
-
-        return html_entity_decode($html);
-    }
-
-    protected function getBrowsershot(): Browsershot
-    {
-        if (! $this->browsershot) {
-            $this->browsershot = new Browsershot();
-        }
-
-        return $this->browsershot;
-    }
-
-    public function setBrowsershot(Browsershot $browsershot)
-    {
-        $this->browsershot = $browsershot;
-
-        return $this;
-    }
-
-    protected function addToCrawlQueue(CrawlUrl $crawlUrl)
-    {
         $this->crawledUrlCount++;
 
         $this->crawlQueue->add($crawlUrl);
@@ -333,12 +226,14 @@ class Crawler
         return $this;
     }
 
-    protected function maximumCrawlCountReached(): bool
+    public function maximumCrawlCountReached(): bool
     {
-        if (is_null($this->maximumCrawlCount)) {
+        $maximumCrawlCount = $this->getMaximumCrawlCount();
+
+        if (is_null($maximumCrawlCount)) {
             return false;
         }
 
-        return $this->crawledUrlCount >= $this->maximumCrawlCount;
+        return $this->getCrawlerUrlCount() >= $maximumCrawlCount;
     }
 }

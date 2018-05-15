@@ -7,6 +7,7 @@ use Psr\Http\Message\StreamInterface;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlSubdomains;
 use Spatie\Crawler\CrawlUrl;
+use Spatie\Crawler\LinkAdder;
 use Spatie\Robots\RobotsHeaders;
 use Spatie\Robots\RobotsMeta;
 
@@ -15,8 +16,13 @@ class CrawlRequestFulfilled
     /** @var \Spatie\Crawler\Crawler */
     protected $crawler;
 
+    /** @var \Spatie\Crawler\LinkAdder */
+    protected $linkAdder;
+
     public function __construct(Crawler $crawler) {
         $this->crawler = $crawler;
+
+        $this->linkAdder = new LinkAdder($this->crawler);
     }
 
     public function __invoke(ResponseInterface $response, $index)
@@ -45,10 +51,7 @@ class CrawlRequestFulfilled
             return;
         }
 
-        $this->crawler->addAllLinksToCrawlQueue(
-            $body,
-            $crawlUrl->url
-        );
+        $this->linkAdder->addFromHtml($body, $crawlUrl->url);
     }
 
     protected function convertBodyToString(StreamInterface $bodyStream, $readMaximumBytes = 1024 * 1024 * 2): string

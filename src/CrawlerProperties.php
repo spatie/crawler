@@ -3,7 +3,9 @@
 namespace Spatie\Crawler;
 
 use Psr\Http\Message\UriInterface;
+use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\CrawlQueue\CrawlQueue;
+use Spatie\Robots\RobotsTxt;
 
 trait CrawlerProperties
 {
@@ -136,5 +138,46 @@ trait CrawlerProperties
     public function mustRespectRobots(): bool
     {
         return $this->respectRobots;
+    }
+
+    public function getRobotsTxt(): RobotsTxt
+    {
+        return $this->robotsTxt;
+    }
+
+    public function getMaximumDepth(): ?int
+    {
+        return $this->maximumDepth;
+    }
+
+    public function getMaximumCrawlCount(): ?int
+    {
+        return $this->maximumCrawlCount;
+    }
+
+    public function getCrawlerUrlCount(): int
+    {
+        return $this->crawledUrlCount;
+    }
+
+    public function getBrowsershot(): Browsershot
+    {
+        if (! $this->browsershot) {
+            $this->browsershot = new Browsershot();
+        }
+
+        return $this->browsershot;
+    }
+
+    public function setBrowsershot(Browsershot $browsershot)
+    {
+        $this->browsershot = $browsershot;
+
+        return $this;
+    }
+
+    public function mayExecuteJavascript(): bool
+    {
+        return $this->executeJavaScript;
     }
 }
