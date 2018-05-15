@@ -411,11 +411,9 @@ class Crawler
 
     protected function getBrowsershot(): Browsershot
     {
-        if ($this->browsershot) {
-            return $this->browsershot;
+        if (! $this->browsershot) {
+            $this->browsershot = new Browsershot();
         }
-
-        $this->browsershot = new Browsershot();
 
         return $this->browsershot;
     }
