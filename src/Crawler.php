@@ -178,6 +178,9 @@ class Crawler
         }
     }
 
+    /**
+     * @deprecated This function will be removed in the next major version
+     */
     public function endsWith($haystack, $needle)
     {
         return strrpos($haystack, $needle) + strlen($needle) ===
