@@ -2,10 +2,10 @@
 
 namespace Spatie\Crawler;
 
-use GuzzleHttp\Exception\RequestException;
 use Iterator;
 use ArrayAccess;
 use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Exception\RequestException;
 
 class ObserverCollection implements ArrayAccess, Iterator
 {
@@ -79,7 +79,7 @@ class ObserverCollection implements ArrayAccess, Iterator
 
     public function next()
     {
-        ++$this->position;
+        $this->position++;
     }
 
     public function key()
