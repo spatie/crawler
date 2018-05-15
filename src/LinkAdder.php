@@ -52,7 +52,7 @@ class LinkAdder
     }
 
     /**
-     * @param string                         $html
+     * @param string $html
      * @param \Psr\Http\Message\UriInterface $foundOnUrl
      *
      * @return \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection|null
