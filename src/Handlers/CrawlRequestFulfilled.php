@@ -2,13 +2,10 @@
 
 namespace Spatie\Crawler\Handlers;
 
-use GuzzleHttp\Psr7\Response;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlerRobots;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\LinkAdder;
-use Spatie\Robots\RobotsMeta;
-use Spatie\Robots\RobotsHeaders;
 use Spatie\Crawler\CrawlSubdomains;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\ResponseInterface;
