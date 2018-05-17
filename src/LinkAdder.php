@@ -30,17 +30,15 @@ class LinkAdder
             ->map(function (UriInterface $url) {
                 return $this->normalizeUrl($url);
             })
-            ->each(function (UriInterface $url) use ($foundOnUrl) {
+            ->filter(function (UriInterface $url) use ($foundOnUrl) {
                 $node = $this->crawler->addToDepthTree($url, $foundOnUrl);
 
-                if (strpos($url->getPath(), '/tel:') === 0) {
-                    return;
-                }
-
-                if (! $this->shouldCrawl($node)) {
-                    return;
-                }
-
+                return $this->shouldCrawl($node);
+            })
+            ->filter(function (UriInterface $url) {
+                return strpos($url->getPath(), '/tel:') === false;
+            })
+            ->each(function (UriInterface $url) use ($foundOnUrl) {
                 if ($this->crawler->maximumCrawlCountReached()) {
                     return;
                 }
