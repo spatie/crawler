@@ -2,7 +2,9 @@
 
 namespace Spatie\Crawler\Handlers;
 
+use GuzzleHttp\Psr7\Response;
 use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlerRobots;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\LinkAdder;
 use Spatie\Robots\RobotsMeta;
@@ -28,17 +30,13 @@ class CrawlRequestFulfilled
 
     public function __invoke(ResponseInterface $response, $index)
     {
-        $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
+        $robots = new CrawlerRobots($response, $this->crawler->mustRespectRobots());
 
-        $body = $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
-
-        $robotsHeaders = RobotsHeaders::create($response->getHeaders());
-
-        $robotsMeta = RobotsMeta::create($body);
-
-        if (! $this->mayIndex($robotsHeaders, $robotsMeta)) {
+        if (! $robots->mayIndex()) {
             return;
         }
+
+        $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
         $this->handleCrawled($response, $crawlUrl);
 
@@ -48,11 +46,18 @@ class CrawlRequestFulfilled
             }
         }
 
-        if (! $this->mayFollow($robotsHeaders, $robotsMeta)) {
+        if (! $robots->mayFollow()) {
             return;
         }
 
+        $body = $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
+
         $this->linkAdder->addFromHtml($body, $crawlUrl->url);
+    }
+
+    protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)
+    {
+        $this->crawler->getCrawlObservers()->crawled($crawlUrl, $response);
     }
 
     protected function convertBodyToString(StreamInterface $bodyStream, $readMaximumBytes = 1024 * 1024 * 2): string
@@ -62,44 +67,5 @@ class CrawlRequestFulfilled
         $body = $bodyStream->read($readMaximumBytes);
 
         return $body;
-    }
-
-    protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)
-    {
-        $this->crawler->getCrawlObservers()->crawled($crawlUrl, $response);
-    }
-
-    protected function mayIndex(RobotsHeaders $robotsHeaders, RobotsMeta $robotsMeta): bool
-    {
-        if (! $this->crawler->mustRespectRobots()) {
-            return true;
-        }
-
-        if (! $robotsHeaders->mayIndex()) {
-            return false;
-        }
-
-        if (! $robotsMeta->mayIndex()) {
-            return false;
-        }
-
-        return true;
-    }
-
-    protected function mayFollow(RobotsHeaders $robotsHeaders, RobotsMeta $robotsMeta): bool
-    {
-        if (! $this->crawler->mustRespectRobots()) {
-            return true;
-        }
-
-        if (! $robotsHeaders->mayFollow()) {
-            return false;
-        }
-
-        if (! $robotsMeta->mayFollow()) {
-            return false;
-        }
-
-        return true;
     }
 }
