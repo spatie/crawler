@@ -497,6 +497,10 @@ class Crawler
     {
         $returnNode = null;
 
+        if (is_null($this->maximumDepth)) {
+            return new Node((string) $url);
+        }
+
         if ($node->getValue() === (string) $parentUrl) {
             $newNode = new Node((string) $url);
 
