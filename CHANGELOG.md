@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.1.2 - 2018-06-03
+
+- make it possible to override `$defaultClientOptions`
+
 ## 4.1.1 - 2018-05-22
 
 - Bump minimum required version of `spatie/robots-txt` to `1.0.1`.
