@@ -86,7 +86,7 @@ class Crawler
     {
         $clientOptions = (count($clientOptions))
             ? $clientOptions
-            : self::$defaultClientOptions;
+            : static::$defaultClientOptions;
 
         $client = new Client($clientOptions);
 
