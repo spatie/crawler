@@ -8,7 +8,7 @@ use GuzzleHttp\Exception\RequestException;
 class CrawlRequestFailed
 {
     /** @var \Spatie\Crawler\Crawler */
-    private $crawler;
+    protected $crawler;
 
     public function __construct(Crawler $crawler)
     {

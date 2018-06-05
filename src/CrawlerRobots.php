@@ -15,7 +15,7 @@ class CrawlerRobots
     protected $robotsMeta;
 
     /** @var bool */
-    private $mustRespectRobots;
+    protected $mustRespectRobots;
 
     public function __construct(ResponseInterface $response, bool $mustRespectRobots)
     {
