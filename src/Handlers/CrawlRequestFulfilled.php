@@ -2,15 +2,15 @@
 
 namespace Spatie\Crawler\Handlers;
 
-use function GuzzleHttp\Psr7\stream_for;
-use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\LinkAdder;
 use Spatie\Crawler\CrawlerRobots;
+use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\CrawlSubdomains;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\ResponseInterface;
+use function GuzzleHttp\Psr7\stream_for;
 
 class CrawlRequestFulfilled
 {
