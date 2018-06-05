@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.1.3 - 2018-06-05
+
+- refactor of internals
+
 ## 4.1.2 - 2018-06-03
 
 - make it possible to override `$defaultClientOptions`
