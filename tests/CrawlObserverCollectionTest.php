@@ -12,7 +12,7 @@ use Spatie\Crawler\CrawlObserverCollection;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 
-class ObserverCollectionTest extends TestCase
+class CrawlObserverCollectionTest extends TestCase
 {
     private $observer;
 
@@ -30,7 +30,7 @@ class ObserverCollectionTest extends TestCase
                 ResponseInterface $response,
                 ?UriInterface $foundOnUrl = null
             ) {
-                ObserverCollectionTest::$crawled = true;
+                CrawlObserverCollectionTest::$crawled = true;
             }
 
             public function crawlFailed(
@@ -38,7 +38,7 @@ class ObserverCollectionTest extends TestCase
                 RequestException $requestException,
                 ?UriInterface $foundOnUrl = null
             ) {
-                ObserverCollectionTest::$failed = true;
+                CrawlObserverCollectionTest::$failed = true;
             }
         };
 
