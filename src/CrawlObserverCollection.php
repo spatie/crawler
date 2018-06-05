@@ -18,6 +18,7 @@ class CrawlObserverCollection implements ArrayAccess, Iterator
     public function __construct(array $observers = [])
     {
         $this->observers = $observers;
+
         $this->position = 0;
     }
 
