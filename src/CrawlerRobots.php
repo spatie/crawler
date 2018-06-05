@@ -32,8 +32,15 @@ class CrawlerRobots
             return true;
         }
 
-        return $this->robotsHeaders->mayIndex()
-            && $this->robotsMeta->mayIndex();
+        if (! $this->robotsHeaders->mayIndex()) {
+            return false;
+        }
+
+        if (! $this->robotsMeta->mayIndex()) {
+            return false;
+        }
+
+        return true;
     }
 
     public function mayFollow(): bool
@@ -42,7 +49,14 @@ class CrawlerRobots
             return true;
         }
 
-        return $this->robotsHeaders->mayFollow()
-            && $this->robotsMeta->mayFollow();
+        if (! $this->robotsHeaders->mayFollow()) {
+            return false;
+        }
+
+        if (! $this->robotsMeta->mayFollow()) {
+            return false;
+        }
+
+        return true;
     }
 }
