@@ -8,9 +8,9 @@ use Spatie\Crawler\CrawlUrl;
 use GuzzleHttp\Psr7\Response;
 use Spatie\Crawler\CrawlObserver;
 use Psr\Http\Message\UriInterface;
-use Spatie\Crawler\CrawlObserverCollection;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
+use Spatie\Crawler\CrawlObserverCollection;
 
 class CrawlObserverCollectionTest extends TestCase
 {
