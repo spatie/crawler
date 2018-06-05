@@ -7,7 +7,7 @@ use ArrayAccess;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 
-class ObserverCollection implements ArrayAccess, Iterator
+class CrawlObserverCollection implements ArrayAccess, Iterator
 {
     /** @var \Spatie\Crawler\CrawlObserver[] */
     protected $observers;

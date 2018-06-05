@@ -26,7 +26,7 @@ class Crawler
     /** @var \Psr\Http\Message\UriInterface */
     protected $baseUrl;
 
-    /** @var \Spatie\Crawler\ObserverCollection */
+    /** @var \Spatie\Crawler\CrawlObserverCollection */
     protected $crawlObservers;
 
     /** @var \Spatie\Crawler\CrawlProfile */
@@ -98,7 +98,7 @@ class Crawler
 
         $this->crawlQueue = new CollectionCrawlQueue();
 
-        $this->crawlObservers = new ObserverCollection();
+        $this->crawlObservers = new CrawlObserverCollection();
     }
 
     /**

@@ -128,7 +128,7 @@ trait CrawlerProperties
 
     public function setCrawlObservers(array $crawlObservers): self
     {
-        $this->crawlObservers = new ObserverCollection($crawlObservers);
+        $this->crawlObservers = new CrawlObserverCollection($crawlObservers);
 
         return $this;
     }
@@ -140,7 +140,7 @@ trait CrawlerProperties
         return $this;
     }
 
-    public function getCrawlObservers(): ObserverCollection
+    public function getCrawlObservers(): CrawlObserverCollection
     {
         return $this->crawlObservers;
     }

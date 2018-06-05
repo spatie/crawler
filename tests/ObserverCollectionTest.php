@@ -8,7 +8,7 @@ use Spatie\Crawler\CrawlUrl;
 use GuzzleHttp\Psr7\Response;
 use Spatie\Crawler\CrawlObserver;
 use Psr\Http\Message\UriInterface;
-use Spatie\Crawler\ObserverCollection;
+use Spatie\Crawler\CrawlObserverCollection;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
 
@@ -49,7 +49,7 @@ class ObserverCollectionTest extends TestCase
     /** @test */
     public function it_can_be_fulfill()
     {
-        $observers = new ObserverCollection([
+        $observers = new CrawlObserverCollection([
             $this->observer,
         ]);
 
@@ -63,7 +63,7 @@ class ObserverCollectionTest extends TestCase
     /** @test */
     public function it_can_fail()
     {
-        $observers = new ObserverCollection([
+        $observers = new CrawlObserverCollection([
             $this->observer,
         ]);
 
