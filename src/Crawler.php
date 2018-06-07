@@ -293,7 +293,7 @@ class Crawler
         $this->robotsTxt = $this->createRobotsTxt($crawlUrl->url);
 
         if ($this->robotsTxt->allows((string) $crawlUrl->url) || 
-            !$this->respectRobots
+            ! $this->respectRobots
         ) {
             $this->addToCrawlQueue($crawlUrl);
         }
