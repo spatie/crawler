@@ -12,7 +12,7 @@ class CrawlRequestFulfilled extends CrawlRequestFulfilledAbstract
     {
         $robots = new CrawlerRobots($response, $this->crawler->mustRespectRobots());
 
-        if (!$robots->mayIndex()) {
+        if (! $robots->mayIndex()) {
             return;
         }
 
@@ -20,13 +20,13 @@ class CrawlRequestFulfilled extends CrawlRequestFulfilledAbstract
 
         $this->handleCrawled($response, $crawlUrl);
 
-        if (!$this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
+        if (! $this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
             if ($crawlUrl->url->getHost() !== $this->crawler->getBaseUrl()->getHost()) {
                 return;
             }
         }
 
-        if (!$robots->mayFollow()) {
+        if (! $robots->mayFollow()) {
             return;
         }
 

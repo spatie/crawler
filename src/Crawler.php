@@ -124,24 +124,24 @@ class Crawler
         return $this;
     }
 
-    public function getMaximumResponseSize(): ? int
+    public function getMaximumResponseSize(): ?int
     {
         return $this->maximumResponseSize;
     }
 
-    public function setMaximumCrawlCount(int $maximumCrawlCount) : Crawler
+    public function setMaximumCrawlCount(int $maximumCrawlCount): Crawler
     {
         $this->maximumCrawlCount = $maximumCrawlCount;
 
         return $this;
     }
 
-    public function getMaximumCrawlCount(): ? int
+    public function getMaximumCrawlCount(): ?int
     {
         return $this->maximumCrawlCount;
     }
 
-    public function getCrawlerUrlCount() : int
+    public function getCrawlerUrlCount(): int
     {
         return $this->crawledUrlCount;
     }
@@ -153,12 +153,12 @@ class Crawler
         return $this;
     }
 
-    public function getMaximumDepth(): ? int
+    public function getMaximumDepth(): ?int
     {
         return $this->maximumDepth;
     }
 
-    public function ignoreRobots() : Crawler
+    public function ignoreRobots(): Crawler
     {
         $this->respectRobots = false;
 
@@ -274,13 +274,13 @@ class Crawler
         return $this->browsershot;
     }
 
-    public function getCrawlFulfilledHandler() : CrawlRequestFulfilledAbstract
+    public function getCrawlFulfilledHandler(): CrawlRequestFulfilledAbstract
     {
         return $this->crawlRequestFulfilledClass ?
             new $this->crawlRequestFulfilledClass($this) : new CrawlRequestFulfilled($this);
     }
 
-    public function setCrawlFulfilledHandlerClass(string $crawlRequestFulfilledClass) : Crawler
+    public function setCrawlFulfilledHandlerClass(string $crawlRequestFulfilledClass): Crawler
     {
         if (!is_subclass_of($crawlRequestFulfilledClass, $abstract = CrawlRequestFulfilledAbstract::class)) {
             throw new InvalidCrawlRequestHandlerException("Fulfilled handler class must extend {$abstract}");
@@ -291,13 +291,13 @@ class Crawler
         return $this;
     }
 
-    public function getCrawlFailedHandler() : CrawlRequestFailedAbstract
+    public function getCrawlFailedHandler(): CrawlRequestFailedAbstract
     {
         return $this->crawlRequestFailedClass ?
             new $this->crawlRequestFailedClass($this) : new CrawlRequestFailed($this);
     }
 
-    public function setCrawlFailedHandlerClass(string $crawlRequestFailedClass) : Crawler
+    public function setCrawlFailedHandlerClass(string $crawlRequestFailedClass): Crawler
     {
         if (!is_subclass_of($crawlRequestFailedClass, $abstract = CrawlRequestFailedAbstract::class)) {
             throw new InvalidCrawlRequestHandlerException("Failed handler class must extend {$abstract}");
@@ -318,7 +318,7 @@ class Crawler
      */
     public function startCrawling($baseUrl)
     {
-        if (!$baseUrl instanceof UriInterface) {
+        if (! $baseUrl instanceof UriInterface) {
             $baseUrl = new Uri($baseUrl);
         }
 
@@ -337,7 +337,7 @@ class Crawler
         $this->robotsTxt = $this->createRobotsTxt($crawlUrl->url);
 
         if ($this->robotsTxt->allows((string) $crawlUrl->url) ||
-            !$this->respectRobots
+            ! $this->respectRobots
         ) {
             $this->addToCrawlQueue($crawlUrl);
         }
@@ -351,7 +351,7 @@ class Crawler
         }
     }
 
-    public function addToDepthTree(UriInterface $url, UriInterface $parentUrl, Node $node = null): ? Node
+    public function addToDepthTree(UriInterface $url, UriInterface $parentUrl, Node $node = null): ?Node
     {
         $node = $node ?? $this->depthTree;
 
@@ -401,7 +401,7 @@ class Crawler
             strlen($haystack);
     }
 
-    protected function createRobotsTxt(UriInterface $uri) : RobotsTxt
+    protected function createRobotsTxt(UriInterface $uri): RobotsTxt
     {
         return RobotsTxt::create($uri->withPath('/robots.txt'));
     }
@@ -409,7 +409,7 @@ class Crawler
     protected function getCrawlRequests(): Generator
     {
         while ($crawlUrl = $this->crawlQueue->getFirstPendingUrl()) {
-            if (!$this->crawlProfile->shouldCrawl($crawlUrl->url)) {
+            if (! $this->crawlProfile->shouldCrawl($crawlUrl->url)) {
                 $this->crawlQueue->markAsProcessed($crawlUrl);
                 continue;
             }
@@ -438,7 +438,7 @@ class Crawler
             return $this;
         }
 
-        ++$this->crawledUrlCount;
+        $this->crawledUrlCount++;
 
         $this->crawlQueue->add($crawlUrl);
 
