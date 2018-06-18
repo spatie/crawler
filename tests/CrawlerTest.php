@@ -2,7 +2,9 @@
 
 namespace Spatie\Crawler\Test;
 
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Uri;
+use Psr\Http\Message\ResponseInterface;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
 use Psr\Http\Message\UriInterface;
@@ -10,6 +12,8 @@ use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\CrawlSubdomains;
 use Spatie\Crawler\CrawlInternalUrls;
 use Spatie\Crawler\Exception\InvalidCrawlRequestHandlerException;
+use Spatie\Crawler\Handlers\CrawlRequestFailed;
+use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
 use stdClass;
 
 class CrawlerTest extends TestCase
@@ -365,6 +369,28 @@ class CrawlerTest extends TestCase
         Crawler::create()->setCrawlFailedHandlerClass(stdClass::class);
     }
 
+    /** @test */
+    public function it_supports_custom_crawl_request_fulfilled_handler()
+    {
+        MockCrawlRequestFulfilled::setStaticInvokableMock(new InvokableMock());
+
+        Crawler::create()->setCrawlFulfilledHandlerClass(MockCrawlRequestFulfilled::class)
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertTrue(MockCrawlRequestFulfilled::getStaticInvokableMock()->getInvoked());
+    }
+
+    /** @test */
+    public function it_supports_custom_crawl_request_failed_handler()
+    {
+        MockCrawlRequestFailed::setStaticInvokableMock(new InvokableMock());
+
+        Crawler::create()->setCrawlFailedHandlerClass(MockCrawlRequestFailed::class)
+            ->startCrawling('http://localhost:8080/notExists');
+
+        $this->assertTrue(MockCrawlRequestFailed::getStaticInvokableMock()->getInvoked());
+    }
+
     protected function regularUrls(): array
     {
         return [
@@ -387,3 +413,56 @@ class CrawlerTest extends TestCase
         ];
     }
 }
+
+class MockCrawlRequestFulfilled extends CrawlRequestFulfilled {
+
+    use HasStaticInvokableMock;
+
+    public function __invoke(ResponseInterface $response, $index)
+    {
+        static::getStaticInvokableMock()->setInvoked();
+    }
+}
+
+class MockCrawlRequestFailed extends CrawlRequestFailed {
+
+    use HasStaticInvokableMock;
+
+    public function __invoke(RequestException $exception, $index)
+    {
+        static::getStaticInvokableMock()->setInvoked();
+    }
+}
+
+
+
+trait HasStaticInvokableMock {
+
+    protected static $invokableMock;
+
+    public static function setStaticInvokableMock(InvokableMock $invokableMock)
+    {
+        static::$invokableMock = $invokableMock;
+    }
+
+    public static function getStaticInvokableMock(): InvokableMock
+    {
+        return static::$invokableMock;
+    }
+}
+
+class InvokableMock {
+    protected $invoked = false;
+
+    public function setInvoked($invoked = true)
+    {
+        $this->invoked = $invoked;
+    }
+
+    public function getInvoked()
+    {
+        return $this->invoked;
+    }
+}
+
+

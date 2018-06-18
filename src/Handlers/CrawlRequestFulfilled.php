@@ -2,36 +2,40 @@
 
 namespace Spatie\Crawler\Handlers;
 
+use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlUrl;
+use Spatie\Crawler\LinkAdder;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\ResponseInterface;
-use Spatie\Crawler\CrawlerRobots;
-use Spatie\Crawler\CrawlSubdomains;
 
-class CrawlRequestFulfilled extends CrawlRequestFulfilledAbstract
+abstract class CrawlRequestFulfilled
 {
-    public function __invoke(ResponseInterface $response, $index)
+    /** @var \Spatie\Crawler\Crawler */
+    protected $crawler;
+
+    /** @var \Spatie\Crawler\LinkAdder */
+    protected $linkAdder;
+
+    public function __construct(Crawler $crawler)
     {
-        $robots = new CrawlerRobots($response, $this->crawler->mustRespectRobots());
+        $this->crawler = $crawler;
 
-        if (! $robots->mayIndex()) {
-            return;
-        }
+        $this->linkAdder = new LinkAdder($this->crawler);
+    }
 
-        $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
+    abstract public function __invoke(ResponseInterface $response, $index);
 
-        $this->handleCrawled($response, $crawlUrl);
+    protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)
+    {
+        $this->crawler->getCrawlObservers()->crawled($crawlUrl, $response);
+    }
 
-        if (! $this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
-            if ($crawlUrl->url->getHost() !== $this->crawler->getBaseUrl()->getHost()) {
-                return;
-            }
-        }
+    protected function convertBodyToString(StreamInterface $bodyStream, $readMaximumBytes = 1024 * 1024 * 2): string
+    {
+        $bodyStream->rewind();
 
-        if (! $robots->mayFollow()) {
-            return;
-        }
+        $body = $bodyStream->read($readMaximumBytes);
 
-        $body = $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
-
-        $this->linkAdder->addFromHtml($body, $crawlUrl->url);
+        return $body;
     }
 }

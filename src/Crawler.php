@@ -4,8 +4,8 @@ namespace Spatie\Crawler;
 
 use Generator;
 use Spatie\Crawler\Exception\InvalidCrawlRequestHandlerException;
-use Spatie\Crawler\Handlers\CrawlRequestFailedAbstract;
-use Spatie\Crawler\Handlers\CrawlRequestFulfilledAbstract;
+use Spatie\Crawler\Handlers\CrawlRequestFailed;
+use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
 use Tree\Node\Node;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
@@ -16,8 +16,8 @@ use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\CrawlQueue\CrawlQueue;
-use Spatie\Crawler\Handlers\CrawlRequestFailed;
-use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
+use Spatie\Crawler\Handlers\DefaultCrawlRequestFailed;
+use Spatie\Crawler\Handlers\DefaultCrawlRequestFulfilled;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 
 class Crawler
@@ -274,15 +274,15 @@ class Crawler
         return $this->browsershot;
     }
 
-    public function getCrawlFulfilledHandler(): CrawlRequestFulfilledAbstract
+    public function crawlFulfilledHandler(): CrawlRequestFulfilled
     {
         return $this->crawlRequestFulfilledClass ?
-            new $this->crawlRequestFulfilledClass($this) : new CrawlRequestFulfilled($this);
+            new $this->crawlRequestFulfilledClass($this) : new DefaultCrawlRequestFulfilled($this);
     }
 
     public function setCrawlFulfilledHandlerClass(string $crawlRequestFulfilledClass): Crawler
     {
-        if (!is_subclass_of($crawlRequestFulfilledClass, $abstract = CrawlRequestFulfilledAbstract::class)) {
+        if (!is_subclass_of($crawlRequestFulfilledClass, $abstract = CrawlRequestFulfilled::class)) {
             throw new InvalidCrawlRequestHandlerException("Fulfilled handler class must extend {$abstract}");
         }
 
@@ -291,15 +291,15 @@ class Crawler
         return $this;
     }
 
-    public function getCrawlFailedHandler(): CrawlRequestFailedAbstract
+    public function crawlFailedHandler(): CrawlRequestFailed
     {
         return $this->crawlRequestFailedClass ?
-            new $this->crawlRequestFailedClass($this) : new CrawlRequestFailed($this);
+            new $this->crawlRequestFailedClass($this) : new DefaultCrawlRequestFailed($this);
     }
 
     public function setCrawlFailedHandlerClass(string $crawlRequestFailedClass): Crawler
     {
-        if (!is_subclass_of($crawlRequestFailedClass, $abstract = CrawlRequestFailedAbstract::class)) {
+        if (!is_subclass_of($crawlRequestFailedClass, $abstract = CrawlRequestFailed::class)) {
             throw new InvalidCrawlRequestHandlerException("Failed handler class must extend {$abstract}");
         }
 
@@ -382,8 +382,8 @@ class Crawler
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
                 'options' => $this->client->getConfig(),
-                'fulfilled' => $this->getCrawlFulfilledHandler(),
-                'rejected' => $this->getCrawlFailedHandler(),
+                'fulfilled' => $this->crawlFulfilledHandler(),
+                'rejected' => $this->crawlFailedHandler(),
             ]);
 
             $promise = $pool->promise();
