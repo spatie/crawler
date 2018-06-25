@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.1.5 - 2018-06-25
+
+- refactor to improve extendability
+
 ## 4.1.4 - 2018-06-09
 
 - always add links to pool if robots shouldn't be respected
