@@ -3,9 +3,6 @@
 namespace Spatie\Crawler;
 
 use Generator;
-use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
-use Spatie\Crawler\Handlers\CrawlRequestFailed;
-use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
 use Tree\Node\Node;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
@@ -16,9 +13,10 @@ use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\CrawlQueue\CrawlQueue;
-use Spatie\Crawler\Handlers\DefaultCrawlRequestFailed;
-use Spatie\Crawler\Handlers\DefaultCrawlRequestFulfilled;
+use Spatie\Crawler\Handlers\CrawlRequestFailed;
+use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
+use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
 
 class Crawler
 {
@@ -219,7 +217,7 @@ class Crawler
      */
     public function setCrawlObserver($crawlObservers): Crawler
     {
-        if (!is_array($crawlObservers)) {
+        if (! is_array($crawlObservers)) {
             $crawlObservers = [$crawlObservers];
         }
 
@@ -261,7 +259,7 @@ class Crawler
     {
         $baseClass = CrawlRequestFulfilled::class;
 
-        if (!is_subclass_of($crawlRequestFulfilledClass, $baseClass)) {
+        if (! is_subclass_of($crawlRequestFulfilledClass, $baseClass)) {
             throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($crawlRequestFulfilledClass, $baseClass);
         }
 
@@ -274,7 +272,7 @@ class Crawler
     {
         $baseClass = CrawlRequestFailed::class;
 
-        if (!is_subclass_of($crawlRequestFailedClass, $baseClass)) {
+        if (! is_subclass_of($crawlRequestFailedClass, $baseClass)) {
             throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($crawlRequestFailedClass, $baseClass);
         }
 
@@ -282,7 +280,6 @@ class Crawler
 
         return $this;
     }
-
 
     public function setBrowsershot(Browsershot $browsershot)
     {
@@ -293,13 +290,12 @@ class Crawler
 
     public function getBrowsershot(): Browsershot
     {
-        if (!$this->browsershot) {
+        if (! $this->browsershot) {
             $this->browsershot = new Browsershot();
         }
 
         return $this->browsershot;
     }
-
 
     public function getBaseUrl(): UriInterface
     {
@@ -361,7 +357,7 @@ class Crawler
         foreach ($node->getChildren() as $currentNode) {
             $returnNode = $this->addToDepthTree($url, $parentUrl, $currentNode);
 
-            if (!is_null($returnNode)) {
+            if (! is_null($returnNode)) {
                 break;
             }
         }
@@ -376,7 +372,7 @@ class Crawler
                 'concurrency' => $this->concurrency,
                 'options' => $this->client->getConfig(),
                 'fulfilled' => new $this->crawlRequestFulfilledClass($this),
-                'rejected' => new $this->crawlRequestFailedClass($this)
+                'rejected' => new $this->crawlRequestFailedClass($this),
             ]);
 
             $promise = $pool->promise();
@@ -423,7 +419,7 @@ class Crawler
 
     public function addToCrawlQueue(CrawlUrl $crawlUrl): Crawler
     {
-        if (!$this->getCrawlProfile()->shouldCrawl($crawlUrl->url)) {
+        if (! $this->getCrawlProfile()->shouldCrawl($crawlUrl->url)) {
             return $this;
         }
 
