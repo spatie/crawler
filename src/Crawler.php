@@ -68,10 +68,10 @@ class Crawler
     protected $robotsTxt = null;
 
     /** @var string */
-    protected $crawlRequestFulfilledClass = null;
+    protected $crawlRequestFulfilledClass;
 
     /** @var string */
-    protected $crawlRequestFailedClass = null;
+    protected $crawlRequestFailedClass;
 
     /** @var   */
     protected static $defaultClientOptions = [
@@ -103,6 +103,10 @@ class Crawler
         $this->crawlQueue = new CollectionCrawlQueue();
 
         $this->crawlObservers = new CrawlObserverCollection();
+
+        $this->crawlRequestFulfilledClass = CrawlRequestFulfilled::class;
+
+        $this->crawlRequestFailedClass = CrawlRequestFailed::class;
     }
 
     public function setConcurrency(int $concurrency): Crawler
@@ -253,6 +257,33 @@ class Crawler
         return $this->crawlProfile;
     }
 
+    public function setCrawlFulfilledHandlerClass(string $crawlRequestFulfilledClass): Crawler
+    {
+        $baseClass = CrawlRequestFulfilled::class;
+
+        if (!is_subclass_of($crawlRequestFulfilledClass, $baseClass)) {
+            throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($crawlRequestFulfilledClass, $baseClass);
+        }
+
+        $this->crawlRequestFulfilledClass = $crawlRequestFulfilledClass;
+
+        return $this;
+    }
+
+    public function setCrawlFailedHandlerClass(string $crawlRequestFailedClass): Crawler
+    {
+        $baseClass = CrawlRequestFailed::class;
+
+        if (!is_subclass_of($crawlRequestFailedClass, $baseClass)) {
+            throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($crawlRequestFailedClass, $baseClass);
+        }
+
+        $this->crawlRequestFailedClass = $crawlRequestFailedClass;
+
+        return $this;
+    }
+
+
     public function setBrowsershot(Browsershot $browsershot)
     {
         $this->browsershot = $browsershot;
@@ -269,43 +300,6 @@ class Crawler
         return $this->browsershot;
     }
 
-    public function crawlFulfilledHandler(): CrawlRequestFulfilled
-    {
-        return $this->crawlRequestFulfilledClass ?
-            new $this->crawlRequestFulfilledClass($this) : new DefaultCrawlRequestFulfilled($this);
-    }
-
-    public function setCrawlFulfilledHandlerClass(string $crawlRequestFulfilledClass): Crawler
-    {
-        $baseClass = CrawlRequestFulfilled::class;
-
-        if (!is_subclass_of($crawlRequestFulfilledClass, $baseClass)) {
-            throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($crawlRequestFulfilledClass, $baseClass);
-        }
-
-        $this->crawlRequestFulfilledClass = $crawlRequestFulfilledClass;
-
-        return $this;
-    }
-
-    public function crawlFailedHandler(): CrawlRequestFailed
-    {
-        return $this->crawlRequestFailedClass ?
-            new $this->crawlRequestFailedClass($this) : new DefaultCrawlRequestFailed($this);
-    }
-
-    public function setCrawlFailedHandlerClass(string $crawlRequestFailedClass): Crawler
-    {
-        $baseClass = CrawlRequestFailed::class;
-
-        if (!is_subclass_of($crawlRequestFailedClass, $baseClass)) {
-            throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($crawlRequestFailedClass, $baseClass);
-        }
-
-        $this->crawlRequestFailedClass = $crawlRequestFailedClass;
-
-        return $this;
-    }
 
     public function getBaseUrl(): UriInterface
     {
@@ -381,8 +375,8 @@ class Crawler
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
                 'options' => $this->client->getConfig(),
-                'fulfilled' => $this->crawlFulfilledHandler(),
-                'rejected' => $this->crawlFailedHandler(),
+                'fulfilled' => new $this->crawlRequestFulfilledClass($this),
+                'rejected' => new $this->crawlRequestFailedClass($this)
             ]);
 
             $promise = $pool->promise();
