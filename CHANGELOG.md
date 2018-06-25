@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.1.6 - 2018-06-26
+
+- improve performance by only building the depth three when needed
+
 ## 4.1.5 - 2018-06-25
 
 - refactor to improve extendability
