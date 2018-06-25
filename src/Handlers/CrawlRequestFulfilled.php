@@ -3,10 +3,10 @@
 namespace Spatie\Crawler\Handlers;
 
 use Spatie\Crawler\Crawler;
-use Spatie\Crawler\CrawlerRobots;
-use Spatie\Crawler\CrawlSubdomains;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\LinkAdder;
+use Spatie\Crawler\CrawlerRobots;
+use Spatie\Crawler\CrawlSubdomains;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\ResponseInterface;
 
