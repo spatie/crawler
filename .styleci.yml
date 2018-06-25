@@ -1,1 +1,4 @@
 preset: laravel
+
+disabled:
+  - self_accessor

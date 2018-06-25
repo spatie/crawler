@@ -16,6 +16,7 @@ use Spatie\Crawler\CrawlQueue\CrawlQueue;
 use Spatie\Crawler\Handlers\CrawlRequestFailed;
 use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
+use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
 
 class Crawler
 {
@@ -64,6 +65,13 @@ class Crawler
     /** @var \Spatie\Robots\RobotsTxt */
     protected $robotsTxt = null;
 
+    /** @var string */
+    protected $crawlRequestFulfilledClass;
+
+    /** @var string */
+    protected $crawlRequestFailedClass;
+
+    /** @var   */
     protected static $defaultClientOptions = [
         RequestOptions::COOKIES => true,
         RequestOptions::CONNECT_TIMEOUT => 10,
@@ -71,12 +79,7 @@ class Crawler
         RequestOptions::ALLOW_REDIRECTS => false,
     ];
 
-    /**
-     * @param array $clientOptions
-     *
-     * @return static
-     */
-    public static function create(array $clientOptions = [])
+    public static function create(array $clientOptions = []): Crawler
     {
         $clientOptions = (count($clientOptions))
             ? $clientOptions
@@ -98,16 +101,20 @@ class Crawler
         $this->crawlQueue = new CollectionCrawlQueue();
 
         $this->crawlObservers = new CrawlObserverCollection();
+
+        $this->crawlRequestFulfilledClass = CrawlRequestFulfilled::class;
+
+        $this->crawlRequestFailedClass = CrawlRequestFailed::class;
     }
 
-    public function setConcurrency(int $concurrency): self
+    public function setConcurrency(int $concurrency): Crawler
     {
         $this->concurrency = $concurrency;
 
         return $this;
     }
 
-    public function setMaximumResponseSize(int $maximumResponseSizeInBytes): self
+    public function setMaximumResponseSize(int $maximumResponseSizeInBytes): Crawler
     {
         $this->maximumResponseSize = $maximumResponseSizeInBytes;
 
@@ -119,7 +126,7 @@ class Crawler
         return $this->maximumResponseSize;
     }
 
-    public function setMaximumCrawlCount(int $maximumCrawlCount): self
+    public function setMaximumCrawlCount(int $maximumCrawlCount): Crawler
     {
         $this->maximumCrawlCount = $maximumCrawlCount;
 
@@ -136,7 +143,7 @@ class Crawler
         return $this->crawledUrlCount;
     }
 
-    public function setMaximumDepth(int $maximumDepth): self
+    public function setMaximumDepth(int $maximumDepth): Crawler
     {
         $this->maximumDepth = $maximumDepth;
 
@@ -148,14 +155,14 @@ class Crawler
         return $this->maximumDepth;
     }
 
-    public function ignoreRobots(): self
+    public function ignoreRobots(): Crawler
     {
         $this->respectRobots = false;
 
         return $this;
     }
 
-    public function respectRobots(): self
+    public function respectRobots(): Crawler
     {
         $this->respectRobots = true;
 
@@ -172,7 +179,7 @@ class Crawler
         return $this->robotsTxt;
     }
 
-    public function setCrawlQueue(CrawlQueue $crawlQueue): self
+    public function setCrawlQueue(CrawlQueue $crawlQueue): Crawler
     {
         $this->crawlQueue = $crawlQueue;
 
@@ -184,14 +191,14 @@ class Crawler
         return $this->crawlQueue;
     }
 
-    public function executeJavaScript(): self
+    public function executeJavaScript(): Crawler
     {
         $this->executeJavaScript = true;
 
         return $this;
     }
 
-    public function doNotExecuteJavaScript(): self
+    public function doNotExecuteJavaScript(): Crawler
     {
         $this->executeJavaScript = false;
 
@@ -208,7 +215,7 @@ class Crawler
      *
      * @return $this
      */
-    public function setCrawlObserver($crawlObservers): self
+    public function setCrawlObserver($crawlObservers): Crawler
     {
         if (! is_array($crawlObservers)) {
             $crawlObservers = [$crawlObservers];
@@ -217,14 +224,14 @@ class Crawler
         return $this->setCrawlObservers($crawlObservers);
     }
 
-    public function setCrawlObservers(array $crawlObservers): self
+    public function setCrawlObservers(array $crawlObservers): Crawler
     {
         $this->crawlObservers = new CrawlObserverCollection($crawlObservers);
 
         return $this;
     }
 
-    public function addCrawlObserver(CrawlObserver $crawlObserver): self
+    public function addCrawlObserver(CrawlObserver $crawlObserver): Crawler
     {
         $this->crawlObservers->addObserver($crawlObserver);
 
@@ -236,7 +243,7 @@ class Crawler
         return $this->crawlObservers;
     }
 
-    public function setCrawlProfile(CrawlProfile $crawlProfile): self
+    public function setCrawlProfile(CrawlProfile $crawlProfile): Crawler
     {
         $this->crawlProfile = $crawlProfile;
 
@@ -246,6 +253,32 @@ class Crawler
     public function getCrawlProfile(): CrawlProfile
     {
         return $this->crawlProfile;
+    }
+
+    public function setCrawlFulfilledHandlerClass(string $crawlRequestFulfilledClass): Crawler
+    {
+        $baseClass = CrawlRequestFulfilled::class;
+
+        if (! is_subclass_of($crawlRequestFulfilledClass, $baseClass)) {
+            throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($crawlRequestFulfilledClass, $baseClass);
+        }
+
+        $this->crawlRequestFulfilledClass = $crawlRequestFulfilledClass;
+
+        return $this;
+    }
+
+    public function setCrawlFailedHandlerClass(string $crawlRequestFailedClass): Crawler
+    {
+        $baseClass = CrawlRequestFailed::class;
+
+        if (! is_subclass_of($crawlRequestFailedClass, $baseClass)) {
+            throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($crawlRequestFailedClass, $baseClass);
+        }
+
+        $this->crawlRequestFailedClass = $crawlRequestFailedClass;
+
+        return $this;
     }
 
     public function setBrowsershot(Browsershot $browsershot)
@@ -338,8 +371,8 @@ class Crawler
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
                 'options' => $this->client->getConfig(),
-                'fulfilled' => new CrawlRequestFulfilled($this),
-                'rejected' => new CrawlRequestFailed($this),
+                'fulfilled' => new $this->crawlRequestFulfilledClass($this),
+                'rejected' => new $this->crawlRequestFailedClass($this),
             ]);
 
             $promise = $pool->promise();
@@ -384,7 +417,7 @@ class Crawler
         }
     }
 
-    public function addToCrawlQueue(CrawlUrl $crawlUrl): self
+    public function addToCrawlQueue(CrawlUrl $crawlUrl): Crawler
     {
         if (! $this->getCrawlProfile()->shouldCrawl($crawlUrl->url)) {
             return $this;

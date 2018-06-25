@@ -2,6 +2,7 @@
 
 namespace Spatie\Crawler\Test;
 
+use stdClass;
 use GuzzleHttp\Psr7\Uri;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
@@ -9,6 +10,7 @@ use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\CrawlSubdomains;
 use Spatie\Crawler\CrawlInternalUrls;
+use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
 
 class CrawlerTest extends TestCase
 {
@@ -349,6 +351,18 @@ class CrawlerTest extends TestCase
             ->startCrawling('http://localhost:8080');
 
         $this->assertNotCrawled([['url' => 'http://localhost:8080/nofollow', 'foundOn' => 'http://localhost:8080/']]);
+    }
+
+    /** @test */
+    public function custom_crawl_request_handlers_must_extend_abstracts()
+    {
+        $this->expectException(InvalidCrawlRequestHandler::class);
+
+        Crawler::create()->setCrawlFulfilledHandlerClass(stdClass::class);
+
+        $this->expectException(InvalidCrawlRequestHandler::class);
+
+        Crawler::create()->setCrawlFailedHandlerClass(stdClass::class);
     }
 
     protected function regularUrls(): array
