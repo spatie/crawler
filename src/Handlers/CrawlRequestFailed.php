@@ -2,10 +2,10 @@
 
 namespace Spatie\Crawler\Handlers;
 
-use Spatie\Crawler\Crawler;
 use GuzzleHttp\Exception\RequestException;
+use Spatie\Crawler\Crawler;
 
-class CrawlRequestFailed
+abstract class CrawlRequestFailed
 {
     /** @var \Spatie\Crawler\Crawler */
     protected $crawler;
@@ -15,10 +15,5 @@ class CrawlRequestFailed
         $this->crawler = $crawler;
     }
 
-    public function __invoke(RequestException $exception, $index)
-    {
-        $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
-
-        $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception);
-    }
+    abstract public function __invoke(RequestException $exception, $index);
 }
