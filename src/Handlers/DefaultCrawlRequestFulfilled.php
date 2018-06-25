@@ -2,9 +2,9 @@
 
 namespace Spatie\Crawler\Handlers;
 
-use Psr\Http\Message\ResponseInterface;
 use Spatie\Crawler\CrawlerRobots;
 use Spatie\Crawler\CrawlSubdomains;
+use Psr\Http\Message\ResponseInterface;
 
 class DefaultCrawlRequestFulfilled extends CrawlRequestFulfilled
 {

@@ -2,8 +2,8 @@
 
 namespace Spatie\Crawler\Handlers;
 
-use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\Crawler;
+use GuzzleHttp\Exception\RequestException;
 
 abstract class CrawlRequestFailed
 {

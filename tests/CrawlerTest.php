@@ -2,19 +2,19 @@
 
 namespace Spatie\Crawler\Test;
 
-use GuzzleHttp\Exception\RequestException;
+use stdClass;
 use GuzzleHttp\Psr7\Uri;
-use Psr\Http\Message\ResponseInterface;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfile;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\CrawlSubdomains;
 use Spatie\Crawler\CrawlInternalUrls;
-use Spatie\Crawler\Exception\InvalidCrawlRequestHandlerException;
+use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\Handlers\CrawlRequestFailed;
 use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
-use stdClass;
+use Spatie\Crawler\Exception\InvalidCrawlRequestHandlerException;
 
 class CrawlerTest extends TestCase
 {
@@ -414,8 +414,8 @@ class CrawlerTest extends TestCase
     }
 }
 
-class MockCrawlRequestFulfilled extends CrawlRequestFulfilled {
-
+class MockCrawlRequestFulfilled extends CrawlRequestFulfilled
+{
     use HasStaticInvokableMock;
 
     public function __invoke(ResponseInterface $response, $index)
@@ -424,8 +424,8 @@ class MockCrawlRequestFulfilled extends CrawlRequestFulfilled {
     }
 }
 
-class MockCrawlRequestFailed extends CrawlRequestFailed {
-
+class MockCrawlRequestFailed extends CrawlRequestFailed
+{
     use HasStaticInvokableMock;
 
     public function __invoke(RequestException $exception, $index)
@@ -434,10 +434,8 @@ class MockCrawlRequestFailed extends CrawlRequestFailed {
     }
 }
 
-
-
-trait HasStaticInvokableMock {
-
+trait HasStaticInvokableMock
+{
     protected static $invokableMock;
 
     public static function setStaticInvokableMock(InvokableMock $invokableMock)
@@ -451,7 +449,8 @@ trait HasStaticInvokableMock {
     }
 }
 
-class InvokableMock {
+class InvokableMock
+{
     protected $invoked = false;
 
     public function setInvoked($invoked = true)
@@ -464,5 +463,3 @@ class InvokableMock {
         return $this->invoked;
     }
 }
-
-
