@@ -3,7 +3,7 @@
 namespace Spatie\Crawler;
 
 use Generator;
-use Spatie\Crawler\Exception\InvalidCrawlRequestHandlerException;
+use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
 use Spatie\Crawler\Handlers\CrawlRequestFailed;
 use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
 use Tree\Node\Node;
@@ -282,8 +282,10 @@ class Crawler
 
     public function setCrawlFulfilledHandlerClass(string $crawlRequestFulfilledClass): Crawler
     {
-        if (!is_subclass_of($crawlRequestFulfilledClass, $abstract = CrawlRequestFulfilled::class)) {
-            throw new InvalidCrawlRequestHandlerException("Fulfilled handler class must extend {$abstract}");
+        $baseClass = CrawlRequestFulfilled::class;
+
+        if (!is_subclass_of($crawlRequestFulfilledClass, $baseClass)) {
+            throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($crawlRequestFulfilledClass, $baseClass);
         }
 
         $this->crawlRequestFulfilledClass = $crawlRequestFulfilledClass;
@@ -299,8 +301,10 @@ class Crawler
 
     public function setCrawlFailedHandlerClass(string $crawlRequestFailedClass): Crawler
     {
-        if (!is_subclass_of($crawlRequestFailedClass, $abstract = CrawlRequestFailed::class)) {
-            throw new InvalidCrawlRequestHandlerException("Failed handler class must extend {$abstract}");
+        $baseClass = CrawlRequestFailed::class;
+
+        if (!is_subclass_of($crawlRequestFailedClass, $baseClass)) {
+            throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($crawlRequestFailedClass, $baseClass);
         }
 
         $this->crawlRequestFailedClass = $crawlRequestFailedClass;
