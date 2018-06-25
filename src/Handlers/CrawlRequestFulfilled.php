@@ -6,9 +6,11 @@ use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\LinkAdder;
 use Spatie\Crawler\CrawlerRobots;
+use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\CrawlSubdomains;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\ResponseInterface;
+use function GuzzleHttp\Psr7\stream_for;
 
 class CrawlRequestFulfilled
 {
@@ -34,6 +36,12 @@ class CrawlRequestFulfilled
         }
 
         $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
+
+        if ($this->crawler->mayExecuteJavaScript()) {
+            $html = $this->getBodyAfterExecutingJavaScript($crawlUrl->url);
+
+            $response = $response->withBody(stream_for($html));
+        }
 
         $this->handleCrawled($response, $crawlUrl);
 
@@ -64,5 +72,14 @@ class CrawlRequestFulfilled
         $body = $bodyStream->read($readMaximumBytes);
 
         return $body;
+    }
+
+    protected function getBodyAfterExecutingJavaScript(UriInterface $url): string
+    {
+        $browsershot = $this->crawler->getBrowsershot();
+
+        $html = $browsershot->setUrl((string) $url)->bodyHtml();
+
+        return html_entity_decode($html);
     }
 }

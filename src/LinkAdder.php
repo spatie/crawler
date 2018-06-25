@@ -57,10 +57,6 @@ class LinkAdder
      */
     protected function extractLinksFromHtml(string $html, UriInterface $foundOnUrl)
     {
-        if ($this->crawler->mayExecuteJavaScript()) {
-            $html = $this->getBodyAfterExecutingJavaScript($foundOnUrl);
-        }
-
         $domCrawler = new DomCrawler($html, $foundOnUrl);
 
         return collect($domCrawler->filterXpath('//a')->links())
@@ -100,14 +96,5 @@ class LinkAdder
         }
 
         return $node->getDepth() <= $maximumDepth;
-    }
-
-    protected function getBodyAfterExecutingJavaScript(UriInterface $foundOnUrl): string
-    {
-        $browsershot = $this->crawler->getBrowsershot();
-
-        $html = $browsershot->setUrl((string) $foundOnUrl)->bodyHtml();
-
-        return html_entity_decode($html);
     }
 }
