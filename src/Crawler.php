@@ -81,12 +81,7 @@ class Crawler
         RequestOptions::ALLOW_REDIRECTS => false,
     ];
 
-    /**
-     * @param array $clientOptions
-     *
-     * @return static
-     */
-    public static function create(array $clientOptions = [])
+    public static function create(array $clientOptions = []): Crawler
     {
         $clientOptions = (count($clientOptions))
             ? $clientOptions
