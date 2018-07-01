@@ -407,6 +407,8 @@ class Crawler
                 continue;
             }
 
+	$this->crawlQueue->markAsProcessed($crawlUrl);
+
             if ($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl)) {
                 continue;
             }
@@ -414,8 +416,6 @@ class Crawler
             foreach ($this->crawlObservers as $crawlObserver) {
                 $crawlObserver->willCrawl($crawlUrl->url);
             }
-
-            $this->crawlQueue->markAsProcessed($crawlUrl);
 
             yield $crawlUrl->getId() => new Request('GET', $crawlUrl->url);
         }
