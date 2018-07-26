@@ -31,7 +31,7 @@ class LinkAdder
                 return $this->normalizeUrl($url);
             })
             ->filter(function (UriInterface $url) use ($foundOnUrl) {
-                if (!$node = $this->crawler->addToDepthTree($url, $foundOnUrl)) {
+                if (! $node = $this->crawler->addToDepthTree($url, $foundOnUrl)) {
                     return false;
                 }
 
