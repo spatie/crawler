@@ -38,9 +38,6 @@ class Crawler
     /** @var \Spatie\Crawler\CrawlQueue\CrawlQueue */
     protected $crawlQueue;
 
-    /** @var int */
-    protected $crawledUrlCount = 0;
-
     /** @var int|null */
     protected $maximumCrawlCount = null;
 
@@ -140,7 +137,7 @@ class Crawler
 
     public function getCrawlerUrlCount(): int
     {
-        return $this->crawledUrlCount;
+        return $this->crawlQueue->count();
     }
 
     public function setMaximumDepth(int $maximumDepth): Crawler
@@ -430,8 +427,6 @@ class Crawler
         if ($this->getCrawlQueue()->has($crawlUrl->url)) {
             return $this;
         }
-
-        $this->crawledUrlCount++;
 
         $this->crawlQueue->add($crawlUrl);
 
