@@ -28,6 +28,28 @@ class CrawlQueueTest extends TestCase
     }
 
     /** @test */
+    public function it_can_give_a_count_of_the_urls_stored()
+    {
+        $this->assertEquals(0, $this->crawlQueue->count());
+
+        $crawlUrl = $this->createCrawlUrl('https://example.com');
+        $this->crawlQueue->add($crawlUrl);
+
+        $this->assertEquals(1, $this->crawlQueue->count());
+
+        $crawlUrl = $this->createCrawlUrl('https://example1.com');
+        $this->crawlQueue->add($crawlUrl);
+
+        $this->assertEquals(2, $this->crawlQueue->count());
+
+        // Checks it doesn't count duplicates
+        $crawlUrl = $this->createCrawlUrl('https://example1.com');
+        $this->crawlQueue->add($crawlUrl);
+
+        $this->assertEquals(2, $this->crawlQueue->count());
+    }
+
+    /** @test */
     public function it_can_determine_if_there_are_pending_urls()
     {
         $this->assertFalse($this->crawlQueue->hasPendingUrls());

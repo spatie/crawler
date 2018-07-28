@@ -90,6 +90,11 @@ class CollectionCrawlQueue implements CrawlQueue
         return $this->pendingUrls->first();
     }
 
+    public function count(): int
+    {
+        return $this->urls->count();
+    }
+
     /**
      * @param \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection $collection
      * @param \Spatie\Crawler\CrawlUrl                                             $searchCrawlUrl
