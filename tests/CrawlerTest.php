@@ -354,6 +354,28 @@ class CrawlerTest extends TestCase
     }
 
     /** @test */
+    public function it_respects_the_requested_delay_between_requests()
+    {
+        $baseUrl = 'http://localhost:8080';
+
+        $start = time();
+
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->setMaximumDepth(2)
+            ->setDelayBetweenRequests(500) // 500ms
+            ->setCrawlProfile(new CrawlSubdomains($baseUrl))
+            ->startCrawling($baseUrl);
+
+        $end = time();
+
+        $diff = $end - $start;
+
+        // At 500ms delay per URL, crawling 8 URLs should take at least 4 seconds.
+        $this->assertGreaterThan(4, $diff);
+    }
+
+    /** @test */
     public function custom_crawl_request_handlers_must_extend_abstracts()
     {
         $this->expectException(InvalidCrawlRequestHandler::class);

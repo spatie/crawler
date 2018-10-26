@@ -71,6 +71,9 @@ class Crawler
     /** @var string */
     protected $crawlRequestFailedClass;
 
+    /** @var float */
+    protected $delayBetweenRequests = 0;
+
     /** @var   */
     protected static $defaultClientOptions = [
         RequestOptions::COOKIES => true,
@@ -153,6 +156,18 @@ class Crawler
     public function getMaximumDepth(): ?int
     {
         return $this->maximumDepth;
+    }
+
+    public function setDelayBetweenRequests(int $delay): Crawler
+    {
+        $this->delayBetweenRequests = ($delay * 1000);
+
+        return $this;
+    }
+
+    public function getDelayBetweenRequests(): float
+    {
+        return $this->delayBetweenRequests;
     }
 
     public function ignoreRobots(): Crawler
