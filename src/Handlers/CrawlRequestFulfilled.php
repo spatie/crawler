@@ -59,7 +59,7 @@ class CrawlRequestFulfilled
 
         $this->linkAdder->addFromHtml($body, $crawlUrl->url);
 
-        usleep ($this->crawler->getDelayBetweenRequests());
+        usleep($this->crawler->getDelayBetweenRequests());
     }
 
     protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)
