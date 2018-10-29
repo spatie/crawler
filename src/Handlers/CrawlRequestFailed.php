@@ -20,5 +20,7 @@ class CrawlRequestFailed
         $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
         $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception);
+
+        usleep($this->crawler->getDelayBetweenRequests());
     }
 }

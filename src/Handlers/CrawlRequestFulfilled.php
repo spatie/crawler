@@ -58,6 +58,8 @@ class CrawlRequestFulfilled
         $body = $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
 
         $this->linkAdder->addFromHtml($body, $crawlUrl->url);
+
+        usleep($this->crawler->getDelayBetweenRequests());
     }
 
     protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)

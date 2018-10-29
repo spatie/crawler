@@ -211,6 +211,15 @@ Crawler::create()
     ->setMaximumResponseSize(1024 * 1024 * 3)
 ```
 
+## Add a delay between requests
+
+In some cases you might get rate-limited when crawling too agressively. To circumvent this, you can use the `setDelayBetweenRequests()` method to add a pauze between every request. This value is expressed in miliseconds.
+
+```php
+Crawler::create()
+    ->setDelayBetweenRequests(150) // After every page crawled, the crawler will wait for 150ms
+```
+
 ## Using a custom crawl queue
 
 When crawling a site the crawler will put urls to be crawled in a queue. By default, this queue is stored in memory using the built-in `CollectionCrawlQueue`.
