@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.2.0 - 2018-10-31
+
+- add `setDelayBetweenRequests`
+
 ## 4.1.7 - 2018-07-27
 
 - fix an issue where the node in the depthtree could be null
