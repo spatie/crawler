@@ -450,6 +450,9 @@ class Crawler
 
     protected function getCrawlRequests(): Generator
     {
+        $poolItemLimit = $this->clientConfig['crawl_pool_item_limit'];
+        $crawledUrlCount = 0;
+
         while ($crawlUrl = $this->crawlQueue->getFirstPendingUrl()) {
             if (! $this->crawlProfile->shouldCrawl($crawlUrl->url)) {
                 $this->crawlQueue->markAsProcessed($crawlUrl);
@@ -460,9 +463,15 @@ class Crawler
                 continue;
             }
 
+            if ($poolItemLimit && $poolItemLimit >= $crawledUrlCount) {
+                break;
+            }
+
             foreach ($this->crawlObservers as $crawlObserver) {
                 $crawlObserver->willCrawl($crawlUrl->url);
             }
+
+            $crawledUrlCount++;
 
             $this->crawlQueue->markAsProcessed($crawlUrl);
 
