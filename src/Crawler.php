@@ -82,6 +82,15 @@ class Crawler
         RequestOptions::ALLOW_REDIRECTS => false,
     ];
 
+    /** @var */
+    protected $clientConfig = null;
+
+    /** @var bool */
+    protected $usingProxies = false;
+
+    /** @var */
+    protected $proxies;
+
     public static function create(array $clientOptions = []): Crawler
     {
         $clientOptions = (count($clientOptions))
@@ -389,7 +398,7 @@ class Crawler
         while ($this->crawlQueue->hasPendingUrls()) {
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
-                'options' => $this->client->getConfig(),
+                'options' => $this->usingProxies ? $this->getProxyConfig() : $this->client->getConfig(),
                 'fulfilled' => new $this->crawlRequestFulfilledClass($this),
                 'rejected' => new $this->crawlRequestFailedClass($this),
             ]);
@@ -398,6 +407,31 @@ class Crawler
 
             $promise->wait();
         }
+    }
+
+    public function setClientConfig(array $config)
+    {
+        $this->clientConfig = $config;
+
+        if (array_key_exists('proxy_ips', $this->clientConfig)) {
+            $this->usingProxies = true;
+        }
+
+        return $this;
+    }
+
+    protected function getProxyConfig()
+    {
+        $this->proxies = collect($this->clientConfig['proxy_ips']);
+        $username = $this->clientConfig['proxy_username'];
+        $password = $this->clientConfig['proxy_password'];
+        $port = $this->clientConfig['proxy_port'];
+
+        $proxyIp = $this->proxies->random();
+
+        $proxy = "https://{$username}:{$password}@{$proxyIp}:{$port}";
+
+        return $this->client->getConfig(['proxy' => $proxy]);
     }
 
     /**
