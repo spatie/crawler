@@ -83,7 +83,7 @@ class Crawler
     ];
 
     /** @var */
-    protected $clientConfig = null;
+    protected $config = null;
 
     /** @var bool */
     protected $usingProxies = false;
@@ -398,7 +398,7 @@ class Crawler
         while ($this->crawlQueue->hasPendingUrls()) {
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
-                'options' => $this->clientConfig ? $this->getConfig() : $this->client->getConfig(),
+                'options' => $this->usingProxies ? $this->getProxyConfig() : $this->client->getConfig(),
                 'fulfilled' => new $this->crawlRequestFulfilledClass($this),
                 'rejected' => new $this->crawlRequestFailedClass($this),
             ]);
@@ -409,46 +409,29 @@ class Crawler
         }
     }
 
-    public function setClientConfig(array $config)
+    public function setProxies(array $config)
     {
-        $this->clientConfig = $config;
+        $this->config = $config;
 
-        if (array_key_exists('proxy_ips', $this->clientConfig)) {
+        if (array_key_exists('proxy_ips', $this->config)) {
             $this->usingProxies = true;
         }
 
         return $this;
     }
 
-    protected function getConfig()
+    protected function getProxyConfig()
     {
-        $options = [
-            'proxy' => $this->usingProxies ? $this->getProxy() : null,
-            'timeout' => $this->getPoolTimeout() ?? null,
-        ];
-
-        return $this->client->getConfig($options);
-    }
-
-    protected function getPoolTimeout()
-    {
-        if (array_key_exists('pool_timeout', $this->clientConfig)) {
-            return $this->clientConfig['pool_timeout'];
-        }
-
-        return null;
-    }
-
-    protected function getProxy()
-    {
-        $this->proxies = collect($this->clientConfig['proxy_ips']);
-        $username = $this->clientConfig['proxy_username'];
-        $password = $this->clientConfig['proxy_password'];
-        $port = $this->clientConfig['proxy_port'];
+        $this->proxies = collect($this->config['proxy_ips']);
+        $username = $this->config['proxy_username'];
+        $password = $this->config['proxy_password'];
+        $port = $this->config['proxy_port'];
 
         $proxyIp = $this->proxies->random();
 
-        return "https://{$username}:{$password}@{$proxyIp}:{$port}";
+        $proxy = "https://{$username}:{$password}@{$proxyIp}:{$port}";
+
+        return $this->client->getConfig(['proxy' => $proxy]);
     }
 
     /**
@@ -467,7 +450,7 @@ class Crawler
 
     protected function getCrawlRequests(): Generator
     {
-        $poolItemLimit = $this->clientConfig['crawl_pool_item_limit'];
+        $poolItemLimit = $this->config['crawl_pool_item_limit'];
         $crawledUrlCount = 0;
 
         while ($crawlUrl = $this->crawlQueue->getFirstPendingUrl()) {
