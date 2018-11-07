@@ -444,7 +444,7 @@ class Crawler
         
         $proxyIp = $ips->random();
 
-        return "tcp://{$username}:{$password}@{$proxyIp}:{$port}";
+        return "http://{$username}:{$password}@{$proxyIp}:{$port}";
     }
 
     /**
