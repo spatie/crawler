@@ -476,7 +476,7 @@ class Crawler
                 continue;
             }
 
-            if ($poolItemLimit && $poolItemLimit >= $crawledUrlCount) {
+            if ($poolItemLimit && $poolItemLimit <= $crawledUrlCount) {
                 break;
             }
 
