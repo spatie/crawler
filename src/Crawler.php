@@ -335,6 +335,14 @@ class Crawler
         return $this->baseUrl;
     }
 
+    public function setProxies(array $proxyConfig)
+    {
+        $this->proxyConfig = $proxyConfig;
+        $this->usingProxies = true;
+        
+        return $this;
+    }
+
     /**
      * @param \Psr\Http\Message\UriInterface|string $baseUrl
      */
@@ -416,14 +424,6 @@ class Crawler
 
             $promise->wait();
         }
-    }
-
-    public function setProxies(array $proxyConfig)
-    {
-        $this->proxyConfig = $proxyConfig;
-        $this->usingProxies = true;
-
-        return $this;
     }
 
     protected function getConfig()
