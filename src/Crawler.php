@@ -50,6 +50,9 @@ class Crawler
     /** @var int|null */
     protected $maximumDepth = null;
 
+    /** @var int|null */
+    protected $poolItemLimit = null;
+
     /** @var bool */
     protected $respectRobots = true;
 
