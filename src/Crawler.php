@@ -342,7 +342,6 @@ class Crawler
     {
         $this->proxyConfig = $proxyConfig;
         $this->usingProxies = true;
-
         return $this;
     }
 
