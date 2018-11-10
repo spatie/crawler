@@ -342,7 +342,7 @@ class Crawler
     {
         $this->proxyConfig = $proxyConfig;
         $this->usingProxies = true;
-        
+
         return $this;
     }
 
@@ -444,7 +444,6 @@ class Crawler
         $username = $this->proxyConfig['username'];
         $password = $this->proxyConfig['password'];
         $port = $this->proxyConfig['port'];
-        
         $proxyIp = $ips->random();
 
         return "http://{$username}:{$password}@{$proxyIp}:{$port}";
