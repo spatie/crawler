@@ -61,7 +61,7 @@ class LinkAdder
     {
         $domCrawler = new DomCrawler($html, $foundOnUrl);
 
-        return collect($domCrawler->filterXpath('//a')->links())
+        return collect($domCrawler->filterXpath('//a | //link[@rel="next" or @rel="prev"]')->links())
             ->reject(function (Link $link) {
                 return $link->getNode()->getAttribute('rel') === 'nofollow';
             })

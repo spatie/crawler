@@ -392,6 +392,8 @@ class CrawlerTest extends TestCase
         return [
             ['url' => 'http://localhost:8080/'],
             ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link1-prev', 'foundOn' => 'http://localhost:8080/link1'],
+            ['url' => 'http://localhost:8080/link1-next', 'foundOn' => 'http://localhost:8080/link1'],
             ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
             ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
             ['url' => 'http://localhost:8080/notExists', 'foundOn' => 'http://localhost:8080/link3'],
