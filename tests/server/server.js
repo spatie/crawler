@@ -7,7 +7,7 @@ app.get('/', function (request, response) {
 });
 
 app.get('/link1', function (request, response) {
-    response.end('<html><head></head><link rel="next" href="/link1-next"><link rel="prev" href="/link1-prev"></head><body><script>var url = \'/javascript\';document.body.innerHTML = document.body.innerHTML + "<a href=\'" + url + "\'>Javascript Link</a>"</script>You are on link1<a href="http://example.com/">External Link</a></body></html>');
+    response.end('<html><head><link rel="next" href="/link1-next"><link rel="prev" href="/link1-prev"></head><body><script>var url = \'/javascript\';document.body.innerHTML = document.body.innerHTML + "<a href=\'" + url + "\'>Javascript Link</a>"</script>You are on link1<a href="http://example.com/">External Link</a></body></html>');
 });
 
 app.get('/javascript', function (request, response) {
