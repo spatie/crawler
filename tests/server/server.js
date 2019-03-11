@@ -7,11 +7,19 @@ app.get('/', function (request, response) {
 });
 
 app.get('/link1', function (request, response) {
-    response.end('<html><body><script>var url = \'/javascript\';document.body.innerHTML = document.body.innerHTML + "<a href=\'" + url + "\'>Javascript Link</a>"</script>You are on link1<a href="http://example.com/">External Link</a></body></html>');
+    response.end('<html><head><link rel="next" href="/link1-next"><link rel="prev" href="/link1-prev"></head><body><script>var url = \'/javascript\';document.body.innerHTML = document.body.innerHTML + "<a href=\'" + url + "\'>Javascript Link</a>"</script>You are on link1<a href="http://example.com/">External Link</a></body></html>');
 });
 
 app.get('/javascript', function (request, response) {
     response.end('This page can only be reached if JavaScript is being executed');
+});
+
+app.get('/link1-next', function (request, response) {
+    response.end('You are on link1-next. Next page of link1');
+});
+
+app.get('/link1-prev', function (request, response) {
+    response.end('You are on link1-prev. Previous page of link1');
 });
 
 app.get('/nofollow', function (request, response) {
