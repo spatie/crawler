@@ -2,7 +2,6 @@
 
 namespace Spatie\Crawler;
 
-use Tree\Node\Node;
 use GuzzleHttp\Psr7\Uri;
 use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
@@ -31,11 +30,9 @@ class LinkAdder
                 return $this->normalizeUrl($url);
             })
             ->filter(function (UriInterface $url) use ($foundOnUrl) {
-                if (! $node = $this->crawler->addToDepthTree($url, $foundOnUrl)) {
-                    return false;
-                }
+                $depth = $this->crawler->addToDepthArray($url, $foundOnUrl);
 
-                return $this->shouldCrawl($node);
+                return $this->shouldCrawl($url, $depth);
             })
             ->filter(function (UriInterface $url) {
                 return strpos($url->getPath(), '/tel:') === false;
@@ -85,9 +82,9 @@ class LinkAdder
         return $url->withFragment('');
     }
 
-    protected function shouldCrawl(Node $node): bool
+    protected function shouldCrawl(UriInterface $url, int $depth): bool
     {
-        if ($this->crawler->mustRespectRobots() && ! $this->crawler->getRobotsTxt()->allows($node->getValue())) {
+        if ($this->crawler->mustRespectRobots() && ! $this->crawler->getRobotsTxt()->allows((string) $url)) {
             return false;
         }
 
@@ -97,6 +94,6 @@ class LinkAdder
             return true;
         }
 
-        return $node->getDepth() <= $maximumDepth;
+        return $depth <= $maximumDepth;
     }
 }
