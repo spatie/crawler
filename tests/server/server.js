@@ -55,11 +55,11 @@ app.get('/txt-disallow', function (request, response) {
 });
 
 app.get('/meta-follow', function (request, response) {
-    response.end('<html><head><meta name="robots" content="noindex, follow"></head><body><a href="/meta-nofollow">No follow</a></body></html>');
+    response.end('<html><head>\n<meta name="robots" content="noindex, follow">\n</head><body><a href="/meta-nofollow">No follow</a></body></html>');
 });
 
 app.get('/meta-nofollow', function (request, response) {
-    response.end('<html><head><meta name="robots" content="index, nofollow"></head><body><a href="//meta-nofollow-target">no follow it</a></body></html>');
+    response.end('<html><head>\n<meta name="robots" content="index, nofollow">\n</head><body><a href="/meta-nofollow-target">no follow it</a></body></html>');
 });
 
 app.get('/meta-nofollow-target', function (request, response) {

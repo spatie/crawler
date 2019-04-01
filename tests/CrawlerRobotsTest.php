@@ -49,7 +49,7 @@ class CrawlerRobotsTest extends TestCase
         $this->createCrawler()
             ->startCrawling('http://localhost:8080');
 
-        $this->assertCrawledOnce([['url' => 'http://localhost:8080/meta-nofollow', 'foundOn' => 'http://localhost:8080/']]);
+        $this->assertCrawledOnce([['url' => 'http://localhost:8080/meta-nofollow', 'foundOn' => 'http://localhost:8080/meta-follow']]);
     }
 
     /** @test */
@@ -59,7 +59,32 @@ class CrawlerRobotsTest extends TestCase
             ->ignoreRobots()
             ->startCrawling('http://localhost:8080');
 
-        $this->assertCrawledOnce([['url' => 'http://localhost:8080/meta-nofollow-target', 'foundOn' => 'http://localhost:8080/']]);
+        $this->assertCrawledOnce([['url' => 'http://localhost:8080/meta-nofollow-target', 'foundOn' => 'http://localhost:8080/meta-nofollow']]);
+    }
+
+    /** @test */
+    public function it_should_not_index_robots_meta_noindex()
+    {
+        $this->createCrawler()
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce([['url' => 'http://localhost:8080/meta-nofollow', 'foundOn' => 'http://localhost:8080/meta-follow']]);
+
+        $this->assertNotCrawled([
+            ['url' => 'http://localhost:8080/meta-follow']
+        ]);
+    }
+
+    /** @test */
+    public function it_should_index_robots_meta_noindex_when_robots_are_ignored()
+    {
+        $this->createCrawler()
+            ->ignoreRobots()
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce([
+            ['url' => 'http://localhost:8080/meta-follow', 'foundOn' => 'http://localhost:8080/']
+        ]);
     }
 
     /** @test */
@@ -84,7 +109,7 @@ class CrawlerRobotsTest extends TestCase
     private function createCrawler(): Crawler
     {
         return Crawler::create()
-            ->setMaximumDepth(1)
+            ->setMaximumDepth(3)
             ->setCrawlObserver(new CrawlLogger());
     }
 }
