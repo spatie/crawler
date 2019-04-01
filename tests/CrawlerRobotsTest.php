@@ -112,4 +112,28 @@ class CrawlerRobotsTest extends TestCase
             ->setMaximumDepth(3)
             ->setCrawlObserver(new CrawlLogger());
     }
+
+    /** @test */
+    public function it_should_check_depth_when_respecting_robots()
+    {
+        Crawler::create()
+            ->respectRobots()
+            ->setMaximumDepth(1)
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertNotCrawled([['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2']]);
+    }
+
+    /** @test */
+    public function it_should_check_depth_when_ignoring_robots()
+    {
+        Crawler::create()
+            ->ignoreRobots()
+            ->setMaximumDepth(1)
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertNotCrawled([['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2']]);
+    }
 }
