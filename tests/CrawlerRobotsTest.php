@@ -71,7 +71,7 @@ class CrawlerRobotsTest extends TestCase
         $this->assertCrawledOnce([['url' => 'http://localhost:8080/meta-nofollow', 'foundOn' => 'http://localhost:8080/meta-follow']]);
 
         $this->assertNotCrawled([
-            ['url' => 'http://localhost:8080/meta-follow']
+            ['url' => 'http://localhost:8080/meta-follow'],
         ]);
     }
 
@@ -83,7 +83,7 @@ class CrawlerRobotsTest extends TestCase
             ->startCrawling('http://localhost:8080');
 
         $this->assertCrawledOnce([
-            ['url' => 'http://localhost:8080/meta-follow', 'foundOn' => 'http://localhost:8080/']
+            ['url' => 'http://localhost:8080/meta-follow', 'foundOn' => 'http://localhost:8080/'],
         ]);
     }
 

@@ -31,10 +31,6 @@ class CrawlRequestFulfilled
     {
         $robots = new CrawlerRobots($response, $this->crawler->mustRespectRobots());
 
-        if (! $robots->mayIndex()) {
-            return;
-        }
-
         $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
         if ($this->crawler->mayExecuteJavaScript()) {
@@ -43,7 +39,9 @@ class CrawlRequestFulfilled
             $response = $response->withBody(stream_for($html));
         }
 
-        $this->handleCrawled($response, $crawlUrl);
+        if ($robots->mayIndex()) {
+            $this->handleCrawled($response, $crawlUrl);
+        }
 
         if (! $this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
             if ($crawlUrl->url->getHost() !== $this->crawler->getBaseUrl()->getHost()) {
