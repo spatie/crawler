@@ -44,22 +44,22 @@ class CrawlerRobotsTest extends TestCase
     }
 
     /** @test */
-    public function it_should_not_follow_robots_meta_disallowed_links()
+    public function it_should_follow_robots_meta_follow_links()
     {
         $this->createCrawler()
             ->startCrawling('http://localhost:8080');
 
-        $this->assertNotCrawled([['url' => 'http://localhost:8080/meta-disallow', 'foundOn' => 'http://localhost:8080/']]);
+        $this->assertCrawledOnce([['url' => 'http://localhost:8080/meta-nofollow', 'foundOn' => 'http://localhost:8080/']]);
     }
 
     /** @test */
-    public function it_should_follow_robots_meta_disallowed_links_when_robots_are_ignored()
+    public function it_should_follow_robots_meta_nofollow_links_when_robots_are_ignored()
     {
         $this->createCrawler()
             ->ignoreRobots()
             ->startCrawling('http://localhost:8080');
 
-        $this->assertCrawledOnce([['url' => 'http://localhost:8080/meta-disallow', 'foundOn' => 'http://localhost:8080/']]);
+        $this->assertCrawledOnce([['url' => 'http://localhost:8080/meta-nofollow-target', 'foundOn' => 'http://localhost:8080/']]);
     }
 
     /** @test */

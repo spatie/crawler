@@ -3,7 +3,7 @@
 let app = require('express')();
 
 app.get('/', function (request, response) {
-    response.end('<a href="/txt-disallow">txt disallowed</a><a href="/meta-disallow">meta disallowed</a><a href="/header-disallow">header disallowed</a><a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a><a href="tel:123">Telephone</a><a href="/nofollow" rel="nofollow">No follow</a>');
+    response.end('<a href="/txt-disallow">txt disallowed</a><a href="/meta-follow">meta disallowed</a><a href="/header-disallow">header disallowed</a><a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a><a href="tel:123">Telephone</a><a href="/nofollow" rel="nofollow">No follow</a>');
 });
 
 app.get('/link1', function (request, response) {
@@ -54,8 +54,16 @@ app.get('/txt-disallow', function (request, response) {
     response.end('Not allowed');
 });
 
-app.get('/meta-disallow', function (request, response) {
-    response.end('<meta name="robots" content="noindex, follow">');
+app.get('/meta-follow', function (request, response) {
+    response.end('<html><head><meta name="robots" content="noindex, follow"></head><body><a href="/meta-nofollow">No follow</a></body></html>');
+});
+
+app.get('/meta-nofollow', function (request, response) {
+    response.end('<html><head><meta name="robots" content="index, nofollow"></head><body><a href="//meta-nofollow-target">no follow it</a></body></html>');
+});
+
+app.get('/meta-nofollow-target', function (request, response) {
+    response.end('No followable');
 });
 
 app.get('/header-disallow', function (request, response) {
