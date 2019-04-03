@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.3.1 - 2019-04-03
+
+- Properly handle `noindex,follow` urls.
+
 ## 4.3.0 - 2019-03-11
 
 - added capability of crawling links with rel= next or prev
