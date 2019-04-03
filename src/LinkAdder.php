@@ -88,7 +88,9 @@ class LinkAdder
     protected function shouldCrawl(Node $node): bool
     {
         if ($this->crawler->mustRespectRobots()) {
-            return $this->crawler->getRobotsTxt()->allows($node->getValue());
+            if (! $this->crawler->getRobotsTxt()->allows($node->getValue())) {
+                return false;
+            }
         }
 
         $maximumDepth = $this->crawler->getMaximumDepth();
