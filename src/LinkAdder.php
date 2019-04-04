@@ -2,12 +2,12 @@
 
 namespace Spatie\Crawler;
 
-use Tree\Node\Node;
 use GuzzleHttp\Psr7\Uri;
 use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
-use Symfony\Component\DomCrawler\Link;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
+use Symfony\Component\DomCrawler\Link;
+use Tree\Node\Node;
 
 class LinkAdder
 {
@@ -87,10 +87,8 @@ class LinkAdder
 
     protected function shouldCrawl(Node $node): bool
     {
-        if ($this->crawler->mustRespectRobots()) {
-            if (! $this->crawler->getRobotsTxt()->allows($node->getValue())) {
-                return false;
-            }
+        if ($this->crawler->mustRespectRobots() && !$this->crawler->getRobotsTxt()->allows($node->getValue())) {
+            return false;
         }
 
         $maximumDepth = $this->crawler->getMaximumDepth();
