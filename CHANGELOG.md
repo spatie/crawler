@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.3.2 - 2019-04-04
+
+- Respect maximumDepth in combination with robots (#181) 
+
 ## 4.3.1 - 2019-04-03
 
 - Properly handle `noindex,follow` urls.
