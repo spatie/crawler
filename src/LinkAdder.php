@@ -84,10 +84,8 @@ class LinkAdder
 
     protected function shouldCrawl(UriInterface $url, int $depth): bool
     {
-        if ($this->crawler->mustRespectRobots() &&
-            ! $this->crawler->getRobotsTxt()->allows((string) $url)
-        ) {
-            return false;
+        if ($this->crawler->mustRespectRobots()) {
+            return $this->crawler->getRobotsTxt()->allows((string) $url);
         }
 
         $maximumDepth = $this->crawler->getMaximumDepth();
