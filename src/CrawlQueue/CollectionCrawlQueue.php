@@ -19,6 +19,16 @@ class CollectionCrawlQueue implements CrawlQueue
 
         $this->pendingUrls = collect();
     }
+    
+    public function getUrls()
+    {
+        return $this->urls;
+    }
+
+    public function getPendingUrls()
+    {
+        return $this->pendingUrls;
+    }
 
     public function add(CrawlUrl $url): CrawlQueue
     {
