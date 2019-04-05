@@ -2,6 +2,22 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.4.0 - 2019-04-05
+
+- add `getUrls` and `getPendingUrls`
+
+## 4.3.2 - 2019-04-04
+
+- Respect maximumDepth in combination with robots (#181) 
+
+## 4.3.1 - 2019-04-03
+
+- Properly handle `noindex,follow` urls.
+
+## 4.3.0 - 2019-03-11
+
+- added capability of crawling links with rel= next or prev
+
 ## 4.2.0 - 2018-10-31
 
 - add `setDelayBetweenRequests`

@@ -3,15 +3,23 @@
 let app = require('express')();
 
 app.get('/', function (request, response) {
-    response.end('<a href="/txt-disallow">txt disallowed</a><a href="/meta-disallow">meta disallowed</a><a href="/header-disallow">header disallowed</a><a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a><a href="tel:123">Telephone</a><a href="/nofollow" rel="nofollow">No follow</a>');
+    response.end('<a href="/txt-disallow">txt disallowed</a><a href="/meta-follow">meta disallowed</a><a href="/header-disallow">header disallowed</a><a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a><a href="tel:123">Telephone</a><a href="/nofollow" rel="nofollow">No follow</a>');
 });
 
 app.get('/link1', function (request, response) {
-    response.end('<html><body><script>var url = \'/javascript\';document.body.innerHTML = document.body.innerHTML + "<a href=\'" + url + "\'>Javascript Link</a>"</script>You are on link1<a href="http://example.com/">External Link</a></body></html>');
+    response.end('<html><head><link rel="next" href="/link1-next"><link rel="prev" href="/link1-prev"></head><body><script>var url = \'/javascript\';document.body.innerHTML = document.body.innerHTML + "<a href=\'" + url + "\'>Javascript Link</a>"</script>You are on link1<a href="http://example.com/">External Link</a></body></html>');
 });
 
 app.get('/javascript', function (request, response) {
     response.end('This page can only be reached if JavaScript is being executed');
+});
+
+app.get('/link1-next', function (request, response) {
+    response.end('You are on link1-next. Next page of link1');
+});
+
+app.get('/link1-prev', function (request, response) {
+    response.end('You are on link1-prev. Previous page of link1');
 });
 
 app.get('/nofollow', function (request, response) {
@@ -46,8 +54,16 @@ app.get('/txt-disallow', function (request, response) {
     response.end('Not allowed');
 });
 
-app.get('/meta-disallow', function (request, response) {
-    response.end('<meta name="robots" content="noindex, follow">');
+app.get('/meta-follow', function (request, response) {
+    response.end('<html><head>\n<meta name="robots" content="noindex, follow">\n</head><body><a href="/meta-nofollow">No follow</a></body></html>');
+});
+
+app.get('/meta-nofollow', function (request, response) {
+    response.end('<html><head>\n<meta name="robots" content="index, nofollow">\n</head><body><a href="/meta-nofollow-target">no follow it</a></body></html>');
+});
+
+app.get('/meta-nofollow-target', function (request, response) {
+    response.end('No followable');
 });
 
 app.get('/header-disallow', function (request, response) {

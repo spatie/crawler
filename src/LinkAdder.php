@@ -61,7 +61,7 @@ class LinkAdder
     {
         $domCrawler = new DomCrawler($html, $foundOnUrl);
 
-        return collect($domCrawler->filterXpath('//a')->links())
+        return collect($domCrawler->filterXpath('//a | //link[@rel="next" or @rel="prev"]')->links())
             ->reject(function (Link $link) {
                 return $link->getNode()->getAttribute('rel') === 'nofollow';
             })
@@ -87,8 +87,8 @@ class LinkAdder
 
     protected function shouldCrawl(Node $node): bool
     {
-        if ($this->crawler->mustRespectRobots()) {
-            return $this->crawler->getRobotsTxt()->allows($node->getValue());
+        if ($this->crawler->mustRespectRobots() && ! $this->crawler->getRobotsTxt()->allows($node->getValue())) {
+            return false;
         }
 
         $maximumDepth = $this->crawler->getMaximumDepth();
