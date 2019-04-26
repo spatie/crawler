@@ -216,7 +216,7 @@ Crawler::create()
 
 ## Add a delay between requests
 
-In some cases you might get rate-limited when crawling too agressively. To circumvent this, you can use the `setDelayBetweenRequests()` method to add a pauze between every request. This value is expressed in miliseconds.
+In some cases you might get rate-limited when crawling too agressively. To circumvent this, you can use the `setDelayBetweenRequests()` method to add a pause between every request. This value is expressed in miliseconds.
 
 ```php
 Crawler::create()
