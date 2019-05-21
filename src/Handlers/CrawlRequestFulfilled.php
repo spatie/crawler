@@ -3,11 +3,11 @@
 namespace Spatie\Crawler\Handlers;
 
 use GuzzleHttp\Psr7\Uri;
-use GuzzleHttp\RedirectMiddleware;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\LinkAdder;
 use Spatie\Crawler\CrawlerRobots;
+use GuzzleHttp\RedirectMiddleware;
 use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\CrawlSubdomains;
 use Psr\Http\Message\StreamInterface;
@@ -59,7 +59,7 @@ class CrawlRequestFulfilled
 
         $historyHeader = $response->getHeader(RedirectMiddleware::HISTORY_HEADER);
         if (count($historyHeader) > 0) {
-            $lastRedirectUrl = $historyHeader[count($historyHeader)-1];
+            $lastRedirectUrl = $historyHeader[count($historyHeader) - 1];
             $baseUrl = new Uri($lastRedirectUrl);
         } else {
             $baseUrl = $crawlUrl->url;

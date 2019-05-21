@@ -296,7 +296,7 @@ class CrawlerTest extends TestCase
 
     public static function log(string $text)
     {
-        file_put_contents(static::$logPath, $text . PHP_EOL, FILE_APPEND);
+        file_put_contents(static::$logPath, $text.PHP_EOL, FILE_APPEND);
     }
 
     /** @test */
