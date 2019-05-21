@@ -57,10 +57,9 @@ class CrawlRequestFulfilled
 
         $body = $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
 
-        $historyHeader = $response->getHeader(RedirectMiddleware::HISTORY_HEADER);
-        if (count($historyHeader) > 0) {
-            $lastRedirectUrl = $historyHeader[count($historyHeader) - 1];
-            $baseUrl = new Uri($lastRedirectUrl);
+        $redirectHistory = $response->getHeader(RedirectMiddleware::HISTORY_HEADER);
+        if (! empty($redirectHistory)) {
+            $baseUrl = new Uri(end($redirectHistory));
         } else {
             $baseUrl = $crawlUrl->url;
         }
