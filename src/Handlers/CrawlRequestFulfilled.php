@@ -2,6 +2,8 @@
 
 namespace Spatie\Crawler\Handlers;
 
+use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\RedirectMiddleware;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\LinkAdder;
@@ -55,7 +57,15 @@ class CrawlRequestFulfilled
 
         $body = $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
 
-        $this->linkAdder->addFromHtml($body, $crawlUrl->url);
+        $historyHeader = $response->getHeader(RedirectMiddleware::HISTORY_HEADER);
+        if (count($historyHeader) > 0) {
+            $lastRedirectUrl = $historyHeader[count($historyHeader)-1];
+            $baseUrl = new Uri($lastRedirectUrl);
+        } else {
+            $baseUrl = $crawlUrl->url;
+        }
+
+        $this->linkAdder->addFromHtml($body, $baseUrl);
 
         usleep($this->crawler->getDelayBetweenRequests());
     }

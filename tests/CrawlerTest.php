@@ -2,24 +2,19 @@
 
 namespace Spatie\Crawler\Test;
 
+use stdClass;
 use GuzzleHttp\Psr7\Uri;
+use Spatie\Crawler\Crawler;
 use GuzzleHttp\RequestOptions;
+use Spatie\Crawler\CrawlProfile;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
-use Spatie\Crawler\Crawler;
-use Spatie\Crawler\CrawlInternalUrls;
-use Spatie\Crawler\CrawlProfile;
 use Spatie\Crawler\CrawlSubdomains;
+use Spatie\Crawler\CrawlInternalUrls;
 use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
-use stdClass;
 
 class CrawlerTest extends TestCase
 {
-    public static function log(string $text)
-    {
-        file_put_contents(static::$logPath, $text . PHP_EOL, FILE_APPEND);
-    }
-
     public function setUp()
     {
         parent::setUp();
@@ -39,23 +34,6 @@ class CrawlerTest extends TestCase
         $this->assertCrawledOnce($this->regularUrls());
 
         $this->assertNotCrawled($this->javascriptInjectedUrls());
-    }
-
-    protected function regularUrls(): array
-    {
-        return [
-            ['url' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link1-prev', 'foundOn' => 'http://localhost:8080/link1'],
-            ['url' => 'http://localhost:8080/link1-next', 'foundOn' => 'http://localhost:8080/link1'],
-            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
-            ['url' => 'http://localhost:8080/notExists', 'foundOn' => 'http://localhost:8080/link3'],
-            ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
-            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
-            ['url' => 'http://localhost:8080/dir/subdir/link6', 'foundOn' => 'http://localhost:8080/dir/link5'],
-        ];
     }
 
     protected function javascriptInjectedUrls(): array
@@ -173,8 +151,7 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_uses_a_crawl_profile_to_determine_what_should_be_crawled()
     {
-        $crawlProfile = new class extends CrawlProfile
-        {
+        $crawlProfile = new class extends CrawlProfile {
             public function shouldCrawl(UriInterface $url): bool
             {
                 return $url->getPath() !== '/link3';
@@ -217,8 +194,7 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_can_handle_pages_with_invalid_urls()
     {
-        $crawlProfile = new class extends CrawlProfile
-        {
+        $crawlProfile = new class extends CrawlProfile {
             public function shouldCrawl(UriInterface $url): bool
             {
                 return true;
@@ -318,6 +294,11 @@ class CrawlerTest extends TestCase
         ]);
     }
 
+    public static function log(string $text)
+    {
+        file_put_contents(static::$logPath, $text . PHP_EOL, FILE_APPEND);
+    }
+
     /** @test */
     public function profile_crawls_a_domain_and_its_subdomains()
     {
@@ -394,6 +375,23 @@ class CrawlerTest extends TestCase
         $this->assertCrawledUrlCount(3);
     }
 
+    protected function regularUrls(): array
+    {
+        return [
+            ['url' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link1-prev', 'foundOn' => 'http://localhost:8080/link1'],
+            ['url' => 'http://localhost:8080/link1-next', 'foundOn' => 'http://localhost:8080/link1'],
+            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
+            ['url' => 'http://localhost:8080/notExists', 'foundOn' => 'http://localhost:8080/link3'],
+            ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
+            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
+            ['url' => 'http://localhost:8080/dir/subdir/link6', 'foundOn' => 'http://localhost:8080/dir/link5'],
+        ];
+    }
+
     /** @test */
     public function it_respects_the_requested_delay_between_requests()
     {
@@ -404,7 +402,7 @@ class CrawlerTest extends TestCase
         Crawler::create()
             ->setCrawlObserver(new CrawlLogger())
             ->setMaximumDepth(2)
-            ->setDelayBetweenRequests(500)// 500ms
+            ->setDelayBetweenRequests(500) // 500ms
             ->setCrawlProfile(new CrawlSubdomains($baseUrl))
             ->startCrawling($baseUrl);
 
