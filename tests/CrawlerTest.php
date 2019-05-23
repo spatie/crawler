@@ -2,16 +2,16 @@
 
 namespace Spatie\Crawler\Test;
 
-use stdClass;
 use GuzzleHttp\Psr7\Uri;
-use Spatie\Crawler\Crawler;
 use GuzzleHttp\RequestOptions;
-use Spatie\Crawler\CrawlProfile;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
-use Spatie\Crawler\CrawlSubdomains;
+use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlInternalUrls;
+use Spatie\Crawler\CrawlProfile;
+use Spatie\Crawler\CrawlSubdomains;
 use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
+use stdClass;
 
 class CrawlerTest extends TestCase
 {
