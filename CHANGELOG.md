@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.4.1 - 2019-06-06
+
+- handle relative paths after redirects correcly
+
 ## 4.4.0 - 2019-04-05
 
 - add `getUrls` and `getPendingUrls`
