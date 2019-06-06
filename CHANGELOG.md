@@ -4,7 +4,7 @@ All notable changes to `spatie/crawler` will be documented in this file.
 
 ## 4.4.1 - 2019-06-06
 
-- handle relative paths after redirects correcly
+- handle relative paths after redirects correctly
 
 ## 4.4.0 - 2019-04-05
 
