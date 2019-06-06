@@ -2,10 +2,12 @@
 
 namespace Spatie\Crawler\Handlers;
 
+use GuzzleHttp\Psr7\Uri;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\LinkAdder;
 use Spatie\Crawler\CrawlerRobots;
+use GuzzleHttp\RedirectMiddleware;
 use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\CrawlSubdomains;
 use Psr\Http\Message\StreamInterface;
@@ -54,10 +56,22 @@ class CrawlRequestFulfilled
         }
 
         $body = $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
+        $baseUrl = $this->getBaseUrl($response, $crawlUrl);
 
-        $this->linkAdder->addFromHtml($body, $crawlUrl->url);
+        $this->linkAdder->addFromHtml($body, $baseUrl);
 
         usleep($this->crawler->getDelayBetweenRequests());
+    }
+
+    protected function getBaseUrl(ResponseInterface $response, CrawlUrl $crawlUrl)
+    {
+        $redirectHistory = $response->getHeader(RedirectMiddleware::HISTORY_HEADER);
+
+        if (empty($redirectHistory)) {
+            return $crawlUrl->url;
+        }
+
+        return new Uri(end($redirectHistory));
     }
 
     protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)

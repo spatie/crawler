@@ -62,6 +62,18 @@ app.get('/meta-nofollow', function (request, response) {
     response.end('<html><head>\n<meta name="robots" content="index, nofollow">\n</head><body><a href="/meta-nofollow-target">no follow it</a></body></html>');
 });
 
+app.get('/dir1/internal-redirect-entry/', function (request, response) {
+    response.end('<a href="../loop-generator/internal-redirect/trapped/">trapped</a> <a href="../../dir1/internal-redirect/trap/">trap-start</a>');
+});
+
+app.get('/dir1/internal-redirect/trap/', function (request, response) {
+    response.redirect(301, '/dir1/internal-redirect-entry/');
+});
+
+app.get('/dir1/loop-generator/internal-redirect/trapped/', function (request, response) {
+    response.end('It should be crawled once');
+});
+
 app.get('/meta-nofollow-target', function (request, response) {
     response.end('No followable');
 });

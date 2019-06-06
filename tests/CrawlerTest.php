@@ -5,6 +5,7 @@ namespace Spatie\Crawler\Test;
 use stdClass;
 use GuzzleHttp\Psr7\Uri;
 use Spatie\Crawler\Crawler;
+use GuzzleHttp\RequestOptions;
 use Spatie\Crawler\CrawlProfile;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
@@ -33,6 +34,13 @@ class CrawlerTest extends TestCase
         $this->assertCrawledOnce($this->regularUrls());
 
         $this->assertNotCrawled($this->javascriptInjectedUrls());
+    }
+
+    protected function javascriptInjectedUrls(): array
+    {
+        return [
+            ['url' => 'http://localhost:8080/javascript', 'foundOn' => 'http://localhost:8080/link1'],
+        ];
     }
 
     /** @test */
@@ -354,6 +362,37 @@ class CrawlerTest extends TestCase
     }
 
     /** @test */
+    public function it_should_handle_redirects_correctly_when_tracking_is_active()
+    {
+        Crawler::create([
+            RequestOptions::ALLOW_REDIRECTS => [
+                'track_redirects' => true,
+            ],
+        ])
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080/dir1/internal-redirect-entry/');
+
+        $this->assertCrawledUrlCount(3);
+    }
+
+    protected function regularUrls(): array
+    {
+        return [
+            ['url' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link1-prev', 'foundOn' => 'http://localhost:8080/link1'],
+            ['url' => 'http://localhost:8080/link1-next', 'foundOn' => 'http://localhost:8080/link1'],
+            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
+            ['url' => 'http://localhost:8080/notExists', 'foundOn' => 'http://localhost:8080/link3'],
+            ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
+            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
+            ['url' => 'http://localhost:8080/dir/subdir/link6', 'foundOn' => 'http://localhost:8080/dir/link5'],
+        ];
+    }
+
+    /** @test */
     public function it_respects_the_requested_delay_between_requests()
     {
         $baseUrl = 'http://localhost:8080';
@@ -385,29 +424,5 @@ class CrawlerTest extends TestCase
         $this->expectException(InvalidCrawlRequestHandler::class);
 
         Crawler::create()->setCrawlFailedHandlerClass(stdClass::class);
-    }
-
-    protected function regularUrls(): array
-    {
-        return [
-            ['url' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link1-prev', 'foundOn' => 'http://localhost:8080/link1'],
-            ['url' => 'http://localhost:8080/link1-next', 'foundOn' => 'http://localhost:8080/link1'],
-            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
-            ['url' => 'http://localhost:8080/notExists', 'foundOn' => 'http://localhost:8080/link3'],
-            ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
-            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
-            ['url' => 'http://localhost:8080/dir/subdir/link6', 'foundOn' => 'http://localhost:8080/dir/link5'],
-        ];
-    }
-
-    protected function javascriptInjectedUrls(): array
-    {
-        return [
-            ['url' => 'http://localhost:8080/javascript', 'foundOn' => 'http://localhost:8080/link1'],
-        ];
     }
 }
