@@ -56,17 +56,22 @@ class CrawlRequestFulfilled
         }
 
         $body = $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
-
-        $redirectHistory = $response->getHeader(RedirectMiddleware::HISTORY_HEADER);
-        if (! empty($redirectHistory)) {
-            $baseUrl = new Uri(end($redirectHistory));
-        } else {
-            $baseUrl = $crawlUrl->url;
-        }
+        $baseUrl = $this->getBaseUrl($response, $crawlUrl);
 
         $this->linkAdder->addFromHtml($body, $baseUrl);
 
         usleep($this->crawler->getDelayBetweenRequests());
+    }
+
+    protected function getBaseUrl(ResponseInterface $response, CrawlUrl $crawlUrl)
+    {
+        $redirectHistory = $response->getHeader(RedirectMiddleware::HISTORY_HEADER);
+
+        if (empty($redirectHistory)) {
+            return $crawlUrl->url;
+        }
+
+        return new Uri(end($redirectHistory));
     }
 
     protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)
