@@ -370,7 +370,7 @@ class CrawlerTest extends TestCase
             ],
         ])
             ->setCrawlObserver(new CrawlLogger())
-            ->startCrawling('http://localhost:8080/dir1/infernal-redirect-entry/');
+            ->startCrawling('http://localhost:8080/dir1/internal-redirect-entry/');
 
         $this->assertCrawledUrlCount(3);
     }
