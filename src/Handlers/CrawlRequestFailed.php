@@ -3,6 +3,7 @@
 namespace Spatie\Crawler\Handlers;
 
 use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlQueue\RetryableCrawlQueue;
 use GuzzleHttp\Exception\RequestException;
 
 class CrawlRequestFailed
@@ -20,6 +21,14 @@ class CrawlRequestFailed
         $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
         $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception);
+
+        if ($this->crawler->getRetryProfile()->shouldRetry($crawlUrl, $exception)) {
+            $crawlQueue = $this->crawler->getCrawlQueue();
+
+            if ($crawlQueue instanceof RetryableCrawlQueue) {
+                $crawlQueue->retry($crawlUrl);
+            }
+        }
 
         usleep($this->crawler->getDelayBetweenRequests());
     }

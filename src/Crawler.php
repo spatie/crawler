@@ -17,6 +17,7 @@ use Spatie\Crawler\Handlers\CrawlRequestFailed;
 use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
+use Spatie\Crawler\RetryProfile\NoRetry;
 
 class Crawler
 {
@@ -31,6 +32,9 @@ class Crawler
 
     /** @var \Spatie\Crawler\CrawlProfile */
     protected $crawlProfile;
+
+    /** @var RetryProfile */
+    protected $retryProfile;
 
     /** @var int */
     protected $concurrency;
@@ -100,6 +104,8 @@ class Crawler
         $this->concurrency = $concurrency;
 
         $this->crawlProfile = new CrawlAllUrls();
+
+        $this->retryProfile = new NoRetry();
 
         $this->crawlQueue = new CollectionCrawlQueue();
 
@@ -270,6 +276,18 @@ class Crawler
         return $this->crawlProfile;
     }
 
+    public function setRetryProfile(RetryProfile $retryProfile): Crawler
+    {
+        $this->retryProfile = $retryProfile;
+
+        return $this;
+    }
+
+    public function getRetryProfile(): RetryProfile
+    {
+        return $this->retryProfile;
+    }
+
     public function setCrawlFulfilledHandlerClass(string $crawlRequestFulfilledClass): Crawler
     {
         $baseClass = CrawlRequestFulfilled::class;
@@ -430,6 +448,7 @@ class Crawler
                 $crawlObserver->willCrawl($crawlUrl->url);
             }
 
+            $crawlUrl->incrementAttempts();
             $this->crawlQueue->markAsProcessed($crawlUrl);
 
             yield $crawlUrl->getId() => new Request('GET', $crawlUrl->url);

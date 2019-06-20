@@ -5,7 +5,7 @@ namespace Spatie\Crawler\CrawlQueue;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\Exception\UrlNotFoundByIndex;
 
-class CollectionCrawlQueue implements CrawlQueue
+class CollectionCrawlQueue implements RetryableCrawlQueue
 {
     /** @var \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection */
     protected $urls;
@@ -115,5 +115,23 @@ class CollectionCrawlQueue implements CrawlQueue
         }
 
         return false;
+    }
+
+    /**
+     * @param CrawlUrl $crawlUrl
+     *
+     * @return void
+     */
+    public function retry(CrawlUrl $crawlUrl)
+    {
+        if (! $this->contains($this->urls, $crawlUrl)) {
+            return;
+        }
+
+        if ($this->contains($this->pendingUrls, $crawlUrl)) {
+            return;
+        }
+
+        $this->pendingUrls->push($crawlUrl);
     }
 }

@@ -15,6 +15,9 @@ class CrawlUrl
     /** @var mixed */
     protected $id;
 
+    /** @var int */
+    protected $attempts = 0;
+
     public static function create(UriInterface $url, ?UriInterface $foundOnUrl = null, $id = null)
     {
         $static = new static($url, $foundOnUrl);
@@ -43,5 +46,23 @@ class CrawlUrl
     public function setId($id)
     {
         $this->id = $id;
+    }
+
+    /**
+     * Returns the number of attempts to load this URL.
+     *
+     * @return int
+     */
+    public function getAttempts() : int
+    {
+        return $this->attempts;
+    }
+
+    /**
+     * @return void
+     */
+    public function incrementAttempts()
+    {
+        $this->attempts++;
     }
 }
