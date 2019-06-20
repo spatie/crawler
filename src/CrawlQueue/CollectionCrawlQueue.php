@@ -77,7 +77,7 @@ class CollectionCrawlQueue implements CrawlQueue
     }
 
     /**
-     * @param CrawlUrl|\Psr\Http\Message\UriInterface|string $crawlUrl
+     * @param CrawlUrl|\Psr\Http\Message\UriInterface $crawlUrl
      *
      * @return bool
      */
