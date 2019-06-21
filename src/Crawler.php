@@ -71,7 +71,7 @@ class Crawler
     /** @var string */
     protected $crawlRequestFailedClass;
 
-    /** @var float */
+    /** @var int */
     protected $delayBetweenRequests = 0;
 
     /** @var   */
@@ -158,6 +158,11 @@ class Crawler
         return $this->maximumDepth;
     }
 
+    /**
+     * @param int $delay The delay in milliseconds.
+     *
+     * @return Crawler
+     */
     public function setDelayBetweenRequests(int $delay): Crawler
     {
         $this->delayBetweenRequests = ($delay * 1000);
@@ -165,7 +170,10 @@ class Crawler
         return $this;
     }
 
-    public function getDelayBetweenRequests(): float
+    /**
+     * @return int The delay in milliseconds.
+     */
+    public function getDelayBetweenRequests(): int
     {
         return $this->delayBetweenRequests;
     }
