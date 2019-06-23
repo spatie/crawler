@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.4.3 - 2019-06-22
+
+- `delayBetweenRequests` now uses `int` instead of `float` everywhere
+
 ## 4.4.2 - 2019-06-20
 
 - remove incorrect docblock
