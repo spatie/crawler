@@ -15,9 +15,9 @@ class CrawlRequestFailed
         $this->crawler = $crawler;
     }
 
-    public function __invoke(RequestException $exception, $index)
+    public function __invoke(RequestException $exception, string $url)
     {
-        $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
+        $crawlUrl = $this->crawler->getCrawlQueue()->get($url);
 
         $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception);
 

@@ -3,7 +3,7 @@
 namespace Spatie\Crawler\CrawlQueue;
 
 use Spatie\Crawler\CrawlUrl;
-use Spatie\Crawler\Exception\UrlNotFoundByIndex;
+use Spatie\Crawler\Exception\UrlNotFound;
 
 class CollectionCrawlQueue implements CrawlQueue
 {
@@ -36,9 +36,7 @@ class CollectionCrawlQueue implements CrawlQueue
             return $this;
         }
 
-        $this->urls->push($url);
-
-        $url->setId($this->urls->keys()->last());
+        $this->urls[(string) $url->url] = $url;
         $this->pendingUrls->push($url);
 
         return $this;
@@ -50,17 +48,17 @@ class CollectionCrawlQueue implements CrawlQueue
     }
 
     /**
-     * @param mixed $id
+     * @param string $url
      *
-     * @return \Spatie\Crawler\CrawlUrl|null
+     * @return \Spatie\Crawler\CrawlUrl
      */
-    public function getUrlById($id): CrawlUrl
+    public function get(string $url): CrawlUrl
     {
-        if (! isset($this->urls->values()[$id])) {
-            throw new UrlNotFoundByIndex("#{$id} crawl url not found in collection");
+        if (! isset($this->urls[$url])) {
+            throw new UrlNotFound("Crawl url $url not found in collection");
         }
 
-        return $this->urls->values()[$id];
+        return $this->urls[$url];
     }
 
     public function hasAlreadyBeenProcessed(CrawlUrl $url): bool

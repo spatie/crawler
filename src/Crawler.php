@@ -440,7 +440,7 @@ class Crawler
 
             $this->crawlQueue->markAsProcessed($crawlUrl);
 
-            yield $crawlUrl->getId() => new Request('GET', $crawlUrl->url);
+            yield ((string) $crawlUrl->url) => new Request('GET', $crawlUrl->url);
         }
     }
 

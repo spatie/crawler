@@ -29,11 +29,11 @@ class CrawlRequestFulfilled
         $this->linkAdder = new LinkAdder($this->crawler);
     }
 
-    public function __invoke(ResponseInterface $response, $index)
+    public function __invoke(ResponseInterface $response, string $url)
     {
         $robots = new CrawlerRobots($response, $this->crawler->mustRespectRobots());
 
-        $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
+        $crawlUrl = $this->crawler->getCrawlQueue()->get($url);
 
         if ($this->crawler->mayExecuteJavaScript()) {
             $html = $this->getBodyAfterExecutingJavaScript($crawlUrl->url);

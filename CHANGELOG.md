@@ -2,6 +2,15 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## Unreleased (5.0.0)
+
+Breaking changes:
+
+- exception `UrlNotFoundByIndex` has been renamed to `UrlNotFound`
+- method `CrawlQueue::getUrlById()` has been removed
+- new method `CrawlQueue::get()` has been added
+- property `CrawlUrl::$id` and getter/setter have been removed
+
 ## 4.4.3 - 2019-06-22
 
 - `delayBetweenRequests` now uses `int` instead of `float` everywhere

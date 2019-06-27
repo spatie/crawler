@@ -48,11 +48,11 @@ class CrawlQueueTest extends TestCase
 
         $this->assertEquals(
             'https://example1.com/',
-            (string) $this->crawlQueue->getUrlById($url1->getId())->url
+            (string) $this->crawlQueue->get('https://example1.com/')->url
         );
         $this->assertEquals(
             'https://example2.com/',
-            (string) $this->crawlQueue->getUrlById($url2->getId())->url
+            (string) $this->crawlQueue->get('https://example2.com/')->url
         );
     }
 

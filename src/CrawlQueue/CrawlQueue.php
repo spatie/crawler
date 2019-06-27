@@ -12,7 +12,7 @@ interface CrawlQueue
 
     public function hasPendingUrls(): bool;
 
-    public function getUrlById($id): CrawlUrl;
+    public function get(string $url): CrawlUrl;
 
     /** @return \Spatie\Crawler\CrawlUrl|null */
     public function getFirstPendingUrl();
