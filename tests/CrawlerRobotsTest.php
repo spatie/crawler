@@ -15,6 +15,16 @@ class CrawlerRobotsTest extends TestCase
         $this->resetLog();
     }
 
+    /**
+     * @return Crawler
+     */
+    private function createCrawler(): Crawler
+    {
+        return Crawler::create()
+            ->setMaximumDepth(3)
+            ->setCrawlObserver(new CrawlLogger());
+    }
+
     /** @test */
     public function it_should_not_follow_robots_txt_disallowed_links()
     {
@@ -106,13 +116,6 @@ class CrawlerRobotsTest extends TestCase
         $this->assertCrawledOnce([['url' => 'http://localhost:8080/header-disallow', 'foundOn' => 'http://localhost:8080/']]);
     }
 
-    private function createCrawler(): Crawler
-    {
-        return Crawler::create()
-            ->setMaximumDepth(3)
-            ->setCrawlObserver(new CrawlLogger());
-    }
-
     /** @test */
     public function it_should_check_depth_when_respecting_robots()
     {
@@ -135,5 +138,27 @@ class CrawlerRobotsTest extends TestCase
             ->startCrawling('http://localhost:8080');
 
         $this->assertNotCrawled([['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2']]);
+    }
+
+    /** @test */
+    public function it_should_respect_custom_user_agent_rules()
+    {
+        // According to Robots docs only
+        // one group out of the robots.txt file applies.
+        // So wildcard (8) instructions should be ignored
+        // by the more specific agent instructions
+        // @see https://developers.google.com/search/reference/robots_txt
+        // @see https://en.wikipedia.org/wiki/Robots_exclusion_standard
+
+        Crawler::create()
+            ->respectRobots()
+            ->setMaximumDepth(1)
+            ->setCrawlObserver(new CrawlLogger())
+            ->setUserAgent('my-agent')
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertNotCrawled([['url' => 'http://localhost:8080/txt-disallow-custom-user-agent', 'foundOn' => 'http://localhost:8080/']]);
+        $this->assertNotCrawled([['url' => 'http://localhost:8080/txt-disallow', 'foundOn' => 'http://localhost:8080/']]);
+        $this->assertCrawledOnce([['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/']]);
     }
 }
