@@ -316,9 +316,14 @@ class Crawler
 
     public function setUserAgent(string $userAgent): Crawler
     {
-        $this->userAgent = $userAgent;
+        $this->userAgent = strtolower($userAgent);
 
         return $this;
+    }
+
+    public function getUserAgent(): string
+    {
+        return $this->userAgent;
     }
 
     public function getBrowsershot(): Browsershot
