@@ -75,7 +75,7 @@ class Crawler
     protected $delayBetweenRequests = 0;
 
     /** @var string */
-    protected $userAgent = "*";
+    protected $userAgent = '*';
 
     /** @var   */
     protected static $defaultClientOptions = [
