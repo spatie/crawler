@@ -145,7 +145,7 @@ class CrawlerRobotsTest extends TestCase
     {
         // According to Robots docs only
         // one group out of the robots.txt file applies.
-        // So wildcard (8) instructions should be ignored
+        // So wildcard (*) instructions should be ignored
         // by the more specific agent instructions
         // @see https://developers.google.com/search/reference/robots_txt
         // @see https://en.wikipedia.org/wiki/Robots_exclusion_standard
