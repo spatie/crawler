@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.5.0 - 2019-07-22
+
+- Make user agent configurable (#246)
+
 ## 4.4.3 - 2019-06-22
 
 - `delayBetweenRequests` now uses `int` instead of `float` everywhere
