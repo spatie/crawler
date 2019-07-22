@@ -3,7 +3,7 @@
 let app = require('express')();
 
 app.get('/', function (request, response) {
-    response.end('<a href="/txt-disallow">txt disallowed</a><a href="/meta-follow">meta disallowed</a><a href="/header-disallow">header disallowed</a><a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a><a href="tel:123">Telephone</a><a href="/nofollow" rel="nofollow">No follow</a>');
+    response.end('<a href="/txt-disallow">txt disallowed</a><a href="/meta-follow">meta disallowed</a><a href="/header-disallow">header disallowed</a><a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a><a href="tel:123">Telephone</a><a href="/nofollow" rel="nofollow">No follow</a><a href="/txt-disallow-custom-user-agent">Disallow Custom User Agent</a>');
 });
 
 app.get('/link1', function (request, response) {
@@ -54,6 +54,10 @@ app.get('/txt-disallow', function (request, response) {
     response.end('Not allowed');
 });
 
+app.get('/txt-disallow-custom-user-agent', function (request, response) {
+    response.end('Not allowed for Custom User Agent');
+});
+
 app.get('/meta-follow', function (request, response) {
     response.end('<html><head>\n<meta name="robots" content="noindex, follow">\n</head><body><a href="/meta-nofollow">No follow</a></body></html>');
 });
@@ -86,7 +90,10 @@ app.get('/header-disallow', function (request, response) {
 
 app.get('/robots.txt', function (req, res) {
     var html = 'User-agent: *\n' +
-        'Disallow: /txt-disallow';
+        'Disallow: /txt-disallow\n' +
+        'User-agent: my-agent\n' +
+        'Disallow: /txt-disallow\n' +
+        'Disallow: /txt-disallow-custom-user-agent';
 
     res.end(html);
 });
