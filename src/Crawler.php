@@ -74,9 +74,6 @@ class Crawler
     /** @var int */
     protected $delayBetweenRequests = 0;
 
-    /** @var string */
-    protected $userAgent = '*';
-
     /** @var   */
     protected static $defaultClientOptions = [
         RequestOptions::COOKIES => true,
@@ -316,14 +313,17 @@ class Crawler
 
     public function setUserAgent(string $userAgent): Crawler
     {
-        $this->userAgent = strtolower($userAgent);
+        $clientOptions = $this->client->getConfig();
+        $clientOptions['headers']['User-Agent'] = strtolower($userAgent);
+
+        $this->client = new Client($clientOptions);
 
         return $this;
     }
 
     public function getUserAgent(): string
     {
-        return $this->userAgent;
+        return $this->client->getConfig('headers')['User-Agent'];
     }
 
     public function getBrowsershot(): Browsershot
@@ -363,7 +363,7 @@ class Crawler
 
         $this->robotsTxt = $this->createRobotsTxt($crawlUrl->url);
 
-        if ($this->robotsTxt->allows((string) $crawlUrl->url, (string) $this->userAgent) ||
+        if ($this->robotsTxt->allows((string) $crawlUrl->url, (string) $this->getUserAgent()) ||
             ! $this->respectRobots
         ) {
             $this->addToCrawlQueue($crawlUrl);
