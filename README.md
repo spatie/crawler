@@ -173,6 +173,23 @@ More information on the spec can be found here: [http://www.robotstxt.org/](http
 
 Parsing robots data is done by our package [spatie/robots-txt](https://github.com/spatie/robots-txt).
 
+### Using a custom User Agent ###
+
+In order to respect robots.txt rules for a custom User Agent you can specify your own custom User Agent.
+
+```php
+Crawler::create()
+    ->setUserAgent('my-agent')
+```
+
+You can add your specific crawl rule group for 'my-agent' in robots.txt. This example disallows crawling the entire site for crawlers identified by 'my-agent'.
+
+```txt
+// Disallow crawling for my-agent
+User-agent: my-agent
+Disallow: /
+```
+
 ## Setting the number of concurrent requests
 
 To improve the speed of the crawl the package concurrently crawls 10 urls by default. If you want to change that number you can use the `setConcurrency` method.

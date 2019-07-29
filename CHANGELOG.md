@@ -11,6 +11,10 @@ Breaking changes:
 - new method `CrawlQueue::get()` has been added
 - property `CrawlUrl::$id` and getter/setter have been removed
 
+## 4.5.0 - 2019-07-22
+
+- Make user agent configurable (#246)
+
 ## 4.4.3 - 2019-06-22
 
 - `delayBetweenRequests` now uses `int` instead of `float` everywhere

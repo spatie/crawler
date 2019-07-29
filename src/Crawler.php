@@ -311,6 +311,21 @@ class Crawler
         return $this;
     }
 
+    public function setUserAgent(string $userAgent): Crawler
+    {
+        $clientOptions = $this->client->getConfig();
+        $clientOptions['headers']['User-Agent'] = strtolower($userAgent);
+
+        $this->client = new Client($clientOptions);
+
+        return $this;
+    }
+
+    public function getUserAgent(): string
+    {
+        return $this->client->getConfig('headers')['User-Agent'];
+    }
+
     public function getBrowsershot(): Browsershot
     {
         if (! $this->browsershot) {
@@ -348,7 +363,7 @@ class Crawler
 
         $this->robotsTxt = $this->createRobotsTxt($crawlUrl->url);
 
-        if ($this->robotsTxt->allows((string) $crawlUrl->url) ||
+        if ($this->robotsTxt->allows((string) $crawlUrl->url, (string) $this->getUserAgent()) ||
             ! $this->respectRobots
         ) {
             $this->addToCrawlQueue($crawlUrl);

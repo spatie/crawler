@@ -87,7 +87,7 @@ class LinkAdder
 
     protected function shouldCrawl(Node $node): bool
     {
-        if ($this->crawler->mustRespectRobots() && ! $this->crawler->getRobotsTxt()->allows($node->getValue())) {
+        if ($this->crawler->mustRespectRobots() && ! $this->crawler->getRobotsTxt()->allows($node->getValue(), $this->crawler->getUserAgent())) {
             return false;
         }
 
