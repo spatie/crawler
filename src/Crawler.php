@@ -20,6 +20,8 @@ use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
 
 class Crawler
 {
+    public const DEFAULT_USER_AGENT = 'SpatieCrawler/4.5';
+
     /** @var \GuzzleHttp\Client */
     protected $client;
 
@@ -80,6 +82,9 @@ class Crawler
         RequestOptions::CONNECT_TIMEOUT => 10,
         RequestOptions::TIMEOUT => 10,
         RequestOptions::ALLOW_REDIRECTS => false,
+        RequestOptions::HEADERS => [
+            'User-Agent' => self::DEFAULT_USER_AGENT,
+        ],
     ];
 
     public static function create(array $clientOptions = []): Crawler
@@ -314,7 +319,11 @@ class Crawler
     public function setUserAgent(string $userAgent): Crawler
     {
         $clientOptions = $this->client->getConfig();
-        $clientOptions['headers']['User-Agent'] = strtolower($userAgent);
+
+        $headers = array_change_key_case($clientOptions['headers']);
+        $headers['user-agent'] = $userAgent;
+
+        $clientOptions['headers'] = $headers;
 
         $this->client = new Client($clientOptions);
 
@@ -323,7 +332,15 @@ class Crawler
 
     public function getUserAgent(): string
     {
-        return $this->client->getConfig('headers')['User-Agent'];
+        $headers = $this->client->getConfig('headers');
+
+        foreach (array_keys($headers) as $name) {
+            if (strtolower($name) === 'user-agent') {
+                return (string) $headers[$name];
+            }
+        }
+
+        return static::DEFAULT_USER_AGENT;
     }
 
     public function getBrowsershot(): Browsershot
@@ -363,7 +380,7 @@ class Crawler
 
         $this->robotsTxt = $this->createRobotsTxt($crawlUrl->url);
 
-        if ($this->robotsTxt->allows((string) $crawlUrl->url, (string) $this->getUserAgent()) ||
+        if ($this->robotsTxt->allows((string) $crawlUrl->url, $this->getUserAgent()) ||
             ! $this->respectRobots
         ) {
             $this->addToCrawlQueue($crawlUrl);
