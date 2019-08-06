@@ -2,10 +2,10 @@
 
 namespace Spatie\Crawler\CrawlQueue;
 
-use Psr\Http\Message\UriInterface;
-use Spatie\Crawler\CrawlUrl;
-use Spatie\Crawler\Exception\UrlNotFoundByIndex;
 use TypeError;
+use Spatie\Crawler\CrawlUrl;
+use Psr\Http\Message\UriInterface;
+use Spatie\Crawler\Exception\UrlNotFoundByIndex;
 
 /**
  * Crawl queue implemented with arrays.
@@ -77,7 +77,7 @@ class ArrayCrawlQueue implements CrawlQueue
     {
         if ($crawlUrl instanceof CrawlUrl) {
             $url = (string) $crawlUrl->url;
-        } else if ($crawlUrl instanceof UriInterface) {
+        } elseif ($crawlUrl instanceof UriInterface) {
             $url = (string) $crawlUrl;
         } else {
             throw new TypeError(sprintf(
