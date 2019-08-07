@@ -7,9 +7,6 @@ use Spatie\Crawler\CrawlUrl;
 use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\Exception\UrlNotFoundByIndex;
 
-/**
- * Crawl queue implemented with arrays.
- */
 class ArrayCrawlQueue implements CrawlQueue
 {
     /**
@@ -48,7 +45,7 @@ class ArrayCrawlQueue implements CrawlQueue
     public function getUrlById($id) : CrawlUrl
     {
         if (! isset($this->urls[$id])) {
-            throw new UrlNotFoundByIndex("Crawl url $id not found in collection.");
+            throw new UrlNotFoundByIndex("Crawl url {$id} not found in collection.");
         }
 
         return $this->urls[$id];
