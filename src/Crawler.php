@@ -20,7 +20,7 @@ use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
 
 class Crawler
 {
-    public const DEFAULT_USER_AGENT = 'SpatieCrawler/4.5';
+    public const DEFAULT_USER_AGENT = '*';
 
     /** @var \GuzzleHttp\Client */
     protected $client;
