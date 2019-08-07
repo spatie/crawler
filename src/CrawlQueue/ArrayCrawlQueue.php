@@ -59,11 +59,11 @@ class ArrayCrawlQueue implements CrawlQueue
             return false;
         }
 
-        if (isset($this->url[$url])) {
-            return false;
+        if (isset($this->urls[$url])) {
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     public function markAsProcessed(CrawlUrl $crawlUrl)

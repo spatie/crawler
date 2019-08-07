@@ -8,7 +8,7 @@ use Spatie\Crawler\CrawlQueue\ArrayCrawlQueue;
 
 class ArrayCrawlQueueTest extends TestCase
 {
-    /** @var \Spatie\Crawler\CrawlQueue\CollectionCrawlQueue */
+    /** @var \Spatie\Crawler\CrawlQueue\ArrayCrawlQueue */
     protected $crawlQueue;
 
     public function setUp()
@@ -72,6 +72,8 @@ class ArrayCrawlQueueTest extends TestCase
     public function it_can_mark_an_url_as_processed()
     {
         $crawlUrl = $this->createCrawlUrl('https://example1.com/');
+
+        $this->assertFalse($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl));
 
         $this->crawlQueue->add($crawlUrl);
 
