@@ -3,10 +3,11 @@
 namespace Spatie\Crawler\Test;
 
 use GuzzleHttp\Psr7\Uri;
+use Spatie\Crawler\CrawlQueue\ArrayCrawlQueue;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 
-class CrawlQueueTest extends TestCase
+class ArrayCrawlQueueTest extends TestCase
 {
     /** @var \Spatie\Crawler\CrawlQueue\CollectionCrawlQueue */
     protected $crawlQueue;
@@ -15,7 +16,7 @@ class CrawlQueueTest extends TestCase
     {
         parent::setUp();
 
-        $this->crawlQueue = new CollectionCrawlQueue();
+        $this->crawlQueue = new ArrayCrawlQueue();
     }
 
     /** @test */

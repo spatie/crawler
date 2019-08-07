@@ -6,7 +6,7 @@ use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\Exception\UrlNotFoundByIndex;
 
 /**
- * @deprecated Use ArrayCrawlQueue
+ * @deprecated Use \Spatie\Crawler\CrawlQueue\ArrayQueue
  */
 class CollectionCrawlQueue implements CrawlQueue
 {
