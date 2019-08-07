@@ -2,6 +2,7 @@
 
 namespace Spatie\Crawler\CrawlQueue;
 
+use Spatie\Crawler\Exception\InvalidUrl;
 use TypeError;
 use Spatie\Crawler\CrawlUrl;
 use Psr\Http\Message\UriInterface;
@@ -77,12 +78,7 @@ class ArrayCrawlQueue implements CrawlQueue
         } elseif ($crawlUrl instanceof UriInterface) {
             $url = (string) $crawlUrl;
         } else {
-            throw new TypeError(sprintf(
-                'Expected %s or %s, got %s.',
-                CrawlUrl::class,
-                UriInterface::class,
-                is_object($crawlUrl) ? get_class($crawlUrl) : gettype($crawlUrl)
-            ));
+            throw InvalidUrl::unexpectedType($crawlUrl);
         }
 
         return isset($this->urls[$url]);
