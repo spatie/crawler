@@ -2,9 +2,9 @@
 
 namespace Spatie\Crawler\CrawlQueue;
 
-use Spatie\Crawler\Exception\InvalidUrl;
 use Spatie\Crawler\CrawlUrl;
 use Psr\Http\Message\UriInterface;
+use Spatie\Crawler\Exception\InvalidUrl;
 use Spatie\Crawler\Exception\UrlNotFoundByIndex;
 
 class ArrayCrawlQueue implements CrawlQueue
