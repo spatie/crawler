@@ -8,6 +8,8 @@ All notable changes to `spatie/crawler` will be documented in this file.
 
 ## 4.6.0 - 2019-08-07
 
+**THIS VERSION CONTAINS A CRITICAL BUG, DO NOT USE**
+
 - added `ArrayCrawlQueue`; this is now the default queue
 - deprecated `CollectionCrawlQueue`
 
