@@ -3,8 +3,8 @@
 namespace Spatie\Crawler\Exception;
 
 use Exception;
-use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\CrawlUrl;
+use Psr\Http\Message\UriInterface;
 
 class InvalidUrl extends Exception
 {
@@ -17,6 +17,3 @@ class InvalidUrl extends Exception
         return new static("You passed an invalid url of type `{$givenUrlClass}`. This should be either a {$crawlUrlClass} or `{$uriInterfaceClass}`");
     }
 }
-
-
-
