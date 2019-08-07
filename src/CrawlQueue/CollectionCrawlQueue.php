@@ -5,6 +5,9 @@ namespace Spatie\Crawler\CrawlQueue;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\Exception\UrlNotFoundByIndex;
 
+/**
+ * @deprecated Use ArrayCrawlQueue
+ */
 class CollectionCrawlQueue implements CrawlQueue
 {
     /** @var \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection */

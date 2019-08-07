@@ -13,9 +13,9 @@ use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\CrawlQueue\CrawlQueue;
+use Spatie\Crawler\CrawlQueue\ArrayCrawlQueue;
 use Spatie\Crawler\Handlers\CrawlRequestFailed;
 use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
-use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
 
 class Crawler
@@ -101,7 +101,7 @@ class Crawler
 
         $this->crawlProfile = new CrawlAllUrls();
 
-        $this->crawlQueue = new CollectionCrawlQueue();
+        $this->crawlQueue = new ArrayCrawlQueue();
 
         $this->crawlObservers = new CrawlObserverCollection();
 
