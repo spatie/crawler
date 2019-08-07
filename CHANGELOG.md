@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.6.0 - 2019-08-07
+
+- added `ArrayCrawlQueue`
+
 ## 4.5.0 - 2019-07-22
 
 - Make user agent configurable (#246)
