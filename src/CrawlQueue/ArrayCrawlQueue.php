@@ -55,7 +55,15 @@ class ArrayCrawlQueue implements CrawlQueue
     {
         $url = (string) $url->url;
 
-        return ! isset($this->pendingUrls[$url]) && isset($this->pendingUrls[$url]);
+        if (isset($this->pendingUrls[$url])) {
+            return false;
+        }
+
+        if (isset($this->url[$url])) {
+            return false;
+        }
+
+        return true;
     }
 
     public function markAsProcessed(CrawlUrl $crawlUrl)
