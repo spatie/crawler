@@ -10,25 +10,27 @@ use Spatie\Crawler\Exception\UrlNotFoundByIndex;
 class ArrayCrawlQueue implements CrawlQueue
 {
     /**
+     * All known URLs, indexed by URL string.
+     *
+     * @var CrawlUrl[]
+     */
+    protected $urls = [];
+
+    /**
      * Pending URLs, indexed by URL string.
      *
      * @var CrawlUrl[]
      */
     protected $pendingUrls = [];
 
-    /**
-     * Processed URLs, indexed by URL string.
-     *
-     * @var CrawlUrl[]
-     */
-    protected $processedUrls = [];
-
     public function add(CrawlUrl $url) : CrawlQueue
     {
         $urlString = (string) $url->url;
 
-        if (! isset($this->pendingUrls[$urlString]) && ! isset($this->processedUrls[$urlString])) {
+        if (! isset($this->urls[$urlString])) {
             $url->setId($urlString);
+
+            $this->urls[$urlString] = $url;
             $this->pendingUrls[$urlString] = $url;
         }
 
@@ -42,29 +44,32 @@ class ArrayCrawlQueue implements CrawlQueue
 
     public function getUrlById($id) : CrawlUrl
     {
-        if (isset($this->pendingUrls[$id])) {
-            return $this->pendingUrls[$id];
+        if (! isset($this->urls[$id])) {
+            throw new UrlNotFoundByIndex("Crawl url {$id} not found in collection.");
         }
 
-        if (isset($this->processedUrls[$id])) {
-            return $this->processedUrls[$id];
-        }
-
-        throw new UrlNotFoundByIndex("Crawl url {$id} not found in collection.");
+        return $this->urls[$id];
     }
 
     public function hasAlreadyBeenProcessed(CrawlUrl $url) : bool
     {
         $url = (string) $url->url;
 
-        return isset($this->processedUrls[$url]);
+        if (isset($this->pendingUrls[$url])) {
+            return false;
+        }
+
+        if (isset($this->url[$url])) {
+            return false;
+        }
+
+        return true;
     }
 
     public function markAsProcessed(CrawlUrl $crawlUrl)
     {
         $url = (string) $crawlUrl->url;
 
-        $this->processedUrls[$url] = $crawlUrl;
         unset($this->pendingUrls[$url]);
     }
 
@@ -83,7 +88,7 @@ class ArrayCrawlQueue implements CrawlQueue
             throw InvalidUrl::unexpectedType($crawlUrl);
         }
 
-        return isset($this->pendingUrls[$url]) || isset($this->processedUrls[$url]);
+        return isset($this->urls[$url]);
     }
 
     public function getFirstPendingUrl() : ?CrawlUrl
