@@ -2,10 +2,15 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.6.1 - 2019-08-08
+
+- fix bugs in `hasAlreadyBeenProcessed`
+
 ## 4.6.0 - 2019-08-07
 
 - added `ArrayCrawlQueue`; this is now the default queue
 - deprecated `CollectionCrawlQueue`
+
 ## 4.5.0 - 2019-07-22
 
 - Make user agent configurable (#246)
