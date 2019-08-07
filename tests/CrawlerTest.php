@@ -425,4 +425,16 @@ class CrawlerTest extends TestCase
 
         Crawler::create()->setCrawlFailedHandlerClass(stdClass::class);
     }
+
+    /** @test */
+    public function it_should_ignore_user_agents_header_case()
+    {
+        $clientConfig = ['headers' => ['user-agent' => 'foo']];
+        $newUserAgent = 'bar';
+
+        $crawler = Crawler::create($clientConfig)->setUserAgent($newUserAgent);
+        $actualUserAgent = $crawler->getUserAgent();
+
+        $this->assertSame($newUserAgent, $actualUserAgent);
+    }
 }
