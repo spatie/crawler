@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.6.2 - 2019-08-08
+
+- case-insensitive user agent bugfix (#249)
+
 ## 4.6.1 - 2019-08-08
 
 - fix bugs in `hasAlreadyBeenProcessed`
