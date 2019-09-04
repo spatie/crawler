@@ -27,7 +27,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^7.0",
-        "larapack/dd": "^1.1"
+        "larapack/dd": "^1.1",
+        "predis/predis": "^1.1"
     },
     "autoload": {
         "psr-4": {
@@ -49,5 +50,8 @@
     },
     "config": {
         "sort-packages": true
+    },
+    "suggest": {
+        "predis/predis": "Using RedisCrawlQueue"
     }
 }

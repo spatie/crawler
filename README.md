@@ -253,6 +253,28 @@ Crawler::create()
     ->setCrawlQueue(<implementation of \Spatie\Crawler\CrawlQueue\CrawlQueue>)
 ```
 
+#### Available Queues
+* ArrayCrawlQueue (PHP arrays)
+* CollectionCrawlQueue (`Illuminate\Support\Collection` or `Tightenco\Collect\Support\Collection`)
+* RedisCrawlQueue (via [predis/predis](https://packagist.org/packages/predis/predis))
+
+##### RedisCrawlQueue
+Create a `Predis\Client` beforehand if you need options, such as selecting a database. If you don't pass a client, a new one without options will be used. Predis assumes `127.0.0.1`, `6379` and `0` as default host, port and database.
+
+```php
+// see https://github.com/nrk/predis for options
+$options = [
+    'database' => 7,
+];
+$redisClient = new \Predis\Client($options);
+
+// ...
+->setCrawlQueue(new RedisCrawlQueue($redisClient))
+
+// uses new \Predis\Client without options
+->setCrawlQueue(new RedisCrawlQueue())
+```
+
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
