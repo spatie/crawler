@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.6.3 - 2019-09-09
+
+- fix crash when `CrawlRequestFailed` receives an exception other than `RequestException`
+
 ## 4.6.2 - 2019-08-08
 
 - case-insensitive user agent bugfix (#249)
