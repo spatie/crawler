@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.6.4 - 2019-09-10
+
+- allow tightenco/collect 6.0 and up (#261)
+
 ## 4.6.3 - 2019-09-09
 
 - fix crash when `CrawlRequestFailed` receives an exception other than `RequestException`
