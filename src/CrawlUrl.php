@@ -37,7 +37,7 @@ class CrawlUrl
      */
     public function getId()
     {
-        return $this->id;
+        return $this->id ?? $this->url . $this->foundOnUrl;
     }
 
     public function setId($id)

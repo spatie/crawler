@@ -25,13 +25,13 @@ class ArrayCrawlQueue implements CrawlQueue
 
     public function add(CrawlUrl $url) : CrawlQueue
     {
-        $urlString = (string) $url->url;
+        $id = (string) $url->getId();
 
-        if (! isset($this->urls[$urlString])) {
-            $url->setId($urlString);
+        if (! isset($this->urls[$id])) {
+            $url->setId($id);
 
-            $this->urls[$urlString] = $url;
-            $this->pendingUrls[$urlString] = $url;
+            $this->urls[$id] = $url;
+            $this->pendingUrls[$id] = $url;
         }
 
         return $this;
@@ -53,13 +53,13 @@ class ArrayCrawlQueue implements CrawlQueue
 
     public function hasAlreadyBeenProcessed(CrawlUrl $url) : bool
     {
-        $url = (string) $url->url;
+        $id = (string) $url->getId();
 
-        if (isset($this->pendingUrls[$url])) {
+        if (isset($this->pendingUrls[$id])) {
             return false;
         }
 
-        if (isset($this->urls[$url])) {
+        if (isset($this->urls[$id])) {
             return true;
         }
 
@@ -68,9 +68,9 @@ class ArrayCrawlQueue implements CrawlQueue
 
     public function markAsProcessed(CrawlUrl $crawlUrl)
     {
-        $url = (string) $crawlUrl->url;
+        $id = (string) $crawlUrl->getId();
 
-        unset($this->pendingUrls[$url]);
+        unset($this->pendingUrls[$id]);
     }
 
     /**
@@ -81,7 +81,7 @@ class ArrayCrawlQueue implements CrawlQueue
     public function has($crawlUrl) : bool
     {
         if ($crawlUrl instanceof CrawlUrl) {
-            $url = (string) $crawlUrl->url;
+            $url = (string) $crawlUrl->getId();
         } elseif ($crawlUrl instanceof UriInterface) {
             $url = (string) $crawlUrl;
         } else {

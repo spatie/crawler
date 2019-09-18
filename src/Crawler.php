@@ -482,10 +482,6 @@ class Crawler
             return $this;
         }
 
-        if ($this->getCrawlQueue()->has($crawlUrl->url)) {
-            return $this;
-        }
-
         $this->crawledUrlCount++;
 
         $this->crawlQueue->add($crawlUrl);

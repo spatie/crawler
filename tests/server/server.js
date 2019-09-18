@@ -88,6 +88,18 @@ app.get('/header-disallow', function (request, response) {
     response.end('disallow by header');
 });
 
+app.get('/broken-link-root', function (request, response) {
+    response.end('<html><body><a href="/broken-link-root/page1">page 1</a>, <a href="/broken-link-root/page2">page 2</a></body></html>');
+});
+
+app.get('/broken-link-root/page1', function (request, response) {
+    response.end('<html><body><a href="/this/does/not/exist">this will give a 404</a></body></html>');
+});
+
+app.get('/broken-link-root/page2', function (request, response) {
+    response.end('<html><body><a href="/this/does/not/exist">this will give a 404</a></body></html>');
+});
+
 app.get('/robots.txt', function (req, res) {
     var html = 'User-agent: *\n' +
         'Disallow: /txt-disallow\n' +

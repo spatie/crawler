@@ -437,4 +437,20 @@ class CrawlerTest extends TestCase
 
         $this->assertSame($newUserAgent, $actualUserAgent);
     }
+
+    /** @test */
+    public function it_will_report_multiple_broken_pages_if_the_same_url_was_found_on_different_pages()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080/broken-link-root');
+
+        $this->assertCrawledOnce([
+            ['url' => 'http://localhost:8080/broken-link-root'],
+            ['url' => 'http://localhost:8080/broken-link-root/page1', 'foundOn' => 'http://localhost:8080/broken-link-root'],
+            ['url' => 'http://localhost:8080/broken-link-root/page2', 'foundOn' => 'http://localhost:8080/broken-link-root'],
+            ['url' => 'http://localhost:8080/this/does/not/exist', 'foundOn' => 'http://localhost:8080/broken-link-root/page1'],
+            ['url' => 'http://localhost:8080/this/does/not/exist', 'foundOn' => 'http://localhost:8080/broken-link-root/page2'],
+        ]);
+    }
 }
