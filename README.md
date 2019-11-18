@@ -253,9 +253,11 @@ Crawler::create()
     ->setCrawlQueue(<implementation of \Spatie\Crawler\CrawlQueue\CrawlQueue>)
 ```
 
-* [ArrayCrawlQueue](https://github.com/spatie/crawler/blob/master/src/CrawlQueue/ArrayCrawlQueue.php) (PHP arrays - default)
-* [CollectionCrawlQueue](https://github.com/spatie/crawler/blob/master/src/CrawlQueue/CollectionCrawlQueue.php) (`Illuminate\Support\Collection` or `Tightenco\Collect\Support\Collection`)
-* [RedisCrawlQueue](https://github.com/repat/spatie-crawler-redis) (community package)
+Here 
+
+- [ArrayCrawlQueue](https://github.com/spatie/crawler/blob/master/src/CrawlQueue/ArrayCrawlQueue.php)
+- [CollectionCrawlQueue](https://github.com/spatie/crawler/blob/master/src/CrawlQueue/CollectionCrawlQueue.php) (`Illuminate\Support\Collection` or `Tightenco\Collect\Support\Collection`)
+- [RedisCrawlQueue (third party package)](https://github.com/repat/spatie-crawler-redis)
 
 ## Changelog
 
