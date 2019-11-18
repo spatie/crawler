@@ -2,8 +2,8 @@
 
 namespace Spatie\Crawler\Test;
 
-use Throwable;
 use PHPUnit\Framework\TestCase as BaseTestCase;
+use Throwable;
 
 class TestCase extends BaseTestCase
 {

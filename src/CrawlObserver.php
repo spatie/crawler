@@ -2,9 +2,9 @@
 
 namespace Spatie\Crawler;
 
-use Psr\Http\Message\UriInterface;
-use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 
 abstract class CrawlObserver
 {

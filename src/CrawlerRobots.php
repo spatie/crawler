@@ -2,9 +2,9 @@
 
 namespace Spatie\Crawler;
 
-use Spatie\Robots\RobotsMeta;
-use Spatie\Robots\RobotsHeaders;
 use Psr\Http\Message\ResponseInterface;
+use Spatie\Robots\RobotsHeaders;
+use Spatie\Robots\RobotsMeta;
 
 class CrawlerRobots
 {

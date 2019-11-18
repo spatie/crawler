@@ -3,8 +3,8 @@
 namespace Spatie\Crawler\Exception;
 
 use Exception;
-use Spatie\Crawler\CrawlUrl;
 use Psr\Http\Message\UriInterface;
+use Spatie\Crawler\CrawlUrl;
 
 class InvalidUrl extends Exception
 {
