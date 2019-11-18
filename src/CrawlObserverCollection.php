@@ -2,10 +2,10 @@
 
 namespace Spatie\Crawler;
 
-use Iterator;
 use ArrayAccess;
-use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
+use Iterator;
+use Psr\Http\Message\ResponseInterface;
 
 class CrawlObserverCollection implements ArrayAccess, Iterator
 {

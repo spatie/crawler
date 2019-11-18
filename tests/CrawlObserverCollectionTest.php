@@ -2,15 +2,15 @@
 
 namespace Spatie\Crawler\Test;
 
-use GuzzleHttp\Psr7\Uri;
-use GuzzleHttp\Psr7\Request;
-use Spatie\Crawler\CrawlUrl;
-use GuzzleHttp\Psr7\Response;
-use Spatie\Crawler\CrawlObserver;
-use Psr\Http\Message\UriInterface;
-use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Uri;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
+use Spatie\Crawler\CrawlObserver;
 use Spatie\Crawler\CrawlObserverCollection;
+use Spatie\Crawler\CrawlUrl;
 
 class CrawlObserverCollectionTest extends TestCase
 {

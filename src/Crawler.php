@@ -3,20 +3,20 @@
 namespace Spatie\Crawler;
 
 use Generator;
-use Tree\Node\Node;
-use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
-use Spatie\Robots\RobotsTxt;
+use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
-use Spatie\Crawler\CrawlQueue\CrawlQueue;
 use Spatie\Crawler\CrawlQueue\ArrayCrawlQueue;
+use Spatie\Crawler\CrawlQueue\CrawlQueue;
+use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
 use Spatie\Crawler\Handlers\CrawlRequestFailed;
 use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
-use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
+use Spatie\Robots\RobotsTxt;
+use Tree\Node\Node;
 
 class Crawler
 {

@@ -2,8 +2,8 @@
 
 namespace Spatie\Crawler\CrawlQueue;
 
-use Spatie\Crawler\CrawlUrl;
 use Psr\Http\Message\UriInterface;
+use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\Exception\InvalidUrl;
 use Spatie\Crawler\Exception\UrlNotFoundByIndex;
 
