@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.6.5 - 2019-11-23
+
+- allow symfony 5 components
+
 ## 4.6.4 - 2019-09-10
 
 - allow tightenco/collect 6.0 and up (#261)
