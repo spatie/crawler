@@ -23,7 +23,7 @@ class ArrayCrawlQueue implements CrawlQueue
      */
     protected $pendingUrls = [];
 
-    public function add(CrawlUrl $url) : CrawlQueue
+    public function add(CrawlUrl $url): CrawlQueue
     {
         $urlString = (string) $url->url;
 
@@ -37,12 +37,12 @@ class ArrayCrawlQueue implements CrawlQueue
         return $this;
     }
 
-    public function hasPendingUrls() : bool
+    public function hasPendingUrls(): bool
     {
         return (bool) $this->pendingUrls;
     }
 
-    public function getUrlById($id) : CrawlUrl
+    public function getUrlById($id): CrawlUrl
     {
         if (! isset($this->urls[$id])) {
             throw new UrlNotFoundByIndex("Crawl url {$id} not found in collection.");
@@ -51,7 +51,7 @@ class ArrayCrawlQueue implements CrawlQueue
         return $this->urls[$id];
     }
 
-    public function hasAlreadyBeenProcessed(CrawlUrl $url) : bool
+    public function hasAlreadyBeenProcessed(CrawlUrl $url): bool
     {
         $url = (string) $url->url;
 
@@ -78,7 +78,7 @@ class ArrayCrawlQueue implements CrawlQueue
      *
      * @return bool
      */
-    public function has($crawlUrl) : bool
+    public function has($crawlUrl): bool
     {
         if ($crawlUrl instanceof CrawlUrl) {
             $url = (string) $crawlUrl->url;
@@ -91,7 +91,7 @@ class ArrayCrawlQueue implements CrawlQueue
         return isset($this->urls[$url]);
     }
 
-    public function getFirstPendingUrl() : ?CrawlUrl
+    public function getFirstPendingUrl(): ?CrawlUrl
     {
         foreach ($this->pendingUrls as $pendingUrl) {
             return $pendingUrl;
