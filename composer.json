@@ -17,7 +17,7 @@
     ],
     "require": {
         "php": "^7.1",
-        "guzzlehttp/guzzle": "^6.3",
+        "guzzlehttp/guzzle": "^6.3 || ^7.0",
         "guzzlehttp/psr7": "^1.4",
         "nicmart/tree": "^0.2.7",
         "spatie/browsershot": "^3.14",
