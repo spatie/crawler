@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.6.6 - 2020-01-30
+
+- allow Guzzle 7
+
 ## 4.6.5 - 2019-11-23
 
 - allow symfony 5 components
