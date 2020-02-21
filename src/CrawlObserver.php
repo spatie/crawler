@@ -31,7 +31,7 @@ abstract class CrawlObserver
     );
 
     /**
-     * Called when the crawler has found the url again
+     * Called when the crawler has found the url again.
      *
      * @param \Psr\Http\Message\UriInterface $url
      * @param \Psr\Http\Message\ResponseInterface $response
