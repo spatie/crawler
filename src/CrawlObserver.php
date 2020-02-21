@@ -31,6 +31,18 @@ abstract class CrawlObserver
     );
 
     /**
+     * Called when the crawler has found the url again
+     *
+     * @param \Psr\Http\Message\UriInterface $url
+     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
+     */
+    abstract public function alreadyCrawled(
+        UriInterface $url,
+        ?UriInterface $foundOnUrl = null
+    );
+
+    /**
      * Called when the crawler had a problem crawling the given url.
      *
      * @param \Psr\Http\Message\UriInterface $url

@@ -483,6 +483,9 @@ class Crawler
         }
 
         if ($this->getCrawlQueue()->has($crawlUrl->url)) {
+            foreach ($this->crawlObservers as $crawlObserver) {
+                $crawlObserver->alreadyCrawled($crawlUrl->url,$crawlUrl->foundOnUrl);
+            }
             return $this;
         }
 
