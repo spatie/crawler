@@ -31,7 +31,13 @@ class CrawlRequestFulfilled
 
     public function __invoke(ResponseInterface $response, $index)
     {
-        $robots = new CrawlerRobots($response, $this->crawler->mustRespectRobots());
+        $body = $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
+
+        $robots = new CrawlerRobots(
+            $response->getHeaders(),
+            $body,
+            $this->crawler->mustRespectRobots()
+        );
 
         $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
@@ -55,7 +61,6 @@ class CrawlRequestFulfilled
             return;
         }
 
-        $body = $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
         $baseUrl = $this->getBaseUrl($response, $crawlUrl);
 
         $this->linkAdder->addFromHtml($body, $baseUrl);

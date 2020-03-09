@@ -2,7 +2,6 @@
 
 namespace Spatie\Crawler;
 
-use Psr\Http\Message\ResponseInterface;
 use Spatie\Robots\RobotsHeaders;
 use Spatie\Robots\RobotsMeta;
 
@@ -17,11 +16,11 @@ class CrawlerRobots
     /** @var bool */
     protected $mustRespectRobots;
 
-    public function __construct(ResponseInterface $response, bool $mustRespectRobots)
+    public function __construct(array $headers, string $body, bool $mustRespectRobots)
     {
-        $this->robotsHeaders = RobotsHeaders::create($response->getHeaders());
+        $this->robotsHeaders = RobotsHeaders::create($headers);
 
-        $this->robotsMeta = RobotsMeta::create((string) $response->getBody());
+        $this->robotsMeta = RobotsMeta::create($body);
 
         $this->mustRespectRobots = $mustRespectRobots;
     }
