@@ -2,7 +2,6 @@
 
 namespace Spatie\Crawler;
 
-use Psr\Http\Message\ResponseInterface;
 use Spatie\Robots\RobotsHeaders;
 use Spatie\Robots\RobotsMeta;
 
