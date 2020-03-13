@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.6.8 - 2020-03-12
+
+- allow tightenco/collect 7 (#282)
+
 ## 4.6.7 - 2020-03-09
 
 - respect maximum response size when checking Robots Meta tags (#281)
