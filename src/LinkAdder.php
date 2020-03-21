@@ -19,9 +19,9 @@ class LinkAdder
         $this->crawler = $crawler;
     }
 
-    public function addFromHtml(string $html, UriInterface $foundOnUrl)
+    public function addFromHtml(string $html, UriInterface $foundOnUrl, string $xpath)
     {
-        $allLinks = $this->extractLinksFromHtml($html, $foundOnUrl);
+        $allLinks = $this->extractLinksFromHtml($html, $foundOnUrl, $xpath);
 
         collect($allLinks)
             ->filter(function (UriInterface $url) {
@@ -54,14 +54,15 @@ class LinkAdder
     /**
      * @param string $html
      * @param \Psr\Http\Message\UriInterface $foundOnUrl
+     * @param string $xpath
      *
      * @return \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection|null
      */
-    protected function extractLinksFromHtml(string $html, UriInterface $foundOnUrl)
+    protected function extractLinksFromHtml(string $html, UriInterface $foundOnUrl, string $xpath)
     {
         $domCrawler = new DomCrawler($html, $foundOnUrl);
 
-        return collect($domCrawler->filterXpath('//a | //link[@rel="next" or @rel="prev"]')->links())
+        return collect($domCrawler->filterXpath($xpath.' | //link[@rel="next" or @rel="prev"]')->links())
             ->reject(function (Link $link) {
                 return $link->getNode()->getAttribute('rel') === 'nofollow';
             })

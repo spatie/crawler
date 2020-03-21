@@ -192,6 +192,31 @@ class CrawlerTest extends TestCase
     }
 
     /** @test */
+    public function it_uses_crawl_profile_for_xpath()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->setCrawlProfile(new CrawlerProfileTest('localhost:8080'))
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce([
+            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+            ['url' => 'http://localhost:8080/link1-prev', 'foundOn' => 'http://localhost:8080/link1'],
+            ['url' => 'http://localhost:8080/link1-next', 'foundOn' => 'http://localhost:8080/link1'],
+        ]);
+
+        $this->assertNotCrawled([
+            ['url' => 'http://localhost:8080/txt-disallow'],
+            ['url' => 'http://localhost:8080/meta-follow'],
+            ['url' => 'http://localhost:8080/header-disallow'],
+            ['url' => 'http://localhost:8080/link2'],
+            ['url' => 'http://localhost:8080/dir/link4'],
+            ['url' => 'http://localhost:8080/nofollow'],
+            ['url' => 'http://localhost:8080/txt-disallow-custom-user-agent'],
+        ]);
+    }
+
+    /** @test */
     public function it_can_handle_pages_with_invalid_urls()
     {
         $crawlProfile = new class extends CrawlProfile {
