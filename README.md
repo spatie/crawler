@@ -158,6 +158,16 @@ This package comes with three `CrawlProfiles` out of the box:
 - `CrawlInternalUrls`: this profile will only crawl the internal urls on the pages of a host.
 - `CrawlSubdomains`: this profile will only crawl the internal urls and its subdomains on the pages of a host.
 
+By default, the xpath would be all 'a' links. Optionally, you can set an $xpath property in your extended class to filter urls by the xpath.
+```php
+/*
+ * Determines the xpath to be crawled
+ */
+public $xpath = '//html/body/section/section[*]/header/h1/a';
+```
+
+This should crawl only Posts in [https://nikic.github.io/](https://nikic.github.io/) website, not header links.
+
 ### Ignoring robots.txt and robots meta
 
 By default, the crawler will respect robots data. It is possible to disable these checks like so:
