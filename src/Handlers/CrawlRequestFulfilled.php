@@ -63,7 +63,7 @@ class CrawlRequestFulfilled
 
         $baseUrl = $this->getBaseUrl($response, $crawlUrl);
 
-        $this->linkAdder->addFromHtml($body, $baseUrl);
+        $this->linkAdder->addFromHtml($body, $baseUrl, $this->crawler->getCrawlProfile()->xpath);
 
         usleep($this->crawler->getDelayBetweenRequests());
     }
