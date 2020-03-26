@@ -21,8 +21,11 @@ jobs:
             -   name: Install Puppeteer
                 run: npm install puppeteer
 
-            -   name: Start testing server
-                run: ./tests/server/start_server.sh
+            -   name: Install and start test server
+                run: |
+                    cd tests/server
+                    npm install
+                    (node server.js &) || /bin/true
 
             -   name: Wait for server bootup
                 run: sleep 5
