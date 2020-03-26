@@ -19,7 +19,7 @@ jobs:
                 uses: actions/checkout@v1
 
             -   name: Install Puppeteer
-                run: sudo npm install -g puppeteer
+                run: npm install puppeteer
 
             -   name: Start testing server
                 run: ./tests/server/start_server.sh
