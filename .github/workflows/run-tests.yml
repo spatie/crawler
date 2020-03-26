@@ -17,13 +17,13 @@ jobs:
         steps:
             -   name: Checkout code
                 uses: actions/checkout@v1
-                
+
             -   name: Install Puppeteer
-                run: npm install -g puppeteer
-                
+                run: sudo npm install -g puppeteer
+
             -   name: Start testing server
                 run: ./tests/server/start_server.sh
-                
+
             -   name: Wait for server bootup
                 run: sleep 5
 
