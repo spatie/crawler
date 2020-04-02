@@ -25,7 +25,6 @@ composer require spatie/crawler
 The crawler can be instantiated like this
 
 ```php
-
 use Spatie\Crawler\Crawler;
 
 Crawler::create()
