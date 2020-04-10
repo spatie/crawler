@@ -42,9 +42,9 @@ class CrawlRequestFulfilled
         $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
         if ($this->crawler->mayExecuteJavaScript()) {
-            $html = $this->getBodyAfterExecutingJavaScript($crawlUrl->url);
+            $body = $this->getBodyAfterExecutingJavaScript($crawlUrl->url);
 
-            $response = $response->withBody(stream_for($html));
+            $response = $response->withBody(stream_for($body));
         }
 
         if ($robots->mayIndex()) {
