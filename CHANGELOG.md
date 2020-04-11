@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.6.9 - 2020-04-11
+
+- fix LinkAdder not receiving the updated DOM (#292)
+
 ## 4.6.8 - 2020-03-12
 
 - allow tightenco/collect 7 (#282)
