@@ -76,6 +76,9 @@ class Crawler
     /** @var int */
     protected $delayBetweenRequests = 0;
 
+    /** @var array */
+    protected $allowedMimeTypes = [];
+
     /** @var   */
     protected static $defaultClientOptions = [
         RequestOptions::COOKIES => true,
@@ -182,6 +185,27 @@ class Crawler
     {
         return $this->delayBetweenRequests;
     }
+
+    /**
+     * @param array $types The allowed mimetypes to parse
+     *
+     * @return Crawler
+     */
+    public function setParseableMimeTypes(array $types): Crawler
+    {
+        $this->allowedMimeTypes = $types;
+
+        return $this;
+    }
+
+    /**
+     * @return int The allowed mimetypes to prase
+     */
+    public function getParseableMimeTypes(): array
+    {
+        return $this->allowedMimeTypes;
+    }
+
 
     public function ignoreRobots(): Crawler
     {

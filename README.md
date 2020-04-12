@@ -239,6 +239,17 @@ Crawler::create()
     ->setDelayBetweenRequests(150) // After every page crawled, the crawler will wait for 150ms
 ```
 
+## Limiting which content-types to parse
+
+By default, every found page will be downloaded (up to `setMaximumResponseSize()` in size) and parsed for additional links. You can limit which content-types should be downloaded and parsed by setting the `setParseableMimeTypes()` with an array of allowed types.
+
+```php
+Crawler::create()
+    ->setParseableMimeTypes(['text/html', 'text/plain']) 
+```
+
+This will prevent downloading the body of pages that have different mime types, like binary files, audio/video, ... that are unlikely to have links embedded in them. This feature mostly saves bandwidth.
+
 ## Using a custom crawl queue
 
 When crawling a site the crawler will put urls to be crawled in a queue. By default, this queue is stored in memory using the built-in `CollectionCrawlQueue`.

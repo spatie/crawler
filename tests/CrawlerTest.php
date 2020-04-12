@@ -437,4 +437,33 @@ class CrawlerTest extends TestCase
 
         $this->assertSame($newUserAgent, $actualUserAgent);
     }
+
+    /** @test */
+    public function it_will_only_crawl_correct_mime_types_when_asked_to()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->setParseableMimeTypes(['text/html', 'text/plain'])
+            ->startCrawling('http://localhost:8080/content-types');
+
+        $this->assertNotCrawled([['url' => 'http://localhost:8080/content-types/music.html', 'foundOn' => 'http://localhost:8080/content-types/music.mp3']]);
+        $this->assertNotCrawled([['url' => 'http://localhost:8080/content-types/video.html', 'foundOn' => 'http://localhost:8080/content-types/video.mkv']]);
+
+        $this->assertCrawledOnce([['url' => 'http://localhost:8080/content-types/normal.html', 'foundOn' => 'http://localhost:8080/content-types']]);
+
+        $this->assertCrawledUrlCount(4);
+    }
+
+    /** @test */
+    public function it_will_crawl_all_content_types_when_not_explicitly_whitelisted()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080/content-types');
+
+        $this->assertCrawledOnce([['url' => 'http://localhost:8080/content-types/music.html', 'foundOn' => 'http://localhost:8080/content-types/music.mp3']]);
+        $this->assertCrawledOnce([['url' => 'http://localhost:8080/content-types/video.html', 'foundOn' => 'http://localhost:8080/content-types/video.mkv']]);
+
+        $this->assertCrawledUrlCount(6);
+    }
 }

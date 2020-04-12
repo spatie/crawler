@@ -31,7 +31,7 @@ class CrawlRequestFulfilled
 
     public function __invoke(ResponseInterface $response, $index)
     {
-        $body = $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
+        $body = $this->getBody($response);
 
         $robots = new CrawlerRobots(
             $response->getHeaders(),
@@ -93,6 +93,17 @@ class CrawlRequestFulfilled
         return $body;
     }
 
+    protected function getBody(ResponseInterface $response): string
+    {
+        $contentType = $response->getHeaderLine('Content-Type');
+
+        if (! $this->isMimetypeAllowedToParse($contentType)) {
+            return "";
+        }
+
+        return $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
+    }
+
     protected function getBodyAfterExecutingJavaScript(UriInterface $url): string
     {
         $browsershot = $this->crawler->getBrowsershot();
@@ -100,5 +111,24 @@ class CrawlRequestFulfilled
         $html = $browsershot->setUrl((string) $url)->bodyHtml();
 
         return html_entity_decode($html);
+    }
+
+    protected function isMimetypeAllowedToParse($contentType): bool
+    {
+        if (empty($contentType)) {
+            return true;
+        }
+
+        if (! count($this->crawler->getParseableMimeTypes())) {
+            return true;
+        }
+
+        foreach ($this->crawler->getParseableMimeTypes() as $allowedType) {
+            if (stristr($contentType, $allowedType)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

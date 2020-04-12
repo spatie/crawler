@@ -88,6 +88,36 @@ app.get('/header-disallow', function (request, response) {
     response.end('disallow by header');
 });
 
+app.get('/content-types', function (request, response) {
+    response.end('We have <a href="/content-types/normal.html">a normal page</a>, <a href="/content-types/music.mp3">an MP3</a> and <a href="/content-types/video.mkv">a video file</a>.');
+});
+
+app.get('/content-types/normal.html', function (request, response) {
+    response.set({'Content-Type': 'text/html; charset=utf-8'});
+
+    response.end('a normal HTML file');
+});
+
+app.get('/content-types/music.mp3', function (request, response) {
+    response.set({'Content-Type': 'audio/mpeg'});
+
+    response.end('music file, with a <a href="/content-types/music.html">a link</a>');
+});
+
+app.get('/content-types/music.html', function (request, response) {
+    response.end('hidden html in music file');
+});
+
+app.get('/content-types/video.mkv', function (request, response) {
+    response.set({'Content-Type': 'video/webm'});
+
+    response.end('video file, with a <a href="/content-types/video.html">a link</a>');
+});
+
+app.get('/content-types/video.html', function (request, response) {
+    response.end('hidden html in video file');
+});
+
 app.get('/robots.txt', function (req, res) {
     var html = 'User-agent: *\n' +
         'Disallow: /txt-disallow\n' +
