@@ -98,7 +98,7 @@ class CrawlRequestFulfilled
         $contentType = $response->getHeaderLine('Content-Type');
 
         if (! $this->isMimetypeAllowedToParse($contentType)) {
-            return "";
+            return '';
         }
 
         return $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());

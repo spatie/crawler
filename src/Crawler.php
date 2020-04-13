@@ -206,7 +206,6 @@ class Crawler
         return $this->allowedMimeTypes;
     }
 
-
     public function ignoreRobots(): Crawler
     {
         $this->respectRobots = false;
