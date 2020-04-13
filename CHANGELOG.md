@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.7.0 - 2020-04-14
+
+- add `setParseableMimeTypes()` (#293)
+
 ## 4.6.9 - 2020-04-11
 
 - fix LinkAdder not receiving the updated DOM (#292)
