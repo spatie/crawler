@@ -466,4 +466,19 @@ class CrawlerTest extends TestCase
 
         $this->assertCrawledUrlCount(6);
     }
+
+    /** @test */
+    public function it_will_allow_streaming_responses_when_the_client_asks_for_it()
+    {
+        $clientConfig = ['stream' => true];
+
+        Crawler::create($clientConfig)
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080/content-types');
+
+        $this->assertCrawledOnce([['url' => 'http://localhost:8080/content-types/music.html', 'foundOn' => 'http://localhost:8080/content-types/music.mp3']]);
+        $this->assertCrawledOnce([['url' => 'http://localhost:8080/content-types/video.html', 'foundOn' => 'http://localhost:8080/content-types/video.mkv']]);
+
+        $this->assertCrawledUrlCount(6);
+    }
 }

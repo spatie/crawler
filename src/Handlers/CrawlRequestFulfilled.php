@@ -86,7 +86,9 @@ class CrawlRequestFulfilled
 
     protected function convertBodyToString(StreamInterface $bodyStream, $readMaximumBytes = 1024 * 1024 * 2): string
     {
-        $bodyStream->rewind();
+        if ($bodyStream->isSeekable()) {
+            $bodyStream->rewind();
+        }
 
         $body = $bodyStream->read($readMaximumBytes);
 
