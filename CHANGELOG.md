@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.7.1 - 2020-04-14
+
+- fix curl streaming responses (#295)
+
 ## 4.7.0 - 2020-04-14
 
 - add `setParseableMimeTypes()` (#293)
