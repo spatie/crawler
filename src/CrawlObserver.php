@@ -28,7 +28,7 @@ abstract class CrawlObserver
         UriInterface $url,
         ResponseInterface $response,
         ?UriInterface $foundOnUrl = null,
-        string $body = ""
+        string $body = ''
     );
 
     /**
@@ -42,7 +42,7 @@ abstract class CrawlObserver
         UriInterface $url,
         RequestException $requestException,
         ?UriInterface $foundOnUrl = null,
-        string $body = ""
+        string $body = ''
     );
 
     /**

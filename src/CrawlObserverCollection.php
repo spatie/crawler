@@ -27,7 +27,7 @@ class CrawlObserverCollection implements ArrayAccess, Iterator
         $this->observers[] = $observer;
     }
 
-    public function crawled(CrawlUrl $crawlUrl, ResponseInterface $response, string $body = "")
+    public function crawled(CrawlUrl $crawlUrl, ResponseInterface $response, string $body = '')
     {
         foreach ($this->observers as $crawlObserver) {
             $crawlObserver->crawled(
@@ -39,7 +39,7 @@ class CrawlObserverCollection implements ArrayAccess, Iterator
         }
     }
 
-    public function crawlFailed(CrawlUrl $crawlUrl, RequestException $exception, string $body = "")
+    public function crawlFailed(CrawlUrl $crawlUrl, RequestException $exception, string $body = '')
     {
         foreach ($this->observers as $crawlObserver) {
             $crawlObserver->crawlFailed(

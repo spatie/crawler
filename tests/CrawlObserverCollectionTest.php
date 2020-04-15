@@ -30,7 +30,7 @@ class CrawlObserverCollectionTest extends TestCase
                 UriInterface $url,
                 ResponseInterface $response,
                 ?UriInterface $foundOnUrl = null,
-                string $body = ""
+                string $body = ''
             ) {
                 $this->crawled = true;
             }
@@ -39,7 +39,7 @@ class CrawlObserverCollectionTest extends TestCase
                 UriInterface $url,
                 RequestException $requestException,
                 ?UriInterface $foundOnUrl = null,
-                string $body = ""
+                string $body = ''
             ) {
                 $this->failed = true;
             }
