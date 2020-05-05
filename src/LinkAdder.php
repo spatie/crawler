@@ -95,6 +95,7 @@ class LinkAdder
 
     protected function shouldCrawl(Node $node): bool
     {
+        
         if ($this->crawler->mustRespectRobots() && ! $this->crawler->getRobotsTxt()->allows($node->getValue(), $this->crawler->getUserAgent())) {
             return false;
         }
@@ -110,10 +111,18 @@ class LinkAdder
 
     private function isInvalidHrefNode(Link $link): bool
     {
-        if ($link->getNode()->nodeName == 'a') {
-            return $link->getNode()->nextSibling === null && $link->getNode()->childNodes->length == 0;
+        if ($link->getNode()->nodeName !== 'a') {
+            return false;
+        }
+        
+        if ($link->getNode()->nextSibling !== null) {
+            return false;
         }
 
-        return false;
+        if ($link->getNode()->childNodes->length !== 0) {
+            return false;
+        }
+
+        return true;
     }
 }
