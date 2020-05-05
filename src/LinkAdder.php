@@ -95,7 +95,6 @@ class LinkAdder
 
     protected function shouldCrawl(Node $node): bool
     {
-        
         if ($this->crawler->mustRespectRobots() && ! $this->crawler->getRobotsTxt()->allows($node->getValue(), $this->crawler->getUserAgent())) {
             return false;
         }
@@ -114,7 +113,7 @@ class LinkAdder
         if ($link->getNode()->nodeName !== 'a') {
             return false;
         }
-        
+
         if ($link->getNode()->nextSibling !== null) {
             return false;
         }
