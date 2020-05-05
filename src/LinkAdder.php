@@ -63,7 +63,6 @@ class LinkAdder
 
         return collect($domCrawler->filterXpath('//a | //link[@rel="next" or @rel="prev"]')->links())
             ->reject(function (Link $link) {
-                // Validate <a href> to make sure they are valid
                 if ($this->isInvalidHrefNode($link)) {
                     return true;
                 }
