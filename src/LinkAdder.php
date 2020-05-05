@@ -63,7 +63,16 @@ class LinkAdder
 
         return collect($domCrawler->filterXpath('//a | //link[@rel="next" or @rel="prev"]')->links())
             ->reject(function (Link $link) {
-                return $link->getNode()->getAttribute('rel') === 'nofollow';
+                // Validate <a href> to make sure they are valid
+                if ($this->isInvalidHrefNode($link)) {
+                    return true;
+                }
+
+                if ($link->getNode()->getAttribute('rel') === 'nofollow') {
+                    return true;
+                }
+
+                return false;
             })
             ->map(function (Link $link) {
                 try {
@@ -98,5 +107,14 @@ class LinkAdder
         }
 
         return $node->getDepth() <= $maximumDepth;
+    }
+
+    private function isInvalidHrefNode(Link $link): bool
+    {
+        if ($link->getNode()->nodeName == "a") {
+            return $link->getNode()->nextSibling === null && $link->getNode()->childNodes->length == 0;
+        }
+
+        return false;
     }
 }
