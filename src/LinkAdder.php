@@ -111,7 +111,7 @@ class LinkAdder
 
     private function isInvalidHrefNode(Link $link): bool
     {
-        if ($link->getNode()->nodeName == "a") {
+        if ($link->getNode()->nodeName == 'a') {
             return $link->getNode()->nextSibling === null && $link->getNode()->childNodes->length == 0;
         }
 
