@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.7.2 - 2020-05-06
+
+- only crawl links that are completely parsed
+
 ## 4.7.1 - 2020-04-14
 
 - fix curl streaming responses (#295)
