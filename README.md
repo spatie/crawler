@@ -245,7 +245,7 @@ By default, every found page will be downloaded (up to `setMaximumResponseSize()
 
 ```php
 Crawler::create()
-    ->setParseableMimeTypes(['text/html', 'text/plain']) 
+    ->setParseableMimeTypes(['text/html', 'text/plain'])
 ```
 
 This will prevent downloading the body of pages that have different mime types, like binary files, audio/video, ... that are unlikely to have links embedded in them. This feature mostly saves bandwidth.
@@ -263,7 +263,7 @@ Crawler::create()
     ->setCrawlQueue(<implementation of \Spatie\Crawler\CrawlQueue\CrawlQueue>)
 ```
 
-Here 
+Here
 
 - [ArrayCrawlQueue](https://github.com/spatie/crawler/blob/master/src/CrawlQueue/ArrayCrawlQueue.php)
 - [CollectionCrawlQueue](https://github.com/spatie/crawler/blob/master/src/CrawlQueue/CollectionCrawlQueue.php) (`Illuminate\Support\Collection` or `Tightenco\Collect\Support\Collection`)
@@ -279,12 +279,18 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 ## Testing
 
+First, install the Puppeteer dependency, or your tests will fail.
+
+```
+npm install puppeteer
+```
+
 To run the tests you'll have to start the included node based server first in a separate terminal window.
 
 ```bash
 cd tests/server
 npm install
-./start_server.sh
+node server.js
 ```
 
 With the server running, you can start testing.

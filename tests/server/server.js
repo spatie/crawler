@@ -118,6 +118,10 @@ app.get('/content-types/video.html', function (request, response) {
     response.end('hidden html in video file');
 });
 
+app.get('/incomplete-href', function (request, response) {
+    response.end('Valid href: <a href="/link1-next">valid link</a>, Empty href: <a href="/link1-prev"></a>, Incomplete href: <a href="/invalid-link');
+});
+
 app.get('/robots.txt', function (req, res) {
     var html = 'User-agent: *\n' +
         'Disallow: /txt-disallow\n' +

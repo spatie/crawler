@@ -481,4 +481,16 @@ class CrawlerTest extends TestCase
 
         $this->assertCrawledUrlCount(6);
     }
+
+    /** @test */
+    public function it_will_not_crawl_half_parsed_href_tags()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080/incomplete-href');
+
+        $this->assertNotCrawled([['url' => 'http://localhost:8080/invalid-link', 'foundOn' => 'http://localhost:8080/incomplete-href']]);
+
+        $this->assertCrawledUrlCount(3);
+    }
 }
