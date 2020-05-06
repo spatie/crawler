@@ -29,7 +29,8 @@ class CrawlObserverCollectionTest extends TestCase
             public function crawled(
                 UriInterface $url,
                 ResponseInterface $response,
-                ?UriInterface $foundOnUrl = null
+                ?UriInterface $foundOnUrl = null,
+                string $body = ''
             ) {
                 $this->crawled = true;
             }
@@ -37,7 +38,8 @@ class CrawlObserverCollectionTest extends TestCase
             public function crawlFailed(
                 UriInterface $url,
                 RequestException $requestException,
-                ?UriInterface $foundOnUrl = null
+                ?UriInterface $foundOnUrl = null,
+                string $body = ''
             ) {
                 $this->failed = true;
             }

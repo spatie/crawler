@@ -48,7 +48,7 @@ class CrawlRequestFulfilled
         }
 
         if ($robots->mayIndex()) {
-            $this->handleCrawled($response, $crawlUrl);
+            $this->handleCrawled($response, $crawlUrl, $body);
         }
 
         if (! $this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
@@ -79,9 +79,9 @@ class CrawlRequestFulfilled
         return new Uri(end($redirectHistory));
     }
 
-    protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)
+    protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl, string $body)
     {
-        $this->crawler->getCrawlObservers()->crawled($crawlUrl, $response);
+        $this->crawler->getCrawlObservers()->crawled($crawlUrl, $response, $body);
     }
 
     protected function convertBodyToString(StreamInterface $bodyStream, $readMaximumBytes = 1024 * 1024 * 2): string
