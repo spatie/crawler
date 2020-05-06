@@ -108,7 +108,7 @@ class LinkAdder
         return $node->getDepth() <= $maximumDepth;
     }
 
-    private function isInvalidHrefNode(Link $link): bool
+    protected function isInvalidHrefNode(Link $link): bool
     {
         if ($link->getNode()->nodeName !== 'a') {
             return false;
