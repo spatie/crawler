@@ -90,7 +90,19 @@ class CrawlRequestFulfilled
             $bodyStream->rewind();
         }
 
-        $body = $bodyStream->read($readMaximumBytes);
+        $body = "";
+
+        $chunksToRead = $readMaximumBytes < 512 ? $readMaximumBytes : 512;
+
+        for ($bytesRead = 0; $bytesRead < $readMaximumBytes; $bytesRead += $chunksToRead) {
+            $newDataRead = $bodyStream->read($chunksToRead);
+
+            if (! $newDataRead) {
+                break;
+            }
+
+            $body .= $newDataRead;
+        }
 
         return $body;
     }
