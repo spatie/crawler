@@ -2,6 +2,7 @@
 
 namespace Spatie\Crawler\Handlers;
 
+use Exception;
 use function GuzzleHttp\Psr7\stream_for;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\RedirectMiddleware;
