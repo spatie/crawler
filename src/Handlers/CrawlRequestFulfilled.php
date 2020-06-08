@@ -95,7 +95,11 @@ class CrawlRequestFulfilled
         $chunksToRead = $readMaximumBytes < 512 ? $readMaximumBytes : 512;
 
         for ($bytesRead = 0; $bytesRead < $readMaximumBytes; $bytesRead += $chunksToRead) {
-            $newDataRead = $bodyStream->read($chunksToRead);
+            try {
+                $newDataRead = $bodyStream->read($chunksToRead);
+            } catch (Exception $e) {
+                $newDataRead = null;
+            }
 
             if (! $newDataRead) {
                 break;
