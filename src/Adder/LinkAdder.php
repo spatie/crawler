@@ -7,7 +7,6 @@ use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 use Symfony\Component\DomCrawler\Link;
-use Tree\Node\Node;
 
 class LinkAdder extends AbstractAdder
 {
