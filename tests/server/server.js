@@ -1,9 +1,13 @@
 "use strict";
 
-let app = require('express')();
+let path = require('path');
+let express = require('express');
+let app = express();
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', function (request, response) {
-    response.end('<a href="/txt-disallow">txt disallowed</a><a href="/meta-follow">meta disallowed</a><a href="/header-disallow">header disallowed</a><a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a><a href="tel:123">Telephone</a><a href="/nofollow" rel="nofollow">No follow</a><a href="/txt-disallow-custom-user-agent">Disallow Custom User Agent</a>');
+    response.end('<a href="/txt-disallow">txt disallowed</a><a href="/meta-follow">meta disallowed</a><a href="/header-disallow">header disallowed</a><a href="/link1">Link1</a><a href="/link2">Link2</a><a href="dir/link4">Link4</a><a href="mailto:test@example.com">Email</a><a href="tel:123">Telephone</a><a href="/nofollow" rel="nofollow">No follow</a><a href="/txt-disallow-custom-user-agent">Disallow Custom User Agent</a><img src="image.png">');
 });
 
 app.get('/link1', function (request, response) {

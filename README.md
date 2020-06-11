@@ -149,6 +149,16 @@ Crawler::create()
 Note that the crawler will still work even if you don't have the system dependencies required by Browsershot.
 These system dependencies are only required if you're calling `executeJavaScript()`.
 
+### Requesting images
+
+By default, the crawler will not request images. You can enable image requests by this:
+
+```php
+Crawler::create()
+    ->requestImages()
+    ...
+```
+
 ### Filtering certain urls
 
 You can tell the crawler not to visit certain urls by using the `setCrawlProfile`-function. That function expects

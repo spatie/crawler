@@ -64,6 +64,9 @@ class Crawler
     /** @var Browsershot */
     protected $browsershot = null;
 
+    /** @var bool */
+    protected $requestImages = false;
+
     /** @var \Spatie\Robots\RobotsTxt */
     protected $robotsTxt = null;
 
@@ -259,6 +262,25 @@ class Crawler
     public function mayExecuteJavascript(): bool
     {
         return $this->executeJavaScript;
+    }
+
+    public function requestImages(): Crawler
+    {
+        $this->requestImages = true;
+
+        return $this;
+    }
+
+    public function doNotRequestImages(): Crawler
+    {
+        $this->requestImages = false;
+
+        return $this;
+    }
+
+    public function shouldRequestImages(): bool
+    {
+        return $this->requestImages;
     }
 
     /**

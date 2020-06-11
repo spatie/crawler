@@ -8,18 +8,19 @@ use GuzzleHttp\RedirectMiddleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Spatie\Crawler\Adder\ImageUrlAdder;
+use Spatie\Crawler\Adder\LinkAdder;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlerRobots;
 use Spatie\Crawler\CrawlSubdomains;
 use Spatie\Crawler\CrawlUrl;
-use Spatie\Crawler\LinkAdder;
 
 class CrawlRequestFulfilled
 {
     /** @var \Spatie\Crawler\Crawler */
     protected $crawler;
 
-    /** @var \Spatie\Crawler\LinkAdder */
+    /** @var \Spatie\Crawler\Adder\LinkAdder */
     protected $linkAdder;
 
     public function __construct(Crawler $crawler)
@@ -65,6 +66,11 @@ class CrawlRequestFulfilled
 
         $this->linkAdder->addFromHtml($body, $baseUrl);
 
+        if ($this->crawler->shouldRequestImages()) {
+            $imageUrlAdder = new ImageUrlAdder($this->crawler);
+            $imageUrlAdder->addFromHtml($body, $baseUrl);
+        }
+
         usleep($this->crawler->getDelayBetweenRequests());
     }
 
@@ -103,6 +109,10 @@ class CrawlRequestFulfilled
             return '';
         }
 
+        if ($this->isImage($contentType)) {
+            return '';
+        }
+
         return $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
     }
 
@@ -132,5 +142,10 @@ class CrawlRequestFulfilled
         }
 
         return false;
+    }
+
+    protected function isImage($contentType): bool
+    {
+        return strpos($contentType, 'image/') === 0;
     }
 }

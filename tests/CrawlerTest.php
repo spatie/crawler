@@ -34,12 +34,21 @@ class CrawlerTest extends TestCase
         $this->assertCrawledOnce($this->regularUrls());
 
         $this->assertNotCrawled($this->javascriptInjectedUrls());
+
+        $this->assertNotCrawled($this->imageUrls());
     }
 
     protected function javascriptInjectedUrls(): array
     {
         return [
             ['url' => 'http://localhost:8080/javascript', 'foundOn' => 'http://localhost:8080/link1'],
+        ];
+    }
+
+    protected function imageUrls(): array
+    {
+        return [
+            ['url' => 'http://localhost:8080/image.png', 'foundOn' => 'http://localhost:8080/'],
         ];
     }
 
@@ -146,6 +155,33 @@ class CrawlerTest extends TestCase
         $this->assertCrawledOnce($this->regularUrls());
 
         $this->assertNotCrawled($this->javascriptInjectedUrls());
+    }
+
+    /** @test */
+    public function it_can_request_all_image_urls()
+    {
+        $crawler = Crawler::create()
+            ->requestImages()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce($this->regularUrls());
+
+        $this->assertCrawledOnce($this->imageUrls());
+    }
+
+    /** @test */
+    public function it_has_a_method_to_disable_requesting_images()
+    {
+        Crawler::create()
+            ->requestImages()
+            ->doNotRequestImages()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce($this->regularUrls());
+
+        $this->assertNotCrawled($this->imageUrls());
     }
 
     /** @test */
