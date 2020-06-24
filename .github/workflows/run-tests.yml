@@ -44,4 +44,4 @@ jobs:
                     coverage: none
 
             -   name: Install dependencies
-                run: composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source
+                run: composer update --no-interaction --prefer-source
