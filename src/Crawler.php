@@ -242,9 +242,9 @@ class Crawler
         return $this;
     }
 
-    public function mustRespectNofollowLinks(): bool
+    public function mustRejectNofollowLinks(): bool
     {
-        return $this->respectNofollowLinks;
+        return $this->rejectNofollowLinks;
     }
 
     public function getRobotsTxt(): RobotsTxt
