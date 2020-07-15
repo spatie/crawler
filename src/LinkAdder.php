@@ -67,7 +67,7 @@ class LinkAdder
                     return true;
                 }
 
-                if ($link->getNode()->getAttribute('rel') === 'nofollow') {
+                if ($this->crawler->mustRejectNofollowLinks() && $link->getNode()->getAttribute('rel') === 'nofollow') {
                     return true;
                 }
 
