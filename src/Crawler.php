@@ -55,6 +55,9 @@ class Crawler
     /** @var bool */
     protected $respectRobots = true;
 
+    /** @var bool */
+    protected $rejectNofollowLinks = true;
+
     /** @var \Tree\Node\Node */
     protected $depthTree;
 
@@ -223,6 +226,25 @@ class Crawler
     public function mustRespectRobots(): bool
     {
         return $this->respectRobots;
+    }
+
+    public function acceptNofollowLinks(): Crawler
+    {
+        $this->rejectNofollowLinks = false;
+
+        return $this;
+    }
+
+    public function rejectNofollowLinks(): Crawler
+    {
+        $this->rejectNofollowLinks = true;
+
+        return $this;
+    }
+
+    public function mustRespectNofollowLinks(): bool
+    {
+        return $this->respectNofollowLinks;
     }
 
     public function getRobotsTxt(): RobotsTxt

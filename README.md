@@ -182,6 +182,16 @@ More information on the spec can be found here: [http://www.robotstxt.org/](http
 
 Parsing robots data is done by our package [spatie/robots-txt](https://github.com/spatie/robots-txt).
 
+### Accept links with rel="nofollow" attribute
+
+By default, the crawler will reject all links containing attribute rel="nofollow". It is possible to disable these checks like so:
+
+```php
+Crawler::create()
+    ->acceptNofollowLinks()
+    ...
+```
+
 ### Using a custom User Agent ###
 
 In order to respect robots.txt rules for a custom User Agent you can specify your own custom User Agent.
