@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.7.5 - 2020-09-12
+
+- treat connection exceptions as request exceptions
+
 ## 4.7.4 - 2020-07-15
 
 - fix: method and property name error (#311)
