@@ -2,6 +2,16 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 5.0.0 - 2020-09-29
+
+- improve chucked reading of response
+- cache crawled response
+- move observer / profiles / queues to separate namespaces
+- typehint all the things
+- use laravel/collections instead of tightenco package
+- remove support for anything below PHP 7.4
+- remove all deprecated functions and classes 
+
 ## 4.7.5 - 2020-09-12
 
 - treat connection exceptions as request exceptions
