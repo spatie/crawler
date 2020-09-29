@@ -3,6 +3,7 @@
 namespace Spatie\Crawler\Handlers;
 
 use Exception;
+use Spatie\Crawler\ResponseWithCachedBody;
 use function GuzzleHttp\Psr7\stream_for;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\RedirectMiddleware;
@@ -48,8 +49,11 @@ class CrawlRequestFulfilled
             $response = $response->withBody(stream_for($body));
         }
 
+        $responseWithCachedBody = ResponseWithCachedBody::fromGuzzlePsr7Response($response);
+        $responseWithCachedBody->setCachedBody($body);
+
         if ($robots->mayIndex()) {
-            $this->handleCrawled($response, $crawlUrl);
+            $this->handleCrawled($responseWithCachedBody, $crawlUrl);
         }
 
         if (! $this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
@@ -85,6 +89,17 @@ class CrawlRequestFulfilled
         $this->crawler->getCrawlObservers()->crawled($crawlUrl, $response);
     }
 
+    protected function getBody(ResponseInterface $response): string
+    {
+        $contentType = $response->getHeaderLine('Content-Type');
+
+        if (! $this->isMimetypeAllowedToParse($contentType)) {
+            return '';
+        }
+
+        return $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
+    }
+
     protected function convertBodyToString(StreamInterface $bodyStream, $readMaximumBytes = 1024 * 1024 * 2): string
     {
         if ($bodyStream->isSeekable()) {
@@ -110,17 +125,6 @@ class CrawlRequestFulfilled
         }
 
         return $body;
-    }
-
-    protected function getBody(ResponseInterface $response): string
-    {
-        $contentType = $response->getHeaderLine('Content-Type');
-
-        if (! $this->isMimetypeAllowedToParse($contentType)) {
-            return '';
-        }
-
-        return $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
     }
 
     protected function getBodyAfterExecutingJavaScript(UriInterface $url): string

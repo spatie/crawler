@@ -10,7 +10,7 @@ use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlInternalUrls;
 use Spatie\Crawler\CrawlProfile;
 use Spatie\Crawler\CrawlSubdomains;
-use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
+use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
 use stdClass;
 
 class CrawlerTest extends TestCase

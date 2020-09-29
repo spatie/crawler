@@ -12,7 +12,7 @@ use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\CrawlQueue\ArrayCrawlQueue;
 use Spatie\Crawler\CrawlQueue\CrawlQueue;
-use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
+use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
 use Spatie\Crawler\Handlers\CrawlRequestFailed;
 use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
 use Spatie\Robots\RobotsTxt;
