@@ -1,11 +1,12 @@
 <?php
 
-namespace Spatie\Crawler\Test;
+namespace Spatie\Crawler\Test\TestClasses;
 
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
+use Spatie\Crawler\Test\CrawlerTest;
 
 class CrawlLogger extends CrawlObserver
 {

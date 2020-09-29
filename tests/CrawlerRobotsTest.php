@@ -3,6 +3,7 @@
 namespace Spatie\Crawler\Test;
 
 use Spatie\Crawler\Crawler;
+use Spatie\Crawler\Test\TestClasses\CrawlLogger;
 
 class CrawlerRobotsTest extends TestCase
 {

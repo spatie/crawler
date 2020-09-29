@@ -23,7 +23,7 @@ class TestCase extends BaseTestCase
         return file_get_contents(static::$logPath);
     }
 
-    protected function assertCrawledOnce($urls): void
+    protected function assertCrawledOnce(array $urls): void
     {
         $logContent = $this->getLogContents();
 
@@ -40,7 +40,7 @@ class TestCase extends BaseTestCase
         }
     }
 
-    protected function assertNotCrawled($urls): void
+    protected function assertNotCrawled(array $urls): void
     {
         $logContent = $this->getLogContents();
 
