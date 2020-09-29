@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Crawler\Exception;
+namespace Spatie\Crawler\Exceptions;
 
 use Exception;
 use Psr\Http\Message\UriInterface;

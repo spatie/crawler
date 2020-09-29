@@ -2,15 +2,13 @@
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/crawler.svg?style=flat-square)](https://packagist.org/packages/spatie/crawler)
 [![MIT Licensed](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-![run-tests](https://github.com/spatie/crawler/workflows/run-tests/badge.svg)
-[![StyleCI](https://styleci.io/repos/45406338/shield)](https://styleci.io/repos/45406338)
+![Tests](https://github.com/spatie/crawler/workflows/Tests/badge.svg)
+![Check & fix styling](https://github.com/spatie/crawler/workflows/Code%20style/badge.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/crawler.svg?style=flat-square)](https://packagist.org/packages/spatie/crawler)
 
 This package provides a class to crawl links on a website. Under the hood Guzzle promises are used to [crawl multiple urls concurrently](http://docs.guzzlephp.org/en/latest/quickstart.html?highlight=pool#concurrent-requests).
 
 Because the crawler can execute JavaScript, it can crawl JavaScript rendered sites. Under the hood [Chrome and Puppeteer](https://github.com/spatie/browsershot) are used to power this feature.
-
-Spatie is a webdesign agency in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
 
 ## Support us
 
@@ -38,7 +36,7 @@ The crawler can be instantiated like this
 use Spatie\Crawler\Crawler;
 
 Crawler::create()
-    ->setCrawlObserver(<class that extends \Spatie\Crawler\CrawlObserver>)
+    ->setCrawlObserver(<class that extends \Spatie\Crawler\CrawlObservers\CrawlObserver>)
     ->startCrawling($url);
 ```
 
@@ -105,8 +103,8 @@ You can set multiple observers with `setCrawlObservers`:
 ```php
 Crawler::create()
     ->setCrawlObservers([
-        <class that extends \Spatie\Crawler\CrawlObserver>,
-        <class that extends \Spatie\Crawler\CrawlObserver>,
+        <class that extends \Spatie\Crawler\CrawlObservers\CrawlObserver>,
+        <class that extends \Spatie\Crawler\CrawlObservers\CrawlObserver>,
         ...
      ])
     ->startCrawling($url);
@@ -116,9 +114,9 @@ Alternatively you can set multiple observers one by one with `addCrawlObserver`:
 
 ```php
 Crawler::create()
-    ->addCrawlObserver(<class that extends \Spatie\Crawler\CrawlObserver>)
-    ->addCrawlObserver(<class that extends \Spatie\Crawler\CrawlObserver>)
-    ->addCrawlObserver(<class that extends \Spatie\Crawler\CrawlObserver>)
+    ->addCrawlObserver(<class that extends \Spatie\Crawler\CrawlObservers\CrawlObserver>)
+    ->addCrawlObserver(<class that extends \Spatie\Crawler\CrawlObservers\CrawlObserver>)
+    ->addCrawlObserver(<class that extends \Spatie\Crawler\CrawlObservers\CrawlObserver>)
     ->startCrawling($url);
 ```
 
@@ -315,7 +313,7 @@ node server.js
 
 With the server running, you can start testing.
 ```bash
-vendor/bin/phpunit
+composer tests
 ```
 
 ## Security

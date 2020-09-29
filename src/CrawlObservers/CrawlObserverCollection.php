@@ -1,19 +1,19 @@
 <?php
 
-namespace Spatie\Crawler;
+namespace Spatie\Crawler\CrawlObservers;
 
 use ArrayAccess;
 use GuzzleHttp\Exception\RequestException;
 use Iterator;
 use Psr\Http\Message\ResponseInterface;
+use Spatie\Crawler\CrawlUrl;
 
 class CrawlObserverCollection implements ArrayAccess, Iterator
 {
-    /** @var \Spatie\Crawler\CrawlObserver[] */
-    protected $observers;
+    /** @var \Spatie\Crawler\CrawlObservers\CrawlObserver[] */
+    protected array $observers;
 
-    /** @var int */
-    protected $position;
+    protected int $position;
 
     public function __construct(array $observers = [])
     {

@@ -2,6 +2,7 @@
 
 namespace Spatie\Crawler\Handlers;
 
+use Exception;
 use function GuzzleHttp\Psr7\stream_for;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\RedirectMiddleware;
@@ -10,17 +11,16 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlerRobots;
-use Spatie\Crawler\CrawlSubdomains;
+use Spatie\Crawler\CrawlProfiles\CrawlSubdomains;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\LinkAdder;
+use Spatie\Crawler\ResponseWithCachedBody;
 
 class CrawlRequestFulfilled
 {
-    /** @var \Spatie\Crawler\Crawler */
-    protected $crawler;
+    protected Crawler $crawler;
 
-    /** @var \Spatie\Crawler\LinkAdder */
-    protected $linkAdder;
+    protected LinkAdder $linkAdder;
 
     public function __construct(Crawler $crawler)
     {
@@ -47,8 +47,11 @@ class CrawlRequestFulfilled
             $response = $response->withBody(stream_for($body));
         }
 
+        $responseWithCachedBody = ResponseWithCachedBody::fromGuzzlePsr7Response($response);
+        $responseWithCachedBody->setCachedBody($body);
+
         if ($robots->mayIndex()) {
-            $this->handleCrawled($response, $crawlUrl);
+            $this->handleCrawled($responseWithCachedBody, $crawlUrl);
         }
 
         if (! $this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
@@ -84,17 +87,6 @@ class CrawlRequestFulfilled
         $this->crawler->getCrawlObservers()->crawled($crawlUrl, $response);
     }
 
-    protected function convertBodyToString(StreamInterface $bodyStream, $readMaximumBytes = 1024 * 1024 * 2): string
-    {
-        if ($bodyStream->isSeekable()) {
-            $bodyStream->rewind();
-        }
-
-        $body = $bodyStream->read($readMaximumBytes);
-
-        return $body;
-    }
-
     protected function getBody(ResponseInterface $response): string
     {
         $contentType = $response->getHeaderLine('Content-Type');
@@ -104,6 +96,33 @@ class CrawlRequestFulfilled
         }
 
         return $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
+    }
+
+    protected function convertBodyToString(StreamInterface $bodyStream, $readMaximumBytes = 1024 * 1024 * 2): string
+    {
+        if ($bodyStream->isSeekable()) {
+            $bodyStream->rewind();
+        }
+
+        $body = '';
+
+        $chunksToRead = $readMaximumBytes < 512 ? $readMaximumBytes : 512;
+
+        for ($bytesRead = 0; $bytesRead < $readMaximumBytes; $bytesRead += $chunksToRead) {
+            try {
+                $newDataRead = $bodyStream->read($chunksToRead);
+            } catch (Exception $exception) {
+                $newDataRead = null;
+            }
+
+            if (! $newDataRead) {
+                break;
+            }
+
+            $body .= $newDataRead;
+        }
+
+        return $body;
     }
 
     protected function getBodyAfterExecutingJavaScript(UriInterface $url): string

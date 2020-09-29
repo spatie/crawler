@@ -7,15 +7,16 @@ use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\Crawler;
-use Spatie\Crawler\CrawlInternalUrls;
-use Spatie\Crawler\CrawlProfile;
-use Spatie\Crawler\CrawlSubdomains;
-use Spatie\Crawler\Exception\InvalidCrawlRequestHandler;
+use Spatie\Crawler\CrawlProfiles\CrawlInternalUrls;
+use Spatie\Crawler\CrawlProfiles\CrawlProfile;
+use Spatie\Crawler\CrawlProfiles\CrawlSubdomains;
+use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
+use Spatie\Crawler\Test\TestClasses\CrawlLogger;
 use stdClass;
 
 class CrawlerTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -63,8 +64,8 @@ class CrawlerTest extends TestCase
             ->addCrawlObserver(new CrawlLogger('Observer B'))
             ->startCrawling('http://localhost:8080');
 
-        $this->assertContains('Observer A', $this->getLogContents());
-        $this->assertContains('Observer B', $this->getLogContents());
+        $this->assertStringContainsString('Observer A', $this->getLogContents());
+        $this->assertStringContainsString('Observer B', $this->getLogContents());
     }
 
     /** @test */
@@ -77,8 +78,8 @@ class CrawlerTest extends TestCase
             ])
             ->startCrawling('http://localhost:8080');
 
-        $this->assertContains('Observer A', $this->getLogContents());
-        $this->assertContains('Observer B', $this->getLogContents());
+        $this->assertStringContainsString('Observer A', $this->getLogContents());
+        $this->assertStringContainsString('Observer B', $this->getLogContents());
     }
 
     /** @test */

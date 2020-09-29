@@ -1,4 +1,4 @@
-name: run-tests
+name: Tests
 
 on: [push, pull_request]
 
@@ -9,14 +9,14 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest]
-                php: [7.4, 7.3, 7.2, 7.1]
+                php: [7.4]
                 dependency-version: [prefer-lowest, prefer-stable]
 
         name: P${{ matrix.php }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
 
         steps:
             -   name: Checkout code
-                uses: actions/checkout@v1
+                uses: actions/checkout@v2
 
             -   name: Install Puppeteer
                 run: npm install puppeteer
@@ -31,7 +31,7 @@ jobs:
                 run: sleep 5
 
             -   name: Cache dependencies
-                uses: actions/cache@v1
+                uses: actions/cache@v2
                 with:
                     path: ~/.composer/cache/files
                     key: dependencies-laravel-${{ matrix.laravel }}-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json') }}

@@ -1,11 +1,11 @@
 <?php
 
-namespace Spatie\Crawler;
+namespace Spatie\Crawler\CrawlProfiles;
 
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\UriInterface;
 
-class CrawlInternalUrls extends CrawlProfile
+class CrawlSubdomains extends CrawlProfile
 {
     protected $baseUrl;
 
@@ -20,6 +20,11 @@ class CrawlInternalUrls extends CrawlProfile
 
     public function shouldCrawl(UriInterface $url): bool
     {
-        return $this->baseUrl->getHost() === $url->getHost();
+        return $this->isSubdomainOfHost($url);
+    }
+
+    public function isSubdomainOfHost(UriInterface $url): bool
+    {
+        return substr($url->getHost(), -strlen($this->baseUrl->getHost())) === $this->baseUrl->getHost();
     }
 }

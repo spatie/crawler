@@ -9,8 +9,7 @@ use Spatie\Crawler\Crawler;
 
 class CrawlRequestFailed
 {
-    /** @var \Spatie\Crawler\Crawler */
-    protected $crawler;
+    protected Crawler $crawler;
 
     public function __construct(Crawler $crawler)
     {

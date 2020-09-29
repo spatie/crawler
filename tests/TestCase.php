@@ -7,10 +7,9 @@ use Throwable;
 
 class TestCase extends BaseTestCase
 {
-    /** @var string logPath */
-    protected static $logPath;
+    protected static string $logPath;
 
-    public function skipIfTestServerIsNotRunning()
+    public function skipIfTestServerIsNotRunning(): void
     {
         try {
             file_get_contents('http://localhost:8080');
@@ -24,7 +23,7 @@ class TestCase extends BaseTestCase
         return file_get_contents(static::$logPath);
     }
 
-    protected function assertCrawledOnce($urls)
+    protected function assertCrawledOnce(array $urls): void
     {
         $logContent = $this->getLogContents();
 
@@ -41,7 +40,7 @@ class TestCase extends BaseTestCase
         }
     }
 
-    protected function assertNotCrawled($urls)
+    protected function assertNotCrawled(array $urls): void
     {
         $logContent = $this->getLogContents();
 
@@ -58,7 +57,7 @@ class TestCase extends BaseTestCase
         }
     }
 
-    protected function assertCrawledUrlCount(int $count)
+    protected function assertCrawledUrlCount(int $count): void
     {
         $logContent = file_get_contents(static::$logPath);
 
@@ -67,7 +66,7 @@ class TestCase extends BaseTestCase
         $this->assertEquals($count, $actualCount, "Crawled `{$actualCount}` urls instead of the expected {$count}");
     }
 
-    public function resetLog()
+    public function resetLog(): void
     {
         static::$logPath = __DIR__.'/temp/crawledUrls.txt';
 

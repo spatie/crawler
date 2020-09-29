@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Crawler;
+namespace Spatie\Crawler\CrawlObservers;
 
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;

@@ -3,15 +3,14 @@
 namespace Spatie\Crawler\Test;
 
 use GuzzleHttp\Psr7\Uri;
-use Spatie\Crawler\CrawlQueue\ArrayCrawlQueue;
+use Spatie\Crawler\CrawlQueues\ArrayCrawlQueue;
 use Spatie\Crawler\CrawlUrl;
 
 class ArrayCrawlQueueTest extends TestCase
 {
-    /** @var \Spatie\Crawler\CrawlQueue\ArrayCrawlQueue */
-    protected $crawlQueue;
+    protected ArrayCrawlQueue $crawlQueue;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

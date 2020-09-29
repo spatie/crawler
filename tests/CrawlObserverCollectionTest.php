@@ -8,16 +8,15 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
-use Spatie\Crawler\CrawlObserver;
-use Spatie\Crawler\CrawlObserverCollection;
+use Spatie\Crawler\CrawlObservers\CrawlObserver;
+use Spatie\Crawler\CrawlObservers\CrawlObserverCollection;
 use Spatie\Crawler\CrawlUrl;
 
 class CrawlObserverCollectionTest extends TestCase
 {
-    /** @var \Spatie\Crawler\CrawlObserver */
-    protected $crawlObserver;
+    protected CrawlObserver $crawlObserver;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

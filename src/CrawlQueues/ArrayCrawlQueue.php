@@ -1,11 +1,11 @@
 <?php
 
-namespace Spatie\Crawler\CrawlQueue;
+namespace Spatie\Crawler\CrawlQueues;
 
 use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\CrawlUrl;
-use Spatie\Crawler\Exception\InvalidUrl;
-use Spatie\Crawler\Exception\UrlNotFoundByIndex;
+use Spatie\Crawler\Exceptions\InvalidUrl;
+use Spatie\Crawler\Exceptions\UrlNotFoundByIndex;
 
 class ArrayCrawlQueue implements CrawlQueue
 {
@@ -14,14 +14,14 @@ class ArrayCrawlQueue implements CrawlQueue
      *
      * @var CrawlUrl[]
      */
-    protected $urls = [];
+    protected array $urls = [];
 
     /**
      * Pending URLs, indexed by URL string.
      *
      * @var CrawlUrl[]
      */
-    protected $pendingUrls = [];
+    protected array $pendingUrls = [];
 
     public function add(CrawlUrl $url): CrawlQueue
     {
@@ -66,7 +66,7 @@ class ArrayCrawlQueue implements CrawlQueue
         return false;
     }
 
-    public function markAsProcessed(CrawlUrl $crawlUrl)
+    public function markAsProcessed(CrawlUrl $crawlUrl): void
     {
         $url = (string) $crawlUrl->url;
 
