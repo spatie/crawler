@@ -6,7 +6,6 @@ use ArrayAccess;
 use GuzzleHttp\Exception\RequestException;
 use Iterator;
 use Psr\Http\Message\ResponseInterface;
-use Spatie\Crawler\CrawlObservers\CrawlObserver;
 use Spatie\Crawler\CrawlUrl;
 
 class CrawlObserverCollection implements ArrayAccess, Iterator
@@ -62,7 +61,6 @@ class CrawlObserverCollection implements ArrayAccess, Iterator
 
     public function offsetSet($offset, $value)
     {
-
         if (is_null($offset)) {
             $this->observers[] = $value;
         } else {
