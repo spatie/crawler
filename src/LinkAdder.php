@@ -11,8 +11,7 @@ use Tree\Node\Node;
 
 class LinkAdder
 {
-    /** @var \Spatie\Crawler\Crawler */
-    protected $crawler;
+    protected Crawler $crawler;
 
     public function __construct(Crawler $crawler)
     {

@@ -9,8 +9,7 @@ use Spatie\Crawler\CrawlObserver;
 
 class CrawlLogger extends CrawlObserver
 {
-    /** @var string */
-    protected $observerId;
+    protected string $observerId;
 
     public function __construct(string $observerId = '')
     {

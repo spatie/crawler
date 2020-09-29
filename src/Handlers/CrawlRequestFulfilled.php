@@ -18,11 +18,9 @@ use Spatie\Crawler\LinkAdder;
 
 class CrawlRequestFulfilled
 {
-    /** @var \Spatie\Crawler\Crawler */
-    protected $crawler;
+    protected Crawler $crawler;
 
-    /** @var \Spatie\Crawler\LinkAdder */
-    protected $linkAdder;
+    protected LinkAdder $linkAdder;
 
     public function __construct(Crawler $crawler)
     {

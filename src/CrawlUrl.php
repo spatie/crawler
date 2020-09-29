@@ -6,11 +6,9 @@ use Psr\Http\Message\UriInterface;
 
 class CrawlUrl
 {
-    /** @var \Psr\Http\Message\UriInterface */
-    public $url;
+    public UriInterface $url;
 
-    /** @var \Psr\Http\Message\UriInterface */
-    public $foundOnUrl;
+    public ?UriInterface $foundOnUrl = null;
 
     /** @var mixed */
     protected $id;
@@ -29,6 +27,7 @@ class CrawlUrl
     protected function __construct(UriInterface $url, $foundOnUrl = null)
     {
         $this->url = $url;
+
         $this->foundOnUrl = $foundOnUrl;
     }
 

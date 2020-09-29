@@ -17,16 +17,16 @@
     ],
     "require": {
         "php": "^7.4",
-        "guzzlehttp/guzzle": "^6.3 || ^7.0",
+        "guzzlehttp/guzzle": "^6.3|^7.0",
         "guzzlehttp/psr7": "^1.4",
+        "illuminate/collections": "^8.6",
         "nicmart/tree": "^0.3.0",
         "spatie/browsershot": "^3.14",
         "spatie/robots-txt": "^1.0.1",
         "symfony/dom-crawler": "^5.0"
     },
     "require-dev": {
-        "larapack/dd": "^1.1",
-        "phpunit/phpunit": "^7.0"
+        "phpunit/phpunit": "^9.3"
     },
     "config": {
         "sort-packages": true

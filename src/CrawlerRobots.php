@@ -7,14 +7,11 @@ use Spatie\Robots\RobotsMeta;
 
 class CrawlerRobots
 {
-    /** @var \Spatie\Robots\RobotsHeaders */
-    protected $robotsHeaders;
+    protected RobotsHeaders $robotsHeaders;
 
-    /** @var \Spatie\Robots\RobotsMeta */
-    protected $robotsMeta;
+    protected RobotsMeta $robotsMeta;
 
-    /** @var bool */
-    protected $mustRespectRobots;
+    protected bool $mustRespectRobots;
 
     public function __construct(array $headers, string $body, bool $mustRespectRobots)
     {

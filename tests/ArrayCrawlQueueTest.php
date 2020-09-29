@@ -8,10 +8,9 @@ use Spatie\Crawler\CrawlUrl;
 
 class ArrayCrawlQueueTest extends TestCase
 {
-    /** @var \Spatie\Crawler\CrawlQueue\ArrayCrawlQueue */
-    protected $crawlQueue;
+    protected ArrayCrawlQueue $crawlQueue;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

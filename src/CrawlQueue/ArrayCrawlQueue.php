@@ -14,14 +14,14 @@ class ArrayCrawlQueue implements CrawlQueue
      *
      * @var CrawlUrl[]
      */
-    protected $urls = [];
+    protected array $urls = [];
 
     /**
      * Pending URLs, indexed by URL string.
      *
      * @var CrawlUrl[]
      */
-    protected $pendingUrls = [];
+    protected array $pendingUrls = [];
 
     public function add(CrawlUrl $url): CrawlQueue
     {
@@ -66,7 +66,7 @@ class ArrayCrawlQueue implements CrawlQueue
         return false;
     }
 
-    public function markAsProcessed(CrawlUrl $crawlUrl)
+    public function markAsProcessed(CrawlUrl $crawlUrl): void
     {
         $url = (string) $crawlUrl->url;
 

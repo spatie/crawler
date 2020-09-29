@@ -10,10 +10,9 @@ use Psr\Http\Message\ResponseInterface;
 class CrawlObserverCollection implements ArrayAccess, Iterator
 {
     /** @var \Spatie\Crawler\CrawlObserver[] */
-    protected $observers;
+    protected array $observers;
 
-    /** @var int */
-    protected $position;
+    protected int $position;
 
     public function __construct(array $observers = [])
     {
@@ -61,6 +60,7 @@ class CrawlObserverCollection implements ArrayAccess, Iterator
 
     public function offsetSet($offset, $value)
     {
+
         if (is_null($offset)) {
             $this->observers[] = $value;
         } else {
