@@ -10,8 +10,12 @@ use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
-use Spatie\Crawler\CrawlQueue\ArrayCrawlQueue;
-use Spatie\Crawler\CrawlQueue\CrawlQueue;
+use Spatie\Crawler\CrawlObservers\CrawlObserver;
+use Spatie\Crawler\CrawlObservers\CrawlObserverCollection;
+use Spatie\Crawler\CrawlProfiles\CrawlAllUrls;
+use Spatie\Crawler\CrawlProfiles\CrawlProfile;
+use Spatie\Crawler\CrawlQueues\ArrayCrawlQueue;
+use Spatie\Crawler\CrawlQueues\CrawlQueue;
 use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
 use Spatie\Crawler\Handlers\CrawlRequestFailed;
 use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
@@ -247,7 +251,7 @@ class Crawler
     }
 
     /**
-     * @param \Spatie\Crawler\CrawlObserver|array[\Spatie\Crawler\CrawlObserver] $crawlObservers
+     * @param \Spatie\Crawler\CrawlObservers\CrawlObserver|array[\Spatie\Crawler\CrawlObserver] $crawlObservers
      *
      * @return $this
      */

@@ -37,7 +37,7 @@ The crawler can be instantiated like this
 use Spatie\Crawler\Crawler;
 
 Crawler::create()
-    ->setCrawlObserver(<class that extends \Spatie\Crawler\CrawlObserver>)
+    ->setCrawlObserver(<class that extends \Spatie\Crawler\CrawlObservers\CrawlObserver>)
     ->startCrawling($url);
 ```
 
@@ -104,8 +104,8 @@ You can set multiple observers with `setCrawlObservers`:
 ```php
 Crawler::create()
     ->setCrawlObservers([
-        <class that extends \Spatie\Crawler\CrawlObserver>,
-        <class that extends \Spatie\Crawler\CrawlObserver>,
+        <class that extends \Spatie\Crawler\CrawlObservers\CrawlObserver>,
+        <class that extends \Spatie\Crawler\CrawlObservers\CrawlObserver>,
         ...
      ])
     ->startCrawling($url);
@@ -115,9 +115,9 @@ Alternatively you can set multiple observers one by one with `addCrawlObserver`:
 
 ```php
 Crawler::create()
-    ->addCrawlObserver(<class that extends \Spatie\Crawler\CrawlObserver>)
-    ->addCrawlObserver(<class that extends \Spatie\Crawler\CrawlObserver>)
-    ->addCrawlObserver(<class that extends \Spatie\Crawler\CrawlObserver>)
+    ->addCrawlObserver(<class that extends \Spatie\Crawler\CrawlObservers\CrawlObserver>)
+    ->addCrawlObserver(<class that extends \Spatie\Crawler\CrawlObservers\CrawlObserver>)
+    ->addCrawlObserver(<class that extends \Spatie\Crawler\CrawlObservers\CrawlObserver>)
     ->startCrawling($url);
 ```
 

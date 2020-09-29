@@ -1,8 +1,9 @@
 <?php
 
-namespace Spatie\Crawler;
+namespace Spatie\Crawler\CrawlProfiles;
 
 use Psr\Http\Message\UriInterface;
+use Spatie\Crawler\CrawlProfiles\CrawlProfile;
 
 class CrawlAllUrls extends CrawlProfile
 {

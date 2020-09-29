@@ -3,7 +3,7 @@
 namespace Spatie\Crawler\Test;
 
 use GuzzleHttp\Psr7\Uri;
-use Spatie\Crawler\CrawlQueue\ArrayCrawlQueue;
+use Spatie\Crawler\CrawlQueues\ArrayCrawlQueue;
 use Spatie\Crawler\CrawlUrl;
 
 class ArrayCrawlQueueTest extends TestCase

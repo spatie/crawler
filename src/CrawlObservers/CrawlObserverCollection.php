@@ -1,15 +1,17 @@
 <?php
 
-namespace Spatie\Crawler;
+namespace Spatie\Crawler\CrawlObservers;
 
 use ArrayAccess;
 use GuzzleHttp\Exception\RequestException;
 use Iterator;
 use Psr\Http\Message\ResponseInterface;
+use Spatie\Crawler\CrawlObservers\CrawlObserver;
+use Spatie\Crawler\CrawlUrl;
 
 class CrawlObserverCollection implements ArrayAccess, Iterator
 {
-    /** @var \Spatie\Crawler\CrawlObserver[] */
+    /** @var \Spatie\Crawler\CrawlObservers\CrawlObserver[] */
     protected array $observers;
 
     protected int $position;

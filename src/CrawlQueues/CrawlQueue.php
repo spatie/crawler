@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Crawler\CrawlQueue;
+namespace Spatie\Crawler\CrawlQueues;
 
 use Spatie\Crawler\CrawlUrl;
 
