@@ -67,11 +67,11 @@ class Crawler
     protected array $allowedMimeTypes = [];
 
     protected static array $defaultClientOptions = [
-        RequestOptions::COOKIES => true,
+        RequestOptions::COOKIES         => true,
         RequestOptions::CONNECT_TIMEOUT => 10,
-        RequestOptions::TIMEOUT => 10,
+        RequestOptions::TIMEOUT         => 10,
         RequestOptions::ALLOW_REDIRECTS => false,
-        RequestOptions::HEADERS => [
+        RequestOptions::HEADERS         => [
             'User-Agent' => self::DEFAULT_USER_AGENT,
         ],
     ];
@@ -257,7 +257,7 @@ class Crawler
      */
     public function setCrawlObserver($crawlObservers): self
     {
-        if (! is_array($crawlObservers)) {
+        if (!is_array($crawlObservers)) {
             $crawlObservers = [$crawlObservers];
         }
 
@@ -299,7 +299,7 @@ class Crawler
     {
         $baseClass = CrawlRequestFulfilled::class;
 
-        if (! is_subclass_of($crawlRequestFulfilledClass, $baseClass)) {
+        if (!is_subclass_of($crawlRequestFulfilledClass, $baseClass)) {
             throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($crawlRequestFulfilledClass, $baseClass);
         }
 
@@ -312,7 +312,7 @@ class Crawler
     {
         $baseClass = CrawlRequestFailed::class;
 
-        if (! is_subclass_of($crawlRequestFailedClass, $baseClass)) {
+        if (!is_subclass_of($crawlRequestFailedClass, $baseClass)) {
             throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($crawlRequestFailedClass, $baseClass);
         }
 
@@ -357,7 +357,7 @@ class Crawler
 
     public function getBrowsershot(): Browsershot
     {
-        if (! $this->browsershot) {
+        if (!$this->browsershot) {
             $this->browsershot = new Browsershot();
         }
 
@@ -374,7 +374,7 @@ class Crawler
      */
     public function startCrawling($baseUrl)
     {
-        if (! $baseUrl instanceof UriInterface) {
+        if (!$baseUrl instanceof UriInterface) {
             $baseUrl = new Uri($baseUrl);
         }
 
@@ -393,7 +393,7 @@ class Crawler
         $this->robotsTxt = $this->createRobotsTxt($crawlUrl->url);
 
         if ($this->robotsTxt->allows((string) $crawlUrl->url, $this->getUserAgent()) ||
-            ! $this->respectRobots
+            !$this->respectRobots
         ) {
             $this->addToCrawlQueue($crawlUrl);
         }
@@ -428,7 +428,7 @@ class Crawler
         foreach ($node->getChildren() as $currentNode) {
             $returnNode = $this->addToDepthTree($url, $parentUrl, $currentNode);
 
-            if (! is_null($returnNode)) {
+            if (!is_null($returnNode)) {
                 break;
             }
         }
@@ -441,9 +441,9 @@ class Crawler
         while ($this->crawlQueue->hasPendingUrls()) {
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
-                'options' => $this->client->getConfig(),
-                'fulfilled' => new $this->crawlRequestFulfilledClass($this),
-                'rejected' => new $this->crawlRequestFailedClass($this),
+                'options'     => $this->client->getConfig(),
+                'fulfilled'   => new $this->crawlRequestFulfilledClass($this),
+                'rejected'    => new $this->crawlRequestFailedClass($this),
             ]);
 
             $promise = $pool->promise();
@@ -460,7 +460,7 @@ class Crawler
     protected function getCrawlRequests(): Generator
     {
         while ($crawlUrl = $this->crawlQueue->getFirstPendingUrl()) {
-            if (! $this->crawlProfile->shouldCrawl($crawlUrl->url)) {
+            if (!$this->crawlProfile->shouldCrawl($crawlUrl->url)) {
                 $this->crawlQueue->markAsProcessed($crawlUrl);
                 continue;
             }
@@ -481,7 +481,7 @@ class Crawler
 
     public function addToCrawlQueue(CrawlUrl $crawlUrl): self
     {
-        if (! $this->getCrawlProfile()->shouldCrawl($crawlUrl->url)) {
+        if (!$this->getCrawlProfile()->shouldCrawl($crawlUrl->url)) {
             return $this;
         }
 
