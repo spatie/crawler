@@ -2,6 +2,7 @@
 
 namespace Spatie\Crawler\Handlers;
 
+use Exception;
 use function GuzzleHttp\Psr7\stream_for;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\RedirectMiddleware;
@@ -90,7 +91,23 @@ class CrawlRequestFulfilled
             $bodyStream->rewind();
         }
 
-        $body = $bodyStream->read($readMaximumBytes);
+        $body = '';
+
+        $chunksToRead = $readMaximumBytes < 512 ? $readMaximumBytes : 512;
+
+        for ($bytesRead = 0; $bytesRead < $readMaximumBytes; $bytesRead += $chunksToRead) {
+            try {
+                $newDataRead = $bodyStream->read($chunksToRead);
+            } catch (Exception $exception) {
+                $newDataRead = null;
+            }
+
+            if (! $newDataRead) {
+                break;
+            }
+
+            $body .= $newDataRead;
+        }
 
         return $body;
     }
