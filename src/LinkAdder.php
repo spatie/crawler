@@ -54,7 +54,7 @@ class LinkAdder
      * @param string $html
      * @param \Psr\Http\Message\UriInterface $foundOnUrl
      *
-     * @return \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection|null
+     * @return \Illuminate\Support\Collection|null
      */
     protected function extractLinksFromHtml(string $html, UriInterface $foundOnUrl)
     {
