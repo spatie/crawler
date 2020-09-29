@@ -462,6 +462,7 @@ class Crawler
         while ($crawlUrl = $this->crawlQueue->getFirstPendingUrl()) {
             if (! $this->crawlProfile->shouldCrawl($crawlUrl->url)) {
                 $this->crawlQueue->markAsProcessed($crawlUrl);
+
                 continue;
             }
 
