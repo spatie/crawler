@@ -151,7 +151,7 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_uses_a_crawl_profile_to_determine_what_should_be_crawled()
     {
-        $crawlProfile = new class extends CrawlProfile {
+        $crawlProfile = new class() extends CrawlProfile {
             public function shouldCrawl(UriInterface $url): bool
             {
                 return $url->getPath() !== '/link3';
@@ -160,7 +160,7 @@ class CrawlerTest extends TestCase
 
         Crawler::create()
             ->setCrawlObserver(new CrawlLogger())
-            ->setCrawlProfile(new $crawlProfile)
+            ->setCrawlProfile(new $crawlProfile())
             ->startCrawling('http://localhost:8080');
 
         $this->assertCrawledOnce([
@@ -194,7 +194,7 @@ class CrawlerTest extends TestCase
     /** @test */
     public function it_can_handle_pages_with_invalid_urls()
     {
-        $crawlProfile = new class extends CrawlProfile {
+        $crawlProfile = new class() extends CrawlProfile {
             public function shouldCrawl(UriInterface $url): bool
             {
                 return true;
@@ -305,12 +305,12 @@ class CrawlerTest extends TestCase
         $baseUrl = 'http://spatie.be';
 
         $urls = [
-            'http://spatie.be' => true,
-            'http://subdomain.spatie.be' => true,
-            'https://www.subdomain.spatie.be' => true,
-            'https://sub.dom.ain.spatie.be' => true,
+            'http://spatie.be'                 => true,
+            'http://subdomain.spatie.be'       => true,
+            'https://www.subdomain.spatie.be'  => true,
+            'https://sub.dom.ain.spatie.be'    => true,
             'https://subdomain.localhost:8080' => false,
-            'https://localhost:8080' => false,
+            'https://localhost:8080'           => false,
         ];
 
         $profile = new CrawlSubdomains($baseUrl);

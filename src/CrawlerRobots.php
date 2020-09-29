@@ -24,15 +24,15 @@ class CrawlerRobots
 
     public function mayIndex(): bool
     {
-        if (! $this->mustRespectRobots) {
+        if (!$this->mustRespectRobots) {
             return true;
         }
 
-        if (! $this->robotsHeaders->mayIndex()) {
+        if (!$this->robotsHeaders->mayIndex()) {
             return false;
         }
 
-        if (! $this->robotsMeta->mayIndex()) {
+        if (!$this->robotsMeta->mayIndex()) {
             return false;
         }
 
@@ -41,15 +41,15 @@ class CrawlerRobots
 
     public function mayFollow(): bool
     {
-        if (! $this->mustRespectRobots) {
+        if (!$this->mustRespectRobots) {
             return true;
         }
 
-        if (! $this->robotsHeaders->mayFollow()) {
+        if (!$this->robotsHeaders->mayFollow()) {
             return false;
         }
 
-        if (! $this->robotsMeta->mayFollow()) {
+        if (!$this->robotsMeta->mayFollow()) {
             return false;
         }
 

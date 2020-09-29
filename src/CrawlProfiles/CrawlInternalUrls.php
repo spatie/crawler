@@ -4,7 +4,6 @@ namespace Spatie\Crawler\CrawlProfiles;
 
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\UriInterface;
-use Spatie\Crawler\CrawlProfiles\CrawlProfile;
 
 class CrawlInternalUrls extends CrawlProfile
 {
@@ -12,7 +11,7 @@ class CrawlInternalUrls extends CrawlProfile
 
     public function __construct($baseUrl)
     {
-        if (! $baseUrl instanceof UriInterface) {
+        if (!$baseUrl instanceof UriInterface) {
             $baseUrl = new Uri($baseUrl);
         }
 

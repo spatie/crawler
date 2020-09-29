@@ -3,7 +3,6 @@
 namespace Spatie\Crawler\Handlers;
 
 use Exception;
-use Spatie\Crawler\ResponseWithCachedBody;
 use function GuzzleHttp\Psr7\stream_for;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\RedirectMiddleware;
@@ -15,6 +14,7 @@ use Spatie\Crawler\CrawlerRobots;
 use Spatie\Crawler\CrawlProfiles\CrawlSubdomains;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\LinkAdder;
+use Spatie\Crawler\ResponseWithCachedBody;
 
 class CrawlRequestFulfilled
 {
@@ -54,13 +54,13 @@ class CrawlRequestFulfilled
             $this->handleCrawled($responseWithCachedBody, $crawlUrl);
         }
 
-        if (! $this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
+        if (!$this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
             if ($crawlUrl->url->getHost() !== $this->crawler->getBaseUrl()->getHost()) {
                 return;
             }
         }
 
-        if (! $robots->mayFollow()) {
+        if (!$robots->mayFollow()) {
             return;
         }
 
@@ -91,7 +91,7 @@ class CrawlRequestFulfilled
     {
         $contentType = $response->getHeaderLine('Content-Type');
 
-        if (! $this->isMimetypeAllowedToParse($contentType)) {
+        if (!$this->isMimetypeAllowedToParse($contentType)) {
             return '';
         }
 
@@ -115,7 +115,7 @@ class CrawlRequestFulfilled
                 $newDataRead = null;
             }
 
-            if (! $newDataRead) {
+            if (!$newDataRead) {
                 break;
             }
 
@@ -140,7 +140,7 @@ class CrawlRequestFulfilled
             return true;
         }
 
-        if (! count($this->crawler->getParseableMimeTypes())) {
+        if (!count($this->crawler->getParseableMimeTypes())) {
             return true;
         }
 

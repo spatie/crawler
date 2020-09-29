@@ -30,7 +30,7 @@ class LinkAdder
                 return $this->normalizeUrl($url);
             })
             ->filter(function (UriInterface $url) use ($foundOnUrl) {
-                if (! $node = $this->crawler->addToDepthTree($url, $foundOnUrl)) {
+                if (!$node = $this->crawler->addToDepthTree($url, $foundOnUrl)) {
                     return false;
                 }
 
@@ -51,7 +51,7 @@ class LinkAdder
     }
 
     /**
-     * @param string $html
+     * @param string                         $html
      * @param \Psr\Http\Message\UriInterface $foundOnUrl
      *
      * @return \Illuminate\Support\Collection|\Tightenco\Collect\Support\Collection|null
@@ -94,7 +94,7 @@ class LinkAdder
 
     protected function shouldCrawl(Node $node): bool
     {
-        if ($this->crawler->mustRespectRobots() && ! $this->crawler->getRobotsTxt()->allows($node->getValue(), $this->crawler->getUserAgent())) {
+        if ($this->crawler->mustRespectRobots() && !$this->crawler->getRobotsTxt()->allows($node->getValue(), $this->crawler->getUserAgent())) {
             return false;
         }
 

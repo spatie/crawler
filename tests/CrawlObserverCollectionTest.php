@@ -20,7 +20,7 @@ class CrawlObserverCollectionTest extends TestCase
     {
         parent::setUp();
 
-        $this->crawlObserver = new class extends CrawlObserver {
+        $this->crawlObserver = new class() extends CrawlObserver {
             public $crawled = false;
 
             public $failed = false;

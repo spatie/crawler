@@ -23,7 +23,7 @@ class CrawlLogger extends CrawlObserver
     /**
      * Called when the crawler will crawl the url.
      *
-     * @param \Psr\Http\Message\UriInterface   $url
+     * @param \Psr\Http\Message\UriInterface $url
      */
     public function willCrawl(UriInterface $url)
     {
@@ -33,7 +33,7 @@ class CrawlLogger extends CrawlObserver
     /**
      * Called when the crawler has crawled the given url.
      *
-     * @param \Psr\Http\Message\UriInterface $url
+     * @param \Psr\Http\Message\UriInterface      $url
      * @param \Psr\Http\Message\ResponseInterface $response
      * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
      */
