@@ -150,7 +150,7 @@ These system dependencies are only required if you're calling `executeJavaScript
 ### Filtering certain urls
 
 You can tell the crawler not to visit certain urls by using the `setCrawlProfile`-function. That function expects
-an object that extends `Spatie\Crawler\CrawlProfile`:
+an object that extends `Spatie\Crawler\CrawlProfiles\CrawlProfile`:
 
 ```php
 /*
