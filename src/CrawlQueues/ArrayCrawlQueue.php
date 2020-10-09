@@ -23,15 +23,15 @@ class ArrayCrawlQueue implements CrawlQueue
      */
     protected array $pendingUrls = [];
 
-    public function add(CrawlUrl $url): CrawlQueue
+    public function add(CrawlUrl $crawlUrl): CrawlQueue
     {
-        $urlString = (string) $url->url;
+        $urlString = (string) $crawlUrl->url;
 
         if (! isset($this->urls[$urlString])) {
-            $url->setId($urlString);
+            $crawlUrl->setId($urlString);
 
-            $this->urls[$urlString] = $url;
-            $this->pendingUrls[$urlString] = $url;
+            $this->urls[$urlString] = $crawlUrl;
+            $this->pendingUrls[$urlString] = $crawlUrl;
         }
 
         return $this;
@@ -51,15 +51,15 @@ class ArrayCrawlQueue implements CrawlQueue
         return $this->urls[$id];
     }
 
-    public function hasAlreadyBeenProcessed(CrawlUrl $url): bool
+    public function hasAlreadyBeenProcessed(CrawlUrl $crawlUrl): bool
     {
-        $url = (string) $url->url;
+        $urlString = (string) $crawlUrl->url;
 
-        if (isset($this->pendingUrls[$url])) {
+        if (isset($this->pendingUrls[$urlString])) {
             return false;
         }
 
-        if (isset($this->urls[$url])) {
+        if (isset($this->urls[$urlString])) {
             return true;
         }
 
@@ -68,9 +68,9 @@ class ArrayCrawlQueue implements CrawlQueue
 
     public function markAsProcessed(CrawlUrl $crawlUrl): void
     {
-        $url = (string) $crawlUrl->url;
+        $urlString = (string) $crawlUrl->url;
 
-        unset($this->pendingUrls[$url]);
+        unset($this->pendingUrls[$urlString]);
     }
 
     /**
@@ -81,14 +81,14 @@ class ArrayCrawlQueue implements CrawlQueue
     public function has($crawlUrl): bool
     {
         if ($crawlUrl instanceof CrawlUrl) {
-            $url = (string) $crawlUrl->url;
+            $urlString = (string) $crawlUrl->url;
         } elseif ($crawlUrl instanceof UriInterface) {
-            $url = (string) $crawlUrl;
+            $urlString = (string) $crawlUrl;
         } else {
             throw InvalidUrl::unexpectedType($crawlUrl);
         }
 
-        return isset($this->urls[$url]);
+        return isset($this->urls[$urlString]);
     }
 
     public function getFirstPendingUrl(): ?CrawlUrl
