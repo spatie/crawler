@@ -38,7 +38,7 @@ Crawler::create()
     ->startCrawling($url);
 ```
 
-The argument passed to `setCrawlObserver` must be an object that extends the `\Spatie\Crawler\CrawlObserver` abstract class:
+The argument passed to `setCrawlObserver` must be an object that extends the `\Spatie\Crawler\CrawlObservers\CrawlObserver` abstract class:
 
 ```php
 namespace Spatie\Crawler;
