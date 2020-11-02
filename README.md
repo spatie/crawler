@@ -276,7 +276,7 @@ A valid crawl queue is any class that implements the `Spatie\Crawler\CrawlQueues
 
 ```php
 Crawler::create()
-    ->setCrawlQueue(<implementation of \Spatie\Crawler\CrawlQueue\CrawlQueue>)
+    ->setCrawlQueue(<implementation of \Spatie\Crawler\CrawlQueues\CrawlQueue>)
 ```
 
 Here
