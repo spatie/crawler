@@ -402,6 +402,7 @@ class Crawler
 
         $this->startCrawlingQueue();
 
+        // Notify observers
         foreach ($this->crawlObservers as $crawlObserver) {
             $crawlObserver->finishedCrawling();
         }
@@ -438,7 +439,10 @@ class Crawler
 
     protected function startCrawlingQueue(): void
     {
-        while ($this->crawlQueue->hasPendingUrls()) {
+        while (
+            $this->maximumCrawlCountReached() === false &&
+            $this->crawlQueue->hasPendingUrls()
+        ) {
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
                 'options' => $this->client->getConfig(),
@@ -459,21 +463,25 @@ class Crawler
 
     protected function getCrawlRequests(): Generator
     {
-        while ($crawlUrl = $this->crawlQueue->getFirstPendingUrl()) {
-            if (! $this->crawlProfile->shouldCrawl($crawlUrl->url)) {
-                $this->crawlQueue->markAsProcessed($crawlUrl);
-
+        while (
+            $this->maximumCrawlCountReached() === false &&
+            $crawlUrl = $this->crawlQueue->getFirstPendingUrl()
+        ) {
+            // Skip any undesired or already processed URLs.
+            if (
+                $this->crawlProfile->shouldCrawl($crawlUrl->url) === false ||
+                $this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl)
+            ) {
                 continue;
             }
 
-            if ($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl)) {
-                continue;
-            }
-
+            // Notify the observers "will crawl"
             foreach ($this->crawlObservers as $crawlObserver) {
                 $crawlObserver->willCrawl($crawlUrl->url);
             }
 
+            // Increase the count of processed sites and make as done.
+            $this->crawledUrlCount++;
             $this->crawlQueue->markAsProcessed($crawlUrl);
 
             yield $crawlUrl->getId() => new Request('GET', $crawlUrl->url);
@@ -489,8 +497,6 @@ class Crawler
         if ($this->getCrawlQueue()->has($crawlUrl->url)) {
             return $this;
         }
-
-        $this->crawledUrlCount++;
 
         $this->crawlQueue->add($crawlUrl);
 

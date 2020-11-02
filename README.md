@@ -88,7 +88,8 @@ abstract class CrawlObserver
     /**
      * Called when the crawl has ended.
      */
-    public function finishedCrawling() {
+    public function finishedCrawling()
+    {
 
     }
 }
@@ -130,7 +131,7 @@ Crawler::create()
 
 In order to make it possible to get the body html after the javascript has been executed, this package depends on
 our [Browsershot](https://github.com/spatie/browsershot) package.
-This package uses [Puppeteer](https://github.com/GoogleChrome/puppeteer) under the hood. Here are some pointers on [how to install it on your system](https://github.com/spatie/browsershot#requirements).
+This package uses [Puppeteer](https://github.com/puppeteer/puppeteer) under the hood. Here are some pointers on [how to install it on your system](https://github.com/spatie/browsershot#requirements).
 
 Browsershot will make an educated guess as to where its dependencies are installed on your system.
 By default, the Crawler will instantiate a new Browsershot instance. You may find the need to set a custom created instance using the `setBrowsershot(Browsershot $browsershot)` method.
@@ -220,7 +221,6 @@ By default, the crawler continues until it has crawled every page of the supplie
 
 ```php
 // stop crawling after 5 urls
-
 Crawler::create()
     ->setMaximumCrawlCount(5)
 ```
