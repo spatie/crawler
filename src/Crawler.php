@@ -402,7 +402,6 @@ class Crawler
 
         $this->startCrawlingQueue();
 
-        // Notify observers
         foreach ($this->crawlObservers as $crawlObserver) {
             $crawlObserver->finishedCrawling();
         }
@@ -467,7 +466,6 @@ class Crawler
             $this->maximumCrawlCountReached() === false &&
             $crawlUrl = $this->crawlQueue->getFirstPendingUrl()
         ) {
-            // Skip any undesired or already processed URLs.
             if (
                 $this->crawlProfile->shouldCrawl($crawlUrl->url) === false ||
                 $this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl)
@@ -475,12 +473,10 @@ class Crawler
                 continue;
             }
 
-            // Notify the observers "will crawl"
             foreach ($this->crawlObservers as $crawlObserver) {
                 $crawlObserver->willCrawl($crawlUrl->url);
             }
 
-            // Increase the count of processed sites and make as done.
             $this->crawledUrlCount++;
             $this->crawlQueue->markAsProcessed($crawlUrl);
 
