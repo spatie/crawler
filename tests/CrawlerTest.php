@@ -219,7 +219,7 @@ class CrawlerTest extends TestCase
             $this->resetLog();
 
             Crawler::create()
-                ->setMaximumCrawlCount($maximumCrawlCount)
+                ->setTotalCrawlLimit($maximumCrawlCount)
                 ->setCrawlObserver(new CrawlLogger())
                 ->ignoreRobots()
                 ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))

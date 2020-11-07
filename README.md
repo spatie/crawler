@@ -212,18 +212,91 @@ To improve the speed of the crawl the package concurrently crawls 10 urls by def
 
 ```php
 Crawler::create()
-    ->setConcurrency(1) //now all urls will be crawled one by one
+    ->setConcurrency(1) // now all urls will be crawled one by one
 ```
 
-## Setting the maximum crawl count
+## Defining Crawl Limits
 
-By default, the crawler continues until it has crawled every page of the supplied URL. If you want to limit the amount of urls the crawler should crawl you can use the `setMaximumCrawlCount` method.
+By default, the crawler continues until it has crawled every page of the supplied URL. This behavior might cause issues if you are working in an environment with limitations such as a serverless environment (e.g. AWS Lambda).
+
+The crawl behavior can be controlled with the following two options:
+
+ - **Total Crawl Limit** (`setTotalCrawlLimit`): This limit defines the maximal count of URLs to crawl during all executions of the crawler.
+ - **Current Crawl Limit** (`setCurrentCrawlLimit`): This defines how many URLs are processed during the current crawl. This allows for chunked crawls assuming you are using the same queue-instance.
+
+The following examples demonstrate the usage further. All examples assume a website with a sufficient number of pages to crawl.
+
+### Example 1: Using Total Crawl Limit
+
+This allows to limit the total number of URLs to crawl.
 
 ```php
-// stop crawling after 5 urls
+$queue = <your selection/implementation of a queue>;
+
+// Crawls 5 URLs and ends.
 Crawler::create()
-    ->setMaximumCrawlCount(5)
+    ->setCrawlQueue($queue)
+    ->setTotalCrawlLimit(5)
+    ->startCrawling($url);
+
+// Doesn't crawl further as the total limit is reached.
+Crawler::create()
+    ->setCrawlQueue($queue)
+    ->setTotalCrawlLimit(5)
+    ->startCrawling($url);
 ```
+
+### Example 2: Using Current Crawl Limit
+
+This crawler would process 5 pages with each execution. This builds the base for chunked crawling.
+
+```php
+$queue = <your selection/implementation of a queue>;
+
+// Crawls 5 URLs and ends.
+Crawler::create()
+    ->setCrawlQueue($queue)
+    ->setCurrentCrawlLimit(5)
+    ->startCrawling($url);
+
+// Crawls the next 5 URLs and ends.
+Crawler::create()
+    ->setCrawlQueue($queue)
+    ->setCurrentCrawlLimit(5)
+    ->startCrawling($url);
+```
+
+### Example 3: Using Current & Total Crawl Limits
+
+Both limits combined can be used to crawl in chunks and limit the maximal crawling at the same time:
+
+```php
+$queue = <your selection/implementation of a queue>;
+
+// Crawls 5 URLs and ends.
+Crawler::create()
+    ->setCrawlQueue($queue)
+    ->setTotalCrawlLimit(10)
+    ->setCurrentCrawlLimit(5)
+    ->startCrawling($url);
+
+// Crawls the next 5 URLs and ends.
+Crawler::create()
+    ->setCrawlQueue($queue)
+    ->setTotalCrawlLimit(10)
+    ->setCurrentCrawlLimit(5)
+    ->startCrawling($url);
+
+// Doesn't crawl further as the total limit is reached.
+Crawler::create()
+    ->setCrawlQueue($queue)
+    ->setTotalCrawlLimit(10)
+    ->setCurrentCrawlLimit(5)
+    ->startCrawling($url);
+```
+
+Note: The behavior is based on the information in the queue. Only if the same queue-instance is passed in the behavior works as described. When a completely new queue is passed in the limits of previous crawls, even for the same website, won't apply.
+
 
 ## Setting the maximum crawl depth
 
