@@ -213,7 +213,7 @@ class CrawlerTest extends TestCase
     }
 
     /** @test */
-    public function it_respects_the_maximum_amount_of_urls_to_be_crawled()
+    public function it_respects_the_total_crawl_limit()
     {
         foreach (range(1, 8) as $maximumCrawlCount) {
             $this->resetLog();
@@ -226,6 +226,41 @@ class CrawlerTest extends TestCase
                 ->startCrawling('http://localhost:8080');
 
             $this->assertCrawledUrlCount($maximumCrawlCount);
+        }
+    }
+
+    /** @test */
+    public function it_respects_the_current_crawl_limit()
+    {
+        foreach (range(1, 8) as $maximumCrawlCount) {
+            $this->resetLog();
+
+            Crawler::create()
+                ->setCurrentCrawlLimit($maximumCrawlCount)
+                ->setCrawlObserver(new CrawlLogger())
+                ->ignoreRobots()
+                ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
+                ->startCrawling('http://localhost:8080');
+
+            $this->assertCrawledUrlCount($maximumCrawlCount);
+        }
+    }
+
+    /** @test */
+    public function it_respects_current_before_total_limit()
+    {
+        foreach (range(1, 8) as $maximumCrawlCount) {
+            $this->resetLog();
+
+            Crawler::create()
+                ->setCurrentCrawlLimit(4)
+                ->setTotalCrawlLimit($maximumCrawlCount)
+                ->setCrawlObserver(new CrawlLogger())
+                ->ignoreRobots()
+                ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
+                ->startCrawling('http://localhost:8080');
+
+            $this->assertCrawledUrlCount($maximumCrawlCount > 4 ? 4 : $maximumCrawlCount);
         }
     }
 
