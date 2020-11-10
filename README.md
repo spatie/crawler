@@ -222,13 +222,13 @@ By default, the crawler continues until it has crawled every page of the supplie
 The crawl behavior can be controlled with the following two options:
 
  - **Total Crawl Limit** (`setTotalCrawlLimit`): This limit defines the maximal count of URLs to crawl during all executions of the crawler.
- - **Current Crawl Limit** (`setCurrentCrawlLimit`): This defines how many URLs are processed during the current crawl. This allows for chunked crawls assuming you are using the same queue-instance.
+ - **Current Crawl Limit** (`setCurrentCrawlLimit`): This defines how many URLs are processed during the current crawl.
 
 The following examples demonstrate the usage further. All examples assume a website with a sufficient number of pages to crawl.
 
 ### Example 1: Using Total Crawl Limit
 
-This allows to limit the total number of URLs to crawl.
+This allows to limit the total number of URLs to crawl, however often you call the crawler.
 
 ```php
 $queue = <your selection/implementation of a queue>;
@@ -248,7 +248,7 @@ Crawler::create()
 
 ### Example 2: Using Current Crawl Limit
 
-This crawler would process 5 pages with each execution. This builds the base for chunked crawling.
+This crawler processes 5 pages with each execution, without a total limit of pages to crawl.
 
 ```php
 $queue = <your selection/implementation of a queue>;
@@ -268,7 +268,7 @@ Crawler::create()
 
 ### Example 3: Using Current & Total Crawl Limits
 
-Both limits combined can be used to crawl in chunks and limit the maximal crawling at the same time:
+Both limits can be combined to control the crawler:
 
 ```php
 $queue = <your selection/implementation of a queue>;
