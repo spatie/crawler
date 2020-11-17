@@ -295,7 +295,49 @@ Crawler::create()
     ->startCrawling($url);
 ```
 
+### Example 4: Crawling across requests
+
+Using the `CurrentCrawlLimit` allows you to crawl across different requests. The following example demonstrates the approach in the simplest variation. It's broken down in the initial request and following requests:
+
+#### Initial Request
+
+To start crawling across different requests, you will need to create a new queue of your selected queue-driver. Start by passing the queue-instance to the crawler. The crawler will start filling the queue as sites are processed and new URLs are discovered. Serialize and store the queue reference after the crawler has finished the current crawl limit.
+
+```php
+// Create a queue using your queue-driver.
+$queue = <your selection/implementation of a queue>;
+
+// Crawl the first set of URLs
+Crawler::create()
+    ->setCrawlQueue($queue)
+    ->setCurrentCrawlLimit(10)
+    ->startCrawling($url);
+
+// Serialize and store your queue
+$serialized_queue = serialize($queue);
+```
+
+#### Follow Requests
+
+For any following requests you will need to unserialize your original queue and pass it to the Crawler:
+
+```php
+// Unserialize queue
+$queue = unserialize($serialized_queue);
+
+// Crawls the next set of URLs
+Crawler::create()
+    ->setCrawlQueue($queue)
+    ->setCurrentCrawlLimit(10)
+    ->startCrawling($url);
+
+// Serialize and store your queue
+$serialized_queue = serialize($queue);
+```
+
 Note: The behavior is based on the information in the queue. Only if the same queue-instance is passed in the behavior works as described. When a completely new queue is passed in the limits of previous crawls, even for the same website, won't apply.
+
+An example with more details can be found [here](https://github.com/spekulatius/spatie-crawler-cached-queue-example). You can also download it and run it locally.
 
 
 ## Setting the maximum crawl depth
@@ -355,7 +397,8 @@ Crawler::create()
 Here
 
 - [ArrayCrawlQueue](https://github.com/spatie/crawler/blob/master/src/CrawlQueues/ArrayCrawlQueue.php)
-- [RedisCrawlQueue (third party package)](https://github.com/repat/spatie-crawler-redis)
+- [RedisCrawlQueue (third-party package)](https://github.com/repat/spatie-crawler-redis)
+- [CacheCrawlQueue for Laravel (third-party package)](https://github.com/spekulatius/spatie-crawler-toolkit-for-laravel)
 
 ## Changelog
 
