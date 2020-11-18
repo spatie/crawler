@@ -217,14 +217,14 @@ Crawler::create()
 
 ## Defining Crawl Limits
 
-By default, the crawler continues until it has crawled every page of the supplied URL. This behavior might cause issues if you are working in an environment with limitations such as a serverless environment (e.g. AWS Lambda).
+By default, the crawler continues until it has crawled every page in scope. This behavior might cause issues if you are working in an environment with limitations such as a serverless environment (e.g. AWS Lambda).
 
 The crawl behavior can be controlled with the following two options:
 
- - **Total Crawl Limit** (`setTotalCrawlLimit`): This limit defines the maximal count of URLs to crawl during all executions of the crawler.
+ - **Total Crawl Limit** (`setTotalCrawlLimit`): This limit defines the maximal count of URLs to crawl.
  - **Current Crawl Limit** (`setCurrentCrawlLimit`): This defines how many URLs are processed during the current crawl.
 
-The following examples demonstrate the usage further. All examples assume a website with a sufficient number of pages to crawl.
+The following examples demonstrate the usage of these limits further. All examples assume a website with a sufficient number of pages to crawl.
 
 ### Example 1: Using Total Crawl Limit
 
@@ -297,11 +297,11 @@ Crawler::create()
 
 ### Example 4: Crawling across requests
 
-Using the `CurrentCrawlLimit` allows you to crawl across different requests. The following example demonstrates the approach in the simplest variation. It's broken down in the initial request and following requests:
+With the `CurrentCrawlLimit`, you can crawl across different requests and break long running crawls up. The following example demonstrates the (simplified) approach. It's made up of an initial request and any number of follow-up requests continuing the crawl:
 
 #### Initial Request
 
-To start crawling across different requests, you will need to create a new queue of your selected queue-driver. Start by passing the queue-instance to the crawler. The crawler will start filling the queue as sites are processed and new URLs are discovered. Serialize and store the queue reference after the crawler has finished the current crawl limit.
+To start crawling across different requests, you will need to create a new queue of your selected queue-driver. Start by passing the queue-instance to the crawler. The crawler will start filling the queue as pages are processed and new URLs are discovered. Serialize and store the queue reference after the crawler has finished (using the current crawl limit).
 
 ```php
 // Create a queue using your queue-driver.
@@ -335,7 +335,7 @@ Crawler::create()
 $serialized_queue = serialize($queue);
 ```
 
-Note: The behavior is based on the information in the queue. Only if the same queue-instance is passed in the behavior works as described. When a completely new queue is passed in the limits of previous crawls, even for the same website, won't apply.
+*Note:* The behavior is based on the information in the queue. Only if the same queue-instance is passed in the behavior works as described. When a completely new queue is passed in, the limits of previous crawls -even for the same website- won't apply.
 
 An example with more details can be found [here](https://github.com/spekulatius/spatie-crawler-cached-queue-example). You can also download it and run it locally.
 
