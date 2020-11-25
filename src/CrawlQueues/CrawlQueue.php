@@ -14,7 +14,7 @@ interface CrawlQueue
 
     public function getUrlById($id): CrawlUrl;
 
-    public function getFirstPendingUrl(): ?CrawlUrl;
+    public function getPendingUrl(): ?CrawlUrl;
 
     public function hasAlreadyBeenProcessed(CrawlUrl $url): bool;
 

@@ -96,7 +96,7 @@ class ArrayCrawlQueue implements CrawlQueue
         return isset($this->urls[$urlString]);
     }
 
-    public function getFirstPendingUrl(): ?CrawlUrl
+    public function getPendingUrl(): ?CrawlUrl
     {
         foreach ($this->pendingUrls as $pendingUrl) {
             return $pendingUrl;

@@ -487,7 +487,7 @@ class Crawler
     {
         while (
             $this->reachedCrawlLimits() === false &&
-            $crawlUrl = $this->crawlQueue->getFirstPendingUrl()
+            $crawlUrl = $this->crawlQueue->getPendingUrl()
         ) {
             if (
                 $this->crawlProfile->shouldCrawl($crawlUrl->url) === false ||
