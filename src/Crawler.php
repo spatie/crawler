@@ -38,9 +38,13 @@ class Crawler
 
     protected CrawlQueue $crawlQueue;
 
-    protected int $crawledUrlCount = 0;
+    protected int $totalUrlCount = 0;
 
-    protected ?int $maximumCrawlCount = null;
+    protected int $currentUrlCount = 0;
+
+    protected ?int $totalCrawlLimit = null;
+
+    protected ?int $currentCrawlLimit = null;
 
     protected int $maximumResponseSize = 1024 * 1024 * 2;
 
@@ -123,21 +127,38 @@ class Crawler
         return $this->maximumResponseSize;
     }
 
-    public function setMaximumCrawlCount(int $maximumCrawlCount): self
+    public function setTotalCrawlLimit(int $totalCrawlLimit): self
     {
-        $this->maximumCrawlCount = $maximumCrawlCount;
+        $this->totalCrawlLimit = $totalCrawlLimit;
 
         return $this;
     }
 
-    public function getMaximumCrawlCount(): ?int
+    public function getTotalCrawlLimit(): ?int
     {
-        return $this->maximumCrawlCount;
+        return $this->totalCrawlLimit;
     }
 
-    public function getCrawlerUrlCount(): int
+    public function getTotalCrawlCount(): int
     {
-        return $this->crawledUrlCount;
+        return $this->totalUrlCount;
+    }
+
+    public function setCurrentCrawlLimit(int $currentCrawlLimit): self
+    {
+        $this->currentCrawlLimit = $currentCrawlLimit;
+
+        return $this;
+    }
+
+    public function getCurrentCrawlLimit(): ?int
+    {
+        return $this->currentCrawlLimit;
+    }
+
+    public function getCurrentCrawlCount(): int
+    {
+        return $this->currentUrlCount;
     }
 
     public function setMaximumDepth(int $maximumDepth): self
@@ -386,6 +407,8 @@ class Crawler
             $baseUrl = $baseUrl->withPath('/');
         }
 
+        $this->totalUrlCount = $this->crawlQueue->getProcessedUrlCount();
+
         $this->baseUrl = $baseUrl;
 
         $crawlUrl = CrawlUrl::create($this->baseUrl);
@@ -438,7 +461,10 @@ class Crawler
 
     protected function startCrawlingQueue(): void
     {
-        while ($this->crawlQueue->hasPendingUrls()) {
+        while (
+            $this->reachedCrawlLimits() === false &&
+            $this->crawlQueue->hasPendingUrls()
+        ) {
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
                 'options' => $this->client->getConfig(),
@@ -459,14 +485,14 @@ class Crawler
 
     protected function getCrawlRequests(): Generator
     {
-        while ($crawlUrl = $this->crawlQueue->getFirstPendingUrl()) {
-            if (! $this->crawlProfile->shouldCrawl($crawlUrl->url)) {
-                $this->crawlQueue->markAsProcessed($crawlUrl);
-
-                continue;
-            }
-
-            if ($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl)) {
+        while (
+            $this->reachedCrawlLimits() === false &&
+            $crawlUrl = $this->crawlQueue->getPendingUrl()
+        ) {
+            if (
+                $this->crawlProfile->shouldCrawl($crawlUrl->url) === false ||
+                $this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl)
+            ) {
                 continue;
             }
 
@@ -474,6 +500,8 @@ class Crawler
                 $crawlObserver->willCrawl($crawlUrl->url);
             }
 
+            $this->totalUrlCount++;
+            $this->currentUrlCount++;
             $this->crawlQueue->markAsProcessed($crawlUrl);
 
             yield $crawlUrl->getId() => new Request('GET', $crawlUrl->url);
@@ -490,21 +518,23 @@ class Crawler
             return $this;
         }
 
-        $this->crawledUrlCount++;
-
         $this->crawlQueue->add($crawlUrl);
 
         return $this;
     }
 
-    public function maximumCrawlCountReached(): bool
+    public function reachedCrawlLimits(): bool
     {
-        $maximumCrawlCount = $this->getMaximumCrawlCount();
-
-        if (is_null($maximumCrawlCount)) {
-            return false;
+        $totalCrawlLimit = $this->getTotalCrawlLimit();
+        if (!is_null($totalCrawlLimit) && $this->getTotalCrawlCount() >= $totalCrawlLimit) {
+            return true;
         }
 
-        return $this->getCrawlerUrlCount() >= $maximumCrawlCount;
+        $currentCrawlLimit = $this->getCurrentCrawlLimit();
+        if (!is_null($currentCrawlLimit) && $this->getCurrentCrawlCount() >= $currentCrawlLimit) {
+            return true;
+        }
+
+        return false;
     }
 }

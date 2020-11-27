@@ -168,11 +168,11 @@ class CrawlerRobotsTest extends TestCase
     {
         $crawler = Crawler::create()
             ->setMaximumDepth(10)
-            ->setMaximumCrawlCount(10)
+            ->setTotalCrawlLimit(10)
             ->setUserAgent('test/1.2.3');
 
         $this->assertEquals(10, $crawler->getMaximumDepth());
-        $this->assertEquals(10, $crawler->getMaximumCrawlCount());
+        $this->assertEquals(10, $crawler->getTotalCrawlLimit());
         $this->assertEquals('test/1.2.3', $crawler->getUserAgent());
     }
 

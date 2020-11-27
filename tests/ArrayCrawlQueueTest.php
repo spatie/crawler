@@ -23,7 +23,7 @@ class ArrayCrawlQueueTest extends TestCase
         $crawlUrl = $this->createCrawlUrl('https://example.com');
         $this->crawlQueue->add($crawlUrl);
 
-        $this->assertEquals($crawlUrl, $this->crawlQueue->getFirstPendingUrl());
+        $this->assertEquals($crawlUrl, $this->crawlQueue->getPendingUrl());
     }
 
     /** @test */
@@ -97,7 +97,7 @@ class ArrayCrawlQueueTest extends TestCase
 
         $pendingUrlCount = 0;
 
-        while ($url = $this->crawlQueue->getFirstPendingUrl()) {
+        while ($url = $this->crawlQueue->getPendingUrl()) {
             $pendingUrlCount++;
             $this->crawlQueue->markAsProcessed($url);
         }

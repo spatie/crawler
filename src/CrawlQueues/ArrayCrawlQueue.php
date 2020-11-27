@@ -73,6 +73,11 @@ class ArrayCrawlQueue implements CrawlQueue
         unset($this->pendingUrls[$urlString]);
     }
 
+    public function getProcessedUrlCount(): int
+    {
+        return count($this->urls) - count($this->pendingUrls);
+    }
+
     /**
      * @param CrawlUrl|UriInterface $crawlUrl
      *
@@ -91,7 +96,7 @@ class ArrayCrawlQueue implements CrawlQueue
         return isset($this->urls[$urlString]);
     }
 
-    public function getFirstPendingUrl(): ?CrawlUrl
+    public function getPendingUrl(): ?CrawlUrl
     {
         foreach ($this->pendingUrls as $pendingUrl) {
             return $pendingUrl;
