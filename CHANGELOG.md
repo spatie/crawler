@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 5.0.2 - 2020-11-27
+
+- add support for PHP 8.0
+
 ## 5.0.1 - 2020-10-09
 
 - tweak variable naming in `ArrayCrawlQueue` (#326)
