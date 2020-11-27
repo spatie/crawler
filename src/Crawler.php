@@ -526,12 +526,12 @@ class Crawler
     public function reachedCrawlLimits(): bool
     {
         $totalCrawlLimit = $this->getTotalCrawlLimit();
-        if (!is_null($totalCrawlLimit) && $this->getTotalCrawlCount() >= $totalCrawlLimit) {
+        if (! is_null($totalCrawlLimit) && $this->getTotalCrawlCount() >= $totalCrawlLimit) {
             return true;
         }
 
         $currentCrawlLimit = $this->getCurrentCrawlLimit();
-        if (!is_null($currentCrawlLimit) && $this->getCurrentCrawlCount() >= $currentCrawlLimit) {
+        if (! is_null($currentCrawlLimit) && $this->getCurrentCrawlCount() >= $currentCrawlLimit) {
             return true;
         }
 
