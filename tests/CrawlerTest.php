@@ -15,7 +15,7 @@ use stdClass;
 
 class CrawlerTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

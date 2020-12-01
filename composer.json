@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "php": "^7.1",
+        "php": "^7.3|^8.0",
         "guzzlehttp/guzzle": "^6.3 || ^7.0",
         "guzzlehttp/psr7": "^1.4",
         "nicmart/tree": "^0.3.0",
@@ -27,7 +27,7 @@
     },
     "require-dev": {
         "larapack/dd": "^1.1",
-        "phpunit/phpunit": "^7.0"
+        "phpunit/phpunit": "^9.0"
     },
     "config": {
         "sort-packages": true

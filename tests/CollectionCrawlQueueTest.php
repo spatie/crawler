@@ -11,7 +11,7 @@ class CollectionCrawlQueueTest extends TestCase
     /** @var \Spatie\Crawler\CrawlQueue\CollectionCrawlQueue */
     protected $crawlQueue;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

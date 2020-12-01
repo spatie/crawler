@@ -6,7 +6,7 @@ use Spatie\Crawler\Crawler;
 
 class CrawlerRobotsTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

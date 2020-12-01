@@ -17,7 +17,7 @@ class CrawlObserverCollectionTest extends TestCase
     /** @var \Spatie\Crawler\CrawlObserver */
     protected $crawlObserver;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
