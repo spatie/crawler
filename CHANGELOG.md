@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 4.7.6 - 2020-12-30
+
+- add support for PHP 8
+
 ## 4.7.5 - 2020-09-12
 
 - treat connection exceptions as request exceptions
