@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 6.0.0 - 2020-12-02
+
+- 
+
 ## 5.0.2 - 2020-11-27
 
 - add support for PHP 8.0

@@ -217,18 +217,18 @@ Crawler::create()
 
 ## Defining Crawl Limits
 
-By default, the crawler continues until it has crawled every page in scope. This behavior might cause issues if you are working in an environment with limitations such as a serverless environment (e.g. AWS Lambda).
+By default, the crawler continues until it has crawled every page it can find. This behavior might cause issues if you are working in an environment with limitations such as a serverless environment.
 
 The crawl behavior can be controlled with the following two options:
 
  - **Total Crawl Limit** (`setTotalCrawlLimit`): This limit defines the maximal count of URLs to crawl.
  - **Current Crawl Limit** (`setCurrentCrawlLimit`): This defines how many URLs are processed during the current crawl.
 
-The following examples demonstrate the usage of these limits further. All examples assume a website with a sufficient number of pages to crawl.
+Let's take a look at some examples to clarify the difference between these two methods.
 
-### Example 1: Using Total Crawl Limit
+### Example 1: Using the total crawl limit
 
-This allows to limit the total number of URLs to crawl, however often you call the crawler.
+The `setTotalCrawlLimit` method allows to limit the total number of URLs to crawl, no matter often you call the crawler.
 
 ```php
 $queue = <your selection/implementation of a queue>;
@@ -246,9 +246,9 @@ Crawler::create()
     ->startCrawling($url);
 ```
 
-### Example 2: Using Current Crawl Limit
+### Example 2: Using the current crawl limit
 
-This crawler processes 5 pages with each execution, without a total limit of pages to crawl.
+The `setCurrentCrawlLimit` will set a limit on how many URls will be crawled per execution. This piece of code will process 5 pages with each execution, without a total limit of pages to crawl.
 
 ```php
 $queue = <your selection/implementation of a queue>;
@@ -266,7 +266,7 @@ Crawler::create()
     ->startCrawling($url);
 ```
 
-### Example 3: Using Current & Total Crawl Limits
+### Example 3: Combining the total and crawl limit
 
 Both limits can be combined to control the crawler:
 
@@ -297,7 +297,7 @@ Crawler::create()
 
 ### Example 4: Crawling across requests
 
-With the `CurrentCrawlLimit`, you can crawl across different requests and break long running crawls up. The following example demonstrates the (simplified) approach. It's made up of an initial request and any number of follow-up requests continuing the crawl:
+You can use the `setCurrentCrawlLimit` to break up long running crawls. The following example demonstrates a (simplified) approach. It's made up of an initial request and any number of follow-up requests continuing the crawl.
 
 #### Initial Request
 
@@ -314,16 +314,16 @@ Crawler::create()
     ->startCrawling($url);
 
 // Serialize and store your queue
-$serialized_queue = serialize($queue);
+$serializedQueue = serialize($queue);
 ```
 
-#### Follow Requests
+#### Subsequent Requests
 
-For any following requests you will need to unserialize your original queue and pass it to the Crawler:
+For any following requests you will need to unserialize your original queue and pass it to the crawler:
 
 ```php
 // Unserialize queue
-$queue = unserialize($serialized_queue);
+$queue = unserialize($serializedQueue);
 
 // Crawls the next set of URLs
 Crawler::create()
@@ -335,10 +335,9 @@ Crawler::create()
 $serialized_queue = serialize($queue);
 ```
 
-*Note:* The behavior is based on the information in the queue. Only if the same queue-instance is passed in the behavior works as described. When a completely new queue is passed in, the limits of previous crawls -even for the same website- won't apply.
+The behavior is based on the information in the queue. Only if the same queue-instance is passed in the behavior works as described. When a completely new queue is passed in, the limits of previous crawls -even for the same website- won't apply.
 
-An example with more details can be found [here](https://github.com/spekulatius/spatie-crawler-cached-queue-example). You can also download it and run it locally.
-
+An example with more details can be found [here](https://github.com/spekulatius/spatie-crawler-cached-queue-example).
 
 ## Setting the maximum crawl depth
 
