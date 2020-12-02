@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "php": "^7.4",
+        "php": "^7.4|^8.0",
         "guzzlehttp/guzzle": "^6.3|^7.0",
         "guzzlehttp/psr7": "^1.4",
         "illuminate/collections": "^8.6",
