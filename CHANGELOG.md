@@ -4,7 +4,8 @@ All notable changes to `spatie/crawler` will be documented in this file.
 
 ## 6.0.0 - 2020-12-02
 
-- 
+- add `setCurrentCrawlLimit` and `setTotalCrawlLimit`
+- internal refactors
 
 ## 5.0.2 - 2020-11-27
 

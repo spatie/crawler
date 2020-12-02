@@ -1,8 +1,8 @@
 # Upgrading
 
-Because there are many breaking changes an upgrade is not that easy. 
-There are many edge cases this guide does not cover. 
-We accept PRs to improve this guide.
+## From v5 to v6
+
+- There are no breaking changes to the API. Internally, we shuffled around some checks around crawl limit that might affected some edge cases
 
 ## From v3 to v4
 
