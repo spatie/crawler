@@ -19,6 +19,9 @@ use Spatie\Crawler\CrawlQueues\CrawlQueue;
 use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
 use Spatie\Crawler\Handlers\CrawlRequestFailed;
 use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
+use Spatie\Crawler\ResponseTransforms\At;
+use Spatie\Crawler\ResponseTransforms\ResponseTransformCollection;
+use Spatie\Crawler\ResponseTransforms\ResponseTransformContract;
 use Spatie\Robots\RobotsTxt;
 use Tree\Node\Node;
 
@@ -31,6 +34,8 @@ class Crawler
     protected UriInterface $baseUrl;
 
     protected CrawlObserverCollection $crawlObservers;
+
+    protected ResponseTransformCollection $responseTransforms;
 
     protected CrawlProfile $crawlProfile;
 
@@ -98,6 +103,8 @@ class Crawler
         $this->crawlQueue = new ArrayCrawlQueue();
 
         $this->crawlObservers = new CrawlObserverCollection();
+
+        $this->responseTransforms = new ResponseTransformCollection();
 
         $this->crawlRequestFulfilledClass = CrawlRequestFulfilled::class;
 
@@ -281,6 +288,18 @@ class Crawler
     public function getCrawlObservers(): CrawlObserverCollection
     {
         return $this->crawlObservers;
+    }
+
+    public function transformResponseVia(ResponseTransformContract $transform, int $position = At::THE_END): self
+    {
+        $this->responseTransforms->push($transform, $position);
+
+        return $this;
+    }
+
+    public function getResponseTransforms(): ResponseTransformCollection
+    {
+        return $this->responseTransforms;
     }
 
     public function setCrawlProfile(CrawlProfile $crawlProfile): self

@@ -66,9 +66,20 @@ class CrawlRequestFulfilled
 
         $baseUrl = $this->getBaseUrl($response, $crawlUrl);
 
-        $this->linkAdder->addFromHtml($body, $baseUrl);
+        $this->linkAdder->addFromHtml($this->pipeResponseThroughTransforms($crawlUrl, $body), $baseUrl);
 
         usleep($this->crawler->getDelayBetweenRequests());
+    }
+
+    protected function pipeResponseThroughTransforms(CrawlUrl $url, string $body): string
+    {
+        $transforms = $this->crawler->getResponseTransforms()->all();
+
+        foreach ($transforms as $transform) {
+            $body = $transform->run($url, $body);
+        }
+
+        return $body;
     }
 
     protected function getBaseUrl(ResponseInterface $response, CrawlUrl $crawlUrl)

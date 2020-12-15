@@ -284,6 +284,34 @@ Here
 - [ArrayCrawlQueue](https://github.com/spatie/crawler/blob/master/src/CrawlQueues/ArrayCrawlQueue.php)
 - [RedisCrawlQueue (third party package)](https://github.com/repat/spatie-crawler-redis)
 
+## Transforming responses before parsing for links
+
+In case you want to transform a sites response before the HTML content is passed to the DOM parser, you can push transforms implementing the `Spatie\Crawler\ResponseTransforms\ResponseTransformContract` to the Crawler with `transformResponseVia()`.
+
+```php
+Crawler::create()
+    ->transformResponseVia(<implementation of \Spatie\Crawler\ResponseTransforms\ResponseTransformContract>)
+    ->startCrawling($url);
+```
+
+By default, the transforms are applied in the order they were added, new transforms pushed at the end of the collection. To change this behaviour, you may pass `Spatie\Crawler\ResponseTransforms\At::THE_BEGINNING` as second parameter for `transformResponseVia` to prepend it to the collection. This can for example come in handy if you have an instance of your crawler in some service container environment with default transforms already set, but require to execute a given transform before them while adding it afterwards.
+
+```php
+use Spatie\Crawler\ResponseTransforms\At;
+
+Crawler::create()
+    ->transformResponseVia(new ExampleTransform(), At::THE_BEGINNING)
+    ->startCrawling($url);
+```
+
+Transforms basically just consist of the following by default:
+
+```php
+public function run(CrawlUrl $url, string $html): string;
+```
+
+They receive the crawled URL along with the HTML response as a string and should return the transformed response as a string. The URL can be helpful for dynamically executing certain transforms depending on a host, subdomain or similar.
+
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.

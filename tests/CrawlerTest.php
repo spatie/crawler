@@ -11,7 +11,10 @@ use Spatie\Crawler\CrawlProfiles\CrawlInternalUrls;
 use Spatie\Crawler\CrawlProfiles\CrawlProfile;
 use Spatie\Crawler\CrawlProfiles\CrawlSubdomains;
 use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
+use Spatie\Crawler\ResponseTransforms\At;
 use Spatie\Crawler\Test\TestClasses\CrawlLogger;
+use Spatie\Crawler\Test\TestClasses\FakeLinkInjectionTransformer;
+use Spatie\Crawler\Test\TestClasses\FakeResponseClearerTransformer;
 use stdClass;
 
 class CrawlerTest extends TestCase
@@ -493,5 +496,95 @@ class CrawlerTest extends TestCase
         $this->assertNotCrawled([['url' => 'http://localhost:8080/invalid-link', 'foundOn' => 'http://localhost:8080/incomplete-href']]);
 
         $this->assertCrawledUrlCount(3);
+    }
+
+    /** @test */
+    public function response_transformation_pipes_can_be_registered()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->transformResponseVia(new FakeLinkInjectionTransformer('http://link-not-actually-in-the-response.com'))
+            ->transformResponseVia(new FakeLinkInjectionTransformer('http://second-link-not-actually-in-the-response.com'))
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce($this->regularUrls());
+        $this->assertCrawledOnce([
+            [
+                'url' => 'http://link-not-actually-in-the-response.com',
+                'foundOn' => 'http://localhost:8080/',
+            ],
+            [
+                'url' => 'http://second-link-not-actually-in-the-response.com',
+                'foundOn' => 'http://localhost:8080/',
+            ],
+        ]);
+    }
+
+    /** @test */
+    public function response_transformation_are_executed_in_the_order_they_were_added()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->transformResponseVia(new FakeLinkInjectionTransformer('http://link-not-actually-in-the-response.com'))
+            ->transformResponseVia(new FakeResponseClearerTransformer())
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce([
+            [
+                'url' => 'http://localhost:8080/',
+            ],
+        ]);
+        $this->assertNotCrawled([
+            [
+                'url' => 'http://link-not-actually-in-the-response.com',
+                'foundOn' => 'http://localhost:8080/',
+            ],
+            [
+                'url' => 'http://localhost:8080/link1',
+                'foundOn' => 'http://localhost:8080/',
+            ],
+            [
+                'url' => 'http://localhost:8080/link1-prev',
+                'foundOn' => 'http://localhost:8080/link1',
+            ],
+            [
+                'url' => 'http://localhost:8080/link1-next',
+                'foundOn' => 'http://localhost:8080/link1',
+            ],
+        ]);
+    }
+
+    /** @test */
+    public function response_transformation_can_be_prepended()
+    {
+        Crawler::create()
+            ->setCrawlObserver(new CrawlLogger())
+            ->transformResponseVia(new FakeLinkInjectionTransformer('http://link-not-actually-in-the-response.com'))
+            ->transformResponseVia(new FakeResponseClearerTransformer(), At::THE_BEGINNING)
+            ->startCrawling('http://localhost:8080');
+
+        $this->assertCrawledOnce([
+            [
+                'url' => 'http://localhost:8080/',
+            ],
+            [
+                'url' => 'http://link-not-actually-in-the-response.com',
+                'foundOn' => 'http://localhost:8080/',
+            ],
+        ]);
+        $this->assertNotCrawled([
+            [
+                'url' => 'http://localhost:8080/link1',
+                'foundOn' => 'http://localhost:8080/',
+            ],
+            [
+                'url' => 'http://localhost:8080/link1-prev',
+                'foundOn' => 'http://localhost:8080/link1',
+            ],
+            [
+                'url' => 'http://localhost:8080/link1-next',
+                'foundOn' => 'http://localhost:8080/link1',
+            ],
+        ]);
     }
 }
