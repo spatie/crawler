@@ -9,7 +9,7 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest]
-                php: [7.4, 7.3]
+                php: [8.0, 7.4, 7.3]
                 dependency-version: [prefer-lowest, prefer-stable]
 
         name: P${{ matrix.php }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
@@ -38,4 +38,7 @@ jobs:
                     coverage: none
 
             -   name: Install dependencies
-                run: composer update --no-interaction --prefer-source
+                run: composer update --${{ matrix.dependency-version }} --no-interaction --prefer-source
+
+            -   name: Execute tests
+                run: vendor/bin/phpunit
