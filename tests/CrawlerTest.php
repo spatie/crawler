@@ -63,8 +63,8 @@ class CrawlerTest extends TestCase
             ->addCrawlObserver(new CrawlLogger('Observer B'))
             ->startCrawling('http://localhost:8080');
 
-        $this->assertContains('Observer A', $this->getLogContents());
-        $this->assertContains('Observer B', $this->getLogContents());
+        $this->assertStringContainsString('Observer A', $this->getLogContents());
+        $this->assertStringContainsString('Observer B', $this->getLogContents());
     }
 
     /** @test */
@@ -77,8 +77,8 @@ class CrawlerTest extends TestCase
             ])
             ->startCrawling('http://localhost:8080');
 
-        $this->assertContains('Observer A', $this->getLogContents());
-        $this->assertContains('Observer B', $this->getLogContents());
+        $this->assertStringContainsString('Observer A', $this->getLogContents());
+        $this->assertStringContainsString('Observer B', $this->getLogContents());
     }
 
     /** @test */
