@@ -7,7 +7,7 @@ use Spatie\Crawler\Test\TestClasses\CrawlLogger;
 
 class CrawlerRobotsTest extends TestCase
 {
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
