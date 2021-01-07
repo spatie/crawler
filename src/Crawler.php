@@ -8,7 +8,6 @@ use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
-use Illuminate\Support\Collection;
 use Spatie\Browsershot\Browsershot;
 use Symfony\Component\DomCrawler\Link;
 use Psr\Http\Message\ResponseInterface;
@@ -309,7 +308,7 @@ class Crawler
         return $node->getDepth() <= $this->maximumDepth;
     }
 
-    protected function extractAllLinks(string $html, Url $foundOnUrl): Collection
+    protected function extractAllLinks(string $html, Url $foundOnUrl)
     {
         if ($this->executeJavaScript) {
             $html = $this->getBodyAfterExecutingJavaScript($foundOnUrl);
