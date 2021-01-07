@@ -1,14 +1,14 @@
 {
-    "name": "spatie/crawler",
+    "name": "heimrichhannot/crawler",
     "description": "Crawl all internal links found on a website",
+    "homepage": "https://github.com/spatie/crawler",
+    "license": "MIT",
     "keywords": [
         "spatie",
         "crawler",
         "link",
         "website"
     ],
-    "homepage": "https://github.com/spatie/crawler",
-    "license": "MIT",
     "authors": [
         {
             "name": "Freek Van der Herten",
@@ -16,20 +16,15 @@
         }
     ],
     "require": {
-        "php": "^7.4|^8.0",
-        "guzzlehttp/guzzle": "^7.2",
-        "guzzlehttp/psr7": "^1.7",
-        "illuminate/collections": "^8.17",
-        "nicmart/tree": "^0.3.0",
-        "spatie/browsershot": "^3.14",
-        "spatie/robots-txt": "^1.0.9",
-        "symfony/dom-crawler": "^5.2"
+        "php": "^7.0",
+        "symfony/dom-crawler": "^3.0|^4.0",
+        "guzzlehttp/guzzle": "^6.3",
+        "tightenco/collect": "^5.3",
+        "nicmart/tree": "^0.2.7",
+        "spatie/browsershot": "^2.4"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.4"
-    },
-    "config": {
-        "sort-packages": true
+        "larapack/dd": "^1.1"
     },
     "autoload": {
         "psr-4": {
@@ -43,5 +38,10 @@
     },
     "scripts": {
         "test": "phpunit"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.0.x-dev"
+        }
     }
 }

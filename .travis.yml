@@ -1,0 +1,30 @@
+dist: trusty
+addons:
+  chrome: stable
+
+language: php
+
+php:
+  - 7.0
+  - 7.1
+  - 7.2
+
+node_js:
+  - "6"
+
+env:
+  matrix:
+    - COMPOSER_FLAGS="--prefer-lowest"
+    - COMPOSER_FLAGS=""
+
+before_script:
+  - ./tests/server/start_server.sh
+  - sleep 5 # give server some time to start
+  - travis_retry composer self-update
+  - travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source
+
+script:
+  - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
+
+after_script:
+  - php vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover

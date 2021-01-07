@@ -2,19 +2,22 @@
 
 namespace Spatie\Crawler\Test;
 
-use GuzzleHttp\Psr7\Uri;
-use Spatie\Crawler\CrawlQueues\ArrayCrawlQueue;
+use Spatie\Crawler\Url;
 use Spatie\Crawler\CrawlUrl;
+use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
 
-class ArrayCrawlQueueTest extends TestCase
+class CrawlQueueTest extends TestCase
 {
-    protected ArrayCrawlQueue $crawlQueue;
+    /**
+     * @var \Spatie\Crawler\CrawlQueue
+     */
+    protected $crawlQueue;
 
-    protected function setUp(): void
+    public function setUp()
     {
         parent::setUp();
 
-        $this->crawlQueue = new ArrayCrawlQueue();
+        $this->crawlQueue = new CollectionCrawlQueue();
     }
 
     /** @test */
@@ -23,7 +26,7 @@ class ArrayCrawlQueueTest extends TestCase
         $crawlUrl = $this->createCrawlUrl('https://example.com');
         $this->crawlQueue->add($crawlUrl);
 
-        $this->assertEquals($crawlUrl, $this->crawlQueue->getPendingUrl());
+        $this->assertEquals($crawlUrl, $this->crawlQueue->getFirstPendingUrl());
     }
 
     /** @test */
@@ -72,8 +75,6 @@ class ArrayCrawlQueueTest extends TestCase
     {
         $crawlUrl = $this->createCrawlUrl('https://example1.com/');
 
-        $this->assertFalse($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl));
-
         $this->crawlQueue->add($crawlUrl);
 
         $this->assertFalse($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl));
@@ -96,8 +97,7 @@ class ArrayCrawlQueueTest extends TestCase
         $this->crawlQueue->markAsProcessed($crawlUrl1);
 
         $pendingUrlCount = 0;
-
-        while ($url = $this->crawlQueue->getPendingUrl()) {
+        while ($url = $this->crawlQueue->getFirstPendingUrl()) {
             $pendingUrlCount++;
             $this->crawlQueue->markAsProcessed($url);
         }
@@ -107,6 +107,8 @@ class ArrayCrawlQueueTest extends TestCase
 
     protected function createCrawlUrl(string $url): CrawlUrl
     {
-        return CrawlUrl::create(new Uri($url));
+        $url = new Url($url);
+
+        return CrawlUrl::create($url);
     }
 }

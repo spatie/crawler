@@ -2,21 +2,20 @@
 
 namespace Spatie\Crawler;
 
-use Psr\Http\Message\UriInterface;
-
 class CrawlUrl
 {
-    public UriInterface $url;
+    /** @var \Spatie\Crawler\Url */
+    public $url;
 
-    public ?UriInterface $foundOnUrl = null;
+    /** @var \Spatie\Crawler\Url */
+    public $foundOnUrl;
 
-    /** @var mixed */
+    /** @var int */
     protected $id;
 
-    public static function create(UriInterface $url, ?UriInterface $foundOnUrl = null, $id = null)
+    public static function create(Url $url, Url $foundOnUrl = null, int $id = null)
     {
         $static = new static($url, $foundOnUrl);
-
         if ($id !== null) {
             $static->setId($id);
         }
@@ -24,22 +23,19 @@ class CrawlUrl
         return $static;
     }
 
-    protected function __construct(UriInterface $url, $foundOnUrl = null)
+    protected function __construct(Url $url, Url $foundOnUrl = null)
     {
         $this->url = $url;
 
         $this->foundOnUrl = $foundOnUrl;
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function setId($id)
+    public function setId(int $id)
     {
         $this->id = $id;
     }

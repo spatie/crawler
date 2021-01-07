@@ -3,88 +3,75 @@
 namespace Spatie\Crawler;
 
 use Generator;
-use GuzzleHttp\Client;
-use GuzzleHttp\Pool;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Uri;
-use GuzzleHttp\RequestOptions;
-use Psr\Http\Message\UriInterface;
-use Spatie\Browsershot\Browsershot;
-use Spatie\Crawler\CrawlObservers\CrawlObserver;
-use Spatie\Crawler\CrawlObservers\CrawlObserverCollection;
-use Spatie\Crawler\CrawlProfiles\CrawlAllUrls;
-use Spatie\Crawler\CrawlProfiles\CrawlProfile;
-use Spatie\Crawler\CrawlQueues\ArrayCrawlQueue;
-use Spatie\Crawler\CrawlQueues\CrawlQueue;
-use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
-use Spatie\Crawler\Handlers\CrawlRequestFailed;
-use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
-use Spatie\Robots\RobotsTxt;
 use Tree\Node\Node;
+use GuzzleHttp\Pool;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\RequestOptions;
+use Illuminate\Support\Collection;
+use Spatie\Browsershot\Browsershot;
+use Symfony\Component\DomCrawler\Link;
+use Psr\Http\Message\ResponseInterface;
+use Spatie\Crawler\CrawlQueue\CrawlQueue;
+use GuzzleHttp\Exception\RequestException;
+use Spatie\Crawler\CrawlQueue\CollectionCrawlQueue;
+use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 
 class Crawler
 {
-    public const DEFAULT_USER_AGENT = '*';
+    /** @var \GuzzleHttp\Client */
+    protected $client;
 
-    protected Client $client;
+    /** @var \Spatie\Crawler\Url */
+    protected $baseUrl;
 
-    protected UriInterface $baseUrl;
+    /** @var \Spatie\Crawler\CrawlObserver */
+    protected $crawlObserver;
 
-    protected CrawlObserverCollection $crawlObservers;
+    /** @var \Spatie\Crawler\CrawlProfile */
+    protected $crawlProfile;
 
-    protected CrawlProfile $crawlProfile;
+    /** @var int */
+    protected $concurrency;
 
-    protected int $concurrency;
+    /** @var \Spatie\Crawler\CrawlQueue\CrawlQueue */
+    protected $crawlQueue;
 
-    protected CrawlQueue $crawlQueue;
+    /** @var int */
+    protected $crawledUrlCount = 0;
 
-    protected int $totalUrlCount = 0;
+    /** @var int|null */
+    protected $maximumCrawlCount = null;
 
-    protected int $currentUrlCount = 0;
+    /** @var int|null */
+    protected $maximumDepth = null;
 
-    protected ?int $totalCrawlLimit = null;
+    /** @var \Tree\Node\Node */
+    protected $depthTree;
 
-    protected ?int $currentCrawlLimit = null;
+    /** @var false */
+    protected $executeJavaScript = false;
 
-    protected int $maximumResponseSize = 1024 * 1024 * 2;
+    /** @var string|null */
+    protected $pathToChromeBinary = null;
 
-    protected ?int $maximumDepth = null;
-
-    protected bool $respectRobots = true;
-
-    protected bool $rejectNofollowLinks = true;
-
-    protected Node $depthTree;
-
-    protected bool $executeJavaScript = false;
-
-    protected ?Browsershot $browsershot = null;
-
-    protected ?RobotsTxt $robotsTxt = null;
-
-    protected string $crawlRequestFulfilledClass;
-
-    protected string $crawlRequestFailedClass;
-
-    protected int $delayBetweenRequests = 0;
-
-    protected array $allowedMimeTypes = [];
-
-    protected static array $defaultClientOptions = [
+    protected static $defaultClientOptions = [
         RequestOptions::COOKIES => true,
         RequestOptions::CONNECT_TIMEOUT => 10,
         RequestOptions::TIMEOUT => 10,
         RequestOptions::ALLOW_REDIRECTS => false,
-        RequestOptions::HEADERS => [
-            'User-Agent' => self::DEFAULT_USER_AGENT,
-        ],
     ];
 
-    public static function create(array $clientOptions = []): Crawler
+    /**
+     * @param array $clientOptions
+     *
+     * @return static
+     */
+    public static function create(array $clientOptions = [])
     {
         $clientOptions = (count($clientOptions))
             ? $clientOptions
-            : static::$defaultClientOptions;
+            : self::$defaultClientOptions;
 
         $client = new Client($clientOptions);
 
@@ -99,349 +86,254 @@ class Crawler
 
         $this->crawlProfile = new CrawlAllUrls();
 
-        $this->crawlQueue = new ArrayCrawlQueue();
-
-        $this->crawlObservers = new CrawlObserverCollection();
-
-        $this->crawlRequestFulfilledClass = CrawlRequestFulfilled::class;
-
-        $this->crawlRequestFailedClass = CrawlRequestFailed::class;
+        $this->crawlQueue = new CollectionCrawlQueue();
     }
 
-    public function setConcurrency(int $concurrency): self
+    /**
+     * @param int $concurrency
+     *
+     * @return $this
+     */
+    public function setConcurrency(int $concurrency)
     {
         $this->concurrency = $concurrency;
 
         return $this;
     }
 
-    public function setMaximumResponseSize(int $maximumResponseSizeInBytes): self
+    /**
+     * @param int $maximumCrawlCount
+     *
+     * @return $this
+     */
+    public function setMaximumCrawlCount(int $maximumCrawlCount)
     {
-        $this->maximumResponseSize = $maximumResponseSizeInBytes;
+        $this->maximumCrawlCount = $maximumCrawlCount;
 
         return $this;
     }
 
-    public function getMaximumResponseSize(): ?int
-    {
-        return $this->maximumResponseSize;
-    }
-
-    public function setTotalCrawlLimit(int $totalCrawlLimit): self
-    {
-        $this->totalCrawlLimit = $totalCrawlLimit;
-
-        return $this;
-    }
-
-    public function getTotalCrawlLimit(): ?int
-    {
-        return $this->totalCrawlLimit;
-    }
-
-    public function getTotalCrawlCount(): int
-    {
-        return $this->totalUrlCount;
-    }
-
-    public function setCurrentCrawlLimit(int $currentCrawlLimit): self
-    {
-        $this->currentCrawlLimit = $currentCrawlLimit;
-
-        return $this;
-    }
-
-    public function getCurrentCrawlLimit(): ?int
-    {
-        return $this->currentCrawlLimit;
-    }
-
-    public function getCurrentCrawlCount(): int
-    {
-        return $this->currentUrlCount;
-    }
-
-    public function setMaximumDepth(int $maximumDepth): self
+    /**
+     * @param int $maximumDepth
+     *
+     * @return $this
+     */
+    public function setMaximumDepth(int $maximumDepth)
     {
         $this->maximumDepth = $maximumDepth;
 
         return $this;
     }
 
-    public function getMaximumDepth(): ?int
-    {
-        return $this->maximumDepth;
-    }
-
-    public function setDelayBetweenRequests(int $delay): self
-    {
-        $this->delayBetweenRequests = ($delay * 1000);
-
-        return $this;
-    }
-
-    public function getDelayBetweenRequests(): int
-    {
-        return $this->delayBetweenRequests;
-    }
-
-    public function setParseableMimeTypes(array $types): self
-    {
-        $this->allowedMimeTypes = $types;
-
-        return $this;
-    }
-
-    public function getParseableMimeTypes(): array
-    {
-        return $this->allowedMimeTypes;
-    }
-
-    public function ignoreRobots(): self
-    {
-        $this->respectRobots = false;
-
-        return $this;
-    }
-
-    public function respectRobots(): self
-    {
-        $this->respectRobots = true;
-
-        return $this;
-    }
-
-    public function mustRespectRobots(): bool
-    {
-        return $this->respectRobots;
-    }
-
-    public function acceptNofollowLinks(): self
-    {
-        $this->rejectNofollowLinks = false;
-
-        return $this;
-    }
-
-    public function rejectNofollowLinks(): self
-    {
-        $this->rejectNofollowLinks = true;
-
-        return $this;
-    }
-
-    public function mustRejectNofollowLinks(): bool
-    {
-        return $this->rejectNofollowLinks;
-    }
-
-    public function getRobotsTxt(): RobotsTxt
-    {
-        return $this->robotsTxt;
-    }
-
-    public function setCrawlQueue(CrawlQueue $crawlQueue): self
+    /**
+     * @param CrawlQueue $crawlQueue
+     * @return $this
+     */
+    public function setCrawlQueue(CrawlQueue $crawlQueue)
     {
         $this->crawlQueue = $crawlQueue;
 
         return $this;
     }
 
-    public function getCrawlQueue(): CrawlQueue
-    {
-        return $this->crawlQueue;
-    }
-
-    public function executeJavaScript(): self
+    /**
+     * @return $this
+     */
+    public function executeJavaScript($pathToChromeBinary = null)
     {
         $this->executeJavaScript = true;
+
+        $this->pathToChromeBinary = $pathToChromeBinary;
 
         return $this;
     }
 
-    public function doNotExecuteJavaScript(): self
+    /**
+     * @return $this
+     */
+    public function doNotExecuteJavaScript()
     {
         $this->executeJavaScript = false;
 
         return $this;
     }
 
-    public function mayExecuteJavascript(): bool
-    {
-        return $this->executeJavaScript;
-    }
-
     /**
-     * @param \Spatie\Crawler\CrawlObservers\CrawlObserver|array[\Spatie\Crawler\CrawlObserver] $crawlObservers
+     * @param \Spatie\Crawler\CrawlObserver $crawlObserver
      *
      * @return $this
      */
-    public function setCrawlObserver($crawlObservers): self
+    public function setCrawlObserver(CrawlObserver $crawlObserver)
     {
-        if (! is_array($crawlObservers)) {
-            $crawlObservers = [$crawlObservers];
-        }
-
-        return $this->setCrawlObservers($crawlObservers);
-    }
-
-    public function setCrawlObservers(array $crawlObservers): self
-    {
-        $this->crawlObservers = new CrawlObserverCollection($crawlObservers);
+        $this->crawlObserver = $crawlObserver;
 
         return $this;
     }
 
-    public function addCrawlObserver(CrawlObserver $crawlObserver): self
-    {
-        $this->crawlObservers->addObserver($crawlObserver);
-
-        return $this;
-    }
-
-    public function getCrawlObservers(): CrawlObserverCollection
-    {
-        return $this->crawlObservers;
-    }
-
-    public function setCrawlProfile(CrawlProfile $crawlProfile): self
+    /**
+     * @param \Spatie\Crawler\CrawlProfile $crawlProfile
+     *
+     * @return $this
+     */
+    public function setCrawlProfile(CrawlProfile $crawlProfile)
     {
         $this->crawlProfile = $crawlProfile;
 
         return $this;
     }
 
-    public function getCrawlProfile(): CrawlProfile
-    {
-        return $this->crawlProfile;
-    }
-
-    public function setCrawlFulfilledHandlerClass(string $crawlRequestFulfilledClass): self
-    {
-        $baseClass = CrawlRequestFulfilled::class;
-
-        if (! is_subclass_of($crawlRequestFulfilledClass, $baseClass)) {
-            throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($crawlRequestFulfilledClass, $baseClass);
-        }
-
-        $this->crawlRequestFulfilledClass = $crawlRequestFulfilledClass;
-
-        return $this;
-    }
-
-    public function setCrawlFailedHandlerClass(string $crawlRequestFailedClass): self
-    {
-        $baseClass = CrawlRequestFailed::class;
-
-        if (! is_subclass_of($crawlRequestFailedClass, $baseClass)) {
-            throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($crawlRequestFailedClass, $baseClass);
-        }
-
-        $this->crawlRequestFailedClass = $crawlRequestFailedClass;
-
-        return $this;
-    }
-
-    public function setBrowsershot(Browsershot $browsershot)
-    {
-        $this->browsershot = $browsershot;
-
-        return $this;
-    }
-
-    public function setUserAgent(string $userAgent): self
-    {
-        $clientOptions = $this->client->getConfig();
-
-        $headers = array_change_key_case($clientOptions['headers']);
-        $headers['user-agent'] = $userAgent;
-
-        $clientOptions['headers'] = $headers;
-
-        $this->client = new Client($clientOptions);
-
-        return $this;
-    }
-
-    public function getUserAgent(): string
-    {
-        $headers = $this->client->getConfig('headers');
-
-        foreach (array_keys($headers) as $name) {
-            if (strtolower($name) === 'user-agent') {
-                return (string) $headers[$name];
-            }
-        }
-
-        return static::DEFAULT_USER_AGENT;
-    }
-
-    public function getBrowsershot(): Browsershot
-    {
-        if (! $this->browsershot) {
-            $this->browsershot = new Browsershot();
-        }
-
-        return $this->browsershot;
-    }
-
-    public function getBaseUrl(): UriInterface
-    {
-        return $this->baseUrl;
-    }
-
     /**
-     * @param \Psr\Http\Message\UriInterface|string $baseUrl
+     * @param \Spatie\Crawler\Url|string $baseUrl
      */
     public function startCrawling($baseUrl)
     {
-        if (! $baseUrl instanceof UriInterface) {
-            $baseUrl = new Uri($baseUrl);
+        if (! $baseUrl instanceof Url) {
+            $baseUrl = Url::create($baseUrl);
         }
-
-        if ($baseUrl->getScheme() === '') {
-            $baseUrl = $baseUrl->withScheme('http');
-        }
-
-        if ($baseUrl->getPath() === '') {
-            $baseUrl = $baseUrl->withPath('/');
-        }
-
-        $this->totalUrlCount = $this->crawlQueue->getProcessedUrlCount();
 
         $this->baseUrl = $baseUrl;
 
-        $crawlUrl = CrawlUrl::create($this->baseUrl);
+        $crawlUrl = CrawlUrl::create($baseUrl);
 
-        $this->robotsTxt = $this->createRobotsTxt($crawlUrl->url);
-
-        if ($this->robotsTxt->allows((string) $crawlUrl->url, $this->getUserAgent()) ||
-            ! $this->respectRobots
-        ) {
-            $this->addToCrawlQueue($crawlUrl);
-        }
+        $this->addToCrawlQueue($crawlUrl);
 
         $this->depthTree = new Node((string) $this->baseUrl);
 
         $this->startCrawlingQueue();
 
-        foreach ($this->crawlObservers as $crawlObserver) {
-            $crawlObserver->finishedCrawling();
+        $this->crawlObserver->finishedCrawling();
+    }
+
+    protected function startCrawlingQueue()
+    {
+        while ($this->crawlQueue->hasPendingUrls()) {
+            $pool = new Pool($this->client, $this->getCrawlRequests(), [
+                'concurrency' => $this->concurrency,
+                'options' => $this->client->getConfig(),
+                'fulfilled' => function (ResponseInterface $response, int $index) {
+                    $crawlUrl = $this->crawlQueue->getUrlById($index);
+                    $this->handleResponse($response, $crawlUrl);
+
+                    if (! $this->crawlProfile instanceof CrawlSubdomains) {
+                        if ($crawlUrl->url->host !== $this->baseUrl->host) {
+                            return;
+                        }
+                    }
+
+                    $this->addAllLinksToCrawlQueue(
+                        (string) $response->getBody(),
+                        $crawlUrl->url
+                    );
+                },
+                'rejected' => function (RequestException $exception, int $index) {
+                    $this->handleResponse(
+                        $exception->getResponse(),
+                        $this->crawlQueue->getUrlById($index)
+                    );
+                },
+            ]);
+
+            $promise = $pool->promise();
+            $promise->wait();
         }
     }
 
-    public function addToDepthTree(UriInterface $url, UriInterface $parentUrl, Node $node = null): ?Node
+    /**
+     * @param ResponseInterface|null $response
+     * @param CrawlUrl $crawlUrl
+     */
+    protected function handleResponse($response, CrawlUrl $crawlUrl)
+    {
+        $this->crawlObserver->hasBeenCrawled($crawlUrl->url, $response, $crawlUrl->foundOnUrl);
+    }
+
+    protected function getCrawlRequests(): Generator
+    {
+        while ($crawlUrl = $this->crawlQueue->getFirstPendingUrl()) {
+            if (! $this->crawlProfile->shouldCrawl($crawlUrl->url)) {
+                continue;
+            }
+
+            if ($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl)) {
+                continue;
+            }
+
+            $this->crawlObserver->willCrawl($crawlUrl->url);
+
+            $this->crawlQueue->markAsProcessed($crawlUrl);
+
+            yield $crawlUrl->getId() => new Request('GET', (string) $crawlUrl->url);
+        }
+    }
+
+    protected function addAllLinksToCrawlQueue(string $html, Url $foundOnUrl)
+    {
+        $allLinks = $this->extractAllLinks($html, $foundOnUrl);
+
+        collect($allLinks)
+            ->filter(function (Url $url) {
+                return $url->hasCrawlableScheme();
+            })
+            ->map(function (Url $url) {
+                return $this->normalizeUrl($url);
+            })
+            ->filter(function (Url $url) {
+                return $this->crawlProfile->shouldCrawl($url);
+            })
+            ->reject(function ($url) {
+                return $this->crawlQueue->has($url);
+            })
+            ->each(function (Url $url) use ($foundOnUrl) {
+                $node = $this->addtoDepthTree($this->depthTree, (string) $url, $foundOnUrl);
+
+                if (! $this->shouldCrawl($node)) {
+                    return;
+                }
+
+                if ($this->maximumCrawlCountReached()) {
+                    return;
+                }
+
+                $crawlUrl = CrawlUrl::create($url, $foundOnUrl);
+
+                $this->addToCrawlQueue($crawlUrl);
+            });
+    }
+
+    protected function shouldCrawl(Node $node): bool
     {
         if (is_null($this->maximumDepth)) {
-            return new Node((string) $url);
+            return true;
         }
 
-        $node = $node ?? $this->depthTree;
+        return $node->getDepth() <= $this->maximumDepth;
+    }
 
+    protected function extractAllLinks(string $html, Url $foundOnUrl): Collection
+    {
+        if ($this->executeJavaScript) {
+            $html = $this->getBodyAfterExecutingJavaScript($foundOnUrl);
+        }
+
+        $domCrawler = new DomCrawler($html, $foundOnUrl);
+
+        return collect($domCrawler->filterXpath('//a')->links())
+            ->map(function (Link $link) {
+                return Url::create($link->getUri());
+            });
+    }
+
+    protected function normalizeUrl(Url $url): Url
+    {
+        return $url->removeFragment();
+    }
+
+    protected function addtoDepthTree(Node $node, string $url, string $parentUrl)
+    {
         $returnNode = null;
 
-        if ($node->getValue() === (string) $parentUrl) {
-            $newNode = new Node((string) $url);
+        if ($node->getValue() === $parentUrl) {
+            $newNode = new Node($url);
 
             $node->addChild($newNode);
 
@@ -449,7 +341,7 @@ class Crawler
         }
 
         foreach ($node->getChildren() as $currentNode) {
-            $returnNode = $this->addToDepthTree($url, $parentUrl, $currentNode);
+            $returnNode = $this->addtoDepthTree($currentNode, $url, $parentUrl);
 
             if (! is_null($returnNode)) {
                 break;
@@ -459,82 +351,34 @@ class Crawler
         return $returnNode;
     }
 
-    protected function startCrawlingQueue(): void
+    protected function getBodyAfterExecutingJavaScript(Url $foundOnUrl): string
     {
-        while (
-            $this->reachedCrawlLimits() === false &&
-            $this->crawlQueue->hasPendingUrls()
-        ) {
-            $pool = new Pool($this->client, $this->getCrawlRequests(), [
-                'concurrency' => $this->concurrency,
-                'options' => $this->client->getConfig(),
-                'fulfilled' => new $this->crawlRequestFulfilledClass($this),
-                'rejected' => new $this->crawlRequestFailedClass($this),
-            ]);
+        $browsershot = Browsershot::url((string) $foundOnUrl);
 
-            $promise = $pool->promise();
-
-            $promise->wait();
+        if ($this->pathToChromeBinary) {
+            $browsershot->setChromePath($this->pathToChromeBinary);
         }
+
+        $html = $browsershot->bodyHtml();
+
+        return html_entity_decode($html);
     }
 
-    protected function createRobotsTxt(UriInterface $uri): RobotsTxt
+    protected function addToCrawlQueue(CrawlUrl $crawlUrl)
     {
-        return RobotsTxt::create($uri->withPath('/robots.txt'));
-    }
-
-    protected function getCrawlRequests(): Generator
-    {
-        while (
-            $this->reachedCrawlLimits() === false &&
-            $crawlUrl = $this->crawlQueue->getPendingUrl()
-        ) {
-            if (
-                $this->crawlProfile->shouldCrawl($crawlUrl->url) === false ||
-                $this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl)
-            ) {
-                continue;
-            }
-
-            foreach ($this->crawlObservers as $crawlObserver) {
-                $crawlObserver->willCrawl($crawlUrl->url);
-            }
-
-            $this->totalUrlCount++;
-            $this->currentUrlCount++;
-            $this->crawlQueue->markAsProcessed($crawlUrl);
-
-            yield $crawlUrl->getId() => new Request('GET', $crawlUrl->url);
-        }
-    }
-
-    public function addToCrawlQueue(CrawlUrl $crawlUrl): self
-    {
-        if (! $this->getCrawlProfile()->shouldCrawl($crawlUrl->url)) {
-            return $this;
-        }
-
-        if ($this->getCrawlQueue()->has($crawlUrl->url)) {
-            return $this;
-        }
+        $this->crawledUrlCount++;
 
         $this->crawlQueue->add($crawlUrl);
 
         return $this;
     }
 
-    public function reachedCrawlLimits(): bool
+    protected function maximumCrawlCountReached(): bool
     {
-        $totalCrawlLimit = $this->getTotalCrawlLimit();
-        if (! is_null($totalCrawlLimit) && $this->getTotalCrawlCount() >= $totalCrawlLimit) {
-            return true;
+        if (is_null($this->maximumCrawlCount)) {
+            return false;
         }
 
-        $currentCrawlLimit = $this->getCurrentCrawlLimit();
-        if (! is_null($currentCrawlLimit) && $this->getCurrentCrawlCount() >= $currentCrawlLimit) {
-            return true;
-        }
-
-        return false;
+        return $this->crawledUrlCount >= $this->maximumCrawlCount;
     }
 }

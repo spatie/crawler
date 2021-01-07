@@ -8,4 +8,3 @@
 /phpunit.xml.dist   export-ignore
 /.scrutinizer.yml   export-ignore
 /tests              export-ignore
-/CrawlRealSite.php  export-ignore
