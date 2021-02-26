@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 6.0.1 - 2021-02-26
+
+- bugfix: infinite loops when a CrawlProfile prevents crawling (#358)
+
 ## 6.0.0 - 2020-12-02
 
 - add `setCurrentCrawlLimit` and `setTotalCrawlLimit`
