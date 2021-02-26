@@ -493,6 +493,8 @@ class Crawler
                 $this->crawlProfile->shouldCrawl($crawlUrl->url) === false ||
                 $this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl)
             ) {
+                $this->crawlQueue->markAsProcessed($crawlUrl);
+
                 continue;
             }
 
