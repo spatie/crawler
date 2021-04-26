@@ -167,9 +167,9 @@ class Crawler
         return $this->maximumDepth;
     }
 
-    public function setDelayBetweenRequests(int $delayInSeconds): self
+    public function setDelayBetweenRequests(int $delayInMilliseconds): self
     {
-        $this->delayBetweenRequests = ($delayInSeconds * 1000);
+        $this->delayBetweenRequests = ($delayInMilliseconds * 1000);
 
         return $this;
     }
