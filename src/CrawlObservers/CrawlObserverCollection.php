@@ -10,24 +10,19 @@ use Spatie\Crawler\CrawlUrl;
 
 class CrawlObserverCollection implements ArrayAccess, Iterator
 {
-    /** @var \Spatie\Crawler\CrawlObservers\CrawlObserver[] */
-    protected array $observers;
-
     protected int $position;
 
-    public function __construct(array $observers = [])
+    public function __construct(protected array $observers = [])
     {
-        $this->observers = $observers;
-
         $this->position = 0;
     }
 
-    public function addObserver(CrawlObserver $observer)
+    public function addObserver(CrawlObserver $observer): void
     {
         $this->observers[] = $observer;
     }
 
-    public function crawled(CrawlUrl $crawlUrl, ResponseInterface $response)
+    public function crawled(CrawlUrl $crawlUrl, ResponseInterface $response): void
     {
         foreach ($this->observers as $crawlObserver) {
             $crawlObserver->crawled(
@@ -38,7 +33,7 @@ class CrawlObserverCollection implements ArrayAccess, Iterator
         }
     }
 
-    public function crawlFailed(CrawlUrl $crawlUrl, RequestException $exception)
+    public function crawlFailed(CrawlUrl $crawlUrl, RequestException $exception): void
     {
         foreach ($this->observers as $crawlObserver) {
             $crawlObserver->crawlFailed(
@@ -56,7 +51,7 @@ class CrawlObserverCollection implements ArrayAccess, Iterator
 
     public function offsetGet($offset)
     {
-        return isset($this->observers[$offset]) ? $this->observers[$offset] : null;
+        return $this->observers[$offset] ?? null;
     }
 
     public function offsetSet($offset, $value)

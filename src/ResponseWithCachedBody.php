@@ -8,7 +8,7 @@ class ResponseWithCachedBody extends Response
 {
     protected ?string $cachedBody = null;
 
-    public static function fromGuzzlePsr7Response(Response $response)
+    public static function fromGuzzlePsr7Response(Response $response): static
     {
         return new static(
             $response->getStatusCode(),
@@ -19,7 +19,7 @@ class ResponseWithCachedBody extends Response
         );
     }
 
-    public function setCachedBody(?string $body = null)
+    public function setCachedBody(?string $body = null): void
     {
         $this->cachedBody = $body;
     }

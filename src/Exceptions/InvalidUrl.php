@@ -8,7 +8,7 @@ use Spatie\Crawler\CrawlUrl;
 
 class InvalidUrl extends Exception
 {
-    public static function unexpectedType($url)
+    public static function unexpectedType(mixed $url): static
     {
         $crawlUrlClass = CrawlUrl::class;
         $uriInterfaceClass = UriInterface::class;

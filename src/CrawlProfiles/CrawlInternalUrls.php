@@ -7,7 +7,7 @@ use Psr\Http\Message\UriInterface;
 
 class CrawlInternalUrls extends CrawlProfile
 {
-    protected $baseUrl;
+    protected mixed $baseUrl;
 
     public function __construct($baseUrl)
     {
