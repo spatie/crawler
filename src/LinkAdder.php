@@ -33,7 +33,7 @@ class LinkAdder
 
                 return $this->shouldCrawl($node);
             })
-            ->filter(fn (UriInterface $url) => !str_contains($url->getPath(), '/tel:'))
+            ->filter(fn (UriInterface $url) => ! str_contains($url->getPath(), '/tel:'))
             ->each(function (UriInterface $url) use ($foundOnUrl) {
                 $crawlUrl = CrawlUrl::create($url, $foundOnUrl);
 
