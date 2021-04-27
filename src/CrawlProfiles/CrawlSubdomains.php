@@ -7,7 +7,7 @@ use Psr\Http\Message\UriInterface;
 
 class CrawlSubdomains extends CrawlProfile
 {
-    protected $baseUrl;
+    protected mixed $baseUrl;
 
     public function __construct($baseUrl)
     {
@@ -25,6 +25,6 @@ class CrawlSubdomains extends CrawlProfile
 
     public function isSubdomainOfHost(UriInterface $url): bool
     {
-        return substr($url->getHost(), -strlen($this->baseUrl->getHost())) === $this->baseUrl->getHost();
+        return str_ends_with($url->getHost(), $this->baseUrl->getHost());
     }
 }

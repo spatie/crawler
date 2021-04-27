@@ -3,6 +3,7 @@
 namespace Spatie\Crawler;
 
 use GuzzleHttp\Psr7\Uri;
+use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
@@ -18,17 +19,13 @@ class LinkAdder
         $this->crawler = $crawler;
     }
 
-    public function addFromHtml(string $html, UriInterface $foundOnUrl)
+    public function addFromHtml(string $html, UriInterface $foundOnUrl): void
     {
         $allLinks = $this->extractLinksFromHtml($html, $foundOnUrl);
 
         collect($allLinks)
-            ->filter(function (UriInterface $url) {
-                return $this->hasCrawlableScheme($url);
-            })
-            ->map(function (UriInterface $url) {
-                return $this->normalizeUrl($url);
-            })
+            ->filter(fn (UriInterface $url) => $this->hasCrawlableScheme($url))
+            ->map(fn (UriInterface $url) => $this->normalizeUrl($url))
             ->filter(function (UriInterface $url) use ($foundOnUrl) {
                 if (! $node = $this->crawler->addToDepthTree($url, $foundOnUrl)) {
                     return false;
@@ -36,9 +33,7 @@ class LinkAdder
 
                 return $this->shouldCrawl($node);
             })
-            ->filter(function (UriInterface $url) {
-                return strpos($url->getPath(), '/tel:') === false;
-            })
+            ->filter(fn (UriInterface $url) => ! str_contains($url->getPath(), '/tel:'))
             ->each(function (UriInterface $url) use ($foundOnUrl) {
                 $crawlUrl = CrawlUrl::create($url, $foundOnUrl);
 
@@ -46,13 +41,7 @@ class LinkAdder
             });
     }
 
-    /**
-     * @param string $html
-     * @param \Psr\Http\Message\UriInterface $foundOnUrl
-     *
-     * @return \Illuminate\Support\Collection|null
-     */
-    protected function extractLinksFromHtml(string $html, UriInterface $foundOnUrl)
+    protected function extractLinksFromHtml(string $html, UriInterface $foundOnUrl): ?Collection
     {
         $domCrawler = new DomCrawler($html, $foundOnUrl);
 

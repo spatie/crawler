@@ -10,10 +10,9 @@ class CrawlUrl
 
     public ?UriInterface $foundOnUrl = null;
 
-    /** @var mixed */
-    protected $id;
+    protected mixed $id;
 
-    public static function create(UriInterface $url, ?UriInterface $foundOnUrl = null, $id = null)
+    public static function create(UriInterface $url, ?UriInterface $foundOnUrl = null, $id = null): static
     {
         $static = new static($url, $foundOnUrl);
 
@@ -31,15 +30,12 @@ class CrawlUrl
         $this->foundOnUrl = $foundOnUrl;
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getId()
+    public function getId(): mixed
     {
         return $this->id;
     }
 
-    public function setId($id)
+    public function setId($id): void
     {
         $this->id = $id;
     }

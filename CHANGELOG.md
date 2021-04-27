@@ -2,6 +2,12 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 7.0.0 - unreleased
+
+- require PHP 8+
+- drop support for PHP 7.x
+- convert syntax to PHP 8
+
 ## 6.0.1 - 2021-02-26
 
 - bugfix: infinite loops when a CrawlProfile prevents crawling (#358)

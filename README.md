@@ -41,7 +41,7 @@ Crawler::create()
 The argument passed to `setCrawlObserver` must be an object that extends the `\Spatie\Crawler\CrawlObservers\CrawlObserver` abstract class:
 
 ```php
-namespace Spatie\Crawler;
+namespace Spatie\Crawler\CrawlObservers;
 
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
@@ -54,9 +54,8 @@ abstract class CrawlObserver
      *
      * @param \Psr\Http\Message\UriInterface $url
      */
-    public function willCrawl(UriInterface $url)
+    public function willCrawl(UriInterface $url): void
     {
-
     }
 
     /**
@@ -70,7 +69,7 @@ abstract class CrawlObserver
         UriInterface $url,
         ResponseInterface $response,
         ?UriInterface $foundOnUrl = null
-    );
+    ): void;
 
     /**
      * Called when the crawler had a problem crawling the given url.
@@ -83,14 +82,13 @@ abstract class CrawlObserver
         UriInterface $url,
         RequestException $requestException,
         ?UriInterface $foundOnUrl = null
-    );
+    ): void;
 
     /**
      * Called when the crawl has ended.
      */
-    public function finishedCrawling()
+    public function finishedCrawling(): void
     {
-
     }
 }
 ```
@@ -425,7 +423,7 @@ node server.js
 
 With the server running, you can start testing.
 ```bash
-composer tests
+composer test
 ```
 
 ## Security
