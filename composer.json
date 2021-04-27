@@ -17,11 +17,11 @@
     ],
     "require": {
         "php": "^8.0",
-        "guzzlehttp/guzzle": "^7.2",
-        "guzzlehttp/psr7": "^1.7",
-        "illuminate/collections": "^8.17",
+        "guzzlehttp/guzzle": "^7.3",
+        "guzzlehttp/psr7": "^1.8",
+        "illuminate/collections": "^8.38",
         "nicmart/tree": "^0.3.0",
-        "spatie/browsershot": "^3.14",
+        "spatie/browsershot": "^3.45",
         "spatie/robots-txt": "^2.0",
         "symfony/dom-crawler": "^5.2"
     },
