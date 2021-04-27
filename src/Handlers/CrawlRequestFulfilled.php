@@ -18,14 +18,10 @@ use Spatie\Crawler\ResponseWithCachedBody;
 
 class CrawlRequestFulfilled
 {
-    protected Crawler $crawler;
-
     protected LinkAdder $linkAdder;
 
-    public function __construct(Crawler $crawler)
+    public function __construct(protected Crawler $crawler)
     {
-        $this->crawler = $crawler;
-
         $this->linkAdder = new LinkAdder($this->crawler);
     }
 
@@ -71,7 +67,7 @@ class CrawlRequestFulfilled
         usleep($this->crawler->getDelayBetweenRequests());
     }
 
-    protected function getBaseUrl(ResponseInterface $response, CrawlUrl $crawlUrl)
+    protected function getBaseUrl(ResponseInterface $response, CrawlUrl $crawlUrl): Uri
     {
         $redirectHistory = $response->getHeader(RedirectMiddleware::HISTORY_HEADER);
 
@@ -82,7 +78,7 @@ class CrawlRequestFulfilled
         return new Uri(end($redirectHistory));
     }
 
-    protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl)
+    protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl): void
     {
         $this->crawler->getCrawlObservers()->crawled($crawlUrl, $response);
     }

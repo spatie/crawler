@@ -26,7 +26,7 @@ class CrawlLogger extends CrawlObserver
      *
      * @param \Psr\Http\Message\UriInterface   $url
      */
-    public function willCrawl(UriInterface $url)
+    public function willCrawl(UriInterface $url): void
     {
         CrawlerTest::log("{$this->observerId}willCrawl: {$url}");
     }
@@ -42,7 +42,7 @@ class CrawlLogger extends CrawlObserver
         UriInterface $url,
         ResponseInterface $response,
         ?UriInterface $foundOnUrl = null
-    ) {
+    ): void {
         $this->logCrawl($url, $foundOnUrl);
     }
 
@@ -50,7 +50,7 @@ class CrawlLogger extends CrawlObserver
         UriInterface $url,
         RequestException $requestException,
         ?UriInterface $foundOnUrl = null
-    ) {
+    ): void {
         $this->logCrawl($url, $foundOnUrl);
     }
 
@@ -68,7 +68,7 @@ class CrawlLogger extends CrawlObserver
     /**
      * Called when the crawl has ended.
      */
-    public function finishedCrawling()
+    public function finishedCrawling(): void
     {
         CrawlerTest::log("{$this->observerId}finished crawling");
     }

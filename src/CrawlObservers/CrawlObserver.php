@@ -13,7 +13,7 @@ abstract class CrawlObserver
      *
      * @param \Psr\Http\Message\UriInterface $url
      */
-    public function willCrawl(UriInterface $url)
+    public function willCrawl(UriInterface $url): void
     {
     }
 
@@ -28,7 +28,7 @@ abstract class CrawlObserver
         UriInterface $url,
         ResponseInterface $response,
         ?UriInterface $foundOnUrl = null
-    );
+    ): void;
 
     /**
      * Called when the crawler had a problem crawling the given url.
@@ -41,12 +41,12 @@ abstract class CrawlObserver
         UriInterface $url,
         RequestException $requestException,
         ?UriInterface $foundOnUrl = null
-    );
+    ): void;
 
     /**
      * Called when the crawl has ended.
      */
-    public function finishedCrawling()
+    public function finishedCrawling(): void
     {
     }
 }

@@ -9,11 +9,9 @@ use Spatie\Crawler\Crawler;
 
 class CrawlRequestFailed
 {
-    protected Crawler $crawler;
-
-    public function __construct(Crawler $crawler)
+    public function __construct(protected Crawler $crawler)
     {
-        $this->crawler = $crawler;
+        //
     }
 
     public function __invoke(Exception $exception, $index)
