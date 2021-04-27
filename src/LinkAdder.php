@@ -41,7 +41,7 @@ class LinkAdder
             });
     }
 
-    protected function extractLinksFromHtml(string $html, UriInterface $foundOnUrl): Collection | null
+    protected function extractLinksFromHtml(string $html, UriInterface $foundOnUrl): ?Collection
     {
         $domCrawler = new DomCrawler($html, $foundOnUrl);
 
