@@ -2,11 +2,12 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
-## 7.0.0 - unreleased
+## 7.0.0 - 2021-04-27
 
 - require PHP 8+
 - drop support for PHP 7.x
 - convert syntax to PHP 8
+- no API changes have been made
 
 ## 6.0.1 - 2021-02-26
 
