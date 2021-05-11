@@ -396,6 +396,7 @@ Here
 - [ArrayCrawlQueue](https://github.com/spatie/crawler/blob/master/src/CrawlQueues/ArrayCrawlQueue.php)
 - [RedisCrawlQueue (third-party package)](https://github.com/repat/spatie-crawler-redis)
 - [CacheCrawlQueue for Laravel (third-party package)](https://github.com/spekulatius/spatie-crawler-toolkit-for-laravel)
+- [Laravel Model as Queue (third-party example app)](https://github.com/insign/spatie-crawler-queue-with-laravel-model)
 
 ## Changelog
 
