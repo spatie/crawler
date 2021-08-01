@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 7.0.1
+
+- change response type hint (#371)
+
 ## 7.0.0 - 2021-04-27
 
 - require PHP 8+
