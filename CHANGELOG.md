@@ -2,7 +2,7 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
-## 7.0.1
+## 7.0.1 - 2021-08-01
 
 - change response type hint (#371)
 
