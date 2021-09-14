@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 7.0.2 - 2021-09-14
+
+- allow psr7 v2
+
 ## 7.0.1 - 2021-08-01
 
 - change response type hint (#371)
