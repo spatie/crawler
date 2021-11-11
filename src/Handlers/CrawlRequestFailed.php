@@ -17,7 +17,7 @@ class CrawlRequestFailed
     public function __invoke(Exception $exception, $index)
     {
         if ($exception instanceof ConnectException) {
-            $exception = new RequestException('', $exception->getRequest());
+            $exception = new RequestException($exception->getMessage(), $exception->getRequest());
         }
 
         if ($exception instanceof RequestException) {
