@@ -3,8 +3,8 @@
 namespace Spatie\Crawler\Handlers;
 
 use Exception;
-use function GuzzleHttp\Psr7\stream_for;
 use GuzzleHttp\Psr7\Uri;
+use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\RedirectMiddleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -40,7 +40,7 @@ class CrawlRequestFulfilled
         if ($this->crawler->mayExecuteJavaScript()) {
             $body = $this->getBodyAfterExecutingJavaScript($crawlUrl->url);
 
-            $response = $response->withBody(stream_for($body));
+            $response = $response->withBody(Utils::streamFor($body));
         }
 
         $responseWithCachedBody = ResponseWithCachedBody::fromGuzzlePsr7Response($response);
