@@ -19,11 +19,11 @@
         "php": "^8.0",
         "guzzlehttp/guzzle": "^7.3",
         "guzzlehttp/psr7": "^2.0",
-        "illuminate/collections": "^8.38",
+        "illuminate/collections": "^8.38|^9.0",
         "nicmart/tree": "^0.3.0",
         "spatie/browsershot": "^3.45",
         "spatie/robots-txt": "^2.0",
-        "symfony/dom-crawler": "^5.2"
+        "symfony/dom-crawler": "^5.2|^6.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5"
