@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 7.1.0 - 2022-01-14
+
+- allow Laravel 9 collections
+
 ## 7.0.5 - 2021-11-15
 
 ## What's Changed
