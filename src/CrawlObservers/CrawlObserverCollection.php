@@ -49,12 +49,12 @@ class CrawlObserverCollection implements ArrayAccess, Iterator
         return $this->observers[$this->position];
     }
 
-    public function offsetGet($offset): mixed
+    public function offsetGet(mixed $offset): mixed
     {
         return $this->observers[$offset] ?? null;
     }
 
-    public function offsetSet($offset, $value): void
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         if (is_null($offset)) {
             $this->observers[] = $value;
@@ -63,12 +63,12 @@ class CrawlObserverCollection implements ArrayAccess, Iterator
         }
     }
 
-    public function offsetExists($offset): bool
+    public function offsetExists(mixed $offset): bool
     {
         return isset($this->observers[$offset]);
     }
 
-    public function offsetUnset($offset): void
+    public function offsetUnset(mixed $offset): void
     {
         unset($this->observers[$offset]);
     }
