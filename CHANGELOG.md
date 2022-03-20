@@ -2,6 +2,18 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 7.1.1 - 2022-03-20
+
+## What's Changed
+
+- Fix issue #395 by @BrokenSourceCode in https://github.com/spatie/crawler/pull/396
+
+## New Contributors
+
+- @BrokenSourceCode made their first contribution in https://github.com/spatie/crawler/pull/396
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/7.1.0...7.1.1
+
 ## 7.1.0 - 2022-01-14
 
 - allow Laravel 9 collections
