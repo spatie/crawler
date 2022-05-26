@@ -4,7 +4,7 @@ namespace Spatie\Crawler\Test\TestClasses;
 
 class Log
 {
-    private const path = __DIR__ . '/../temp/crawledUrls.txt';
+    protected const path = __DIR__ . '/../temp/crawledUrls.txt';
 
     public static function putContents(string $text): void
     {
