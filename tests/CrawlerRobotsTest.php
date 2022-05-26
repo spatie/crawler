@@ -58,8 +58,12 @@ it('should not index robots meta noindex', function () {
 
     expect($urls)
         ->sequence(
-            function ($url) { $url->toBeCrawledOnce(); },
-            function ($url) { $url->notToBeCrawled(); },
+            function ($url) {
+                $url->toBeCrawledOnce();
+            },
+            function ($url) {
+                $url->notToBeCrawled();
+            },
         );
 });
 
@@ -178,8 +182,14 @@ it('should respect custom user agent rules', function () {
 
     expect($urls)
         ->sequence(
-            function ($url) { $url->notToBeCrawled(); },
-            function ($url) { $url->notToBeCrawled(); },
-            function ($url) { $url->toBeCrawledOnce(); },
+            function ($url) {
+                $url->notToBeCrawled();
+            },
+            function ($url) {
+                $url->notToBeCrawled();
+            },
+            function ($url) {
+                $url->toBeCrawledOnce();
+            },
         );
 });

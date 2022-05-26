@@ -1,12 +1,12 @@
 <?php
 
-use Spatie\Crawler\Crawler;
 use PHPUnit\Framework\Assert;
-
-use Spatie\Crawler\Test\TestClasses\Log;
-use Spatie\Crawler\Test\TestClasses\CrawlLogger;
 use function PHPUnit\Framework\assertEquals;
+
 use function PHPUnit\Framework\assertStringNotContainsString;
+use Spatie\Crawler\Crawler;
+use Spatie\Crawler\Test\TestClasses\CrawlLogger;
+use Spatie\Crawler\Test\TestClasses\Log;
 
 expect()->extend('toBeNotEmpty', function () {
     Assert::assertNotEmpty($this->value);

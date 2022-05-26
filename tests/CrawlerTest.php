@@ -149,8 +149,12 @@ it('uses crawl profile for internal urls', function () {
     ];
 
     expect($urls)->sequence(
-        function ($url) { $url->toBeCrawledOnce(); },
-        function ($url) { $url->notToBeCrawled(); },
+        function ($url) {
+            $url->toBeCrawledOnce();
+        },
+        function ($url) {
+            $url->notToBeCrawled();
+        },
     );
 });
 
@@ -384,9 +388,15 @@ it('will only crawl correct mime types when asked to', function () {
     ];
 
     expect($urls)->sequence(
-        function ($url) { $url->notToBeCrawled(); },
-        function ($url) { $url->notToBeCrawled(); },
-        function ($url) { $url->toBeCrawledOnce(); },
+        function ($url) {
+            $url->notToBeCrawled();
+        },
+        function ($url) {
+            $url->notToBeCrawled();
+        },
+        function ($url) {
+            $url->toBeCrawledOnce();
+        },
     );
 
     assertCrawledUrlCount(4);
