@@ -1,212 +1,185 @@
 <?php
 
-namespace Spatie\Crawler\Test;
-
 use Spatie\Crawler\Crawler;
-use Spatie\Crawler\Test\TestClasses\CrawlLogger;
+use Spatie\Crawler\Test\TestClasses\Log;
 
-class CrawlerRobotsTest extends TestCase
-{
-    protected function setUp(): void
-    {
-        parent::setUp();
+beforeEach(function () {
+    skipIfTestServerIsNotRunning();
 
-        $this->skipIfTestServerIsNotRunning();
+    Log::reset();
+});
 
-        $this->resetLog();
-    }
+it('should not follow robots txt disallowed links', function () {
+    createCrawler()->startCrawling('http://localhost:8080');
 
-    /**
-     * @return Crawler
-     */
-    private function createCrawler(): Crawler
-    {
-        return Crawler::create()
-            ->setMaximumDepth(3)
-            ->setCrawlObserver(new CrawlLogger());
-    }
+    expect(['url' => 'http://localhost:8080/txt-disallow', 'foundOn' => 'http://localhost:8080/'])
+        ->notToBeCrawled();
+});
 
-    /** @test */
-    public function it_should_not_follow_robots_txt_disallowed_links()
-    {
-        $this->createCrawler()
-            ->startCrawling('http://localhost:8080');
+it('does not allow a root ignored url', function () {
+    createCrawler()->startCrawling('http://localhost:8080/txt-disallow');
 
-        $this->assertNotCrawled([['url' => 'http://localhost:8080/txt-disallow', 'foundOn' => 'http://localhost:8080/']]);
-    }
+    expect(['url' => 'http://localhost:8080/txt-disallow', 'foundOn' => 'http://localhost:8080/'])
+        ->notToBeCrawled();
+});
 
-    /** @test */
-    public function it_does_not_allow_a_root_ignored_url()
-    {
-        $this->createCrawler()
-            ->startCrawling('http://localhost:8080/txt-disallow');
+it('should follow robots txt disallowed links when robots are ignored', function () {
+    createCrawler()
+        ->ignoreRobots()
+        ->startCrawling('http://localhost:8080');
 
-        $this->assertNotCrawled([['url' => 'http://localhost:8080/txt-disallow', 'foundOn' => 'http://localhost:8080/']]);
-    }
+    expect(['url' => 'http://localhost:8080/txt-disallow', 'foundOn' => 'http://localhost:8080/'])
+        ->toBeCrawledOnce();
+});
 
-    /** @test */
-    public function it_should_follow_robots_txt_disallowed_links_when_robots_are_ignored()
-    {
-        $this->createCrawler()
-            ->ignoreRobots()
-            ->startCrawling('http://localhost:8080');
+it('should follow robots meta follow links', function () {
+    createCrawler()->startCrawling('http://localhost:8080');
 
-        $this->assertCrawledOnce([['url' => 'http://localhost:8080/txt-disallow', 'foundOn' => 'http://localhost:8080/']]);
-    }
+    expect(['url' => 'http://localhost:8080/meta-nofollow', 'foundOn' => 'http://localhost:8080/meta-follow'])
+        ->toBeCrawledOnce();
+});
 
-    /** @test */
-    public function it_should_follow_robots_meta_follow_links()
-    {
-        $this->createCrawler()
-            ->startCrawling('http://localhost:8080');
+it('should follow robots meta nofollow links when robots are ignored', function () {
+    createCrawler()
+        ->ignoreRobots()
+        ->startCrawling('http://localhost:8080');
 
-        $this->assertCrawledOnce([['url' => 'http://localhost:8080/meta-nofollow', 'foundOn' => 'http://localhost:8080/meta-follow']]);
-    }
+    expect(['url' => 'http://localhost:8080/meta-nofollow-target', 'foundOn' => 'http://localhost:8080/meta-nofollow'])
+        ->toBeCrawledOnce();
+});
 
-    /** @test */
-    public function it_should_follow_robots_meta_nofollow_links_when_robots_are_ignored()
-    {
-        $this->createCrawler()
-            ->ignoreRobots()
-            ->startCrawling('http://localhost:8080');
+it('should not index robots meta noindex', function () {
+    createCrawler()->startCrawling('http://localhost:8080');
 
-        $this->assertCrawledOnce([['url' => 'http://localhost:8080/meta-nofollow-target', 'foundOn' => 'http://localhost:8080/meta-nofollow']]);
-    }
+    $urls = [
+        ['url' => 'http://localhost:8080/meta-nofollow', 'foundOn' => 'http://localhost:8080/meta-follow'],
+        ['url' => 'http://localhost:8080/meta-follow'],
+    ];
 
-    /** @test */
-    public function it_should_not_index_robots_meta_noindex()
-    {
-        $this->createCrawler()
-            ->startCrawling('http://localhost:8080');
+    expect($urls)
+        ->sequence(
+            function ($url) { $url->toBeCrawledOnce(); },
+            function ($url) { $url->notToBeCrawled(); },
+        );
+});
 
-        $this->assertCrawledOnce([['url' => 'http://localhost:8080/meta-nofollow', 'foundOn' => 'http://localhost:8080/meta-follow']]);
+it('should index robots meta noindex when robots are ignored', function () {
+    createCrawler()
+        ->ignoreRobots()
+        ->startCrawling('http://localhost:8080');
 
-        $this->assertNotCrawled([
-            ['url' => 'http://localhost:8080/meta-follow'],
-        ]);
-    }
+    expect(['url' => 'http://localhost:8080/meta-follow', 'foundOn' => 'http://localhost:8080/'])
+        ->toBeCrawledOnce();
+});
 
-    /** @test */
-    public function it_should_index_robots_meta_noindex_when_robots_are_ignored()
-    {
-        $this->createCrawler()
-            ->ignoreRobots()
-            ->startCrawling('http://localhost:8080');
+it('should not follow robots header disallowed links', function () {
+    createCrawler()->startCrawling('http://localhost:8080');
 
-        $this->assertCrawledOnce([
-            ['url' => 'http://localhost:8080/meta-follow', 'foundOn' => 'http://localhost:8080/'],
-        ]);
-    }
+    expect(['url' => 'http://localhost:8080/header-disallow', 'foundOn' => 'http://localhost:8080/'])
+        ->notToBeCrawled();
+});
 
-    /** @test */
-    public function it_should_not_follow_robots_header_disallowed_links()
-    {
-        $this->createCrawler()
-            ->startCrawling('http://localhost:8080');
+it('should follow robots header disallowed links when robots are ignored', function () {
+    createCrawler()
+        ->ignoreRobots()
+        ->startCrawling('http://localhost:8080');
 
-        $this->assertNotCrawled([['url' => 'http://localhost:8080/header-disallow', 'foundOn' => 'http://localhost:8080/']]);
-    }
+    expect(['url' => 'http://localhost:8080/header-disallow', 'foundOn' => 'http://localhost:8080/'])
+        ->toBeCrawledOnce();
+});
 
-    /** @test */
-    public function it_should_follow_robots_header_disallowed_links_when_robots_are_ignored()
-    {
-        $this->createCrawler()
-            ->ignoreRobots()
-            ->startCrawling('http://localhost:8080');
+it('should check depth when respecting robots', function () {
+    createCrawler()
+        ->respectRobots()
+        ->setMaximumDepth(1)
+        ->startCrawling('http://localhost:8080');
 
-        $this->assertCrawledOnce([['url' => 'http://localhost:8080/header-disallow', 'foundOn' => 'http://localhost:8080/']]);
-    }
+    expect(['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'])
+        ->notToBeCrawled();
+});
 
-    /** @test */
-    public function it_should_check_depth_when_respecting_robots()
-    {
-        Crawler::create()
-            ->respectRobots()
-            ->setMaximumDepth(1)
-            ->setCrawlObserver(new CrawlLogger())
-            ->startCrawling('http://localhost:8080');
+it('should return the already set user agent', function () {
+    $crawler = Crawler::create()
+        ->setUserAgent('test/1.2.3');
 
-        $this->assertNotCrawled([['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2']]);
-    }
+    expect($crawler->getUserAgent())
+        ->toBe('test/1.2.3');
+});
 
-    /** @test */
-    public function it_should_return_the_already_set_user_agent()
-    {
-        $crawler = Crawler::create()
-            ->setUserAgent('test/1.2.3');
+it('should return the user agent set by constructor', function () {
+    $crawler = Crawler::create([
+        'headers' => ['User-Agent' => 'test/1.2.3'],
+    ]);
 
-        $this->assertEquals('test/1.2.3', $crawler->getUserAgent());
-    }
+    expect($crawler->getUserAgent())
+        ->toBe('test/1.2.3');
+});
 
-    /** @test */
-    public function it_should_return_the_user_agent_set_by_constructor()
-    {
-        $crawler = Crawler::create(['headers' => ['User-Agent' => 'test/1.2.3']]);
+it('should return the last set user agent', function () {
+    $crawler = Crawler::create(['headers' => ['User-Agent' => 'test/1.2.3']])
+        ->setUserAgent('test/4.5.6');
 
-        $this->assertEquals('test/1.2.3', $crawler->getUserAgent());
-    }
+    expect($crawler->getUserAgent())
+        ->toBe('test/4.5.6');
+});
 
-    /** @test */
-    public function it_should_return_the_last_set_user_agent()
-    {
-        $crawler = Crawler::create(['headers' => ['User-Agent' => 'test/1.2.3']])
-            ->setUserAgent('test/4.5.6');
+it('should return default user agent when none is set', function () {
+    $crawler = Crawler::create();
 
-        $this->assertEquals('test/4.5.6', $crawler->getUserAgent());
-    }
+    expect($crawler->getUserAgent())
+        ->toBeNotEmpty();
+});
 
-    /** @test */
-    public function it_should_return_default_user_agent_when_none_is_set()
-    {
-        $crawler = Crawler::create();
+it('should remember settings', function () {
+    $crawler = Crawler::create()
+        ->setMaximumDepth(10)
+        ->setTotalCrawlLimit(10)
+        ->setUserAgent('test/1.2.3');
 
-        $this->assertNotEmpty($crawler->getUserAgent());
-    }
+    expect($crawler->getMaximumDepth())
+        ->toBe(10);
 
-    /** @test */
-    public function it_should_remember_settings()
-    {
-        $crawler = Crawler::create()
-            ->setMaximumDepth(10)
-            ->setTotalCrawlLimit(10)
-            ->setUserAgent('test/1.2.3');
+    expect($crawler->getTotalCrawlLimit())
+        ->toBe(10);
 
-        $this->assertEquals(10, $crawler->getMaximumDepth());
-        $this->assertEquals(10, $crawler->getTotalCrawlLimit());
-        $this->assertEquals('test/1.2.3', $crawler->getUserAgent());
-    }
+    expect($crawler->getUserAgent())
+        ->toBe('test/1.2.3');
+});
 
-    /** @test */
-    public function it_should_check_depth_when_ignoring_robots()
-    {
-        Crawler::create()
-            ->ignoreRobots()
-            ->setMaximumDepth(1)
-            ->setCrawlObserver(new CrawlLogger())
-            ->startCrawling('http://localhost:8080');
+it('should check depth when ignoring robots', function () {
+    createCrawler()
+        ->ignoreRobots()
+        ->setMaximumDepth(1)
+        ->startCrawling('http://localhost:8080');
 
-        $this->assertNotCrawled([['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2']]);
-    }
+    expect(['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'])
+        ->notToBeCrawled();
+});
 
-    /** @test */
-    public function it_should_respect_custom_user_agent_rules()
-    {
-        // According to Robots docs only
-        // one group out of the robots.txt file applies.
-        // So wildcard (*) instructions should be ignored
-        // by the more specific agent instructions
-        // @see https://developers.google.com/search/reference/robots_txt
-        // @see https://en.wikipedia.org/wiki/Robots_exclusion_standard
+it('should respect custom user agent rules', function () {
+    // According to Robots docs only
+    // one group out of the robots.txt file applies.
+    // So wildcard (*) instructions should be ignored
+    // by the more specific agent instructions
+    // @see https://developers.google.com/search/reference/robots_txt
+    // @see https://en.wikipedia.org/wiki/Robots_exclusion_standard
 
-        Crawler::create()
-            ->respectRobots()
-            ->setMaximumDepth(1)
-            ->setCrawlObserver(new CrawlLogger())
-            ->setUserAgent('my-agent')
-            ->startCrawling('http://localhost:8080');
+    createCrawler()
+        ->respectRobots()
+        ->setMaximumDepth(1)
+        ->setUserAgent('my-agent')
+        ->startCrawling('http://localhost:8080');
 
-        $this->assertNotCrawled([['url' => 'http://localhost:8080/txt-disallow-custom-user-agent', 'foundOn' => 'http://localhost:8080/']]);
-        $this->assertNotCrawled([['url' => 'http://localhost:8080/txt-disallow', 'foundOn' => 'http://localhost:8080/']]);
-        $this->assertCrawledOnce([['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/']]);
-    }
-}
+    $urls = [
+        ['url' => 'http://localhost:8080/txt-disallow-custom-user-agent', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/txt-disallow', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+    ];
+
+    expect($urls)
+        ->sequence(
+            function ($url) { $url->notToBeCrawled(); },
+            function ($url) { $url->notToBeCrawled(); },
+            function ($url) { $url->toBeCrawledOnce(); },
+        );
+});

@@ -1,45 +1,81 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Test Case
-|--------------------------------------------------------------------------
-|
-| The closure you provide to your test functions is always bound to a specific PHPUnit test
-| case class. By default, that class is "PHPUnit\Framework\TestCase". Of course, you may
-| need to change it using the "uses()" function to bind a different classes or traits.
-|
-*/
+use Spatie\Crawler\Crawler;
+use PHPUnit\Framework\Assert;
 
-// uses(Tests\TestCase::class)->in('Feature');
+use Spatie\Crawler\Test\TestClasses\Log;
+use Spatie\Crawler\Test\TestClasses\CrawlLogger;
+use function PHPUnit\Framework\assertEquals;
+use function PHPUnit\Framework\assertStringNotContainsString;
 
-/*
-|--------------------------------------------------------------------------
-| Expectations
-|--------------------------------------------------------------------------
-|
-| When you're writing tests, you often need to check that values meet certain conditions. The
-| "expect()" function gives you access to a set of "expectations" methods that you can use
-| to assert different things. Of course, you may extend the Expectation API at any time.
-|
-*/
+expect()->extend('toBeNotEmpty', function () {
+    Assert::assertNotEmpty($this->value);
 
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
+    return $this;
 });
 
-/*
-|--------------------------------------------------------------------------
-| Functions
-|--------------------------------------------------------------------------
-|
-| While Pest is very powerful out-of-the-box, you may have some testing code specific to your
-| project that you don't want to repeat in every file. Here you can also expose helpers as
-| global functions to help you to reduce the number of lines of code in your test files.
-|
-*/
+expect()->extend('notToBeCrawled', function () {
+    $url = $this->value;
 
-function something()
+    $logMessage = "hasBeenCrawled: {$url['url']}";
+
+    if (isset($url['foundOn'])) {
+        $logMessage .= " - found on {$url['foundOn']}";
+    }
+
+    $logMessage .= PHP_EOL;
+
+    assertStringNotContainsString(
+        $logMessage,
+        Log::getContents(),
+        "Did find {$logMessage} in the log"
+    );
+});
+
+expect()->extend('toBeCrawledOnce', function () {
+    $logContent = Log::getContents();
+
+    $url = $this->value;
+
+    $logMessage = "hasBeenCrawled: {$url['url']}";
+
+    if (isset($url['foundOn'])) {
+        $logMessage .= " - found on {$url['foundOn']}";
+    }
+
+    $logMessage .= PHP_EOL;
+
+    assertEquals(
+        1,
+        substr_count($logContent, $logMessage),
+        "Did not find {$logMessage} exactly one time in the log but " . substr_count($logContent, $logMessage) . " times. Contents of log\n{$logContent}"
+    );
+});
+
+ function assertCrawledUrlCount(int $count): void
+ {
+     $logContent = Log::getContents();
+
+     $actualCount = substr_count($logContent, 'hasBeenCrawled');
+
+     assertEquals($count, $actualCount, "Crawled `{$actualCount}` urls instead of the expected {$count}");
+ }
+
+function skipIfTestServerIsNotRunning(): void
 {
-    // ..
+    try {
+        file_get_contents('http://localhost:8080');
+    } catch (Throwable $e) {
+        test()->markTestSkipped('The test server is not running.');
+    }
+}
+
+/**
+ * @return Crawler
+ */
+function createCrawler($options = []): Crawler
+{
+    return Crawler::create($options)
+        ->setMaximumDepth(3)
+        ->setCrawlObserver(new CrawlLogger());
 }
