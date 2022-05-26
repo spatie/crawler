@@ -26,6 +26,7 @@
         "symfony/dom-crawler": "^5.2|^6.0"
     },
     "require-dev": {
+        "pestphp/pest": "^1.21",
         "phpunit/phpunit": "^9.5"
     },
     "config": {

@@ -6,7 +6,6 @@ use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
-use Spatie\Crawler\Test\CrawlerTest;
 
 class CrawlLogger extends CrawlObserver
 {
@@ -28,7 +27,7 @@ class CrawlLogger extends CrawlObserver
      */
     public function willCrawl(UriInterface $url): void
     {
-        CrawlerTest::log("{$this->observerId}willCrawl: {$url}");
+        Log::putContents("{$this->observerId}willCrawl: {$url}");
     }
 
     /**
@@ -62,7 +61,7 @@ class CrawlLogger extends CrawlObserver
             $logText .= " - found on {$foundOnUrl}";
         }
 
-        CrawlerTest::log($logText);
+        Log::putContents($logText);
     }
 
     /**
@@ -70,6 +69,6 @@ class CrawlLogger extends CrawlObserver
      */
     public function finishedCrawling(): void
     {
-        CrawlerTest::log("{$this->observerId}finished crawling");
+        Log::putContents("{$this->observerId}finished crawling");
     }
 }
