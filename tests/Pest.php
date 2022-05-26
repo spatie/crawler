@@ -70,9 +70,6 @@ function skipIfTestServerIsNotRunning(): void
     }
 }
 
-/**
- * @return Crawler
- */
 function createCrawler($options = []): Crawler
 {
     return Crawler::create($options)
