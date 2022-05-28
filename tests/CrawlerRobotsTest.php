@@ -134,6 +134,14 @@ it('should return default user agent when none is set', function () {
         ->toBeNotEmpty();
 });
 
+it('should change the default base url scheme to https', function () {
+    $crawler = Crawler::create()
+        ->setDefaultScheme('https');
+
+    expect($crawler->getDefaultScheme())
+        ->toEqual('https');
+});
+
 it('should remember settings', function () {
     $crawler = Crawler::create()
         ->setMaximumDepth(10)

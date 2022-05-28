@@ -401,6 +401,15 @@ Here
 - [CacheCrawlQueue for Laravel (third-party package)](https://github.com/spekulatius/spatie-crawler-toolkit-for-laravel)
 - [Laravel Model as Queue (third-party example app)](https://github.com/insign/spatie-crawler-queue-with-laravel-model)
 
+## Change the default base url scheme
+
+By default, the crawler will set the base url scheme to `http` if none. You have the ability to change that with `setDefaultScheme`.
+
+```php
+Crawler::create()
+    ->setDefaultScheme('https')
+```
+
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
