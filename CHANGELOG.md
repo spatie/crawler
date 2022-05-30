@@ -2,6 +2,19 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 7.1.2 - 2022-05-30
+
+### What's Changed
+
+- Feat/convert phpunit tests to pest by @mansoorkhan96 in https://github.com/spatie/crawler/pull/401
+- Add the ability to change the default baseUrl scheme by @arnissolle in https://github.com/spatie/crawler/pull/402
+
+### New Contributors
+
+- @arnissolle made their first contribution in https://github.com/spatie/crawler/pull/402
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/7.1.1...7.1.2
+
 ## 7.1.1 - 2022-03-20
 
 ## What's Changed
