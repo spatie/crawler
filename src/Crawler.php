@@ -66,6 +66,8 @@ class Crawler
 
     protected array $allowedMimeTypes = [];
 
+    protected string $defaultScheme = 'http';
+
     protected static array $defaultClientOptions = [
         RequestOptions::COOKIES => true,
         RequestOptions::CONNECT_TIMEOUT => 10,
@@ -100,6 +102,18 @@ class Crawler
         $this->crawlRequestFulfilledClass = CrawlRequestFulfilled::class;
 
         $this->crawlRequestFailedClass = CrawlRequestFailed::class;
+    }
+
+    public function getDefaultScheme(): string
+    {
+        return $this->defaultScheme;
+    }
+
+    public function setDefaultScheme(string $defaultScheme): self
+    {
+        $this->defaultScheme = $defaultScheme;
+
+        return $this;
     }
 
     public function setConcurrency(int $concurrency): self
@@ -386,7 +400,7 @@ class Crawler
         }
 
         if ($baseUrl->getScheme() === '') {
-            $baseUrl = $baseUrl->withScheme('http');
+            $baseUrl = $baseUrl->withScheme($this->defaultScheme);
         }
 
         if ($baseUrl->getPath() === '') {
