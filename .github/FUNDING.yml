@@ -1,2 +1,0 @@
-github: spatie
-custom: https://spatie.be/open-source/support-us
