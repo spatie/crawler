@@ -1,9 +1,11 @@
 <?php
 
 use PHPUnit\Framework\Assert;
+
 use function PHPUnit\Framework\assertEquals;
 
 use function PHPUnit\Framework\assertStringNotContainsString;
+
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\Test\TestClasses\CrawlLogger;
 use Spatie\Crawler\Test\TestClasses\Log;
@@ -52,14 +54,14 @@ expect()->extend('toBeCrawledOnce', function () {
     );
 });
 
- function assertCrawledUrlCount(int $count): void
- {
-     $logContent = Log::getContents();
+function assertCrawledUrlCount(int $count): void
+{
+    $logContent = Log::getContents();
 
-     $actualCount = substr_count($logContent, 'hasBeenCrawled');
+    $actualCount = substr_count($logContent, 'hasBeenCrawled');
 
-     assertEquals($count, $actualCount, "Crawled `{$actualCount}` urls instead of the expected {$count}");
- }
+    assertEquals($count, $actualCount, "Crawled `{$actualCount}` urls instead of the expected {$count}");
+}
 
 function skipIfTestServerIsNotRunning(): void
 {
