@@ -28,6 +28,9 @@ class CrawlRequestFulfilled
     public function __invoke(ResponseInterface $response, $index)
     {
         $body = $this->getBody($response);
+        if (empty($body)) {
+            return;
+        }
 
         $robots = new CrawlerRobots(
             $response->getHeaders(),
