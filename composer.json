@@ -30,7 +30,11 @@
         "phpunit/phpunit": "^9.5"
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
     },
     "autoload": {
         "psr-4": {
