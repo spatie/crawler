@@ -10,7 +10,7 @@ use Spatie\Crawler\CrawlObservers\CrawlObserver;
 
 class ModifyCrawlUrl extends CrawlObserver
 {
-    public function filterCrawlUrl(UriInterface $url): UriInterface
+    public function modifyCrawlUrl(UriInterface $url): UriInterface
     {
         return Uri::withQueryValues($url, ['dummy' => '123']);
     }

@@ -545,7 +545,7 @@ class Crawler
          $crawlUrl = CrawlUrl::create($url, $foundOnUrl, $id);
 
          foreach ($this->crawlObservers as $crawlObserver) {
-             $crawlUrl->url = $crawlObserver->filterCrawlUrl($crawlUrl->url);
+             $crawlUrl->url = $crawlObserver->modifyCrawlUrl($crawlUrl->url);
          }
 
          return $crawlUrl;
