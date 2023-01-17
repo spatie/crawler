@@ -12,8 +12,13 @@ use Spatie\Crawler\CrawlProfiles\CrawlProfile;
 use Spatie\Crawler\CrawlProfiles\CrawlSubdomains;
 use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
 use Spatie\Crawler\Test\TestClasses\CrawlLogger;
+use Spatie\Crawler\Test\TestClasses\ModifyCrawlUrl;
 use Spatie\Crawler\Test\TestClasses\Log;
 use stdClass;
+
+use function createCrawler;
+use function expect;
+use function it;
 
 beforeEach(function () {
     skipIfTestServerIsNotRunning();
@@ -436,6 +441,15 @@ it('will not crawl half parsed href tags', function () {
     assertCrawledUrlCount(3);
 });
 
+it('will crawl all modified urls', function () {
+    Crawler::create()
+       ->addCrawlObserver(new ModifyCrawlUrl())
+       ->addCrawlObserver(new CrawlLogger())
+       ->startCrawling('http://localhost:8080');
+
+    expect(modifiedUrls())->each->toBeCrawledOnce();
+});
+
 function javascriptInjectedUrls(): array
 {
     return [[
@@ -458,5 +472,22 @@ function regularUrls(): array
         ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
         ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
         ['url' => 'http://localhost:8080/dir/subdir/link6', 'foundOn' => 'http://localhost:8080/dir/link5'],
+    ];
+}
+
+function modifiedUrls(): array
+{
+    return [
+        ['url' => 'http://localhost:8080/?dummy=123'],
+        ['url' => 'http://localhost:8080/link1?dummy=123', 'foundOn' => 'http://localhost:8080/?dummy=123'],
+        ['url' => 'http://localhost:8080/link1-prev?dummy=123', 'foundOn' => 'http://localhost:8080/link1?dummy=123'],
+        ['url' => 'http://localhost:8080/link1-next?dummy=123', 'foundOn' => 'http://localhost:8080/link1?dummy=123'],
+        ['url' => 'http://localhost:8080/link2?dummy=123', 'foundOn' => 'http://localhost:8080/?dummy=123'],
+        ['url' => 'http://localhost:8080/link3?dummy=123', 'foundOn' => 'http://localhost:8080/link2?dummy=123'],
+        ['url' => 'http://localhost:8080/notExists?dummy=123', 'foundOn' => 'http://localhost:8080/link3?dummy=123'],
+        ['url' => 'http://example.com/?dummy=123', 'foundOn' => 'http://localhost:8080/link1?dummy=123'],
+        ['url' => 'http://localhost:8080/dir/link4?dummy=123', 'foundOn' => 'http://localhost:8080/?dummy=123'],
+        ['url' => 'http://localhost:8080/dir/link5?dummy=123', 'foundOn' => 'http://localhost:8080/dir/link4?dummy=123'],
+        ['url' => 'http://localhost:8080/dir/subdir/link6?dummy=123', 'foundOn' => 'http://localhost:8080/dir/link5?dummy=123'],
     ];
 }

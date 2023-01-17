@@ -409,9 +409,9 @@ class Crawler
 
         $this->totalUrlCount = $this->crawlQueue->getProcessedUrlCount();
 
-        $this->baseUrl = $baseUrl;
+        $crawlUrl = $this->createCrawlUrl($baseUrl);
 
-        $crawlUrl = CrawlUrl::create($this->baseUrl);
+        $this->baseUrl = $crawlUrl->url;
 
         $this->robotsTxt = $this->createRobotsTxt($crawlUrl->url);
 
@@ -538,5 +538,16 @@ class Crawler
         }
 
         return false;
+    }
+
+    public function createCrawlUrl(UriInterface $url, ?UriInterface $foundOnUrl = null, $id = null): CrawlUrl
+    {
+         $crawlUrl = CrawlUrl::create($url, $foundOnUrl, $id);
+
+         foreach ($this->crawlObservers as $crawlObserver) {
+             $crawlUrl->url = $crawlObserver->filterCrawlUrl($crawlUrl->url);
+         }
+
+         return $crawlUrl;
     }
 }

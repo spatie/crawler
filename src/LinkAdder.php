@@ -35,7 +35,7 @@ class LinkAdder
             })
             ->filter(fn (UriInterface $url) => ! str_contains($url->getPath(), '/tel:'))
             ->each(function (UriInterface $url) use ($foundOnUrl) {
-                $crawlUrl = CrawlUrl::create($url, $foundOnUrl);
+                $crawlUrl = $this->crawler->createCrawlUrl($url, $foundOnUrl);
 
                 $this->crawler->addToCrawlQueue($crawlUrl);
             });

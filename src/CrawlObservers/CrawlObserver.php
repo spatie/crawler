@@ -9,6 +9,18 @@ use Psr\Http\Message\UriInterface;
 abstract class CrawlObserver
 {
     /**
+     * Called when CrawlUrl is created to allow for modification
+     *
+     * @param   \Psr\Http\Message\UriInterface  $url
+     *
+     * @return \Psr\Http\Message\UriInterface
+     */
+    public function filterCrawlUrl(UriInterface $url): UriInterface
+    {
+        return $url;
+    }
+
+    /**
      * Called when the crawler will crawl the url.
      *
      * @param \Psr\Http\Message\UriInterface $url
