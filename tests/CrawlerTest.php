@@ -16,10 +16,6 @@ use Spatie\Crawler\Test\TestClasses\ModifyCrawlUrl;
 use Spatie\Crawler\Test\TestClasses\Log;
 use stdClass;
 
-use function createCrawler;
-use function expect;
-use function it;
-
 beforeEach(function () {
     skipIfTestServerIsNotRunning();
 
