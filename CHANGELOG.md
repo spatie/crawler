@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 7.1.3 - 2023-01-24
+
+- support Laravel 10
+
 ## 7.1.2 - 2022-05-30
 
 ### What's Changed
