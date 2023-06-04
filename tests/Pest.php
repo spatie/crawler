@@ -37,12 +37,22 @@ expect()->extend('notToBeCrawled', function () {
 expect()->extend('toBeCrawledOnce', function () {
     $logContent = Log::getContents();
 
+
+
     $url = $this->value;
+
+    if (! isset($url['linkText'])) {
+        $logContent = preg_replace('/ - link text .*/', '', $logContent);
+    }
 
     $logMessage = "hasBeenCrawled: {$url['url']}";
 
     if (isset($url['foundOn'])) {
         $logMessage .= " - found on {$url['foundOn']}";
+    }
+
+    if (isset($url['linkText'])) {
+        $logMessage .= " - link text {$url['linkText']}";
     }
 
     $logMessage .= PHP_EOL;

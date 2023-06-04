@@ -10,11 +10,18 @@ class CrawlUrl
 
     public ?UriInterface $foundOnUrl = null;
 
+    public ?string $linkText = null;
+
     protected mixed $id;
 
-    public static function create(UriInterface $url, ?UriInterface $foundOnUrl = null, $id = null): static
+    public static function create(
+        UriInterface $url,
+        ?UriInterface $foundOnUrl = null,
+        $id = null,
+        string|null $linkText = null,
+    ): static
     {
-        $static = new static($url, $foundOnUrl);
+        $static = new static($url, $foundOnUrl, linkText: $linkText);
 
         if ($id !== null) {
             $static->setId($id);
@@ -23,11 +30,13 @@ class CrawlUrl
         return $static;
     }
 
-    protected function __construct(UriInterface $url, $foundOnUrl = null)
+    protected function __construct(UriInterface $url, $foundOnUrl = null, $linkText = null)
     {
         $this->url = $url;
 
         $this->foundOnUrl = $foundOnUrl;
+
+        $this->linkText = $linkText;
     }
 
     public function getId(): mixed

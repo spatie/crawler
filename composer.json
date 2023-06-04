@@ -27,7 +27,8 @@
     },
     "require-dev": {
         "pestphp/pest": "^1.21",
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^9.5",
+        "spatie/ray": "^1.37"
     },
     "config": {
         "sort-packages": true,

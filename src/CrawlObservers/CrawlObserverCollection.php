@@ -28,7 +28,8 @@ class CrawlObserverCollection implements ArrayAccess, Iterator
             $crawlObserver->crawled(
                 $crawlUrl->url,
                 $response,
-                $crawlUrl->foundOnUrl
+                $crawlUrl->foundOnUrl,
+                $crawlUrl->linkText,
             );
         }
     }
@@ -39,7 +40,8 @@ class CrawlObserverCollection implements ArrayAccess, Iterator
             $crawlObserver->crawlFailed(
                 $crawlUrl->url,
                 $exception,
-                $crawlUrl->foundOnUrl
+                $crawlUrl->foundOnUrl,
+                $crawlUrl->linkText,
             );
         }
     }
