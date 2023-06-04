@@ -2,6 +2,11 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.0.0 - 2023-06-04
+
+- add linkText to crawl observer methods
+- upgrade dependencies
+
 ## 7.1.3 - 2023-01-24
 
 - support Laravel 10

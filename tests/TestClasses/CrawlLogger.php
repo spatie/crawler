@@ -22,43 +22,43 @@ class CrawlLogger extends CrawlObserver
 
     /**
      * Called when the crawler will crawl the url.
-     *
-     * @param \Psr\Http\Message\UriInterface   $url
      */
-    public function willCrawl(UriInterface $url): void
+    public function willCrawl(UriInterface $url, ?string $linkText): void
     {
         Log::putContents("{$this->observerId}willCrawl: {$url}");
     }
 
     /**
      * Called when the crawler has crawled the given url.
-     *
-     * @param \Psr\Http\Message\UriInterface $url
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
      */
     public function crawled(
         UriInterface $url,
         ResponseInterface $response,
-        ?UriInterface $foundOnUrl = null
+        ?UriInterface $foundOnUrl = null,
+        ?string $linkText = null,
     ): void {
-        $this->logCrawl($url, $foundOnUrl);
+        $this->logCrawl($url, $foundOnUrl, $linkText);
     }
 
     public function crawlFailed(
         UriInterface $url,
         RequestException $requestException,
-        ?UriInterface $foundOnUrl = null
+        ?UriInterface $foundOnUrl = null,
+        ?string $linkText = null,
     ): void {
         $this->logCrawl($url, $foundOnUrl);
     }
 
-    protected function logCrawl(UriInterface $url, ?UriInterface $foundOnUrl)
+    protected function logCrawl(UriInterface $url, ?UriInterface $foundOnUrl, ?string $linkText = null)
     {
         $logText = "{$this->observerId}hasBeenCrawled: {$url}";
 
         if ((string) $foundOnUrl) {
             $logText .= " - found on {$foundOnUrl}";
+        }
+
+        if ($linkText) {
+            $logText .= " - link text {$linkText}";
         }
 
         Log::putContents($logText);

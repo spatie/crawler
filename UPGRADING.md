@@ -1,5 +1,9 @@
 # Upgrading
 
+## From v7 to v8
+
+The signatures of the `willCrawl`, `crawled` and `crawlFailed` all gained an extra parameter `$linkText` `CrawlObserver`. You should add that parameter to the methods in your custom crawl observers.
+
 ## From v5 to v6
 
 - There are no breaking changes to the API. Internally, we shuffled around some checks around crawl limit that might affected some edge cases
