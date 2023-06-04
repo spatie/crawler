@@ -11,7 +11,8 @@ use Spatie\Crawler\CrawlObservers\CrawlObserverCollection;
 use Spatie\Crawler\CrawlUrl;
 
 beforeEach(function () {
-    $this->crawlObserver = new class () extends CrawlObserver {
+    $this->crawlObserver = new class() extends CrawlObserver
+    {
         public $crawled = false;
 
         public $failed = false;

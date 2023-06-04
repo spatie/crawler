@@ -9,7 +9,7 @@ interface CrawlQueue
 {
     public function add(CrawlUrl $url): self;
 
-    public function has(CrawlUrl | UriInterface $crawlUrl): bool;
+    public function has(CrawlUrl|UriInterface $crawlUrl): bool;
 
     public function hasPendingUrls(): bool;
 

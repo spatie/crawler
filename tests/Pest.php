@@ -1,11 +1,8 @@
 <?php
 
 use PHPUnit\Framework\Assert;
-
 use function PHPUnit\Framework\assertEquals;
-
 use function PHPUnit\Framework\assertStringNotContainsString;
-
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\Test\TestClasses\CrawlLogger;
 use Spatie\Crawler\Test\TestClasses\Log;
@@ -37,8 +34,6 @@ expect()->extend('notToBeCrawled', function () {
 expect()->extend('toBeCrawledOnce', function () {
     $logContent = Log::getContents();
 
-
-
     $url = $this->value;
 
     if (! isset($url['linkText'])) {
@@ -60,7 +55,7 @@ expect()->extend('toBeCrawledOnce', function () {
     assertEquals(
         1,
         substr_count($logContent, $logMessage),
-        "Did not find {$logMessage} exactly one time in the log but " . substr_count($logContent, $logMessage) . " times. Contents of log\n{$logContent}"
+        "Did not find {$logMessage} exactly one time in the log but ".substr_count($logContent, $logMessage)." times. Contents of log\n{$logContent}"
     );
 });
 

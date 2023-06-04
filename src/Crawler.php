@@ -279,7 +279,7 @@ class Crawler
         return $this->executeJavaScript;
     }
 
-    public function setCrawlObserver(CrawlObserver | array $crawlObservers): self
+    public function setCrawlObserver(CrawlObserver|array $crawlObservers): self
     {
         if (! is_array($crawlObservers)) {
             $crawlObservers = [$crawlObservers];
@@ -393,7 +393,7 @@ class Crawler
         return $this->baseUrl;
     }
 
-    public function startCrawling(UriInterface | string $baseUrl)
+    public function startCrawling(UriInterface|string $baseUrl)
     {
         if (! $baseUrl instanceof UriInterface) {
             $baseUrl = new Uri($baseUrl);

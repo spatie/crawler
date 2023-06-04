@@ -118,7 +118,8 @@ it('has a method to disable executing javascript', function () {
 });
 
 it('uses a crawl profile to determine what should be crawled', function () {
-    $crawlProfile = new class () extends CrawlProfile {
+    $crawlProfile = new class() extends CrawlProfile
+    {
         public function shouldCrawl(UriInterface $url): bool
         {
             return $url->getPath() !== '/link3';
@@ -139,7 +140,8 @@ it('uses a crawl profile to determine what should be crawled', function () {
 });
 
 it('will pass the correct link texts', function () {
-    $crawlProfile = new class () extends CrawlProfile {
+    $crawlProfile = new class() extends CrawlProfile
+    {
         public function shouldCrawl(UriInterface $url): bool
         {
             return $url->getPath() !== '/link3';
@@ -178,7 +180,8 @@ it('uses crawl profile for internal urls', function () {
 });
 
 it('can handle pages with invalid urls', function () {
-    $crawlProfile = new class () extends CrawlProfile {
+    $crawlProfile = new class() extends CrawlProfile
+    {
         public function shouldCrawl(UriInterface $url): bool
         {
             return true;
