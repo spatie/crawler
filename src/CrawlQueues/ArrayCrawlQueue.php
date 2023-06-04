@@ -78,7 +78,7 @@ class ArrayCrawlQueue implements CrawlQueue
         return count($this->urls) - count($this->pendingUrls);
     }
 
-    public function has(CrawlUrl | UriInterface $crawlUrl): bool
+    public function has(CrawlUrl|UriInterface $crawlUrl): bool
     {
         if ($crawlUrl instanceof CrawlUrl) {
             $urlString = (string) $crawlUrl->url;

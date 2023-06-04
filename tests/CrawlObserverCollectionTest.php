@@ -11,7 +11,8 @@ use Spatie\Crawler\CrawlObservers\CrawlObserverCollection;
 use Spatie\Crawler\CrawlUrl;
 
 beforeEach(function () {
-    $this->crawlObserver = new class () extends CrawlObserver {
+    $this->crawlObserver = new class() extends CrawlObserver
+    {
         public $crawled = false;
 
         public $failed = false;
@@ -19,7 +20,8 @@ beforeEach(function () {
         public function crawled(
             UriInterface $url,
             ResponseInterface $response,
-            ?UriInterface $foundOnUrl = null
+            ?UriInterface $foundOnUrl = null,
+            ?string $linkText = null,
         ): void {
             $this->crawled = true;
         }
@@ -27,7 +29,8 @@ beforeEach(function () {
         public function crawlFailed(
             UriInterface $url,
             RequestException $requestException,
-            ?UriInterface $foundOnUrl = null
+            ?UriInterface $foundOnUrl = null,
+            ?string $linkText = null,
         ): void {
             $this->failed = true;
         }

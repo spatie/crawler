@@ -2,7 +2,6 @@
 
 namespace Spatie\Crawler;
 
-use GuzzleHttp\Psr7\Uri;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
@@ -24,18 +23,18 @@ class LinkAdder
         $allLinks = $this->extractLinksFromHtml($html, $foundOnUrl);
 
         collect($allLinks)
-            ->filter(fn (UriInterface $url) => $this->hasCrawlableScheme($url))
-            ->map(fn (UriInterface $url) => $this->normalizeUrl($url))
-            ->filter(function (UriInterface $url) use ($foundOnUrl) {
+            ->filter(fn (Url $url) => $this->hasCrawlableScheme($url))
+            ->map(fn (Url $url) => $this->normalizeUrl($url))
+            ->filter(function (Url $url) use ($foundOnUrl) {
                 if (! $node = $this->crawler->addToDepthTree($url, $foundOnUrl)) {
                     return false;
                 }
 
                 return $this->shouldCrawl($node);
             })
-            ->filter(fn (UriInterface $url) => ! str_contains($url->getPath(), '/tel:'))
-            ->each(function (UriInterface $url) use ($foundOnUrl) {
-                $crawlUrl = CrawlUrl::create($url, $foundOnUrl);
+            ->filter(fn (Url $url) => ! str_contains($url->getPath(), '/tel:'))
+            ->each(function (Url $url) use ($foundOnUrl) {
+                $crawlUrl = CrawlUrl::create($url, $foundOnUrl, linkText: $url->linkText());
 
                 $this->crawler->addToCrawlQueue($crawlUrl);
             });
@@ -59,7 +58,13 @@ class LinkAdder
             })
             ->map(function (Link $link) {
                 try {
-                    return new Uri($link->getUri());
+                    $linkText = $link->getNode()->textContent;
+
+                    if ($linkText) {
+                        $linkText = substr($linkText, 0, 4000);
+                    }
+
+                    return new Url($link->getUri(), $linkText);
                 } catch (InvalidArgumentException $exception) {
                     return;
                 }

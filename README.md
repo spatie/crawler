@@ -3,7 +3,6 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/crawler.svg?style=flat-square)](https://packagist.org/packages/spatie/crawler)
 [![MIT Licensed](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 ![Tests](https://github.com/spatie/crawler/workflows/Tests/badge.svg)
-![Check & fix styling](https://github.com/spatie/crawler/workflows/Code%20style/badge.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/crawler.svg?style=flat-square)](https://packagist.org/packages/spatie/crawler)
 
 This package provides a class to crawl links on a website. Under the hood Guzzle promises are used to [crawl multiple urls concurrently](http://docs.guzzlephp.org/en/latest/quickstart.html?highlight=pool#concurrent-requests).
@@ -49,39 +48,31 @@ use Psr\Http\Message\UriInterface;
 
 abstract class CrawlObserver
 {
-    /**
+    /*
      * Called when the crawler will crawl the url.
-     *
-     * @param \Psr\Http\Message\UriInterface $url
      */
-    public function willCrawl(UriInterface $url): void
+    public function willCrawl(UriInterface $url, ?string $linkText): void
     {
     }
 
-    /**
+    /*
      * Called when the crawler has crawled the given url successfully.
-     *
-     * @param \Psr\Http\Message\UriInterface $url
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
      */
     abstract public function crawled(
         UriInterface $url,
         ResponseInterface $response,
-        ?UriInterface $foundOnUrl = null
+        ?UriInterface $foundOnUrl = null,
+        ?string $linkText,
     ): void;
 
-    /**
+    /*
      * Called when the crawler had a problem crawling the given url.
-     *
-     * @param \Psr\Http\Message\UriInterface $url
-     * @param \GuzzleHttp\Exception\RequestException $requestException
-     * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
      */
     abstract public function crawlFailed(
         UriInterface $url,
         RequestException $requestException,
-        ?UriInterface $foundOnUrl = null
+        ?UriInterface $foundOnUrl = null,
+        ?string $linkText = null,
     ): void;
 
     /**
