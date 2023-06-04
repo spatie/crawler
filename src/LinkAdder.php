@@ -59,7 +59,13 @@ class LinkAdder
             })
             ->map(function (Link $link) {
                 try {
-                    return new Url($link->getUri(), $link->getNode()->textContent);
+                    $linkText = $link->getNode()->textContent;
+
+                    if ($linkText) {
+                        $linkText = substr($linkText, 0, 4000);
+                    }
+
+                    return new Url($link->getUri(), $linkText);
                 } catch (InvalidArgumentException $exception) {
                     return;
                 }
