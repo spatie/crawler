@@ -19,8 +19,7 @@ class CrawlUrl
         ?UriInterface $foundOnUrl = null,
         $id = null,
         string|null $linkText = null,
-    ): static
-    {
+    ): static {
         $static = new static($url, $foundOnUrl, linkText: $linkText);
 
         if ($id !== null) {

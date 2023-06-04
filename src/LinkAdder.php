@@ -2,7 +2,6 @@
 
 namespace Spatie\Crawler;
 
-use GuzzleHttp\Psr7\Uri;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
