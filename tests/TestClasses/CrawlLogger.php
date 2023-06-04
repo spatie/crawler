@@ -25,7 +25,7 @@ class CrawlLogger extends CrawlObserver
      *
      * @param \Psr\Http\Message\UriInterface   $url
      */
-    public function willCrawl(UriInterface $url): void
+    public function willCrawl(UriInterface $url, ?string $linkText): void
     {
         Log::putContents("{$this->observerId}willCrawl: {$url}");
     }

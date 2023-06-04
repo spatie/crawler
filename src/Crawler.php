@@ -499,7 +499,7 @@ class Crawler
             }
 
             foreach ($this->crawlObservers as $crawlObserver) {
-                $crawlObserver->willCrawl($crawlUrl->url);
+                $crawlObserver->willCrawl($crawlUrl->url, $crawlUrl->linkText);
             }
 
             $this->totalUrlCount++;
