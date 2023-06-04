@@ -9,5 +9,4 @@ docs
 phpunit.xml
 psalm.xml
 vendor
-.php-cs-fixer.cache
 node_modules
