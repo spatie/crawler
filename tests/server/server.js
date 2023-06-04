@@ -22,6 +22,10 @@ app.get('/link1-prev', function (request, response) {
     response.end('You are on link1-prev. Previous page of link1');
 });
 
+app.get('/link-with-html', function (request, response) {
+    response.end('<a href="/link1"><div title="some title"><div>Link text inner</div></div></a>');
+});
+
 app.get('/nofollow', function (request, response) {
     response.end('This page should not be crawled');
 });

@@ -46,7 +46,7 @@ class CrawlLogger extends CrawlObserver
         ?UriInterface $foundOnUrl = null,
         ?string $linkText = null,
     ): void {
-        $this->logCrawl($url, $foundOnUrl);
+        $this->logCrawl($url, $foundOnUrl, $linkText);
     }
 
     protected function logCrawl(UriInterface $url, ?UriInterface $foundOnUrl, ?string $linkText = null)

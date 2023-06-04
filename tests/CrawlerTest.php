@@ -118,8 +118,7 @@ it('has a method to disable executing javascript', function () {
 });
 
 it('uses a crawl profile to determine what should be crawled', function () {
-    $crawlProfile = new class() extends CrawlProfile
-    {
+    $crawlProfile = new class() extends CrawlProfile {
         public function shouldCrawl(UriInterface $url): bool
         {
             return $url->getPath() !== '/link3';
@@ -140,16 +139,7 @@ it('uses a crawl profile to determine what should be crawled', function () {
 });
 
 it('will pass the correct link texts', function () {
-    $crawlProfile = new class() extends CrawlProfile
-    {
-        public function shouldCrawl(UriInterface $url): bool
-        {
-            return $url->getPath() !== '/link3';
-        }
-    };
-
     createCrawler()
-        ->setCrawlProfile(new $crawlProfile())
         ->startCrawling('http://localhost:8080');
 
     expect([
@@ -157,6 +147,16 @@ it('will pass the correct link texts', function () {
         ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/', 'linkText' => 'Link1'],
         ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/', 'linkText' => 'Link2'],
     ])->each->toBeCrawledOnce();
+});
+
+it('will get the text from a html link', function () {
+    createCrawler()->startCrawling('http://localhost:8080/link-with-html');
+
+    expect([
+        'url' => 'http://localhost:8080/link1',
+        'foundOn' => 'http://localhost:8080/link-with-html',
+        'linkText' => 'Link text inner',
+    ])->toBeCrawledOnce();
 });
 
 it('uses crawl profile for internal urls', function () {
@@ -180,8 +180,7 @@ it('uses crawl profile for internal urls', function () {
 });
 
 it('can handle pages with invalid urls', function () {
-    $crawlProfile = new class() extends CrawlProfile
-    {
+    $crawlProfile = new class() extends CrawlProfile {
         public function shouldCrawl(UriInterface $url): bool
         {
             return true;
