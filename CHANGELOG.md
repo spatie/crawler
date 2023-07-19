@@ -2,6 +2,18 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.0.1 - 2023-07-19
+
+### What's Changed
+
+- Check if rel attribute contains nofollow by @robbinbenard in https://github.com/spatie/crawler/pull/445
+
+### New Contributors
+
+- @robbinbenard made their first contribution in https://github.com/spatie/crawler/pull/445
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/8.0.0...8.0.1
+
 ## 8.0.0 - 2023-06-04
 
 - add linkText to crawl observer methods
