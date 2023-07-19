@@ -50,7 +50,7 @@ class LinkAdder
                     return true;
                 }
 
-                if ($this->crawler->mustRejectNofollowLinks() && $link->getNode()->getAttribute('rel') === 'nofollow') {
+                if ($this->crawler->mustRejectNofollowLinks() && str_contains($link->getNode()->getAttribute('rel'), 'nofollow')) {
                     return true;
                 }
 
