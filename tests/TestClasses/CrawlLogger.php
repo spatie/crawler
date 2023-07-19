@@ -34,8 +34,8 @@ class CrawlLogger extends CrawlObserver
     public function crawled(
         UriInterface $url,
         ResponseInterface $response,
-        ?UriInterface $foundOnUrl = null,
-        ?string $linkText = null,
+        UriInterface $foundOnUrl = null,
+        string $linkText = null,
     ): void {
         $this->logCrawl($url, $foundOnUrl, $linkText);
     }
@@ -43,13 +43,13 @@ class CrawlLogger extends CrawlObserver
     public function crawlFailed(
         UriInterface $url,
         RequestException $requestException,
-        ?UriInterface $foundOnUrl = null,
-        ?string $linkText = null,
+        UriInterface $foundOnUrl = null,
+        string $linkText = null,
     ): void {
         $this->logCrawl($url, $foundOnUrl, $linkText);
     }
 
-    protected function logCrawl(UriInterface $url, ?UriInterface $foundOnUrl, ?string $linkText = null)
+    protected function logCrawl(UriInterface $url, ?UriInterface $foundOnUrl, string $linkText = null)
     {
         $logText = "{$this->observerId}hasBeenCrawled: {$url}";
 

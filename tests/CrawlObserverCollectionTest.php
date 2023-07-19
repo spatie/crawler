@@ -20,8 +20,8 @@ beforeEach(function () {
         public function crawled(
             UriInterface $url,
             ResponseInterface $response,
-            ?UriInterface $foundOnUrl = null,
-            ?string $linkText = null,
+            UriInterface $foundOnUrl = null,
+            string $linkText = null,
         ): void {
             $this->crawled = true;
         }
@@ -29,8 +29,8 @@ beforeEach(function () {
         public function crawlFailed(
             UriInterface $url,
             RequestException $requestException,
-            ?UriInterface $foundOnUrl = null,
-            ?string $linkText = null,
+            UriInterface $foundOnUrl = null,
+            string $linkText = null,
         ): void {
             $this->failed = true;
         }
