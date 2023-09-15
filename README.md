@@ -1,3 +1,7 @@
+# H&H Crawler
+
+A fork of spatie/crawler v2 with some adjustments. Only used for an internal project.
+
 # Crawl links on a website
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/crawler.svg?style=flat-square)](https://packagist.org/packages/spatie/crawler)
