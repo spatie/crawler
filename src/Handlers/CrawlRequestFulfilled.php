@@ -50,12 +50,6 @@ class CrawlRequestFulfilled
             $this->handleCrawled($responseWithCachedBody, $crawlUrl);
         }
 
-        if (! $this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
-            if ($crawlUrl->url->getHost() !== $this->crawler->getBaseUrl()->getHost()) {
-                return;
-            }
-        }
-
         if (! $robots->mayFollow()) {
             return;
         }
