@@ -23,8 +23,7 @@ abstract class CrawlObserver
         ResponseInterface $response,
         UriInterface $foundOnUrl = null,
         string $linkText = null,
-    ): void
-    {
+    ): void {
     }
 
     /*
@@ -35,8 +34,7 @@ abstract class CrawlObserver
         RequestException $requestException,
         UriInterface $foundOnUrl = null,
         string $linkText = null,
-    ): void
-    {
+    ): void {
     }
 
     /*
