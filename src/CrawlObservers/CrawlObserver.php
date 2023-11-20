@@ -18,22 +18,26 @@ abstract class CrawlObserver
     /*
      * Called when the crawler has crawled the given url successfully.
      */
-    abstract public function crawled(
+    public function crawled(
         UriInterface $url,
         ResponseInterface $response,
         UriInterface $foundOnUrl = null,
         string $linkText = null,
-    ): void;
+    ): void
+    {
+    }
 
     /*
      * Called when the crawler had a problem crawling the given url.
      */
-    abstract public function crawlFailed(
+    public function crawlFailed(
         UriInterface $url,
         RequestException $requestException,
         UriInterface $foundOnUrl = null,
         string $linkText = null,
-    ): void;
+    ): void
+    {
+    }
 
     /*
      * Called when the crawl has ended.
