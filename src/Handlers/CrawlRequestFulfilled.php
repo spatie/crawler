@@ -67,7 +67,7 @@ class CrawlRequestFulfilled
         usleep($this->crawler->getDelayBetweenRequests());
     }
 
-    protected function getBaseUrl(ResponseInterface $response, CrawlUrl $crawlUrl): Uri
+    protected function getBaseUrl(ResponseInterface $response, CrawlUrl $crawlUrl): UriInterface
     {
         $redirectHistory = $response->getHeader(RedirectMiddleware::HISTORY_HEADER);
 
