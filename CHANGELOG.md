@@ -2,6 +2,18 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.0.2 - 2023-11-20
+
+### What's Changed
+
+- Define only needed methods in observer implementation by @buismaarten in https://github.com/spatie/crawler/pull/449
+
+### New Contributors
+
+- @buismaarten made their first contribution in https://github.com/spatie/crawler/pull/449
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/8.0.1...8.0.2
+
 ## 8.0.1 - 2023-07-19
 
 ### What's Changed
