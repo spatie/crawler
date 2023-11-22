@@ -2,6 +2,18 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.0.3 - 2023-11-22
+
+### What's Changed
+
+- Fix return type by @riesjart in https://github.com/spatie/crawler/pull/452
+
+### New Contributors
+
+- @riesjart made their first contribution in https://github.com/spatie/crawler/pull/452
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/8.0.2...8.0.3
+
 ## 8.0.2 - 2023-11-20
 
 ### What's Changed
