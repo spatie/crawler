@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.0.4 - 2023-12-29
+
+- allow Browsershot v4
+
 ## 8.0.3 - 2023-11-22
 
 ### What's Changed
