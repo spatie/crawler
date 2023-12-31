@@ -19,6 +19,8 @@ use Spatie\Crawler\CrawlQueues\CrawlQueue;
 use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
 use Spatie\Crawler\Handlers\CrawlRequestFailed;
 use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
+use Spatie\Crawler\UrlParsers\LinkUrlParser;
+use Spatie\Crawler\UrlParsers\UrlParser;
 use Spatie\Robots\RobotsTxt;
 use Tree\Node\Node;
 
@@ -62,6 +64,8 @@ class Crawler
 
     protected string $crawlRequestFailedClass;
 
+    protected string $urlParserClass;
+
     protected int $delayBetweenRequests = 0;
 
     protected array $allowedMimeTypes = [];
@@ -102,6 +106,8 @@ class Crawler
         $this->crawlRequestFulfilledClass = CrawlRequestFulfilled::class;
 
         $this->crawlRequestFailedClass = CrawlRequestFailed::class;
+
+        $this->urlParserClass = LinkUrlParser::class;
     }
 
     public function getDefaultScheme(): string
@@ -343,6 +349,22 @@ class Crawler
         $this->crawlRequestFailedClass = $crawlRequestFailedClass;
 
         return $this;
+    }
+
+    public function setUrlParserClass(string $urlParserClass): self
+    {
+        if (! is_a($urlParserClass, UrlParser::class)) {
+            throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($urlParserClass, UrlParser::class);
+        }
+
+        $this->urlParserClass = $urlParserClass;
+
+        return $this;
+    }
+
+    public function getUrlParserClass(): string
+    {
+        return $this->urlParserClass;
     }
 
     public function setBrowsershot(Browsershot $browsershot)

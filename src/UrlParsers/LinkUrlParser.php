@@ -1,15 +1,18 @@
 <?php
 
-namespace Spatie\Crawler;
+namespace Spatie\Crawler\UrlParsers;
 
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
+use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlUrl;
+use Spatie\Crawler\Url;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 use Symfony\Component\DomCrawler\Link;
 use Tree\Node\Node;
 
-class LinkAdder
+class LinkUrlParser implements UrlParser
 {
     protected Crawler $crawler;
 
@@ -66,7 +69,7 @@ class LinkAdder
 
                     return new Url($link->getUri(), $linkText);
                 } catch (InvalidArgumentException $exception) {
-                    return;
+                    return null;
                 }
             })
             ->filter();

@@ -13,16 +13,17 @@ use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlerRobots;
 use Spatie\Crawler\CrawlProfiles\CrawlSubdomains;
 use Spatie\Crawler\CrawlUrl;
-use Spatie\Crawler\LinkAdder;
 use Spatie\Crawler\ResponseWithCachedBody;
+use Spatie\Crawler\UrlParsers\UrlParser;
 
 class CrawlRequestFulfilled
 {
-    protected LinkAdder $linkAdder;
+    protected UrlParser $urlParser;
 
     public function __construct(protected Crawler $crawler)
     {
-        $this->linkAdder = new LinkAdder($this->crawler);
+        $urlParserClass = $this->crawler->getUrlParserClass();
+        $this->urlParser = new $urlParserClass($this->crawler);
     }
 
     public function __invoke(ResponseInterface $response, $index)
@@ -62,7 +63,7 @@ class CrawlRequestFulfilled
 
         $baseUrl = $this->getBaseUrl($response, $crawlUrl);
 
-        $this->linkAdder->addFromHtml($body, $baseUrl);
+        $this->urlParser->addFromHtml($body, $baseUrl);
 
         usleep($this->crawler->getDelayBetweenRequests());
     }
