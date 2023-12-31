@@ -353,10 +353,6 @@ class Crawler
 
     public function setUrlParserClass(string $urlParserClass): self
     {
-        if (! is_a($urlParserClass, UrlParser::class)) {
-            throw InvalidCrawlRequestHandler::doesNotExtendBaseClass($urlParserClass, UrlParser::class);
-        }
-
         $this->urlParserClass = $urlParserClass;
 
         return $this;
