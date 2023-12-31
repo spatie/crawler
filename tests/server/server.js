@@ -136,6 +136,51 @@ app.get('/robots.txt', function (req, res) {
     res.end(html);
 });
 
+app.get('/sitemap.xml', function (req, res) {
+    var html = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+        '   <url>\n' +
+        '      <loc>http://localhost:8080/</loc>\n' +
+        '      <lastmod>2016-01-01</lastmod>\n' +
+        '      <changefreq>monthly</changefreq>\n' +
+        '      <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '   <url>\n' +
+        '      <loc>http://localhost:8080/link1</loc>\n' +
+        '      <lastmod>2016-01-01</lastmod>\n' +
+        '      <changefreq>monthly</changefreq>\n' +
+        '      <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '   <url>\n' +
+        '      <loc>http://localhost:8080/link1-next</loc>\n' +
+        '      <lastmod>2016-01-01</lastmod>\n' +
+        '      <changefreq>monthly</changefreq>\n' +
+        '      <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '   <url>\n' +
+        '      <loc>http://localhost:8080/link1-prev</loc>\n' +
+        '      <lastmod>2016-01-01</lastmod>\n' +
+        '      <changefreq>monthly</changefreq>\n' +
+        '      <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '   <url>\n' +
+        '      <loc>http://localhost:8080/link2</loc>\n' +
+        '      <lastmod>2016-01-01</lastmod>\n' +
+        '      <changefreq>monthly</changefreq>\n' +
+        '      <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '   <url lang="fr">\n' +
+        '      <loc>http://localhost:8080/link3</loc>\n' +
+        '      <lastmod>2016-01-01</lastmod>\n' +
+        '      <changefreq>monthly</changefreq>\n' +
+        '      <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '</urlset>';
+
+    res.contentType('text/xml; charset=utf-8')
+    res.end(html);
+});
+
 let server = app.listen(8080, function () {
     const host = 'localhost';
     const port = server.address().port;
