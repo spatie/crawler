@@ -136,50 +136,77 @@ app.get('/robots.txt', function (req, res) {
     res.end(html);
 });
 
-app.get('/sitemap.xml', function (req, res) {
-    var html = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+app.get('/sitemap_index.xml', function (req, res) {
+    var sitemapIndex = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+        '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+        '   <sitemap>\n' +
+        '       <loc>http://localhost:8080/sitemap1.xml</loc>\n' +
+        '       <lastmod>2024-01-01</lastmod>\n' +
+        '   </sitemap>\n' +
+        '   <sitemap>\n' +
+        '       <loc>http://localhost:8080/sitemap2.xml</loc>\n' +
+        '       <lastmod>2024-01-01</lastmod>\n' +
+        '   </sitemap>\n' +
+        '</sitemapindex>';
+
+    res.contentType('text/xml; charset=utf-8');
+    res.end(sitemapIndex);
+});
+
+app.get('/sitemap1.xml', function (req, res) {
+    var sitemap1 = '<?xml version="1.0" encoding="UTF-8"?>\n' +
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
         '   <url>\n' +
-        '      <loc>http://localhost:8080/</loc>\n' +
-        '      <lastmod>2016-01-01</lastmod>\n' +
-        '      <changefreq>monthly</changefreq>\n' +
-        '      <priority>0.8</priority>\n' +
+        '       <loc>http://localhost:8080/</loc>\n' +
+        '       <lastmod>2016-01-01</lastmod>\n' +
+        '       <changefreq>monthly</changefreq>\n' +
+        '       <priority>0.8</priority>\n' +
         '   </url>\n' +
         '   <url>\n' +
-        '      <loc>http://localhost:8080/link1</loc>\n' +
-        '      <lastmod>2016-01-01</lastmod>\n' +
-        '      <changefreq>monthly</changefreq>\n' +
-        '      <priority>0.8</priority>\n' +
-        '   </url>\n' +
-        '   <url>\n' +
-        '      <loc>http://localhost:8080/link1-next</loc>\n' +
-        '      <lastmod>2016-01-01</lastmod>\n' +
-        '      <changefreq>monthly</changefreq>\n' +
-        '      <priority>0.8</priority>\n' +
-        '   </url>\n' +
-        '   <url>\n' +
-        '      <loc>http://localhost:8080/link1-prev</loc>\n' +
-        '      <lastmod>2016-01-01</lastmod>\n' +
-        '      <changefreq>monthly</changefreq>\n' +
-        '      <priority>0.8</priority>\n' +
-        '   </url>\n' +
-        '   <url>\n' +
-        '      <loc>http://localhost:8080/link2</loc>\n' +
-        '      <lastmod>2016-01-01</lastmod>\n' +
-        '      <changefreq>monthly</changefreq>\n' +
-        '      <priority>0.8</priority>\n' +
-        '   </url>\n' +
-        '   <url lang="fr">\n' +
-        '      <loc>http://localhost:8080/link3</loc>\n' +
-        '      <lastmod>2016-01-01</lastmod>\n' +
-        '      <changefreq>monthly</changefreq>\n' +
-        '      <priority>0.8</priority>\n' +
+        '       <loc>http://localhost:8080/link1</loc>\n' +
+        '       <lastmod>2016-01-01</lastmod>\n' +
+        '       <changefreq>monthly</changefreq>\n' +
+        '       <priority>0.8</priority>\n' +
         '   </url>\n' +
         '</urlset>';
 
-    res.contentType('text/xml; charset=utf-8')
-    res.end(html);
+    res.contentType('text/xml; charset=utf-8');
+    res.end(sitemap1);
 });
+
+app.get('/sitemap2.xml', function (req, res) {
+    var sitemap2 = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+        '   <url>\n' +
+        '       <loc>http://localhost:8080/link1-next</loc>\n' +
+        '       <lastmod>2016-01-01</lastmod>\n' +
+        '       <changefreq>monthly</changefreq>\n' +
+        '       <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '   <url>\n' +
+        '       <loc>http://localhost:8080/link1-prev</loc>\n' +
+        '       <lastmod>2016-01-01</lastmod>\n' +
+        '       <changefreq>monthly</changefreq>\n' +
+        '       <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '   <url>\n' +
+        '       <loc>http://localhost:8080/link2</loc>\n' +
+        '       <lastmod>2016-01-01</lastmod>\n' +
+        '       <changefreq>monthly</changefreq>\n' +
+        '       <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '   <url lang="fr">\n' +
+        '       <loc>http://localhost:8080/link3</loc>\n' +
+        '       <lastmod>2016-01-01</lastmod>\n' +
+        '       <changefreq>monthly</changefreq>\n' +
+        '       <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '</urlset>';
+
+    res.contentType('text/xml; charset=utf-8');
+    res.end(sitemap2);
+});
+
 
 let server = app.listen(8080, function () {
     const host = 'localhost';
