@@ -44,4 +44,3 @@ it('should extract urls from sitemaps trough sitemap index', function () {
     expect(['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/sitemap2.xml'])
         ->toBeCrawledOnce();
 });
-
