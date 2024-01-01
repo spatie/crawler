@@ -20,7 +20,6 @@ use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
 use Spatie\Crawler\Handlers\CrawlRequestFailed;
 use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
 use Spatie\Crawler\UrlParsers\LinkUrlParser;
-use Spatie\Crawler\UrlParsers\UrlParser;
 use Spatie\Robots\RobotsTxt;
 use Tree\Node\Node;
 
@@ -448,7 +447,7 @@ class Crawler
         }
     }
 
-    public function addToDepthTree(UriInterface $url, UriInterface $parentUrl, Node $node = null): ?Node
+    public function addToDepthTree(UriInterface $url, UriInterface $parentUrl, ?Node $node = null): ?Node
     {
         if (is_null($this->maximumDepth)) {
             return new Node((string) $url);
