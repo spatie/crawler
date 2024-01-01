@@ -165,6 +165,14 @@ Crawler::create()
 
 By default, the `LinkUrlParser` is used. This parser will extract all links from the `href` attribute of `a` tags.
 
+There is also a built-in `SitemapUrlParser` that will extract & crawl all links from a sitemap. It does support sitemap index files.
+
+```php
+Crawler::create()
+    ->setUrlParserClass(SitemapUrlParser::class)
+    ...
+```
+
 ### Ignoring robots.txt and robots meta
 
 By default, the crawler will respect robots data. It is possible to disable these checks like so:
