@@ -159,11 +159,11 @@ You can customize how links are extracted from a page by passing a custom `UrlPa
 
 ```php
 Crawler::create()
-    ->setUrlParserClass(<class that implement \Spatie\Crawler\UrlParsers\UrlParser>::class)
+    ->setUrlParserClass(<class that implements \Spatie\Crawler\UrlParsers\UrlParser>::class)
     ...
 ```
 
-By default, the LinkUrlParser is used. This parser will extract all links from the `href` attribute of `a` tags.
+By default, the `LinkUrlParser` is used. This parser will extract all links from the `href` attribute of `a` tags.
 
 ### Ignoring robots.txt and robots meta
 
