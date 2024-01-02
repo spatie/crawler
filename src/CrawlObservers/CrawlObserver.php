@@ -21,8 +21,8 @@ abstract class CrawlObserver
     public function crawled(
         UriInterface $url,
         ResponseInterface $response,
-        UriInterface $foundOnUrl = null,
-        string $linkText = null,
+        ?UriInterface $foundOnUrl = null,
+        ?string $linkText = null,
     ): void {
     }
 
@@ -32,8 +32,8 @@ abstract class CrawlObserver
     public function crawlFailed(
         UriInterface $url,
         RequestException $requestException,
-        UriInterface $foundOnUrl = null,
-        string $linkText = null,
+        ?UriInterface $foundOnUrl = null,
+        ?string $linkText = null,
     ): void {
     }
 

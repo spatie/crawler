@@ -20,7 +20,7 @@ class ResponseWithCachedBody extends Response
         );
     }
 
-    public function setCachedBody(string $body = null): void
+    public function setCachedBody(?string $body = null): void
     {
         $this->cachedBody = $body;
     }

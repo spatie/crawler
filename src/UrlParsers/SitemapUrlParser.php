@@ -1,15 +1,17 @@
 <?php
 
-namespace Spatie\Crawler;
+namespace Spatie\Crawler\UrlParsers;
 
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
+use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlUrl;
+use Spatie\Crawler\Url;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
-use Symfony\Component\DomCrawler\Link;
 use Tree\Node\Node;
 
-class LinkAdder
+class SitemapUrlParser implements UrlParser
 {
     protected Crawler $crawler;
 
@@ -44,32 +46,20 @@ class LinkAdder
     {
         $domCrawler = new DomCrawler($html, $foundOnUrl);
 
-        return collect($domCrawler->filterXpath('//a | //link[@rel="next" or @rel="prev"]')->links())
-            ->reject(function (Link $link) {
-                if ($this->isInvalidHrefNode($link)) {
-                    return true;
-                }
-
-                if ($this->crawler->mustRejectNofollowLinks() && str_contains($link->getNode()->getAttribute('rel'), 'nofollow')) {
-                    return true;
-                }
-
-                return false;
-            })
-            ->map(function (Link $link) {
+        return collect($domCrawler->filterXPath('//loc')
+            ->each(function (DomCrawler $node) {
                 try {
-                    $linkText = $link->getNode()->textContent;
+                    $linkText = $node->text();
 
                     if ($linkText) {
                         $linkText = substr($linkText, 0, 4000);
                     }
 
-                    return new Url($link->getUri(), $linkText);
+                    return new Url($linkText, $linkText);
                 } catch (InvalidArgumentException $exception) {
-                    return;
+                    return null;
                 }
-            })
-            ->filter();
+            }));
     }
 
     protected function hasCrawlableScheme(UriInterface $uri): bool
@@ -95,22 +85,5 @@ class LinkAdder
         }
 
         return $node->getDepth() <= $maximumDepth;
-    }
-
-    protected function isInvalidHrefNode(Link $link): bool
-    {
-        if ($link->getNode()->nodeName !== 'a') {
-            return false;
-        }
-
-        if ($link->getNode()->nextSibling !== null) {
-            return false;
-        }
-
-        if ($link->getNode()->childNodes->length !== 0) {
-            return false;
-        }
-
-        return true;
     }
 }

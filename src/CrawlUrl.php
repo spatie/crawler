@@ -16,9 +16,9 @@ class CrawlUrl
 
     public static function create(
         UriInterface $url,
-        UriInterface $foundOnUrl = null,
+        ?UriInterface $foundOnUrl = null,
         $id = null,
-        string $linkText = null,
+        ?string $linkText = null,
     ): static {
         $static = new static($url, $foundOnUrl, linkText: $linkText);
 
