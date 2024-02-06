@@ -237,7 +237,7 @@ Let's take a look at some examples to clarify the difference between these two m
 
 ### Example 1: Using the total crawl limit
 
-The `setTotalCrawlLimit` method allows to limit the total number of URLs to crawl, no matter often you call the crawler.
+The `setTotalCrawlLimit` method allows you to limit the total number of URLs to crawl, no matter how often you call the crawler.
 
 ```php
 $queue = <your selection/implementation of a queue>;
