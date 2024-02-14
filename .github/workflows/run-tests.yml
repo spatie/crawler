@@ -13,7 +13,7 @@ jobs:
                 illuminate: [10.*, 11.*]
                 dependency-version: [prefer-lowest, prefer-stable]
 
-        name: P${{ matrix.php }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
+        name: P${{ matrix.php }} - ${{ matrix.dependency-version }} - ${{ matrix.os }} - I ${{ matrix.illuminate }}
 
         steps:
             -   name: Checkout code
