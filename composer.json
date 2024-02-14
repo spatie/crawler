@@ -20,7 +20,7 @@
         "guzzlehttp/guzzle": "^7.3",
         "guzzlehttp/psr7": "^2.0",
         "illuminate/collections": "^10.0|^11.0",
-        "nicmart/tree": "^0.3.0",
+        "nicmart/tree": "^0.8.0",
         "spatie/browsershot": "^3.45|^4.0",
         "spatie/robots-txt": "^2.0",
         "symfony/dom-crawler": "^6.0|^7.0"
