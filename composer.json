@@ -46,7 +46,6 @@
             "Spatie\\Crawler\\Test\\": "tests"
         }
     },
-    "scripts": {
-        "test": "phpunit"
-    }
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
