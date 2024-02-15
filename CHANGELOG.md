@@ -2,6 +2,20 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.2.0 - 2024-02-15
+
+### What's Changed
+
+* Fix wording in documentation by @adamtomat in https://github.com/spatie/crawler/pull/460
+* Add Laravel/Illuminate 11 Support by @Jubeki in https://github.com/spatie/crawler/pull/461
+
+### New Contributors
+
+* @adamtomat made their first contribution in https://github.com/spatie/crawler/pull/460
+* @Jubeki made their first contribution in https://github.com/spatie/crawler/pull/461
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/8.1.0...8.2.0
+
 ## 8.1.0 - 2024-01-02
 
 ### What's Changed
