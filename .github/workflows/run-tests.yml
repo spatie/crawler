@@ -10,13 +10,17 @@ jobs:
             matrix:
                 os: [ubuntu-latest]
                 php: [8.3, 8.2, 8.1]
+                illuminate: [10.*, 11.*]
                 dependency-version: [prefer-lowest, prefer-stable]
+                exclude:
+                    - php: 8.1
+                      illuminate: 11.*
 
-        name: P${{ matrix.php }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
+        name: P${{ matrix.php }} - ${{ matrix.dependency-version }} - ${{ matrix.os }} - I ${{ matrix.illuminate }}
 
         steps:
             -   name: Checkout code
-                uses: actions/checkout@v3
+                uses: actions/checkout@v4
 
             -   name: Install Puppeteer
                 run: npm install puppeteer
@@ -38,7 +42,9 @@ jobs:
                     coverage: none
 
             -   name: Install dependencies
-                run: composer update --${{ matrix.dependency-version }} --no-interaction --prefer-source
+                run: |
+                    composer require "laravel/framework:${{ matrix.illuminate }}" --no-interaction --no-update
+                    composer update --${{ matrix.dependency-version }} --no-interaction --prefer-source
 
             -   name: Execute tests
                 run: vendor/bin/pest
