@@ -8,6 +8,7 @@ use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\RequestOptions;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
@@ -34,6 +35,9 @@ class Crawler
     protected CrawlProfile $crawlProfile;
 
     protected CrawlQueue $crawlQueue;
+
+    /** @var callable */
+    protected $requestFactory;
 
     protected int $totalUrlCount = 0;
 
@@ -523,7 +527,7 @@ class Crawler
             $this->currentUrlCount++;
             $this->crawlQueue->markAsProcessed($crawlUrl);
 
-            yield $crawlUrl->getId() => new Request('GET', $crawlUrl->url);
+            yield $crawlUrl->getId() => $this->createRequest('GET', $crawlUrl->url);
         }
     }
 
@@ -555,5 +559,19 @@ class Crawler
         }
 
         return false;
+    }
+
+    public function createRequest(string $method, UriInterface $uri): RequestInterface
+    {
+        return is_callable($this->requestFactory)
+            ? ($this->requestFactory)($method, $uri)
+            : new Request($method, $uri);
+    }
+
+    public function setRequestFactory(callable $callback): self
+    {
+        $this->requestFactory = $callback;
+
+        return $this;
     }
 }

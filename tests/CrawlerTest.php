@@ -2,8 +2,10 @@
 
 namespace Spatie\Crawler\Test;
 
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\RequestOptions;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\Crawler;
@@ -457,6 +459,16 @@ it('will not crawl half parsed href tags', function () {
         ->notToBeCrawled();
 
     assertCrawledUrlCount(3);
+});
+
+it('can crawl using a request factory', function () {
+    createCrawler()
+        ->setRequestFactory(fn (string $method, UriInterface $uri): RequestInterface =>
+            new Request($method, $uri, ['X-Foo' => 'Bar'])
+        )
+        ->startCrawling('http://localhost:8080');
+
+    expect(regularUrls())->each->toBeCrawledOnce();
 });
 
 function javascriptInjectedUrls(): array
