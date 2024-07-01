@@ -62,8 +62,9 @@ class CrawlRequestFulfilled
         }
 
         $baseUrl = $this->getBaseUrl($response, $crawlUrl);
+        $originalUrl = $crawlUrl->url;
 
-        $this->urlParser->addFromHtml($body, $baseUrl);
+        $this->urlParser->addFromHtml($body, $baseUrl, $originalUrl);
 
         usleep($this->crawler->getDelayBetweenRequests());
     }
