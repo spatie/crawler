@@ -447,7 +447,7 @@ class Crawler
         }
     }
 
-    public function addToDepthTree(UriInterface $url, UriInterface $parentUrl, ?UriInterface $originalUrl = null, ?Node $node = null): ?Node
+    public function addToDepthTree(UriInterface $url, UriInterface $parentUrl, ?Node $node = null, ?UriInterface $originalUrl = null): ?Node
     {
         if (is_null($this->maximumDepth)) {
             return new Node((string) $url);
