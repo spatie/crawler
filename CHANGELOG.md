@@ -2,6 +2,18 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.2.1 - 2024-07-16
+
+### What's Changed
+
+* Check original URL against depth tree when visited link is a redirect by @superpenguin612 in https://github.com/spatie/crawler/pull/467
+
+### New Contributors
+
+* @superpenguin612 made their first contribution in https://github.com/spatie/crawler/pull/467
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/8.2.0...8.2.1
+
 ## 8.2.0 - 2024-02-15
 
 ### What's Changed
