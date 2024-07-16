@@ -466,7 +466,7 @@ class Crawler
         }
 
         foreach ($node->getChildren() as $currentNode) {
-            $returnNode = $this->addToDepthTree($url, $parentUrl, $originalUrl, $currentNode);
+            $returnNode = $this->addToDepthTree($url, $parentUrl, $currentNode, $originalUrl);
 
             if (! is_null($returnNode)) {
                 break;

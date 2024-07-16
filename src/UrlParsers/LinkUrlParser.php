@@ -29,7 +29,7 @@ class LinkUrlParser implements UrlParser
             ->filter(fn (Url $url) => $this->hasCrawlableScheme($url))
             ->map(fn (Url $url) => $this->normalizeUrl($url))
             ->filter(function (Url $url) use ($foundOnUrl, $originalUrl) {
-                if (! $node = $this->crawler->addToDepthTree($url, $foundOnUrl, $originalUrl)) {
+                if (! $node = $this->crawler->addToDepthTree($url, $foundOnUrl, null, $originalUrl)) {
                     return false;
                 }
 
