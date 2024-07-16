@@ -364,6 +364,18 @@ it('should handle redirects correctly when tracking is active', function () {
     assertCrawledUrlCount(3);
 });
 
+it('should handle redirects correctly when max depth is specified', function () {
+    createCrawler([
+        RequestOptions::ALLOW_REDIRECTS => [
+            'track_redirects' => true,
+        ],
+    ])
+        ->setMaximumDepth(5)
+        ->startCrawling('http://localhost:8080/redirect-home/');
+
+    expect(['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'])->toBeCrawledOnce();
+});
+
 it('respects the requested delay between requests', function () {
     $baseUrl = 'http://localhost:8080';
 

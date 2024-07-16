@@ -9,5 +9,5 @@ interface UrlParser
 {
     public function __construct(Crawler $crawler);
 
-    public function addFromHtml(string $html, UriInterface $foundOnUrl): void;
+    public function addFromHtml(string $html, UriInterface $foundOnUrl, ?UriInterface $originalUrl = null): void;
 }

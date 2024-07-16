@@ -70,6 +70,10 @@ app.get('/meta-nofollow', function (request, response) {
     response.end('<html><head>\n<meta name="robots" content="index, nofollow">\n</head><body><a href="/meta-nofollow-target">no follow it</a></body></html>');
 });
 
+app.get('/redirect-home/', function (request, response) {
+    response.redirect(301, '/');
+});
+
 app.get('/dir1/internal-redirect-entry/', function (request, response) {
     response.end('<a href="../loop-generator/internal-redirect/trapped/">trapped</a> <a href="../../dir1/internal-redirect/trap/">trap-start</a>');
 });
