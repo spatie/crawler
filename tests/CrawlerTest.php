@@ -14,6 +14,7 @@ use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
 use Spatie\Crawler\Test\TestClasses\CrawlLogger;
 use Spatie\Crawler\Test\TestClasses\Log;
 use stdClass;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 beforeEach(function () {
     skipIfTestServerIsNotRunning();
@@ -116,6 +117,24 @@ it('has a method to disable executing javascript', function () {
 
     expect(javascriptInjectedUrls())->each->notToBeCrawled();
 });
+
+it('fails gracefully when browsershot fails', function () {
+    expect(function () {
+        $browsershot = (new Browsershot)->waitUntilNetworkIdle();
+
+        Crawler::create([
+            RequestOptions::CONNECT_TIMEOUT => 60,
+            RequestOptions::TIMEOUT => 60,
+            RequestOptions::READ_TIMEOUT => 60,
+        ])
+            ->setBrowsershot($browsershot)
+            ->executeJavaScript()
+            ->setCrawlObserver(new CrawlLogger())
+            ->startCrawling('http://localhost:8080/simulate-activity');
+    })->not->toThrow(ProcessFailedException::class);
+
+    expect(['url' => 'http://localhost:8080/simulate-activity'])->toBeCrawledOnce();
+})->only();
 
 it('uses a crawl profile to determine what should be crawled', function () {
     $crawlProfile = new class() extends CrawlProfile
