@@ -134,7 +134,7 @@ it('fails gracefully when browsershot fails', function () {
     })->not->toThrow(ProcessFailedException::class);
 
     expect(['url' => 'http://localhost:8080/simulate-activity'])->toBeCrawledOnce();
-})->only();
+});
 
 it('uses a crawl profile to determine what should be crawled', function () {
     $crawlProfile = new class() extends CrawlProfile
