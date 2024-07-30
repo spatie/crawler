@@ -51,6 +51,7 @@ class CrawlRequestFulfilled
 
                 $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception);
 
+                usleep($this->crawler->getDelayBetweenRequests());
                 return;
             }
 
