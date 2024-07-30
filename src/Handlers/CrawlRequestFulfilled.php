@@ -51,6 +51,7 @@ class CrawlRequestFulfilled
 
                 $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception);
 
+                usleep($this->crawler->getDelayBetweenRequests());
                 return;
             }
 
@@ -64,13 +65,13 @@ class CrawlRequestFulfilled
             $this->handleCrawled($responseWithCachedBody, $crawlUrl);
         }
 
-        if (! $this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
+        if (!$this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
             if ($crawlUrl->url->getHost() !== $this->crawler->getBaseUrl()->getHost()) {
                 return;
             }
         }
 
-        if (! $robots->mayFollow()) {
+        if (!$robots->mayFollow()) {
             return;
         }
 
@@ -102,7 +103,7 @@ class CrawlRequestFulfilled
     {
         $contentType = $response->getHeaderLine('Content-Type');
 
-        if (! $this->isMimetypeAllowedToParse($contentType)) {
+        if (!$this->isMimetypeAllowedToParse($contentType)) {
             return '';
         }
 
@@ -126,7 +127,7 @@ class CrawlRequestFulfilled
                 $newDataRead = null;
             }
 
-            if (! $newDataRead) {
+            if (!$newDataRead) {
                 break;
             }
 
@@ -151,7 +152,7 @@ class CrawlRequestFulfilled
             return true;
         }
 
-        if (! count($this->crawler->getParseableMimeTypes())) {
+        if (!count($this->crawler->getParseableMimeTypes())) {
             return true;
         }
 
