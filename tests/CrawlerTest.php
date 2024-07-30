@@ -435,7 +435,7 @@ it('will only crawl correct mime types when asked to', function () {
     );
 
     assertCrawledUrlCount(2);
-})->only();
+});
 
 it('will only crawl correct mime types when asked to when executing javascript', function () {
     createCrawler()
