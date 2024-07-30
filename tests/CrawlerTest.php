@@ -417,8 +417,8 @@ it('will only crawl correct mime types when asked to', function () {
         ->startCrawling('http://localhost:8080/content-types');
 
     $urls = [
-        ['url' => 'http://localhost:8080/content-types/music.html', 'foundOn' => 'http://localhost:8080/content-types/music.mp3'],
-        ['url' => 'http://localhost:8080/content-types/video.html', 'foundOn' => 'http://localhost:8080/content-types/video.mkv'],
+        ['url' => 'http://localhost:8080/content-types/music.mp3', 'foundOn' => 'http://localhost:8080/content-types'],
+        ['url' => 'http://localhost:8080/content-types/video.mkv', 'foundOn' => 'http://localhost:8080/content-types'],
         ['url' => 'http://localhost:8080/content-types/normal.html', 'foundOn' => 'http://localhost:8080/content-types'],
     ];
 
@@ -434,7 +434,34 @@ it('will only crawl correct mime types when asked to', function () {
         },
     );
 
-    assertCrawledUrlCount(4);
+    assertCrawledUrlCount(2);
+})->only();
+
+it('will only crawl correct mime types when asked to when executing javascript', function () {
+    createCrawler()
+        ->executeJavaScript()
+        ->setParseableMimeTypes(['text/html', 'text/plain'])
+        ->startCrawling('http://localhost:8080/content-types');
+
+    $urls = [
+        ['url' => 'http://localhost:8080/content-types/music.mp3', 'foundOn' => 'http://localhost:8080/content-types'],
+        ['url' => 'http://localhost:8080/content-types/video.mkv', 'foundOn' => 'http://localhost:8080/content-types'],
+        ['url' => 'http://localhost:8080/content-types/normal.html', 'foundOn' => 'http://localhost:8080/content-types'],
+    ];
+
+    expect($urls)->sequence(
+        function ($url) {
+            $url->notToBeCrawled();
+        },
+        function ($url) {
+            $url->notToBeCrawled();
+        },
+        function ($url) {
+            $url->toBeCrawledOnce();
+        },
+    );
+
+    assertCrawledUrlCount(2);
 });
 
 it('will crawl all content types when not explicitly whitelisted', function () {
