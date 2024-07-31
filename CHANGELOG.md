@@ -2,6 +2,14 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.2.3 - 2024-07-31
+
+### What's Changed
+
+* Fix setParsableMimeTypes() by @superpenguin612 in https://github.com/spatie/crawler/pull/470
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/8.2.2...8.2.3
+
 ## 8.2.1 - 2024-07-16
 
 ### What's Changed
