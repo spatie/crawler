@@ -211,6 +211,38 @@ app.get('/sitemap2.xml', function (req, res) {
     res.end(sitemap2);
 });
 
+// Route that initiates but never completes the response
+app.get('/never-complete', (req, res) => {
+  req.socket.setTimeout(0); // Disable automatic socket timeout
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.write('Starting but never completing...\n');
+  // Intentionally do not call res.end() or send more data, leaving the response hanging
+});
+
+app.get('/simulate-activity', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Simulated Network Activity</title>
+      </head>
+      <body>
+        <h1>This page simulates a never-ending network request</h1>
+        <script>
+          function keepBusy() {
+            fetch('/never-complete')
+          }
+
+          keepBusy();
+          setInterval(keepBusy, 1000); 
+        </script>
+      </body>
+    </html>
+  `);
+});
+
 
 let server = app.listen(8080, function () {
     const host = 'localhost';
