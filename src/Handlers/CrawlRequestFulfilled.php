@@ -34,6 +34,7 @@ class CrawlRequestFulfilled
         $body = $this->getBody($response);
         if (empty($body)) {
             usleep($this->crawler->getDelayBetweenRequests());
+
             return;
         }
 
