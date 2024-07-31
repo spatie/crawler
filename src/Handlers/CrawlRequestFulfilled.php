@@ -3,6 +3,8 @@
 namespace Spatie\Crawler\Handlers;
 
 use Exception;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\RedirectMiddleware;
@@ -16,8 +18,6 @@ use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\ResponseWithCachedBody;
 use Spatie\Crawler\UrlParsers\UrlParser;
 use Symfony\Component\Process\Exception\ProcessFailedException;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Exception\RequestException;
 
 class CrawlRequestFulfilled
 {
@@ -45,13 +45,14 @@ class CrawlRequestFulfilled
             try {
                 $body = $this->getBodyAfterExecutingJavaScript($crawlUrl->url);
             } catch (ProcessFailedException $exception) {
-                $request = new Request("GET", $crawlUrl->url);
+                $request = new Request('GET', $crawlUrl->url);
                 $exception = new RequestException($exception->getMessage(), $request);
                 $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
                 $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception);
 
                 usleep($this->crawler->getDelayBetweenRequests());
+
                 return;
             }
 

@@ -11,7 +11,7 @@ use Spatie\Crawler\CrawlObservers\CrawlObserverCollection;
 use Spatie\Crawler\CrawlUrl;
 
 beforeEach(function () {
-    $this->crawlObserver = new class() extends CrawlObserver
+    $this->crawlObserver = new class extends CrawlObserver
     {
         public $crawled = false;
 
@@ -44,7 +44,7 @@ it('can be fulfilled', function () {
 
     $observers->crawled(
         CrawlUrl::create(new Uri('')),
-        new Response()
+        new Response
     );
 
     expect($this->crawlObserver)

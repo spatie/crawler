@@ -82,5 +82,5 @@ function createCrawler($options = []): Crawler
 {
     return Crawler::create($options)
         ->setMaximumDepth(3)
-        ->setCrawlObserver(new CrawlLogger());
+        ->setCrawlObserver(new CrawlLogger);
 }

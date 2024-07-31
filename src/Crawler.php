@@ -96,11 +96,11 @@ class Crawler
         protected Client $client,
         protected int $concurrency = 10,
     ) {
-        $this->crawlProfile = new CrawlAllUrls();
+        $this->crawlProfile = new CrawlAllUrls;
 
-        $this->crawlQueue = new ArrayCrawlQueue();
+        $this->crawlQueue = new ArrayCrawlQueue;
 
-        $this->crawlObservers = new CrawlObserverCollection();
+        $this->crawlObservers = new CrawlObserverCollection;
 
         $this->crawlRequestFulfilledClass = CrawlRequestFulfilled::class;
 
@@ -399,7 +399,7 @@ class Crawler
     public function getBrowsershot(): Browsershot
     {
         if (! $this->browsershot) {
-            $this->browsershot = new Browsershot();
+            $this->browsershot = new Browsershot;
         }
 
         return $this->browsershot;
