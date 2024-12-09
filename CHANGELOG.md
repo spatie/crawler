@@ -2,6 +2,14 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.3.0 - 2024-12-02
+
+### What's Changed
+
+* Add support for PHP 8.4 by @pascalbaljet in https://github.com/spatie/crawler/pull/477
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/8.2.3...8.3.0
+
 ## 8.2.3 - 2024-07-31
 
 ### What's Changed

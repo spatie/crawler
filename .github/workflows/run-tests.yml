@@ -9,7 +9,7 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-latest]
-                php: [8.3, 8.2, 8.1]
+                php: [8.4, 8.3, 8.2, 8.1]
                 illuminate: [10.*, 11.*]
                 dependency-version: [prefer-lowest, prefer-stable]
                 exclude:
