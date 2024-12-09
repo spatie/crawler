@@ -2,6 +2,18 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.3.1 - 2024-12-09
+
+### What's Changed
+
+* Upgrade spatie/browsershot to 5.0 by @hasansoyalan in https://github.com/spatie/crawler/pull/478
+
+### New Contributors
+
+* @hasansoyalan made their first contribution in https://github.com/spatie/crawler/pull/478
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/8.3.0...8.3.1
+
 ## 8.3.0 - 2024-12-02
 
 ### What's Changed
