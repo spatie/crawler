@@ -224,7 +224,7 @@ Crawler::create()
     ->setConcurrency(1) // now all urls will be crawled one by one
 ```
 
-## Defining Crawl Limits
+## Defining Crawl and Time Limits
 
 By default, the crawler continues until it has crawled every page it can find. This behavior might cause issues if you are working in an environment with limitations such as a serverless environment.
 
@@ -232,8 +232,11 @@ The crawl behavior can be controlled with the following two options:
 
  - **Total Crawl Limit** (`setTotalCrawlLimit`): This limit defines the maximal count of URLs to crawl.
  - **Current Crawl Limit** (`setCurrentCrawlLimit`): This defines how many URLs are processed during the current crawl.
+ - **Total Execution Time Limit** (`setTotalExecutionTimeLimit`): This limit defines the maximal execution time of the crawl.
+ - **Current Execution Time Limit** (`setCurrentExecutionTimeLimit`): This limits the execution time of the current crawl.
 
-Let's take a look at some examples to clarify the difference between these two methods.
+Let's take a look at some examples to clarify the difference between `setTotalCrawlLimit` and `setCurrentCrawlLimit`.
+The difference between `setTotalExecutionTimeLimit` and `setCurrentExecutionTimeLimit` will be the same.
 
 ### Example 1: Using the total crawl limit
 

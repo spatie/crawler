@@ -43,6 +43,14 @@ class Crawler
 
     protected ?int $currentCrawlLimit = null;
 
+    protected ?int $startedAt = null;
+
+    protected int $executionTime = 0;
+
+    protected ?int $totalExecutionTimeLimit = null;
+
+    protected ?int $currentExecutionTimeLimit = null;
+
     protected int $maximumResponseSize = 1024 * 1024 * 2;
 
     protected ?int $maximumDepth = null;
@@ -172,6 +180,44 @@ class Crawler
     public function getCurrentCrawlCount(): int
     {
         return $this->currentUrlCount;
+    }
+
+    public function setTotalExecutionTimeLimit(int $totalExecutionTimeLimitInSecond): self
+    {
+        $this->totalExecutionTimeLimit = $totalExecutionTimeLimitInSecond;
+
+        return $this;
+    }
+
+    public function getTotalExecutionTimeLimit(): ?int
+    {
+        return $this->totalExecutionTimeLimit;
+    }
+
+    public function getTotalExecutionTime(): int
+    {
+        return $this->executionTime + $this->getCurrentExecutionTime();
+    }
+
+    public function setCurrentExecutionTimeLimit(int $currentExecutionTimeLimitInSecond): self
+    {
+        $this->currentExecutionTimeLimit = $currentExecutionTimeLimitInSecond;
+
+        return $this;
+    }
+
+    public function getCurrentExecutionTimeLimit(): ?int
+    {
+        return $this->currentExecutionTimeLimit;
+    }
+
+    public function getCurrentExecutionTime(): int
+    {
+        if (is_null($this->startedAt)) {
+            return 0;
+        }
+
+        return time() - $this->startedAt;
     }
 
     public function setMaximumDepth(int $maximumDepth): self
@@ -412,6 +458,8 @@ class Crawler
 
     public function startCrawling(UriInterface|string $baseUrl)
     {
+        $this->startedAt = time();
+
         if (! $baseUrl instanceof UriInterface) {
             $baseUrl = new Uri($baseUrl);
         }
@@ -445,6 +493,9 @@ class Crawler
         foreach ($this->crawlObservers as $crawlObserver) {
             $crawlObserver->finishedCrawling();
         }
+
+        $this->executionTime += time() - $this->startedAt;
+        $this->startedAt = null; // To reset currentExecutionTime
     }
 
     public function addToDepthTree(UriInterface $url, UriInterface $parentUrl, ?Node $node = null, ?UriInterface $originalUrl = null): ?Node
@@ -480,6 +531,7 @@ class Crawler
     {
         while (
             $this->reachedCrawlLimits() === false &&
+            $this->reachedTimeLimits() === false &&
             $this->crawlQueue->hasPendingUrls()
         ) {
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
@@ -504,6 +556,7 @@ class Crawler
     {
         while (
             $this->reachedCrawlLimits() === false &&
+            $this->reachedTimeLimits() === false &&
             $crawlUrl = $this->crawlQueue->getPendingUrl()
         ) {
             if (
@@ -551,6 +604,21 @@ class Crawler
 
         $currentCrawlLimit = $this->getCurrentCrawlLimit();
         if (! is_null($currentCrawlLimit) && $this->getCurrentCrawlCount() >= $currentCrawlLimit) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function reachedTimeLimits(): bool
+    {
+        $totalExecutionTimeLimit = $this->getTotalExecutionTimeLimit();
+        if (! is_null($totalExecutionTimeLimit) && $this->getTotalExecutionTime() >= $totalExecutionTimeLimit) {
+            return true;
+        }
+
+        $currentExecutionTimeLimit = $this->getCurrentExecutionTimeLimit();
+        if (! is_null($currentExecutionTimeLimit) && $this->getCurrentExecutionTime() >= $currentExecutionTimeLimit) {
             return true;
         }
 
