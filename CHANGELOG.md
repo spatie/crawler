@@ -2,6 +2,18 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.4.0 - 2024-12-16
+
+### What's Changed
+
+* Add execution time limit by @VincentLanglet in https://github.com/spatie/crawler/pull/480
+
+### New Contributors
+
+* @VincentLanglet made their first contribution in https://github.com/spatie/crawler/pull/480
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/8.3.1...8.4.0
+
 ## 8.3.1 - 2024-12-09
 
 ### What's Changed
