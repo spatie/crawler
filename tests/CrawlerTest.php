@@ -517,6 +517,44 @@ it('will not crawl half parsed href tags', function () {
     assertCrawledUrlCount(3);
 });
 
+it('respects the total execution time limit', function () {
+    $baseUrl = 'http://localhost:8080';
+
+    $crawler = createCrawler()
+        ->setMaximumDepth(2)
+        ->setDelayBetweenRequests(500) // 500ms
+        ->setTotalExecutionTimeLimit(2)
+        ->setCrawlProfile(new CrawlSubdomains($baseUrl));
+
+    $crawler->startCrawling($baseUrl);
+
+    // At 500ms delay per URL, only four URL can be crawled in 2 seconds.
+    assertCrawledUrlCount(4);
+
+    $crawler->startCrawling($baseUrl);
+
+    assertCrawledUrlCount(4);
+});
+
+it('respects the current execution time limit', function () {
+    $baseUrl = 'http://localhost:8080';
+
+    $crawler = createCrawler()
+        ->setMaximumDepth(2)
+        ->setDelayBetweenRequests(500) // 500ms
+        ->setCurrentExecutionTimeLimit(2)
+        ->setCrawlProfile(new CrawlSubdomains($baseUrl));
+
+    $crawler->startCrawling($baseUrl);
+
+    // At 500ms delay per URL, only four URL can be crawled in 2 seconds.
+    assertCrawledUrlCount(4);
+
+    $crawler->startCrawling($baseUrl);
+
+    assertCrawledUrlCount(11);
+});
+
 function javascriptInjectedUrls(): array
 {
     return [[
