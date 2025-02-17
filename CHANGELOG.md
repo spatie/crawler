@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.4.1 - 2025-02-17
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/8.4.0...8.4.1
+
 ## 8.4.0 - 2024-12-16
 
 ### What's Changed
