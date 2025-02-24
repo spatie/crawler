@@ -2,6 +2,18 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.4.2 - 2025-02-24
+
+### What's Changed
+
+* set spatie/browsershot minimal version to 5.0.5 by @grafst in https://github.com/spatie/crawler/pull/484
+
+### New Contributors
+
+* @grafst made their first contribution in https://github.com/spatie/crawler/pull/484
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/8.4.1...8.4.2
+
 ## 8.4.1 - 2025-02-17
 
 **Full Changelog**: https://github.com/spatie/crawler/compare/8.4.0...8.4.1
