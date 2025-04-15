@@ -1,9 +1,19 @@
-# 🕸 Crawl the web using PHP 🕷
+<div align="left">
+    <a href="https://spatie.be/open-source?utm_source=github&utm_medium=banner&utm_campaign=crawler">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://spatie.be/packages/header/crawler/html/dark.webp">
+        <img alt="Logo for crawler" src=" https://spatie.be/packages/header/crawler/html/light.webp" height="190">
+      </picture>
+    </a>
+
+<h1>🕸 Crawl the web using PHP 🕷</h1>
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/crawler.svg?style=flat-square)](https://packagist.org/packages/spatie/crawler)
 [![MIT Licensed](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 ![Tests](https://github.com/spatie/crawler/workflows/Tests/badge.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/crawler.svg?style=flat-square)](https://packagist.org/packages/spatie/crawler)
+    
+</div>
 
 This package provides a class to crawl links on a website. Under the hood Guzzle promises are used to [crawl multiple urls concurrently](http://docs.guzzlephp.org/en/latest/quickstart.html?highlight=pool#concurrent-requests).
 
