@@ -102,6 +102,15 @@ it('should check depth when respecting robots', function () {
         ->notToBeCrawled();
 });
 
+it('should not return RobotsTxt instance when not respecting robots', function () {
+    $crawler = Crawler::create()
+        ->ignoreRobots();
+    $crawler->startCrawling('http://localhost:8080');
+
+    expect($crawler->getRobotsTxt())
+        ->toBe(null);
+});
+
 it('should return the already set user agent', function () {
     $crawler = Crawler::create()
         ->setUserAgent('test/1.2.3');
