@@ -26,7 +26,7 @@
         "symfony/dom-crawler": "^6.0|^7.0"
     },
     "require-dev": {
-        "pestphp/pest": "^2.0",
+        "pestphp/pest": "^2.0|^3.0",
         "spatie/ray": "^1.37"
     },
     "config": {

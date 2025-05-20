@@ -87,8 +87,14 @@ class LinkUrlParser implements UrlParser
 
     protected function shouldCrawl(Node $node): bool
     {
-        if ($this->crawler->mustRespectRobots() && ! $this->crawler->getRobotsTxt()->allows($node->getValue(), $this->crawler->getUserAgent())) {
-            return false;
+        $mustRespectRobots = $this->crawler->mustRespectRobots();
+        $robotsTxt = $this->crawler->getRobotsTxt();
+
+        if ($mustRespectRobots && $robotsTxt !== null) {
+            $isAllowed = $robotsTxt->allows($node->getValue(), $this->crawler->getUserAgent());
+            if (! $isAllowed) {
+                return false;
+            }
         }
 
         $maximumDepth = $this->crawler->getMaximumDepth();

@@ -70,7 +70,7 @@ it('can crawl uris without scheme', function () {
 it('can crawl all links rendered by javascript', function () {
     $crawler = Crawler::create();
 
-    if (getenv('TRAVIS')) {
+    if (getenv('CI')) {
         $browsershot = new Browsershot;
 
         $browsershot->noSandbox();
@@ -91,7 +91,7 @@ it('can crawl all links rendered by javascript', function () {
 it('allows for a browsershot instance to be set', function () {
     $browsershot = new Browsershot;
 
-    if (getenv('TRAVIS')) {
+    if (getenv('CI')) {
         $browsershot->noSandbox();
     }
 
@@ -457,8 +457,16 @@ it('will only crawl correct mime types when asked to', function () {
 });
 
 it('will only crawl correct mime types when asked to when executing javascript', function () {
-    createCrawler()
-        ->executeJavaScript()
+
+    $crawler = createCrawler();
+    if (getenv('CI')) {
+        $browsershot = new Browsershot;
+
+        $browsershot->noSandbox();
+
+        $crawler->setBrowsershot($browsershot);
+    }
+    $crawler->executeJavaScript()
         ->setParseableMimeTypes(['text/html', 'text/plain'])
         ->startCrawling('http://localhost:8080/content-types');
 
