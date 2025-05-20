@@ -529,7 +529,7 @@ class Crawler
 
     protected function shouldAddToCrawlQueue($crawlUrl): bool
     {
-        if (!$this->respectRobots) {
+        if (! $this->respectRobots) {
             return true;
         }
 
