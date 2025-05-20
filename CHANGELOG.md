@@ -2,6 +2,18 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.4.3 - 2025-05-20
+
+### What's Changed
+
+* Do not try robots.txt when ignored by @kissifrot in https://github.com/spatie/crawler/pull/485
+
+### New Contributors
+
+* @kissifrot made their first contribution in https://github.com/spatie/crawler/pull/485
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/8.4.2...8.4.3
+
 ## 8.4.2 - 2025-02-24
 
 ### What's Changed
