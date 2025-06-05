@@ -1,8 +1,8 @@
 <div align="left">
     <a href="https://spatie.be/open-source?utm_source=github&utm_medium=banner&utm_campaign=crawler">
       <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="https://spatie.be/packages/header/crawler/html/dark.webp">
-        <img alt="Logo for crawler" src=" https://spatie.be/packages/header/crawler/html/light.webp" height="190">
+        <source media="(prefers-color-scheme: dark)" srcset="https://spatie.be/packages/header/crawler/html/dark.webp?">
+        <img alt="Logo for crawler" src="https://spatie.be/packages/header/crawler/html/light.webp">
       </picture>
     </a>
 
