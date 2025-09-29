@@ -1,15 +1,18 @@
 <?php
 
-namespace Spatie\Crawler;
+namespace Spatie\Crawler\UrlParsers;
 
-use GuzzleHttp\Psr7\Uri;
+use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
+use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlUrl;
+use Spatie\Crawler\Url;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 use Symfony\Component\DomCrawler\Link;
 use Tree\Node\Node;
 
-class LinkAdder
+class LinkUrlParser implements UrlParser
 {
     protected Crawler $crawler;
 
@@ -18,41 +21,29 @@ class LinkAdder
         $this->crawler = $crawler;
     }
 
-    public function addFromHtml(string $html, UriInterface $foundOnUrl)
+    public function addFromHtml(string $html, UriInterface $foundOnUrl, ?UriInterface $originalUrl = null): void
     {
         $allLinks = $this->extractLinksFromHtml($html, $foundOnUrl);
 
         collect($allLinks)
-            ->filter(function (UriInterface $url) {
-                return $this->hasCrawlableScheme($url);
-            })
-            ->map(function (UriInterface $url) {
-                return $this->normalizeUrl($url);
-            })
-            ->filter(function (UriInterface $url) use ($foundOnUrl) {
-                if (! $node = $this->crawler->addToDepthTree($url, $foundOnUrl)) {
+            ->filter(fn (Url $url) => $this->hasCrawlableScheme($url))
+            ->map(fn (Url $url) => $this->normalizeUrl($url))
+            ->filter(function (Url $url) use ($foundOnUrl, $originalUrl) {
+                if (! $node = $this->crawler->addToDepthTree($url, $foundOnUrl, null, $originalUrl)) {
                     return false;
                 }
 
                 return $this->shouldCrawl($node);
             })
-            ->filter(function (UriInterface $url) {
-                return strpos($url->getPath(), '/tel:') === false;
-            })
-            ->each(function (UriInterface $url) use ($foundOnUrl) {
-                $crawlUrl = CrawlUrl::create($url, $foundOnUrl);
+            ->filter(fn (Url $url) => ! str_contains($url->getPath(), '/tel:'))
+            ->each(function (Url $url) use ($foundOnUrl) {
+                $crawlUrl = CrawlUrl::create($url, $foundOnUrl, linkText: $url->linkText());
 
                 $this->crawler->addToCrawlQueue($crawlUrl);
             });
     }
 
-    /**
-     * @param string $html
-     * @param \Psr\Http\Message\UriInterface $foundOnUrl
-     *
-     * @return \Illuminate\Support\Collection|null
-     */
-    protected function extractLinksFromHtml(string $html, UriInterface $foundOnUrl)
+    protected function extractLinksFromHtml(string $html, UriInterface $foundOnUrl): ?Collection
     {
         $domCrawler = new DomCrawler($html, $foundOnUrl);
 
@@ -62,7 +53,7 @@ class LinkAdder
                     return true;
                 }
 
-                if ($this->crawler->mustRejectNofollowLinks() && $link->getNode()->getAttribute('rel') === 'nofollow') {
+                if ($this->crawler->mustRejectNofollowLinks() && str_contains($link->getNode()->getAttribute('rel'), 'nofollow')) {
                     return true;
                 }
 
@@ -70,9 +61,15 @@ class LinkAdder
             })
             ->map(function (Link $link) {
                 try {
-                    return new Uri($link->getUri());
+                    $linkText = $link->getNode()->textContent;
+
+                    if ($linkText) {
+                        $linkText = substr($linkText, 0, 4000);
+                    }
+
+                    return new Url($link->getUri(), $linkText);
                 } catch (InvalidArgumentException $exception) {
-                    return;
+                    return null;
                 }
             })
             ->filter();
@@ -90,8 +87,14 @@ class LinkAdder
 
     protected function shouldCrawl(Node $node): bool
     {
-        if ($this->crawler->mustRespectRobots() && ! $this->crawler->getRobotsTxt()->allows($node->getValue(), $this->crawler->getUserAgent())) {
-            return false;
+        $mustRespectRobots = $this->crawler->mustRespectRobots();
+        $robotsTxt = $this->crawler->getRobotsTxt();
+
+        if ($mustRespectRobots && $robotsTxt !== null) {
+            $isAllowed = $robotsTxt->allows($node->getValue(), $this->crawler->getUserAgent());
+            if (! $isAllowed) {
+                return false;
+            }
         }
 
         $maximumDepth = $this->crawler->getMaximumDepth();

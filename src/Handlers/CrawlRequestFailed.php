@@ -9,17 +9,15 @@ use Spatie\Crawler\Crawler;
 
 class CrawlRequestFailed
 {
-    protected Crawler $crawler;
-
-    public function __construct(Crawler $crawler)
+    public function __construct(protected Crawler $crawler)
     {
-        $this->crawler = $crawler;
+        //
     }
 
     public function __invoke(Exception $exception, $index)
     {
         if ($exception instanceof ConnectException) {
-            $exception = new RequestException('', $exception->getRequest());
+            $exception = new RequestException($exception->getMessage(), $exception->getRequest());
         }
 
         if ($exception instanceof RequestException) {

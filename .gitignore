@@ -1,5 +1,11 @@
+.idea
+.php_cs
+.php_cs.cache
+.phpunit.result.cache
 build
 composer.lock
+coverage
+docs
+psalm.xml
 vendor
-.phpunit.result.cache
-.php_cs.cache
+node_modules

@@ -1,10 +1,19 @@
-# 🕸 Crawl the web using PHP 🕷
+<div align="left">
+    <a href="https://spatie.be/open-source?utm_source=github&utm_medium=banner&utm_campaign=crawler">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://spatie.be/packages/header/crawler/html/dark.webp?">
+        <img alt="Logo for crawler" src="https://spatie.be/packages/header/crawler/html/light.webp">
+      </picture>
+    </a>
+
+<h1>🕸 Crawl the web using PHP 🕷</h1>
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/crawler.svg?style=flat-square)](https://packagist.org/packages/spatie/crawler)
 [![MIT Licensed](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 ![Tests](https://github.com/spatie/crawler/workflows/Tests/badge.svg)
-![Check & fix styling](https://github.com/spatie/crawler/workflows/Code%20style/badge.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/crawler.svg?style=flat-square)](https://packagist.org/packages/spatie/crawler)
+    
+</div>
 
 This package provides a class to crawl links on a website. Under the hood Guzzle promises are used to [crawl multiple urls concurrently](http://docs.guzzlephp.org/en/latest/quickstart.html?highlight=pool#concurrent-requests).
 
@@ -41,7 +50,7 @@ Crawler::create()
 The argument passed to `setCrawlObserver` must be an object that extends the `\Spatie\Crawler\CrawlObservers\CrawlObserver` abstract class:
 
 ```php
-namespace Spatie\Crawler;
+namespace Spatie\Crawler\CrawlObservers;
 
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
@@ -49,48 +58,38 @@ use Psr\Http\Message\UriInterface;
 
 abstract class CrawlObserver
 {
-    /**
+    /*
      * Called when the crawler will crawl the url.
-     *
-     * @param \Psr\Http\Message\UriInterface $url
      */
-    public function willCrawl(UriInterface $url)
+    public function willCrawl(UriInterface $url, ?string $linkText): void
     {
-
     }
 
-    /**
+    /*
      * Called when the crawler has crawled the given url successfully.
-     *
-     * @param \Psr\Http\Message\UriInterface $url
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
      */
     abstract public function crawled(
         UriInterface $url,
         ResponseInterface $response,
-        ?UriInterface $foundOnUrl = null
-    );
+        ?UriInterface $foundOnUrl = null,
+        ?string $linkText,
+    ): void;
 
-    /**
+    /*
      * Called when the crawler had a problem crawling the given url.
-     *
-     * @param \Psr\Http\Message\UriInterface $url
-     * @param \GuzzleHttp\Exception\RequestException $requestException
-     * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
      */
     abstract public function crawlFailed(
         UriInterface $url,
         RequestException $requestException,
-        ?UriInterface $foundOnUrl = null
-    );
+        ?UriInterface $foundOnUrl = null,
+        ?string $linkText = null,
+    ): void;
 
     /**
      * Called when the crawl has ended.
      */
-    public function finishedCrawling()
+    public function finishedCrawling(): void
     {
-
     }
 }
 ```
@@ -131,7 +130,7 @@ Crawler::create()
 
 In order to make it possible to get the body html after the javascript has been executed, this package depends on
 our [Browsershot](https://github.com/spatie/browsershot) package.
-This package uses [Puppeteer](https://github.com/puppeteer/puppeteer) under the hood. Here are some pointers on [how to install it on your system](https://github.com/spatie/browsershot#requirements).
+This package uses [Puppeteer](https://github.com/puppeteer/puppeteer) under the hood. Here are some pointers on [how to install it on your system](https://spatie.be/docs/browsershot/v2/requirements).
 
 Browsershot will make an educated guess as to where its dependencies are installed on your system.
 By default, the Crawler will instantiate a new Browsershot instance. You may find the need to set a custom created instance using the `setBrowsershot(Browsershot $browsershot)` method.
@@ -163,6 +162,26 @@ This package comes with three `CrawlProfiles` out of the box:
 - `CrawlAllUrls`: this profile will crawl all urls on all pages including urls to an external site.
 - `CrawlInternalUrls`: this profile will only crawl the internal urls on the pages of a host.
 - `CrawlSubdomains`: this profile will only crawl the internal urls and its subdomains on the pages of a host.
+
+### Custom link extraction
+
+You can customize how links are extracted from a page by passing a custom `UrlParser` to the crawler.
+
+```php
+Crawler::create()
+    ->setUrlParserClass(<class that implements \Spatie\Crawler\UrlParsers\UrlParser>::class)
+    ...
+```
+
+By default, the `LinkUrlParser` is used. This parser will extract all links from the `href` attribute of `a` tags.
+
+There is also a built-in `SitemapUrlParser` that will extract & crawl all links from a sitemap. It does support sitemap index files.
+
+```php
+Crawler::create()
+    ->setUrlParserClass(SitemapUrlParser::class)
+    ...
+```
 
 ### Ignoring robots.txt and robots meta
 
@@ -215,7 +234,7 @@ Crawler::create()
     ->setConcurrency(1) // now all urls will be crawled one by one
 ```
 
-## Defining Crawl Limits
+## Defining Crawl and Time Limits
 
 By default, the crawler continues until it has crawled every page it can find. This behavior might cause issues if you are working in an environment with limitations such as a serverless environment.
 
@@ -223,12 +242,15 @@ The crawl behavior can be controlled with the following two options:
 
  - **Total Crawl Limit** (`setTotalCrawlLimit`): This limit defines the maximal count of URLs to crawl.
  - **Current Crawl Limit** (`setCurrentCrawlLimit`): This defines how many URLs are processed during the current crawl.
+ - **Total Execution Time Limit** (`setTotalExecutionTimeLimit`): This limit defines the maximal execution time of the crawl.
+ - **Current Execution Time Limit** (`setCurrentExecutionTimeLimit`): This limits the execution time of the current crawl.
 
-Let's take a look at some examples to clarify the difference between these two methods.
+Let's take a look at some examples to clarify the difference between `setTotalCrawlLimit` and `setCurrentCrawlLimit`.
+The difference between `setTotalExecutionTimeLimit` and `setCurrentExecutionTimeLimit` will be the same.
 
 ### Example 1: Using the total crawl limit
 
-The `setTotalCrawlLimit` method allows to limit the total number of URLs to crawl, no matter often you call the crawler.
+The `setTotalCrawlLimit` method allows you to limit the total number of URLs to crawl, no matter how often you call the crawler.
 
 ```php
 $queue = <your selection/implementation of a queue>;
@@ -398,6 +420,16 @@ Here
 - [ArrayCrawlQueue](https://github.com/spatie/crawler/blob/master/src/CrawlQueues/ArrayCrawlQueue.php)
 - [RedisCrawlQueue (third-party package)](https://github.com/repat/spatie-crawler-redis)
 - [CacheCrawlQueue for Laravel (third-party package)](https://github.com/spekulatius/spatie-crawler-toolkit-for-laravel)
+- [Laravel Model as Queue (third-party example app)](https://github.com/insign/spatie-crawler-queue-with-laravel-model)
+
+## Change the default base url scheme
+
+By default, the crawler will set the base url scheme to `http` if none. You have the ability to change that with `setDefaultScheme`.
+
+```php
+Crawler::create()
+    ->setDefaultScheme('https')
+```
 
 ## Changelog
 
@@ -405,7 +437,7 @@ Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recen
 
 ## Contributing
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+Please see [CONTRIBUTING](https://github.com/spatie/.github/blob/main/CONTRIBUTING.md) for details.
 
 ## Testing
 
@@ -425,12 +457,12 @@ node server.js
 
 With the server running, you can start testing.
 ```bash
-composer tests
+composer test
 ```
 
 ## Security
 
-If you discover any security related issues, please email freek@spatie.be instead of using the issue tracker.
+If you've found a bug regarding security please mail [security@spatie.be](mailto:security@spatie.be) instead of using the issue tracker.
 
 ## Postcardware
 

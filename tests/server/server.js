@@ -22,6 +22,10 @@ app.get('/link1-prev', function (request, response) {
     response.end('You are on link1-prev. Previous page of link1');
 });
 
+app.get('/link-with-html', function (request, response) {
+    response.end('<a href="/link1"><div title="some title"><div>Link text inner</div></div></a>');
+});
+
 app.get('/nofollow', function (request, response) {
     response.end('This page should not be crawled');
 });
@@ -64,6 +68,10 @@ app.get('/meta-follow', function (request, response) {
 
 app.get('/meta-nofollow', function (request, response) {
     response.end('<html><head>\n<meta name="robots" content="index, nofollow">\n</head><body><a href="/meta-nofollow-target">no follow it</a></body></html>');
+});
+
+app.get('/redirect-home/', function (request, response) {
+    response.redirect(301, '/');
 });
 
 app.get('/dir1/internal-redirect-entry/', function (request, response) {
@@ -131,6 +139,110 @@ app.get('/robots.txt', function (req, res) {
 
     res.end(html);
 });
+
+app.get('/sitemap_index.xml', function (req, res) {
+    var sitemapIndex = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+        '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+        '   <sitemap>\n' +
+        '       <loc>http://localhost:8080/sitemap1.xml</loc>\n' +
+        '       <lastmod>2024-01-01</lastmod>\n' +
+        '   </sitemap>\n' +
+        '   <sitemap>\n' +
+        '       <loc>http://localhost:8080/sitemap2.xml</loc>\n' +
+        '       <lastmod>2024-01-01</lastmod>\n' +
+        '   </sitemap>\n' +
+        '</sitemapindex>';
+
+    res.contentType('text/xml; charset=utf-8');
+    res.end(sitemapIndex);
+});
+
+app.get('/sitemap1.xml', function (req, res) {
+    var sitemap1 = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+        '   <url>\n' +
+        '       <loc>http://localhost:8080/</loc>\n' +
+        '       <lastmod>2016-01-01</lastmod>\n' +
+        '       <changefreq>monthly</changefreq>\n' +
+        '       <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '   <url>\n' +
+        '       <loc>http://localhost:8080/link1</loc>\n' +
+        '       <lastmod>2016-01-01</lastmod>\n' +
+        '       <changefreq>monthly</changefreq>\n' +
+        '       <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '</urlset>';
+
+    res.contentType('text/xml; charset=utf-8');
+    res.end(sitemap1);
+});
+
+app.get('/sitemap2.xml', function (req, res) {
+    var sitemap2 = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+        '   <url>\n' +
+        '       <loc>http://localhost:8080/link1-next</loc>\n' +
+        '       <lastmod>2016-01-01</lastmod>\n' +
+        '       <changefreq>monthly</changefreq>\n' +
+        '       <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '   <url>\n' +
+        '       <loc>http://localhost:8080/link1-prev</loc>\n' +
+        '       <lastmod>2016-01-01</lastmod>\n' +
+        '       <changefreq>monthly</changefreq>\n' +
+        '       <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '   <url>\n' +
+        '       <loc>http://localhost:8080/link2</loc>\n' +
+        '       <lastmod>2016-01-01</lastmod>\n' +
+        '       <changefreq>monthly</changefreq>\n' +
+        '       <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '   <url lang="fr">\n' +
+        '       <loc>http://localhost:8080/link3</loc>\n' +
+        '       <lastmod>2016-01-01</lastmod>\n' +
+        '       <changefreq>monthly</changefreq>\n' +
+        '       <priority>0.8</priority>\n' +
+        '   </url>\n' +
+        '</urlset>';
+
+    res.contentType('text/xml; charset=utf-8');
+    res.end(sitemap2);
+});
+
+// Route that initiates but never completes the response
+app.get('/never-complete', (req, res) => {
+  req.socket.setTimeout(0); // Disable automatic socket timeout
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.write('Starting but never completing...\n');
+  // Intentionally do not call res.end() or send more data, leaving the response hanging
+});
+
+app.get('/simulate-activity', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Simulated Network Activity</title>
+      </head>
+      <body>
+        <h1>This page simulates a never-ending network request</h1>
+        <script>
+          function keepBusy() {
+            fetch('/never-complete')
+          }
+
+          keepBusy();
+          setInterval(keepBusy, 1000); 
+        </script>
+      </body>
+    </html>
+  `);
+});
+
 
 let server = app.listen(8080, function () {
     const host = 'localhost';

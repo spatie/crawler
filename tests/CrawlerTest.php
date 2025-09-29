@@ -12,521 +12,578 @@ use Spatie\Crawler\CrawlProfiles\CrawlProfile;
 use Spatie\Crawler\CrawlProfiles\CrawlSubdomains;
 use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
 use Spatie\Crawler\Test\TestClasses\CrawlLogger;
+use Spatie\Crawler\Test\TestClasses\Log;
 use stdClass;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
-class CrawlerTest extends TestCase
-{
-    protected function setUp(): void
-    {
-        parent::setUp();
+beforeEach(function () {
+    skipIfTestServerIsNotRunning();
 
-        $this->skipIfTestServerIsNotRunning();
+    Log::reset();
+});
 
-        $this->resetLog();
+it('will crawl all found urls', function () {
+    createCrawler()->startCrawling('http://localhost:8080');
+
+    expect(regularUrls())->each->toBeCrawledOnce();
+
+    expect(javascriptInjectedUrls())->each->notToBeCrawled();
+});
+
+it('will not crawl tel links', function () {
+    createCrawler()->startCrawling('http://localhost:8080');
+
+    expect(['url' => 'http://localhost:8080/tel:123', 'foundOn' => 'http://localhost:8080/'])
+        ->notToBeCrawled();
+});
+
+it('will handle multiple observers', function () {
+    Crawler::create()
+        ->addCrawlObserver(new CrawlLogger('Observer A'))
+        ->addCrawlObserver(new CrawlLogger('Observer B'))
+        ->startCrawling('http://localhost:8080');
+
+    expect(Log::getContents())
+        ->toContain('Observer A')
+        ->toContain('Observer B');
+});
+
+test('multiple observers can be set at once', function () {
+    Crawler::create()
+        ->setCrawlObservers([
+            new CrawlLogger('Observer A'),
+            new CrawlLogger('Observer B'),
+        ])
+        ->startCrawling('http://localhost:8080');
+
+    expect(Log::getContents())
+        ->toContain('Observer A')
+        ->toContain('Observer B');
+});
+
+it('can crawl uris without scheme', function () {
+    createCrawler()->startCrawling('localhost:8080');
+
+    expect(regularUrls())->each->toBeCrawledOnce();
+});
+
+it('can crawl all links rendered by javascript', function () {
+    $crawler = Crawler::create();
+
+    if (getenv('CI')) {
+        $browsershot = new Browsershot;
+
+        $browsershot->noSandbox();
+
+        $crawler->setBrowsershot($browsershot);
     }
 
-    /** @test */
-    public function it_will_crawl_all_found_urls()
-    {
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->startCrawling('http://localhost:8080');
+    $crawler
+        ->executeJavaScript()
+        ->setCrawlObserver(new CrawlLogger)
+        ->startCrawling('http://localhost:8080');
 
-        $this->assertCrawledOnce($this->regularUrls());
+    expect(regularUrls())->each->toBeCrawledOnce();
 
-        $this->assertNotCrawled($this->javascriptInjectedUrls());
+    expect(javascriptInjectedUrls())->each->toBeCrawledOnce();
+});
+
+it('allows for a browsershot instance to be set', function () {
+    $browsershot = new Browsershot;
+
+    if (getenv('CI')) {
+        $browsershot->noSandbox();
     }
 
-    protected function javascriptInjectedUrls(): array
-    {
-        return [
-            ['url' => 'http://localhost:8080/javascript', 'foundOn' => 'http://localhost:8080/link1'],
-        ];
-    }
+    Crawler::create()
+        ->setBrowsershot($browsershot)
+        ->executeJavaScript()
+        ->setCrawlObserver(new CrawlLogger)
+        ->startCrawling('http://localhost:8080');
 
-    /** @test */
-    public function it_will_not_crawl_tel_links()
-    {
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->startCrawling('http://localhost:8080');
+    expect(regularUrls())->each->toBeCrawledOnce();
 
-        $this->assertNotCrawled([
-            ['url' => 'http://localhost:8080/tel:123', 'foundOn' => 'http://localhost:8080/'],
-        ]);
-    }
+    expect(javascriptInjectedUrls())->each->toBeCrawledOnce();
+});
 
-    /** @test */
-    public function it_will_handle_multiple_observers()
-    {
-        Crawler::create()
-            ->addCrawlObserver(new CrawlLogger('Observer A'))
-            ->addCrawlObserver(new CrawlLogger('Observer B'))
-            ->startCrawling('http://localhost:8080');
+it('has a method to disable executing javascript', function () {
+    Crawler::create()
+        ->executeJavaScript()
+        ->doNotExecuteJavaScript()
+        ->setCrawlObserver(new CrawlLogger)
+        ->startCrawling('http://localhost:8080');
 
-        $this->assertStringContainsString('Observer A', $this->getLogContents());
-        $this->assertStringContainsString('Observer B', $this->getLogContents());
-    }
+    expect(regularUrls())->each->toBeCrawledOnce();
 
-    /** @test */
-    public function multiple_observers_can_be_set_at_once()
-    {
-        Crawler::create()
-            ->setCrawlObservers([
-                new CrawlLogger('Observer A'),
-                new CrawlLogger('Observer B'),
-            ])
-            ->startCrawling('http://localhost:8080');
+    expect(javascriptInjectedUrls())->each->notToBeCrawled();
+});
 
-        $this->assertStringContainsString('Observer A', $this->getLogContents());
-        $this->assertStringContainsString('Observer B', $this->getLogContents());
-    }
+it('fails gracefully when browsershot fails', function () {
+    expect(function () {
+        $browsershot = (new Browsershot)->waitUntilNetworkIdle();
 
-    /** @test */
-    public function it_can_crawl_uris_without_scheme()
-    {
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->startCrawling('localhost:8080');
-
-        $this->assertCrawledOnce($this->regularUrls());
-    }
-
-    /** @test */
-    public function it_can_crawl_all_links_rendered_by_javascript()
-    {
-        $crawler = Crawler::create();
-
-        if (getenv('TRAVIS')) {
-            $browsershot = new Browsershot();
-
-            $browsershot->noSandbox();
-
-            $crawler->setBrowsershot($browsershot);
-        }
-
-        $crawler
-            ->executeJavaScript()
-            ->setCrawlObserver(new CrawlLogger())
-            ->startCrawling('http://localhost:8080');
-
-        $this->assertCrawledOnce($this->regularUrls());
-
-        $this->assertCrawledOnce($this->javascriptInjectedUrls());
-    }
-
-    /** @test */
-    public function it_allows_for_a_browsershot_instance_to_be_set()
-    {
-        $browsershot = new Browsershot();
-
-        if (getenv('TRAVIS')) {
-            $browsershot->noSandbox();
-        }
-
-        Crawler::create()
+        Crawler::create([
+            RequestOptions::CONNECT_TIMEOUT => 60,
+            RequestOptions::TIMEOUT => 60,
+            RequestOptions::READ_TIMEOUT => 60,
+        ])
             ->setBrowsershot($browsershot)
             ->executeJavaScript()
-            ->setCrawlObserver(new CrawlLogger())
-            ->startCrawling('http://localhost:8080');
+            ->setCrawlObserver(new CrawlLogger)
+            ->startCrawling('http://localhost:8080/simulate-activity');
+    })->not->toThrow(ProcessFailedException::class);
 
-        $this->assertCrawledOnce($this->regularUrls());
+    expect(['url' => 'http://localhost:8080/simulate-activity'])->toBeCrawledOnce();
+});
 
-        $this->assertCrawledOnce($this->javascriptInjectedUrls());
-    }
-
-    /** @test */
-    public function it_has_a_method_to_disable_executing_javascript()
+it('uses a crawl profile to determine what should be crawled', function () {
+    $crawlProfile = new class extends CrawlProfile
     {
-        Crawler::create()
-            ->executeJavaScript()
-            ->doNotExecuteJavaScript()
-            ->setCrawlObserver(new CrawlLogger())
-            ->startCrawling('http://localhost:8080');
+        public function shouldCrawl(UriInterface $url): bool
+        {
+            return $url->getPath() !== '/link3';
+        }
+    };
 
-        $this->assertCrawledOnce($this->regularUrls());
+    createCrawler()
+        ->setCrawlProfile(new $crawlProfile)
+        ->startCrawling('http://localhost:8080');
 
-        $this->assertNotCrawled($this->javascriptInjectedUrls());
-    }
+    expect([
+        ['url' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+    ])->each->toBeCrawledOnce();
 
-    /** @test */
-    public function it_uses_a_crawl_profile_to_determine_what_should_be_crawled()
+    expect(['url' => 'http://localhost:8080/link3'])->notToBeCrawled();
+});
+
+it('will pass the correct link texts', function () {
+    createCrawler()
+        ->startCrawling('http://localhost:8080');
+
+    expect([
+        ['url' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/', 'linkText' => 'Link1'],
+        ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/', 'linkText' => 'Link2'],
+    ])->each->toBeCrawledOnce();
+});
+
+it('will get the text from a html link', function () {
+    createCrawler()->startCrawling('http://localhost:8080/link-with-html');
+
+    expect([
+        'url' => 'http://localhost:8080/link1',
+        'foundOn' => 'http://localhost:8080/link-with-html',
+        'linkText' => 'Link text inner',
+    ])->toBeCrawledOnce();
+});
+
+it('uses crawl profile for internal urls', function () {
+    createCrawler()
+        ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
+        ->startCrawling('http://localhost:8080');
+
+    $urls = [
+        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/', 'linkText' => 'Link1'],
+        ['url' => 'http://example.com/'],
+    ];
+
+    expect($urls)->sequence(
+        function ($url) {
+            $url->toBeCrawledOnce();
+        },
+        function ($url) {
+            $url->notToBeCrawled();
+        },
+    );
+});
+
+it('can handle pages with invalid urls', function () {
+    $crawlProfile = new class extends CrawlProfile
     {
-        $crawlProfile = new class extends CrawlProfile {
-            public function shouldCrawl(UriInterface $url): bool
-            {
-                return $url->getPath() !== '/link3';
-            }
-        };
+        public function shouldCrawl(UriInterface $url): bool
+        {
+            return true;
+        }
+    };
 
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->setCrawlProfile(new $crawlProfile)
-            ->startCrawling('http://localhost:8080');
+    createCrawler()
+        ->setCrawlProfile($crawlProfile)
+        ->startCrawling('localhost:8080/invalid-url');
 
-        $this->assertCrawledOnce([
-            ['url' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
-        ]);
+    expect(['url' => 'http://localhost:8080/invalid-url'])
+        ->toBeCrawledOnce();
+});
 
-        $this->assertNotCrawled([
-            ['url' => 'http://localhost:8080/link3'],
-        ]);
-    }
+it('respects the total crawl limit', function () {
+    foreach (range(1, 8) as $maximumCrawlCount) {
+        Log::reset();
 
-    /** @test */
-    public function it_uses_crawl_profile_for_internal_urls()
-    {
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
+        createCrawler()
+            ->setTotalCrawlLimit($maximumCrawlCount)
+            ->ignoreRobots()
             ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
             ->startCrawling('http://localhost:8080');
 
-        $this->assertCrawledOnce([
-            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-        ]);
-
-        $this->assertNotCrawled([
-            ['url' => 'http://example.com/'],
-        ]);
+        assertCrawledUrlCount($maximumCrawlCount);
     }
+});
 
-    /** @test */
-    public function it_can_handle_pages_with_invalid_urls()
-    {
-        $crawlProfile = new class extends CrawlProfile {
-            public function shouldCrawl(UriInterface $url): bool
-            {
-                return true;
-            }
-        };
+it('respects the current crawl limit', function () {
+    foreach (range(1, 8) as $maximumCrawlCount) {
+        Log::reset();
 
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->setCrawlProfile($crawlProfile)
-            ->startCrawling('localhost:8080/invalid-url');
-
-        $this->assertCrawledOnce([
-            ['url' => 'http://localhost:8080/invalid-url'],
-        ]);
-    }
-
-    /** @test */
-    public function it_respects_the_total_crawl_limit()
-    {
-        foreach (range(1, 8) as $maximumCrawlCount) {
-            $this->resetLog();
-
-            Crawler::create()
-                ->setTotalCrawlLimit($maximumCrawlCount)
-                ->setCrawlObserver(new CrawlLogger())
-                ->ignoreRobots()
-                ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
-                ->startCrawling('http://localhost:8080');
-
-            $this->assertCrawledUrlCount($maximumCrawlCount);
-        }
-    }
-
-    /** @test */
-    public function it_respects_the_current_crawl_limit()
-    {
-        foreach (range(1, 8) as $maximumCrawlCount) {
-            $this->resetLog();
-
-            Crawler::create()
-                ->setCurrentCrawlLimit($maximumCrawlCount)
-                ->setCrawlObserver(new CrawlLogger())
-                ->ignoreRobots()
-                ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
-                ->startCrawling('http://localhost:8080');
-
-            $this->assertCrawledUrlCount($maximumCrawlCount);
-        }
-    }
-
-    /** @test */
-    public function it_respects_current_before_total_limit()
-    {
-        foreach (range(1, 8) as $maximumCrawlCount) {
-            $this->resetLog();
-
-            Crawler::create()
-                ->setCurrentCrawlLimit(4)
-                ->setTotalCrawlLimit($maximumCrawlCount)
-                ->setCrawlObserver(new CrawlLogger())
-                ->ignoreRobots()
-                ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
-                ->startCrawling('http://localhost:8080');
-
-            $this->assertCrawledUrlCount($maximumCrawlCount > 4 ? 4 : $maximumCrawlCount);
-        }
-    }
-
-    /** @test */
-    public function it_doesnt_extract_links_if_the_crawled_page_exceeds_the_maximum_response_size()
-    {
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->setMaximumResponseSize(10)
+        createCrawler()
+            ->setCurrentCrawlLimit($maximumCrawlCount)
+            ->ignoreRobots()
+            ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
             ->startCrawling('http://localhost:8080');
 
-        $this->assertCrawledOnce([
-            ['url' => 'http://localhost:8080/'],
-        ]);
-
-        $this->assertNotCrawled([
-            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
-        ]);
+        assertCrawledUrlCount($maximumCrawlCount);
     }
+});
 
-    /** @test */
-    public function it_will_crawl_to_specified_depth()
-    {
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->setMaximumDepth(1)
+it('respects current before total limit', function () {
+    foreach (range(1, 8) as $maximumCrawlCount) {
+        Log::reset();
+
+        createCrawler()
+            ->setCurrentCrawlLimit(4)
+            ->setTotalCrawlLimit($maximumCrawlCount)
+            ->ignoreRobots()
+            ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
             ->startCrawling('http://localhost:8080');
 
-        $this->assertCrawledOnce([
-            ['url' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
-        ]);
-
-        $this->assertNotCrawled([
-            ['url' => 'http://example.com/'],
-            ['url' => 'http://localhost:8080/link3'],
-            ['url' => 'http://localhost:8080/notExists'],
-            ['url' => 'http://localhost:8080/dir/link5'],
-            ['url' => 'http://localhost:8080/dir/subdir/link5'],
-        ]);
-
-        $this->resetLog();
-
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->setMaximumDepth(2)
-            ->startCrawling('http://localhost:8080');
-
-        $this->assertCrawledOnce([
-            ['url' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
-            ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
-            ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
-        ]);
-
-        $this->assertNotCrawled([
-            ['url' => 'http://localhost:8080/notExists'],
-            ['url' => 'http://localhost:8080/dir/link5'],
-            ['url' => 'http://localhost:8080/dir/subdir/link5'],
-        ]);
+        assertCrawledUrlCount($maximumCrawlCount > 4 ? 4 : $maximumCrawlCount);
     }
+});
 
-    public static function log(string $text)
-    {
-        file_put_contents(static::$logPath, $text.PHP_EOL, FILE_APPEND);
+it('doesnt extract links if the crawled page exceeds the maximum response size', function () {
+    createCrawler()
+        ->setMaximumResponseSize(10)
+        ->startCrawling('http://localhost:8080');
+
+    expect(['url' => 'http://localhost:8080/'])
+        ->toBeCrawledOnce();
+
+    expect([
+        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+    ])->each->notToBeCrawled();
+});
+
+it('will crawl to specified depth', function () {
+    createCrawler()
+        ->setMaximumDepth(1)
+        ->startCrawling('http://localhost:8080');
+
+    expect([
+        ['url' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+    ])->each->toBeCrawledOnce();
+
+    expect([
+        ['url' => 'http://example.com/'],
+        ['url' => 'http://localhost:8080/link3'],
+        ['url' => 'http://localhost:8080/notExists'],
+        ['url' => 'http://localhost:8080/dir/link5'],
+        ['url' => 'http://localhost:8080/dir/subdir/link5'],
+    ])->each->notToBeCrawled();
+
+    Log::reset();
+
+    createCrawler()
+        ->setMaximumDepth(2)
+        ->startCrawling('http://localhost:8080');
+
+    expect([
+        ['url' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
+        ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
+        ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
+    ])->each->toBeCrawledOnce();
+
+    expect([
+        ['url' => 'http://localhost:8080/notExists'],
+        ['url' => 'http://localhost:8080/dir/link5'],
+        ['url' => 'http://localhost:8080/dir/subdir/link5'],
+    ])->each->notToBeCrawled();
+});
+
+test('profile crawls a domain and its subdomains', function () {
+    $baseUrl = 'http://spatie.be';
+
+    $urls = [
+        'http://spatie.be' => true,
+        'http://subdomain.spatie.be' => true,
+        'https://www.subdomain.spatie.be' => true,
+        'https://sub.dom.ain.spatie.be' => true,
+        'https://subdomain.localhost:8080' => false,
+        'https://localhost:8080' => false,
+    ];
+
+    $profile = new CrawlSubdomains($baseUrl);
+
+    foreach ($urls as $url => $bool) {
+        expect($profile->isSubdomainOfHost(new Uri($url)))
+            ->toBe($bool);
     }
+});
 
-    /** @test */
-    public function profile_crawls_a_domain_and_its_subdomains()
-    {
-        $baseUrl = 'http://spatie.be';
+it('crawls subdomains', function () {
+    $baseUrl = 'http://localhost:8080';
 
-        $urls = [
-            'http://spatie.be' => true,
-            'http://subdomain.spatie.be' => true,
-            'https://www.subdomain.spatie.be' => true,
-            'https://sub.dom.ain.spatie.be' => true,
-            'https://subdomain.localhost:8080' => false,
-            'https://localhost:8080' => false,
-        ];
+    createCrawler()
+        ->setMaximumDepth(2)
+        ->setCrawlProfile(new CrawlSubdomains($baseUrl))
+        ->startCrawling($baseUrl);
 
-        $profile = new CrawlSubdomains($baseUrl);
+    expect([
+        ['url' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
+        ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
+        ['url' => 'http://sub.localhost:8080/subdomainpage', 'foundOn' => 'http://localhost:8080/link2'],
+        ['url' => 'http://subdomain.sub.localhost:8080/subdomainpage', 'foundOn' => 'http://localhost:8080/link2'],
+    ])->each->toBeCrawledOnce();
 
-        foreach ($urls as $url => $bool) {
-            $this->assertEquals($bool, $profile->isSubdomainOfHost(new Uri($url)));
-        }
+    expect([
+        ['url' => 'http://localhost:8080/notExists'],
+        ['url' => 'http://localhost:8080/dir/link5'],
+        ['url' => 'http://localhost:8080/dir/subdir/link5'],
+        ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
+    ])->each->notToBeCrawled();
+});
+
+it('should not follow nofollow links', function () {
+    createCrawler()
+        ->setMaximumDepth(1)
+        ->startCrawling('http://localhost:8080');
+
+    expect(['url' => 'http://localhost:8080/nofollow', 'foundOn' => 'http://localhost:8080/'])
+        ->notToBeCrawled();
+});
+
+it('should handle redirects correctly when tracking is active', function () {
+    createCrawler([
+        RequestOptions::ALLOW_REDIRECTS => [
+            'track_redirects' => true,
+        ],
+    ])->startCrawling('http://localhost:8080/dir1/internal-redirect-entry/');
+
+    assertCrawledUrlCount(3);
+});
+
+it('should handle redirects correctly when max depth is specified', function () {
+    createCrawler([
+        RequestOptions::ALLOW_REDIRECTS => [
+            'track_redirects' => true,
+        ],
+    ])
+        ->setMaximumDepth(5)
+        ->startCrawling('http://localhost:8080/redirect-home/');
+
+    expect(['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'])->toBeCrawledOnce();
+});
+
+it('respects the requested delay between requests', function () {
+    $baseUrl = 'http://localhost:8080';
+
+    $start = time();
+
+    createCrawler()
+        ->setMaximumDepth(2)
+        ->setDelayBetweenRequests(500) // 500ms
+        ->setCrawlProfile(new CrawlSubdomains($baseUrl))
+        ->startCrawling($baseUrl);
+
+    $end = time();
+
+    $diff = $end - $start;
+
+    // At 500ms delay per URL, crawling 8 URLs should take at least 4 seconds.
+    expect($diff)->toBeGreaterThan(4);
+});
+
+test('custom crawl request handlers must extend abstracts', function () {
+    Crawler::create()->setCrawlFulfilledHandlerClass(stdClass::class);
+
+    Crawler::create()->setCrawlFailedHandlerClass(stdClass::class);
+})->throws(InvalidCrawlRequestHandler::class);
+
+it('should ignore user agents header case', function () {
+    $clientConfig = ['headers' => ['user-agent' => 'foo']];
+    $newUserAgent = 'bar';
+
+    $crawler = Crawler::create($clientConfig)->setUserAgent($newUserAgent);
+    $actualUserAgent = $crawler->getUserAgent();
+
+    expect($actualUserAgent)->toBe($newUserAgent);
+});
+
+it('will only crawl correct mime types when asked to', function () {
+    createCrawler()
+        ->setParseableMimeTypes(['text/html', 'text/plain'])
+        ->startCrawling('http://localhost:8080/content-types');
+
+    $urls = [
+        ['url' => 'http://localhost:8080/content-types/music.mp3', 'foundOn' => 'http://localhost:8080/content-types'],
+        ['url' => 'http://localhost:8080/content-types/video.mkv', 'foundOn' => 'http://localhost:8080/content-types'],
+        ['url' => 'http://localhost:8080/content-types/normal.html', 'foundOn' => 'http://localhost:8080/content-types'],
+    ];
+
+    expect($urls)->sequence(
+        function ($url) {
+            $url->notToBeCrawled();
+        },
+        function ($url) {
+            $url->notToBeCrawled();
+        },
+        function ($url) {
+            $url->toBeCrawledOnce();
+        },
+    );
+
+    assertCrawledUrlCount(2);
+});
+
+it('will only crawl correct mime types when asked to when executing javascript', function () {
+
+    $crawler = createCrawler();
+    if (getenv('CI')) {
+        $browsershot = new Browsershot;
+
+        $browsershot->noSandbox();
+
+        $crawler->setBrowsershot($browsershot);
     }
+    $crawler->executeJavaScript()
+        ->setParseableMimeTypes(['text/html', 'text/plain'])
+        ->startCrawling('http://localhost:8080/content-types');
 
-    /** @test */
-    public function it_crawls_subdomains()
-    {
-        $baseUrl = 'http://localhost:8080';
+    $urls = [
+        ['url' => 'http://localhost:8080/content-types/music.mp3', 'foundOn' => 'http://localhost:8080/content-types'],
+        ['url' => 'http://localhost:8080/content-types/video.mkv', 'foundOn' => 'http://localhost:8080/content-types'],
+        ['url' => 'http://localhost:8080/content-types/normal.html', 'foundOn' => 'http://localhost:8080/content-types'],
+    ];
 
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->setMaximumDepth(2)
-            ->setCrawlProfile(new CrawlSubdomains($baseUrl))
-            ->startCrawling($baseUrl);
+    expect($urls)->sequence(
+        function ($url) {
+            $url->notToBeCrawled();
+        },
+        function ($url) {
+            $url->notToBeCrawled();
+        },
+        function ($url) {
+            $url->toBeCrawledOnce();
+        },
+    );
 
-        $this->assertCrawledOnce([
-            ['url' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
-            ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
-            ['url' => 'http://sub.localhost:8080/subdomainpage', 'foundOn' => 'http://localhost:8080/link2'],
-            ['url' => 'http://subdomain.sub.localhost:8080/subdomainpage', 'foundOn' => 'http://localhost:8080/link2'],
-        ]);
+    assertCrawledUrlCount(2);
+});
 
-        $this->assertNotCrawled([
-            ['url' => 'http://localhost:8080/notExists'],
-            ['url' => 'http://localhost:8080/dir/link5'],
-            ['url' => 'http://localhost:8080/dir/subdir/link5'],
-            ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
-        ]);
-    }
+it('will crawl all content types when not explicitly whitelisted', function () {
+    createCrawler()
+        ->startCrawling('http://localhost:8080/content-types');
 
-    /** @test */
-    public function it_should_not_follow_nofollow_links()
-    {
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->setMaximumDepth(1)
-            ->startCrawling('http://localhost:8080');
+    expect([
+        ['url' => 'http://localhost:8080/content-types/music.html', 'foundOn' => 'http://localhost:8080/content-types/music.mp3'],
+        ['url' => 'http://localhost:8080/content-types/video.html', 'foundOn' => 'http://localhost:8080/content-types/video.mkv'],
+    ])->each->toBeCrawledOnce();
 
-        $this->assertNotCrawled([['url' => 'http://localhost:8080/nofollow', 'foundOn' => 'http://localhost:8080/']]);
-    }
+    assertCrawledUrlCount(6);
+});
 
-    /** @test */
-    public function it_should_handle_redirects_correctly_when_tracking_is_active()
-    {
-        Crawler::create([
-            RequestOptions::ALLOW_REDIRECTS => [
-                'track_redirects' => true,
-            ],
-        ])
-            ->setCrawlObserver(new CrawlLogger())
-            ->startCrawling('http://localhost:8080/dir1/internal-redirect-entry/');
+it('will allow streaming responses when the client asks for it', function () {
+    $clientConfig = ['stream' => true];
 
-        $this->assertCrawledUrlCount(3);
-    }
+    createCrawler($clientConfig)->startCrawling('http://localhost:8080/content-types');
 
-    protected function regularUrls(): array
-    {
-        return [
-            ['url' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link1-prev', 'foundOn' => 'http://localhost:8080/link1'],
-            ['url' => 'http://localhost:8080/link1-next', 'foundOn' => 'http://localhost:8080/link1'],
-            ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
-            ['url' => 'http://localhost:8080/notExists', 'foundOn' => 'http://localhost:8080/link3'],
-            ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
-            ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
-            ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
-            ['url' => 'http://localhost:8080/dir/subdir/link6', 'foundOn' => 'http://localhost:8080/dir/link5'],
-        ];
-    }
+    expect([
+        ['url' => 'http://localhost:8080/content-types/music.html', 'foundOn' => 'http://localhost:8080/content-types/music.mp3'],
+        ['url' => 'http://localhost:8080/content-types/video.html', 'foundOn' => 'http://localhost:8080/content-types/video.mkv'],
+    ])->each->toBeCrawledOnce();
 
-    /** @test */
-    public function it_respects_the_requested_delay_between_requests()
-    {
-        $baseUrl = 'http://localhost:8080';
+    assertCrawledUrlCount(6);
+});
 
-        $start = time();
+it('will not crawl half parsed href tags', function () {
+    createCrawler()->startCrawling('http://localhost:8080/incomplete-href');
 
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->setMaximumDepth(2)
-            ->setDelayBetweenRequests(500) // 500ms
-            ->setCrawlProfile(new CrawlSubdomains($baseUrl))
-            ->startCrawling($baseUrl);
+    expect(['url' => 'http://localhost:8080/invalid-link', 'foundOn' => 'http://localhost:8080/incomplete-href'])
+        ->notToBeCrawled();
 
-        $end = time();
+    assertCrawledUrlCount(3);
+});
 
-        $diff = $end - $start;
+it('respects the total execution time limit', function () {
+    $baseUrl = 'http://localhost:8080';
 
-        // At 500ms delay per URL, crawling 8 URLs should take at least 4 seconds.
-        $this->assertGreaterThan(4, $diff);
-    }
+    $crawler = createCrawler()
+        ->setMaximumDepth(2)
+        ->setDelayBetweenRequests(500) // 500ms
+        ->setTotalExecutionTimeLimit(2)
+        ->setCrawlProfile(new CrawlSubdomains($baseUrl));
 
-    /** @test */
-    public function custom_crawl_request_handlers_must_extend_abstracts()
-    {
-        $this->expectException(InvalidCrawlRequestHandler::class);
+    $crawler->startCrawling($baseUrl);
 
-        Crawler::create()->setCrawlFulfilledHandlerClass(stdClass::class);
+    // At 500ms delay per URL, only four URL can be crawled in 2 seconds.
+    assertCrawledUrlCount(4);
 
-        $this->expectException(InvalidCrawlRequestHandler::class);
+    $crawler->startCrawling($baseUrl);
 
-        Crawler::create()->setCrawlFailedHandlerClass(stdClass::class);
-    }
+    assertCrawledUrlCount(4);
+});
 
-    /** @test */
-    public function it_should_ignore_user_agents_header_case()
-    {
-        $clientConfig = ['headers' => ['user-agent' => 'foo']];
-        $newUserAgent = 'bar';
+it('respects the current execution time limit', function () {
+    $baseUrl = 'http://localhost:8080';
 
-        $crawler = Crawler::create($clientConfig)->setUserAgent($newUserAgent);
-        $actualUserAgent = $crawler->getUserAgent();
+    $crawler = createCrawler()
+        ->setMaximumDepth(2)
+        ->setDelayBetweenRequests(500) // 500ms
+        ->setCurrentExecutionTimeLimit(2)
+        ->setCrawlProfile(new CrawlSubdomains($baseUrl));
 
-        $this->assertSame($newUserAgent, $actualUserAgent);
-    }
+    $crawler->startCrawling($baseUrl);
 
-    /** @test */
-    public function it_will_only_crawl_correct_mime_types_when_asked_to()
-    {
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->setParseableMimeTypes(['text/html', 'text/plain'])
-            ->startCrawling('http://localhost:8080/content-types');
+    // At 500ms delay per URL, only four URL can be crawled in 2 seconds.
+    assertCrawledUrlCount(4);
 
-        $this->assertNotCrawled([['url' => 'http://localhost:8080/content-types/music.html', 'foundOn' => 'http://localhost:8080/content-types/music.mp3']]);
-        $this->assertNotCrawled([['url' => 'http://localhost:8080/content-types/video.html', 'foundOn' => 'http://localhost:8080/content-types/video.mkv']]);
+    $crawler->startCrawling($baseUrl);
 
-        $this->assertCrawledOnce([['url' => 'http://localhost:8080/content-types/normal.html', 'foundOn' => 'http://localhost:8080/content-types']]);
+    assertCrawledUrlCount(11);
+});
 
-        $this->assertCrawledUrlCount(4);
-    }
+function javascriptInjectedUrls(): array
+{
+    return [[
+        'url' => 'http://localhost:8080/javascript',
+        'foundOn' => 'http://localhost:8080/link1',
+    ]];
+}
 
-    /** @test */
-    public function it_will_crawl_all_content_types_when_not_explicitly_whitelisted()
-    {
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->startCrawling('http://localhost:8080/content-types');
-
-        $this->assertCrawledOnce([['url' => 'http://localhost:8080/content-types/music.html', 'foundOn' => 'http://localhost:8080/content-types/music.mp3']]);
-        $this->assertCrawledOnce([['url' => 'http://localhost:8080/content-types/video.html', 'foundOn' => 'http://localhost:8080/content-types/video.mkv']]);
-
-        $this->assertCrawledUrlCount(6);
-    }
-
-    /** @test */
-    public function it_will_allow_streaming_responses_when_the_client_asks_for_it()
-    {
-        $clientConfig = ['stream' => true];
-
-        Crawler::create($clientConfig)
-            ->setCrawlObserver(new CrawlLogger())
-            ->startCrawling('http://localhost:8080/content-types');
-
-        $this->assertCrawledOnce([['url' => 'http://localhost:8080/content-types/music.html', 'foundOn' => 'http://localhost:8080/content-types/music.mp3']]);
-        $this->assertCrawledOnce([['url' => 'http://localhost:8080/content-types/video.html', 'foundOn' => 'http://localhost:8080/content-types/video.mkv']]);
-
-        $this->assertCrawledUrlCount(6);
-    }
-
-    /** @test */
-    public function it_will_not_crawl_half_parsed_href_tags()
-    {
-        Crawler::create()
-            ->setCrawlObserver(new CrawlLogger())
-            ->startCrawling('http://localhost:8080/incomplete-href');
-
-        $this->assertNotCrawled([['url' => 'http://localhost:8080/invalid-link', 'foundOn' => 'http://localhost:8080/incomplete-href']]);
-
-        $this->assertCrawledUrlCount(3);
-    }
+function regularUrls(): array
+{
+    return [
+        ['url' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/link1-prev', 'foundOn' => 'http://localhost:8080/link1'],
+        ['url' => 'http://localhost:8080/link1-next', 'foundOn' => 'http://localhost:8080/link1'],
+        ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
+        ['url' => 'http://localhost:8080/notExists', 'foundOn' => 'http://localhost:8080/link3'],
+        ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
+        ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
+        ['url' => 'http://localhost:8080/dir/subdir/link6', 'foundOn' => 'http://localhost:8080/dir/link5'],
+    ];
 }

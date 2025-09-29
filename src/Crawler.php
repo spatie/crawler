@@ -19,6 +19,7 @@ use Spatie\Crawler\CrawlQueues\CrawlQueue;
 use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
 use Spatie\Crawler\Handlers\CrawlRequestFailed;
 use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
+use Spatie\Crawler\UrlParsers\LinkUrlParser;
 use Spatie\Robots\RobotsTxt;
 use Tree\Node\Node;
 
@@ -26,15 +27,11 @@ class Crawler
 {
     public const DEFAULT_USER_AGENT = '*';
 
-    protected Client $client;
-
     protected UriInterface $baseUrl;
 
     protected CrawlObserverCollection $crawlObservers;
 
     protected CrawlProfile $crawlProfile;
-
-    protected int $concurrency;
 
     protected CrawlQueue $crawlQueue;
 
@@ -45,6 +42,14 @@ class Crawler
     protected ?int $totalCrawlLimit = null;
 
     protected ?int $currentCrawlLimit = null;
+
+    protected ?int $startedAt = null;
+
+    protected int $executionTime = 0;
+
+    protected ?int $totalExecutionTimeLimit = null;
+
+    protected ?int $currentExecutionTimeLimit = null;
 
     protected int $maximumResponseSize = 1024 * 1024 * 2;
 
@@ -66,9 +71,13 @@ class Crawler
 
     protected string $crawlRequestFailedClass;
 
+    protected string $urlParserClass;
+
     protected int $delayBetweenRequests = 0;
 
     protected array $allowedMimeTypes = [];
+
+    protected string $defaultScheme = 'http';
 
     protected static array $defaultClientOptions = [
         RequestOptions::COOKIES => true,
@@ -80,7 +89,7 @@ class Crawler
         ],
     ];
 
-    public static function create(array $clientOptions = []): Crawler
+    public static function create(array $clientOptions = []): static
     {
         $clientOptions = (count($clientOptions))
             ? $clientOptions
@@ -91,21 +100,33 @@ class Crawler
         return new static($client);
     }
 
-    public function __construct(Client $client, int $concurrency = 10)
-    {
-        $this->client = $client;
+    public function __construct(
+        protected Client $client,
+        protected int $concurrency = 10,
+    ) {
+        $this->crawlProfile = new CrawlAllUrls;
 
-        $this->concurrency = $concurrency;
+        $this->crawlQueue = new ArrayCrawlQueue;
 
-        $this->crawlProfile = new CrawlAllUrls();
-
-        $this->crawlQueue = new ArrayCrawlQueue();
-
-        $this->crawlObservers = new CrawlObserverCollection();
+        $this->crawlObservers = new CrawlObserverCollection;
 
         $this->crawlRequestFulfilledClass = CrawlRequestFulfilled::class;
 
         $this->crawlRequestFailedClass = CrawlRequestFailed::class;
+
+        $this->urlParserClass = LinkUrlParser::class;
+    }
+
+    public function getDefaultScheme(): string
+    {
+        return $this->defaultScheme;
+    }
+
+    public function setDefaultScheme(string $defaultScheme): self
+    {
+        $this->defaultScheme = $defaultScheme;
+
+        return $this;
     }
 
     public function setConcurrency(int $concurrency): self
@@ -161,6 +182,44 @@ class Crawler
         return $this->currentUrlCount;
     }
 
+    public function setTotalExecutionTimeLimit(int $totalExecutionTimeLimitInSecond): self
+    {
+        $this->totalExecutionTimeLimit = $totalExecutionTimeLimitInSecond;
+
+        return $this;
+    }
+
+    public function getTotalExecutionTimeLimit(): ?int
+    {
+        return $this->totalExecutionTimeLimit;
+    }
+
+    public function getTotalExecutionTime(): int
+    {
+        return $this->executionTime + $this->getCurrentExecutionTime();
+    }
+
+    public function setCurrentExecutionTimeLimit(int $currentExecutionTimeLimitInSecond): self
+    {
+        $this->currentExecutionTimeLimit = $currentExecutionTimeLimitInSecond;
+
+        return $this;
+    }
+
+    public function getCurrentExecutionTimeLimit(): ?int
+    {
+        return $this->currentExecutionTimeLimit;
+    }
+
+    public function getCurrentExecutionTime(): int
+    {
+        if (is_null($this->startedAt)) {
+            return 0;
+        }
+
+        return time() - $this->startedAt;
+    }
+
     public function setMaximumDepth(int $maximumDepth): self
     {
         $this->maximumDepth = $maximumDepth;
@@ -173,9 +232,9 @@ class Crawler
         return $this->maximumDepth;
     }
 
-    public function setDelayBetweenRequests(int $delay): self
+    public function setDelayBetweenRequests(int $delayInMilliseconds): self
     {
-        $this->delayBetweenRequests = ($delay * 1000);
+        $this->delayBetweenRequests = ($delayInMilliseconds * 1000);
 
         return $this;
     }
@@ -235,7 +294,7 @@ class Crawler
         return $this->rejectNofollowLinks;
     }
 
-    public function getRobotsTxt(): RobotsTxt
+    public function getRobotsTxt(): ?RobotsTxt
     {
         return $this->robotsTxt;
     }
@@ -271,12 +330,7 @@ class Crawler
         return $this->executeJavaScript;
     }
 
-    /**
-     * @param \Spatie\Crawler\CrawlObservers\CrawlObserver|array[\Spatie\Crawler\CrawlObserver] $crawlObservers
-     *
-     * @return $this
-     */
-    public function setCrawlObserver($crawlObservers): self
+    public function setCrawlObserver(CrawlObserver|array $crawlObservers): self
     {
         if (! is_array($crawlObservers)) {
             $crawlObservers = [$crawlObservers];
@@ -342,6 +396,18 @@ class Crawler
         return $this;
     }
 
+    public function setUrlParserClass(string $urlParserClass): self
+    {
+        $this->urlParserClass = $urlParserClass;
+
+        return $this;
+    }
+
+    public function getUrlParserClass(): string
+    {
+        return $this->urlParserClass;
+    }
+
     public function setBrowsershot(Browsershot $browsershot)
     {
         $this->browsershot = $browsershot;
@@ -379,7 +445,7 @@ class Crawler
     public function getBrowsershot(): Browsershot
     {
         if (! $this->browsershot) {
-            $this->browsershot = new Browsershot();
+            $this->browsershot = new Browsershot;
         }
 
         return $this->browsershot;
@@ -390,17 +456,16 @@ class Crawler
         return $this->baseUrl;
     }
 
-    /**
-     * @param \Psr\Http\Message\UriInterface|string $baseUrl
-     */
-    public function startCrawling($baseUrl)
+    public function startCrawling(UriInterface|string $baseUrl)
     {
+        $this->startedAt = time();
+
         if (! $baseUrl instanceof UriInterface) {
             $baseUrl = new Uri($baseUrl);
         }
 
         if ($baseUrl->getScheme() === '') {
-            $baseUrl = $baseUrl->withScheme('http');
+            $baseUrl = $baseUrl->withScheme($this->defaultScheme);
         }
 
         if ($baseUrl->getPath() === '') {
@@ -413,11 +478,11 @@ class Crawler
 
         $crawlUrl = CrawlUrl::create($this->baseUrl);
 
-        $this->robotsTxt = $this->createRobotsTxt($crawlUrl->url);
+        if ($this->respectRobots) {
+            $this->robotsTxt = $this->createRobotsTxt($crawlUrl->url);
+        }
 
-        if ($this->robotsTxt->allows((string) $crawlUrl->url, $this->getUserAgent()) ||
-            ! $this->respectRobots
-        ) {
+        if ($this->shouldAddToCrawlQueue($crawlUrl)) {
             $this->addToCrawlQueue($crawlUrl);
         }
 
@@ -428,9 +493,12 @@ class Crawler
         foreach ($this->crawlObservers as $crawlObserver) {
             $crawlObserver->finishedCrawling();
         }
+
+        $this->executionTime += time() - $this->startedAt;
+        $this->startedAt = null; // To reset currentExecutionTime
     }
 
-    public function addToDepthTree(UriInterface $url, UriInterface $parentUrl, Node $node = null): ?Node
+    public function addToDepthTree(UriInterface $url, UriInterface $parentUrl, ?Node $node = null, ?UriInterface $originalUrl = null): ?Node
     {
         if (is_null($this->maximumDepth)) {
             return new Node((string) $url);
@@ -440,7 +508,7 @@ class Crawler
 
         $returnNode = null;
 
-        if ($node->getValue() === (string) $parentUrl) {
+        if ($node->getValue() === (string) $parentUrl || $node->getValue() === (string) $originalUrl) {
             $newNode = new Node((string) $url);
 
             $node->addChild($newNode);
@@ -449,7 +517,7 @@ class Crawler
         }
 
         foreach ($node->getChildren() as $currentNode) {
-            $returnNode = $this->addToDepthTree($url, $parentUrl, $currentNode);
+            $returnNode = $this->addToDepthTree($url, $parentUrl, $currentNode, $originalUrl);
 
             if (! is_null($returnNode)) {
                 break;
@@ -459,10 +527,28 @@ class Crawler
         return $returnNode;
     }
 
+    protected function shouldAddToCrawlQueue($crawlUrl): bool
+    {
+        if (! $this->respectRobots) {
+            return true;
+        }
+
+        if ($this->robotsTxt === null) {
+            return false;
+        }
+
+        if ($this->robotsTxt->allows((string) $crawlUrl->url, $this->getUserAgent())) {
+            return true;
+        }
+
+        return false;
+    }
+
     protected function startCrawlingQueue(): void
     {
         while (
             $this->reachedCrawlLimits() === false &&
+            $this->reachedTimeLimits() === false &&
             $this->crawlQueue->hasPendingUrls()
         ) {
             $pool = new Pool($this->client, $this->getCrawlRequests(), [
@@ -487,6 +573,7 @@ class Crawler
     {
         while (
             $this->reachedCrawlLimits() === false &&
+            $this->reachedTimeLimits() === false &&
             $crawlUrl = $this->crawlQueue->getPendingUrl()
         ) {
             if (
@@ -499,7 +586,7 @@ class Crawler
             }
 
             foreach ($this->crawlObservers as $crawlObserver) {
-                $crawlObserver->willCrawl($crawlUrl->url);
+                $crawlObserver->willCrawl($crawlUrl->url, $crawlUrl->linkText);
             }
 
             $this->totalUrlCount++;
@@ -534,6 +621,21 @@ class Crawler
 
         $currentCrawlLimit = $this->getCurrentCrawlLimit();
         if (! is_null($currentCrawlLimit) && $this->getCurrentCrawlCount() >= $currentCrawlLimit) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function reachedTimeLimits(): bool
+    {
+        $totalExecutionTimeLimit = $this->getTotalExecutionTimeLimit();
+        if (! is_null($totalExecutionTimeLimit) && $this->getTotalExecutionTime() >= $totalExecutionTimeLimit) {
+            return true;
+        }
+
+        $currentExecutionTimeLimit = $this->getCurrentExecutionTimeLimit();
+        if (! is_null($currentExecutionTimeLimit) && $this->getCurrentExecutionTime() >= $currentExecutionTimeLimit) {
             return true;
         }
 

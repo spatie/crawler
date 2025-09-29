@@ -1,7 +1,5 @@
 <?php
 
-namespace Spatie\Crawler\Test;
-
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
@@ -12,68 +10,61 @@ use Spatie\Crawler\CrawlObservers\CrawlObserver;
 use Spatie\Crawler\CrawlObservers\CrawlObserverCollection;
 use Spatie\Crawler\CrawlUrl;
 
-class CrawlObserverCollectionTest extends TestCase
-{
-    protected CrawlObserver $crawlObserver;
-
-    protected function setUp(): void
+beforeEach(function () {
+    $this->crawlObserver = new class extends CrawlObserver
     {
-        parent::setUp();
+        public $crawled = false;
 
-        $this->crawlObserver = new class extends CrawlObserver {
-            public $crawled = false;
+        public $failed = false;
 
-            public $failed = false;
+        public function crawled(
+            UriInterface $url,
+            ResponseInterface $response,
+            ?UriInterface $foundOnUrl = null,
+            ?string $linkText = null,
+        ): void {
+            $this->crawled = true;
+        }
 
-            public function crawled(
-                UriInterface $url,
-                ResponseInterface $response,
-                ?UriInterface $foundOnUrl = null
-            ) {
-                $this->crawled = true;
-            }
+        public function crawlFailed(
+            UriInterface $url,
+            RequestException $requestException,
+            ?UriInterface $foundOnUrl = null,
+            ?string $linkText = null,
+        ): void {
+            $this->failed = true;
+        }
+    };
+});
 
-            public function crawlFailed(
-                UriInterface $url,
-                RequestException $requestException,
-                ?UriInterface $foundOnUrl = null
-            ) {
-                $this->failed = true;
-            }
-        };
-    }
+it('can be fulfilled', function () {
+    $observers = new CrawlObserverCollection([
+        $this->crawlObserver,
+    ]);
 
-    /** @test */
-    public function it_can_be_fulfilled()
-    {
-        $observers = new CrawlObserverCollection([
-            $this->crawlObserver,
-        ]);
+    $observers->crawled(
+        CrawlUrl::create(new Uri('')),
+        new Response
+    );
 
-        $observers->crawled(
-            CrawlUrl::create(new Uri('')),
-            new Response()
-        );
+    expect($this->crawlObserver)
+        ->crawled->toBeTrue()
+        ->failed->toBeFalse();
+});
 
-        $this->assertTrue($this->crawlObserver->crawled);
-        $this->assertFalse($this->crawlObserver->failed);
-    }
+it('can fail', function () {
+    $observers = new CrawlObserverCollection([
+        $this->crawlObserver,
+    ]);
 
-    /** @test */
-    public function it_can_fail()
-    {
-        $observers = new CrawlObserverCollection([
-            $this->crawlObserver,
-        ]);
+    $uri = new Uri('');
 
-        $uri = new Uri('');
+    $observers->crawlFailed(
+        CrawlUrl::create(new Uri('')),
+        new RequestException('', new Request('GET', $uri))
+    );
 
-        $observers->crawlFailed(
-            CrawlUrl::create($uri),
-            new RequestException('', new Request('GET', $uri))
-        );
-
-        $this->assertFalse($this->crawlObserver->crawled);
-        $this->assertTrue($this->crawlObserver->failed);
-    }
-}
+    expect($this->crawlObserver)
+        ->crawled->toBeFalse()
+        ->failed->toBeTrue();
+});

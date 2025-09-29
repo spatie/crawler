@@ -6,7 +6,6 @@ use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
-use Spatie\Crawler\Test\CrawlerTest;
 
 class CrawlLogger extends CrawlObserver
 {
@@ -23,38 +22,34 @@ class CrawlLogger extends CrawlObserver
 
     /**
      * Called when the crawler will crawl the url.
-     *
-     * @param \Psr\Http\Message\UriInterface   $url
      */
-    public function willCrawl(UriInterface $url)
+    public function willCrawl(UriInterface $url, ?string $linkText): void
     {
-        CrawlerTest::log("{$this->observerId}willCrawl: {$url}");
+        Log::putContents("{$this->observerId}willCrawl: {$url}");
     }
 
     /**
      * Called when the crawler has crawled the given url.
-     *
-     * @param \Psr\Http\Message\UriInterface $url
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param \Psr\Http\Message\UriInterface|null $foundOnUrl
      */
     public function crawled(
         UriInterface $url,
         ResponseInterface $response,
-        ?UriInterface $foundOnUrl = null
-    ) {
-        $this->logCrawl($url, $foundOnUrl);
+        ?UriInterface $foundOnUrl = null,
+        ?string $linkText = null,
+    ): void {
+        $this->logCrawl($url, $foundOnUrl, $linkText);
     }
 
     public function crawlFailed(
         UriInterface $url,
         RequestException $requestException,
-        ?UriInterface $foundOnUrl = null
-    ) {
-        $this->logCrawl($url, $foundOnUrl);
+        ?UriInterface $foundOnUrl = null,
+        ?string $linkText = null,
+    ): void {
+        $this->logCrawl($url, $foundOnUrl, $linkText);
     }
 
-    protected function logCrawl(UriInterface $url, ?UriInterface $foundOnUrl)
+    protected function logCrawl(UriInterface $url, ?UriInterface $foundOnUrl, ?string $linkText = null)
     {
         $logText = "{$this->observerId}hasBeenCrawled: {$url}";
 
@@ -62,14 +57,18 @@ class CrawlLogger extends CrawlObserver
             $logText .= " - found on {$foundOnUrl}";
         }
 
-        CrawlerTest::log($logText);
+        if ($linkText) {
+            $logText .= " - link text {$linkText}";
+        }
+
+        Log::putContents($logText);
     }
 
     /**
      * Called when the crawl has ended.
      */
-    public function finishedCrawling()
+    public function finishedCrawling(): void
     {
-        CrawlerTest::log("{$this->observerId}finished crawling");
+        Log::putContents("{$this->observerId}finished crawling");
     }
 }
