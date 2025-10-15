@@ -1,0 +1,16 @@
+{
+	"image": "mcr.microsoft.com/devcontainers/php:8.2",
+	"forwardPorts": [
+		8000,
+		5173,
+		9000,
+		9003
+	],
+	"remoteEnv": {
+		"COMPOSER_MEMORY_LIMIT": "-1",
+		"COMPOSER_PROCESS_TIMEOUT": "0"
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/node:1": {}
+	}
+}
