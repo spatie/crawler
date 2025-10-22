@@ -2,6 +2,19 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.4.4 - 2025-10-22
+
+### What's Changed
+
+* Update issue template by @AlexVanderbist in https://github.com/spatie/crawler/pull/488
+* fix(CrawlUrl): Use before initialization is now impossible by @Voltra in https://github.com/spatie/crawler/pull/490
+
+### New Contributors
+
+* @Voltra made their first contribution in https://github.com/spatie/crawler/pull/490
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/8.4.3...8.4.4
+
 ## 8.4.3 - 2025-05-20
 
 ### What's Changed
