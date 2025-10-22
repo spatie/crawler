@@ -19,6 +19,6 @@ it('creates a CrawlUrl instance that isn\'t in an invalid state when no $id is p
 
     expect($crawlUrl)->toBeInstanceOf(CrawlUrl::class);
 
-    expect(fn() => $crawlUrl->getId())->not->toThrow(\Throwable::class);
-    expect(fn() => $crawlUrl->getId())->not->toThrow(\Error::class);
+    expect(fn () => $crawlUrl->getId())->not->toThrow(\Throwable::class);
+    expect(fn () => $crawlUrl->getId())->not->toThrow(\Error::class);
 });
