@@ -566,7 +566,15 @@ class Crawler
 
     protected function createRobotsTxt(UriInterface $uri): RobotsTxt
     {
-        return RobotsTxt::create($uri->withPath('/robots.txt'));
+        try {
+            $robotsUrl = (string) $uri->withPath('/robots.txt');
+            $response = $this->client->get($robotsUrl);
+            $content = (string) $response->getBody();
+
+            return new RobotsTxt($content);
+        } catch (\Exception $exception) {
+            return new RobotsTxt('');
+        }
     }
 
     protected function getCrawlRequests(): Generator
