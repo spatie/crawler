@@ -2,6 +2,14 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.4.5 - 2025-10-28
+
+### What's Changed
+
+* When fetching robots.txt, use the same User-Agent as defined by the user by @mattiasgeniar in https://github.com/spatie/crawler/pull/491
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/8.4.4...8.4.5
+
 ## 8.4.4 - 2025-10-22
 
 ### What's Changed
