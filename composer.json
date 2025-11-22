@@ -23,7 +23,7 @@
         "nicmart/tree": "^0.9",
         "spatie/browsershot": "^5.0.5",
         "spatie/robots-txt": "^2.0",
-        "symfony/dom-crawler": "^6.0|^7.0"
+        "symfony/dom-crawler": "^6.0|^7.0|^8.0"
     },
     "require-dev": {
         "pestphp/pest": "^2.0|^3.0",
