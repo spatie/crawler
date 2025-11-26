@@ -2,6 +2,18 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.4.7 - 2025-11-26
+
+### What's Changed
+
+* Update nicmart/tree dependency version to ^0.10 by @robinmiau in https://github.com/spatie/crawler/pull/497
+
+### New Contributors
+
+* @robinmiau made their first contribution in https://github.com/spatie/crawler/pull/497
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/8.4.6...8.4.7
+
 ## 8.4.5 - 2025-10-28
 
 ### What's Changed
