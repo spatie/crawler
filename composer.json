@@ -19,7 +19,7 @@
         "php": "^8.2",
         "guzzlehttp/guzzle": "^7.3",
         "guzzlehttp/psr7": "^2.0",
-        "illuminate/collections": "^10.0|^11.0|^12.0",
+        "illuminate/collections": "^10.0|^11.0|^12.0|^13.0",
         "nicmart/tree": "^0.10",
         "spatie/browsershot": "^5.0.5",
         "spatie/robots-txt": "^2.0",
