@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 8.5.0 - 2026-02-21
+
+Add Laravel 13 support
+
 ## 8.4.7 - 2025-11-26
 
 ### What's Changed
