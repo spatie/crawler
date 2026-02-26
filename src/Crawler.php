@@ -10,9 +10,9 @@ use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Collection;
+use Spatie\Crawler\CrawlObservers\CollectUrlsObserver;
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
 use Spatie\Crawler\CrawlObservers\CrawlObserverCollection;
-use Spatie\Crawler\CrawlObservers\CollectUrlsObserver;
 use Spatie\Crawler\CrawlProfiles\ClosureCrawlProfile;
 use Spatie\Crawler\CrawlProfiles\CrawlAllUrls;
 use Spatie\Crawler\CrawlProfiles\CrawlInternalUrls;
@@ -710,7 +710,7 @@ class Crawler
         $parsed = parse_url($baseUrl);
 
         if (! isset($parsed['scheme'])) {
-            $baseUrl = $this->defaultScheme . '://' . $baseUrl;
+            $baseUrl = $this->defaultScheme.'://'.$baseUrl;
         }
 
         $parsed = parse_url($baseUrl);
@@ -804,7 +804,7 @@ class Crawler
     {
         try {
             $parsed = parse_url($this->baseUrl);
-            $robotsUrl = ($parsed['scheme'] ?? 'https') . '://' . ($parsed['host'] ?? '') . (isset($parsed['port']) ? ':' . $parsed['port'] : '') . '/robots.txt';
+            $robotsUrl = ($parsed['scheme'] ?? 'https').'://'.($parsed['host'] ?? '').(isset($parsed['port']) ? ':'.$parsed['port'] : '').'/robots.txt';
             $response = $client->get($robotsUrl);
             $content = (string) $response->getBody();
 

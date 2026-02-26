@@ -42,7 +42,7 @@ class FakeHandler
         }
 
         // Try with trailing slash
-        $withSlash = $withoutSlash . '/';
+        $withSlash = $withoutSlash.'/';
         if (isset($this->responses[$withSlash])) {
             return new FulfilledPromise($this->responses[$withSlash]);
         }

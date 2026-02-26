@@ -1,7 +1,7 @@
 <?php
 
-use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawledUrl;
+use Spatie\Crawler\Crawler;
 
 it('can collect urls', function () {
     $urls = Crawler::create('https://example.com')
