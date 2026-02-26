@@ -34,7 +34,7 @@ it('should send the custom user agent header when fetching robots.txt', function
     $client = new Client(['handler' => $this->handlerStack]);
 
     $crawler = Crawler::create('http://example.com', ['handler' => $this->handlerStack]);
-    $crawler->respectRobots()->setUserAgent('CustomBot/2.0')->start();
+    $crawler->respectRobots()->userAgent('CustomBot/2.0')->start();
 
     expect($this->crawledUrls)->toHaveCount(2);
     expect((string) $this->crawledUrls[0]['request']->getUri())->toBe('http://example.com/robots.txt');

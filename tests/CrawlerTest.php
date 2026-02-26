@@ -7,19 +7,20 @@ use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfiles\CrawlInternalUrls;
 use Spatie\Crawler\CrawlProfiles\CrawlProfile;
 use Spatie\Crawler\CrawlProfiles\CrawlSubdomains;
+use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
 use Spatie\Crawler\Test\TestClasses\CrawlLogger;
 use Spatie\Crawler\Test\TestClasses\Log;
 use stdClass;
 
 beforeEach(function () {
-    skipIfTestServerIsNotRunning();
-
     Log::reset();
 });
 
 it('will crawl all found urls', function () {
-    createCrawler()->startCrawling('http://localhost:8080');
+    createCrawler()
+        ->fake(fullSiteFakes())
+        ->start();
 
     expect(regularUrls())->each->toBeCrawledOnce();
 
@@ -27,17 +28,20 @@ it('will crawl all found urls', function () {
 });
 
 it('will not crawl tel links', function () {
-    createCrawler()->startCrawling('http://localhost:8080');
+    createCrawler()
+        ->fake(fullSiteFakes())
+        ->start();
 
-    expect(['url' => 'http://localhost:8080/tel:123', 'foundOn' => 'http://localhost:8080/'])
+    expect(['url' => 'https://example.com/tel:123', 'foundOn' => 'https://example.com/'])
         ->notToBeCrawled();
 });
 
 it('will handle multiple observers', function () {
-    Crawler::create()
-        ->addCrawlObserver(new CrawlLogger('Observer A'))
-        ->addCrawlObserver(new CrawlLogger('Observer B'))
-        ->startCrawling('http://localhost:8080');
+    Crawler::create('https://example.com')
+        ->fake(fullSiteFakes())
+        ->addObserver(new CrawlLogger('Observer A'))
+        ->addObserver(new CrawlLogger('Observer B'))
+        ->start();
 
     expect(Log::getContents())
         ->toContain('Observer A')
@@ -45,12 +49,11 @@ it('will handle multiple observers', function () {
 });
 
 test('multiple observers can be set at once', function () {
-    Crawler::create()
-        ->setCrawlObservers([
-            new CrawlLogger('Observer A'),
-            new CrawlLogger('Observer B'),
-        ])
-        ->startCrawling('http://localhost:8080');
+    Crawler::create('https://example.com')
+        ->fake(fullSiteFakes())
+        ->addObserver(new CrawlLogger('Observer A'))
+        ->addObserver(new CrawlLogger('Observer B'))
+        ->start();
 
     expect(Log::getContents())
         ->toContain('Observer A')
@@ -58,9 +61,10 @@ test('multiple observers can be set at once', function () {
 });
 
 it('can crawl uris without scheme', function () {
-    createCrawler()
-        ->setDefaultScheme('http')
-        ->startCrawling('localhost:8080');
+    createCrawler('example.com')
+        ->fake(fullSiteFakes())
+        ->defaultScheme('https')
+        ->start();
 
     expect(regularUrls())->each->toBeCrawledOnce();
 });
@@ -75,47 +79,52 @@ it('uses a crawl profile to determine what should be crawled', function () {
     };
 
     createCrawler()
+        ->fake(fullSiteFakes())
         ->setCrawlProfile($crawlProfile)
-        ->startCrawling('http://localhost:8080');
+        ->start();
 
     expect([
-        ['url' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'https://example.com/'],
+        ['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/'],
+        ['url' => 'https://example.com/link2', 'foundOn' => 'https://example.com/'],
     ])->each->toBeCrawledOnce();
 
-    expect(['url' => 'http://localhost:8080/link3'])->notToBeCrawled();
+    expect(['url' => 'https://example.com/link3'])->notToBeCrawled();
 });
 
 it('will pass the correct link texts', function () {
     createCrawler()
-        ->startCrawling('http://localhost:8080');
+        ->fake(fullSiteFakes())
+        ->start();
 
     expect([
-        ['url' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/', 'linkText' => 'Link1'],
-        ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/', 'linkText' => 'Link2'],
+        ['url' => 'https://example.com/'],
+        ['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/', 'linkText' => 'Link1'],
+        ['url' => 'https://example.com/link2', 'foundOn' => 'https://example.com/', 'linkText' => 'Link2'],
     ])->each->toBeCrawledOnce();
 });
 
 it('will get the text from a html link', function () {
-    createCrawler()->startCrawling('http://localhost:8080/link-with-html');
+    createCrawler('https://example.com/link-with-html')
+        ->fake(fullSiteFakes())
+        ->start();
 
     expect([
-        'url' => 'http://localhost:8080/link1',
-        'foundOn' => 'http://localhost:8080/link-with-html',
+        'url' => 'https://example.com/link1',
+        'foundOn' => 'https://example.com/link-with-html',
         'linkText' => 'Link text inner',
     ])->toBeCrawledOnce();
 });
 
 it('uses crawl profile for internal urls', function () {
     createCrawler()
-        ->setCrawlProfile(new CrawlInternalUrls('http://localhost:8080'))
-        ->startCrawling('http://localhost:8080');
+        ->fake(fullSiteFakes())
+        ->setCrawlProfile(new CrawlInternalUrls('https://example.com'))
+        ->start();
 
     $urls = [
-        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/', 'linkText' => 'Link1'],
-        ['url' => 'http://example.com/'],
+        ['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/', 'linkText' => 'Link1'],
+        ['url' => 'https://external.example.org/'],
     ];
 
     expect($urls)->sequence(
@@ -137,12 +146,12 @@ it('can handle pages with invalid urls', function () {
         }
     };
 
-    createCrawler()
-        ->setDefaultScheme('http')
+    createCrawler('https://example.com/invalid-url')
+        ->fake(fullSiteFakes())
         ->setCrawlProfile($crawlProfile)
-        ->startCrawling('localhost:8080/invalid-url');
+        ->start();
 
-    expect(['url' => 'http://localhost:8080/invalid-url'])
+    expect(['url' => 'https://example.com/invalid-url'])
         ->toBeCrawledOnce();
 });
 
@@ -151,12 +160,13 @@ it('respects the total crawl limit', function () {
         Log::reset();
 
         createCrawler()
-            ->setTotalCrawlLimit($maximumCrawlCount)
+            ->fake(fullSiteFakes())
+            ->limit($maximumCrawlCount)
             ->ignoreRobots()
-            ->setCrawlProfile(new CrawlInternalUrls('http://localhost:8080'))
-            ->startCrawling('http://localhost:8080');
+            ->setCrawlProfile(new CrawlInternalUrls('https://example.com'))
+            ->start();
 
-        assertCrawledUrlCount($maximumCrawlCount);
+        expectCrawledUrlCount($maximumCrawlCount);
     }
 });
 
@@ -165,12 +175,13 @@ it('respects the current crawl limit', function () {
         Log::reset();
 
         createCrawler()
-            ->setCurrentCrawlLimit($maximumCrawlCount)
+            ->fake(fullSiteFakes())
+            ->limitPerExecution($maximumCrawlCount)
             ->ignoreRobots()
-            ->setCrawlProfile(new CrawlInternalUrls('http://localhost:8080'))
-            ->startCrawling('http://localhost:8080');
+            ->setCrawlProfile(new CrawlInternalUrls('https://example.com'))
+            ->start();
 
-        assertCrawledUrlCount($maximumCrawlCount);
+        expectCrawledUrlCount($maximumCrawlCount);
     }
 });
 
@@ -179,84 +190,88 @@ it('respects current before total limit', function () {
         Log::reset();
 
         createCrawler()
-            ->setCurrentCrawlLimit(4)
-            ->setTotalCrawlLimit($maximumCrawlCount)
+            ->fake(fullSiteFakes())
+            ->limitPerExecution(4)
+            ->limit($maximumCrawlCount)
             ->ignoreRobots()
-            ->setCrawlProfile(new CrawlInternalUrls('http://localhost:8080'))
-            ->startCrawling('http://localhost:8080');
+            ->setCrawlProfile(new CrawlInternalUrls('https://example.com'))
+            ->start();
 
-        assertCrawledUrlCount($maximumCrawlCount > 4 ? 4 : $maximumCrawlCount);
+        expectCrawledUrlCount($maximumCrawlCount > 4 ? 4 : $maximumCrawlCount);
     }
 });
 
 it('doesnt extract links if the crawled page exceeds the maximum response size', function () {
     createCrawler()
-        ->setMaximumResponseSize(10)
-        ->startCrawling('http://localhost:8080');
+        ->fake(fullSiteFakes())
+        ->maxResponseSize(10)
+        ->start();
 
-    expect(['url' => 'http://localhost:8080/'])
+    expect(['url' => 'https://example.com/'])
         ->toBeCrawledOnce();
 
     expect([
-        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/'],
+        ['url' => 'https://example.com/link2', 'foundOn' => 'https://example.com/'],
+        ['url' => 'https://example.com/dir/link4', 'foundOn' => 'https://example.com/'],
     ])->each->notToBeCrawled();
 });
 
 it('will crawl to specified depth', function () {
     createCrawler()
-        ->setMaximumDepth(1)
-        ->startCrawling('http://localhost:8080');
+        ->fake(fullSiteFakes())
+        ->depth(1)
+        ->start();
 
     expect([
-        ['url' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
+        ['url' => 'https://example.com/'],
+        ['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/'],
+        ['url' => 'https://example.com/link2', 'foundOn' => 'https://example.com/'],
+        ['url' => 'https://example.com/dir/link4', 'foundOn' => 'https://example.com/'],
     ])->each->toBeCrawledOnce();
 
     expect([
-        ['url' => 'http://example.com/'],
-        ['url' => 'http://localhost:8080/link3'],
-        ['url' => 'http://localhost:8080/notExists'],
-        ['url' => 'http://localhost:8080/dir/link5'],
-        ['url' => 'http://localhost:8080/dir/subdir/link5'],
+        ['url' => 'https://external.example.org/'],
+        ['url' => 'https://example.com/link3'],
+        ['url' => 'https://example.com/notExists'],
+        ['url' => 'https://example.com/dir/link5'],
+        ['url' => 'https://example.com/dir/subdir/link5'],
     ])->each->notToBeCrawled();
 
     Log::reset();
 
     createCrawler()
-        ->setMaximumDepth(2)
-        ->startCrawling('http://localhost:8080');
+        ->fake(fullSiteFakes())
+        ->depth(2)
+        ->start();
 
     expect([
-        ['url' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
-        ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
-        ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
-        ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
+        ['url' => 'https://example.com/'],
+        ['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/'],
+        ['url' => 'https://example.com/link2', 'foundOn' => 'https://example.com/'],
+        ['url' => 'https://example.com/dir/link4', 'foundOn' => 'https://example.com/'],
+        ['url' => 'https://external.example.org/', 'foundOn' => 'https://example.com/link1'],
+        ['url' => 'https://example.com/link3', 'foundOn' => 'https://example.com/link2'],
+        ['url' => 'https://example.com/dir/link5', 'foundOn' => 'https://example.com/dir/link4'],
     ])->each->toBeCrawledOnce();
 
     expect([
-        ['url' => 'http://localhost:8080/notExists'],
-        ['url' => 'http://localhost:8080/dir/link5'],
-        ['url' => 'http://localhost:8080/dir/subdir/link5'],
+        ['url' => 'https://example.com/notExists'],
+        ['url' => 'https://example.com/dir/link5'],
+        ['url' => 'https://example.com/dir/subdir/link5'],
     ])->each->notToBeCrawled();
 });
 
 test('profile crawls a domain and its subdomains', function () {
-    $baseUrl = 'http://spatie.be';
+    $baseUrl = 'https://spatie.be';
 
     $urls = [
-        'http://spatie.be' => true,
-        'http://subdomain.spatie.be' => true,
+        'https://spatie.be' => true,
+        'https://subdomain.spatie.be' => true,
         'https://www.subdomain.spatie.be' => true,
         'https://sub.dom.ain.spatie.be' => true,
-        'https://subdomain.localhost:8080' => false,
-        'https://localhost:8080' => false,
+        'https://subdomain.example.com' => false,
+        'https://example.com' => false,
     ];
 
     $profile = new CrawlSubdomains($baseUrl);
@@ -268,79 +283,89 @@ test('profile crawls a domain and its subdomains', function () {
 });
 
 it('crawls subdomains', function () {
-    $baseUrl = 'http://localhost:8080';
-
     createCrawler()
-        ->setMaximumDepth(2)
-        ->setCrawlProfile(new CrawlSubdomains($baseUrl))
-        ->startCrawling($baseUrl);
+        ->fake(fullSiteFakes())
+        ->depth(2)
+        ->setCrawlProfile(new CrawlSubdomains('https://example.com'))
+        ->start();
 
     expect([
-        ['url' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
-        ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
-        ['url' => 'http://sub.localhost:8080/subdomainpage', 'foundOn' => 'http://localhost:8080/link2'],
-        ['url' => 'http://subdomain.sub.localhost:8080/subdomainpage', 'foundOn' => 'http://localhost:8080/link2'],
+        ['url' => 'https://example.com/'],
+        ['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/'],
+        ['url' => 'https://example.com/link2', 'foundOn' => 'https://example.com/'],
+        ['url' => 'https://example.com/dir/link4', 'foundOn' => 'https://example.com/'],
+        ['url' => 'https://example.com/link3', 'foundOn' => 'https://example.com/link2'],
+        ['url' => 'https://example.com/dir/link5', 'foundOn' => 'https://example.com/dir/link4'],
+        ['url' => 'https://sub.example.com/subdomainpage', 'foundOn' => 'https://example.com/link2'],
+        ['url' => 'https://subdomain.sub.example.com/subdomainpage', 'foundOn' => 'https://example.com/link2'],
     ])->each->toBeCrawledOnce();
 
     expect([
-        ['url' => 'http://localhost:8080/notExists'],
-        ['url' => 'http://localhost:8080/dir/link5'],
-        ['url' => 'http://localhost:8080/dir/subdir/link5'],
-        ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
+        ['url' => 'https://example.com/notExists'],
+        ['url' => 'https://example.com/dir/link5'],
+        ['url' => 'https://example.com/dir/subdir/link5'],
+        ['url' => 'https://external.example.org/', 'foundOn' => 'https://example.com/link1'],
     ])->each->notToBeCrawled();
 });
 
 it('should not follow nofollow links', function () {
     createCrawler()
-        ->setMaximumDepth(1)
-        ->startCrawling('http://localhost:8080');
+        ->fake(fullSiteFakes())
+        ->depth(1)
+        ->start();
 
-    expect(['url' => 'http://localhost:8080/nofollow', 'foundOn' => 'http://localhost:8080/'])
+    expect(['url' => 'https://example.com/nofollow', 'foundOn' => 'https://example.com/'])
         ->notToBeCrawled();
 });
 
 it('should handle redirects correctly when tracking is active', function () {
-    createCrawler([
-        RequestOptions::ALLOW_REDIRECTS => [
-            'track_redirects' => true,
-        ],
-    ])->startCrawling('http://localhost:8080/dir1/internal-redirect-entry/');
+    $fakes = fullSiteFakes();
+    $fakes['https://example.com/dir1/internal-redirect-entry/'] = '<a href="../loop-generator/internal-redirect/trapped/">trapped</a> <a href="../../dir1/internal-redirect/trap/">trap-start</a>';
+    $fakes['https://example.com/dir1/internal-redirect/trap/'] = CrawlResponse::fake('', 301, ['Location' => 'https://example.com/dir1/internal-redirect-entry/']);
+    $fakes['https://example.com/dir1/loop-generator/internal-redirect/trapped/'] = 'It should be crawled once';
 
-    assertCrawledUrlCount(3);
-});
-
-it('should handle redirects correctly when max depth is specified', function () {
-    createCrawler([
+    createCrawler('https://example.com/dir1/internal-redirect-entry/', [
         RequestOptions::ALLOW_REDIRECTS => [
             'track_redirects' => true,
         ],
     ])
-        ->setMaximumDepth(5)
-        ->startCrawling('http://localhost:8080/redirect-home/');
+        ->fake($fakes)
+        ->start();
 
-    expect(['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'])->toBeCrawledOnce();
+    expectCrawledUrlCount(3);
+});
+
+it('should handle redirects correctly when max depth is specified', function () {
+    $fakes = fullSiteFakes();
+    $fakes['https://example.com/redirect-home/'] = CrawlResponse::fake('', 301, ['Location' => 'https://example.com/']);
+
+    createCrawler('https://example.com/redirect-home/', [
+        RequestOptions::ALLOW_REDIRECTS => [
+            'track_redirects' => true,
+        ],
+    ])
+        ->fake($fakes)
+        ->depth(5)
+        ->start();
+
+    expect(['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/'])->toBeCrawledOnce();
 });
 
 it('respects the requested delay between requests', function () {
-    $baseUrl = 'http://localhost:8080';
-
     $start = time();
 
     createCrawler()
-        ->setMaximumDepth(2)
-        ->setDelayBetweenRequests(500) // 500ms
-        ->setCrawlProfile(new CrawlSubdomains($baseUrl))
-        ->startCrawling($baseUrl);
+        ->fake(fullSiteFakes())
+        ->depth(2)
+        ->delay(500) // 500ms
+        ->setCrawlProfile(new CrawlSubdomains('https://example.com'))
+        ->start();
 
     $end = time();
 
     $diff = $end - $start;
 
-    // At 500ms delay per URL, crawling 8 URLs should take at least 4 seconds.
+    // At 500ms delay per URL, crawling multiple URLs should take several seconds.
     expect($diff)->toBeGreaterThan(4);
 });
 
@@ -353,21 +378,22 @@ test('custom crawl request handlers must extend abstracts', function () {
 it('should ignore user agents header case', function () {
     $newUserAgent = 'bar';
 
-    $crawler = Crawler::create()->setUserAgent($newUserAgent);
+    $crawler = Crawler::create()->userAgent($newUserAgent);
     $actualUserAgent = $crawler->getUserAgent();
 
     expect($actualUserAgent)->toBe($newUserAgent);
 });
 
 it('will only crawl correct mime types when asked to', function () {
-    createCrawler()
-        ->setParseableMimeTypes(['text/html', 'text/plain'])
-        ->startCrawling('http://localhost:8080/content-types');
+    createCrawler('https://example.com/content-types')
+        ->fake(contentTypeFakes())
+        ->allowedMimeTypes(['text/html', 'text/plain'])
+        ->start();
 
     $urls = [
-        ['url' => 'http://localhost:8080/content-types/music.mp3', 'foundOn' => 'http://localhost:8080/content-types'],
-        ['url' => 'http://localhost:8080/content-types/video.mkv', 'foundOn' => 'http://localhost:8080/content-types'],
-        ['url' => 'http://localhost:8080/content-types/normal.html', 'foundOn' => 'http://localhost:8080/content-types'],
+        ['url' => 'https://example.com/content-types/music.mp3', 'foundOn' => 'https://example.com/content-types'],
+        ['url' => 'https://example.com/content-types/video.mkv', 'foundOn' => 'https://example.com/content-types'],
+        ['url' => 'https://example.com/content-types/normal.html', 'foundOn' => 'https://example.com/content-types'],
     ];
 
     expect($urls)->sequence(
@@ -382,102 +408,103 @@ it('will only crawl correct mime types when asked to', function () {
         },
     );
 
-    assertCrawledUrlCount(2);
+    expectCrawledUrlCount(2);
 });
 
 it('will crawl all content types when not explicitly whitelisted', function () {
-    createCrawler()
-        ->startCrawling('http://localhost:8080/content-types');
+    createCrawler('https://example.com/content-types')
+        ->fake(contentTypeFakes())
+        ->start();
 
     expect([
-        ['url' => 'http://localhost:8080/content-types/music.html', 'foundOn' => 'http://localhost:8080/content-types/music.mp3'],
-        ['url' => 'http://localhost:8080/content-types/video.html', 'foundOn' => 'http://localhost:8080/content-types/video.mkv'],
+        ['url' => 'https://example.com/content-types/music.html', 'foundOn' => 'https://example.com/content-types/music.mp3'],
+        ['url' => 'https://example.com/content-types/video.html', 'foundOn' => 'https://example.com/content-types/video.mkv'],
     ])->each->toBeCrawledOnce();
 
-    assertCrawledUrlCount(6);
+    expectCrawledUrlCount(6);
 });
 
 it('will allow streaming responses when the client asks for it', function () {
-    $clientConfig = ['stream' => true];
-
-    createCrawler($clientConfig)->startCrawling('http://localhost:8080/content-types');
+    createCrawler('https://example.com/content-types', ['stream' => true])
+        ->fake(contentTypeFakes())
+        ->start();
 
     expect([
-        ['url' => 'http://localhost:8080/content-types/music.html', 'foundOn' => 'http://localhost:8080/content-types/music.mp3'],
-        ['url' => 'http://localhost:8080/content-types/video.html', 'foundOn' => 'http://localhost:8080/content-types/video.mkv'],
+        ['url' => 'https://example.com/content-types/music.html', 'foundOn' => 'https://example.com/content-types/music.mp3'],
+        ['url' => 'https://example.com/content-types/video.html', 'foundOn' => 'https://example.com/content-types/video.mkv'],
     ])->each->toBeCrawledOnce();
 
-    assertCrawledUrlCount(6);
+    expectCrawledUrlCount(6);
 });
 
 it('will not crawl half parsed href tags', function () {
-    createCrawler()->startCrawling('http://localhost:8080/incomplete-href');
+    createCrawler('https://example.com/incomplete-href')
+        ->fake(fullSiteFakes())
+        ->start();
 
-    expect(['url' => 'http://localhost:8080/invalid-link', 'foundOn' => 'http://localhost:8080/incomplete-href'])
+    expect(['url' => 'https://example.com/invalid-link', 'foundOn' => 'https://example.com/incomplete-href'])
         ->notToBeCrawled();
 
-    assertCrawledUrlCount(3);
+    expectCrawledUrlCount(3);
 });
 
 it('respects the total execution time limit', function () {
-    $baseUrl = 'http://localhost:8080';
-
     $crawler = createCrawler()
-        ->setMaximumDepth(2)
-        ->setDelayBetweenRequests(500) // 500ms
-        ->setTotalExecutionTimeLimit(2)
-        ->setCrawlProfile(new CrawlSubdomains($baseUrl));
+        ->fake(fullSiteFakes())
+        ->depth(2)
+        ->delay(500) // 500ms
+        ->timeLimit(2)
+        ->setCrawlProfile(new CrawlSubdomains('https://example.com'));
 
-    $crawler->startCrawling($baseUrl);
+    $crawler->start();
 
-    // At 500ms delay per URL, only four URL can be crawled in 2 seconds.
-    assertCrawledUrlCount(4);
+    // At 500ms delay per URL, only four URLs can be crawled in 2 seconds.
+    expectCrawledUrlCount(4);
 
-    $crawler->startCrawling($baseUrl);
+    $crawler->start();
 
-    assertCrawledUrlCount(4);
+    expectCrawledUrlCount(4);
 });
 
 it('respects the current execution time limit', function () {
-    $baseUrl = 'http://localhost:8080';
-
     $crawler = createCrawler()
-        ->setMaximumDepth(2)
-        ->setDelayBetweenRequests(500) // 500ms
-        ->setCurrentExecutionTimeLimit(2)
-        ->setCrawlProfile(new CrawlSubdomains($baseUrl));
+        ->fake(fullSiteFakes())
+        ->depth(2)
+        ->delay(500) // 500ms
+        ->timeLimitPerExecution(2)
+        ->setCrawlProfile(new CrawlSubdomains('https://example.com'));
 
-    $crawler->startCrawling($baseUrl);
+    $crawler->start();
 
-    // At 500ms delay per URL, only four URL can be crawled in 2 seconds.
-    assertCrawledUrlCount(4);
+    // At 500ms delay per URL, only four URLs can be crawled in 2 seconds.
+    expectCrawledUrlCount(4);
 
-    $crawler->startCrawling($baseUrl);
+    $crawler->start();
 
-    assertCrawledUrlCount(11);
+    expectCrawledUrlCount(11);
 });
 
 function javascriptInjectedUrls(): array
 {
     return [[
-        'url' => 'http://localhost:8080/javascript',
-        'foundOn' => 'http://localhost:8080/link1',
+        'url' => 'https://example.com/javascript',
+        'foundOn' => 'https://example.com/link1',
     ]];
 }
 
 function regularUrls(): array
 {
     return [
-        ['url' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/link1-prev', 'foundOn' => 'http://localhost:8080/link1'],
-        ['url' => 'http://localhost:8080/link1-next', 'foundOn' => 'http://localhost:8080/link1'],
-        ['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/link2'],
-        ['url' => 'http://localhost:8080/notExists', 'foundOn' => 'http://localhost:8080/link3'],
-        ['url' => 'http://example.com/', 'foundOn' => 'http://localhost:8080/link1'],
-        ['url' => 'http://localhost:8080/dir/link4', 'foundOn' => 'http://localhost:8080/'],
-        ['url' => 'http://localhost:8080/dir/link5', 'foundOn' => 'http://localhost:8080/dir/link4'],
-        ['url' => 'http://localhost:8080/dir/subdir/link6', 'foundOn' => 'http://localhost:8080/dir/link5'],
+        ['url' => 'https://example.com/'],
+        ['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/'],
+        ['url' => 'https://example.com/link1-prev', 'foundOn' => 'https://example.com/link1'],
+        ['url' => 'https://example.com/link1-next', 'foundOn' => 'https://example.com/link1'],
+        ['url' => 'https://example.com/link2', 'foundOn' => 'https://example.com/'],
+        ['url' => 'https://example.com/link3', 'foundOn' => 'https://example.com/link2'],
+        ['url' => 'https://example.com/notExists', 'foundOn' => 'https://example.com/link3'],
+        ['url' => 'https://external.example.org/', 'foundOn' => 'https://example.com/link1'],
+        ['url' => 'https://example.com/dir/link4', 'foundOn' => 'https://example.com/'],
+        ['url' => 'https://example.com/dir/link5', 'foundOn' => 'https://example.com/dir/link4'],
+        ['url' => 'https://example.com/dir/subdir/link6', 'foundOn' => 'https://example.com/dir/link5'],
     ];
 }

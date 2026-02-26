@@ -264,6 +264,13 @@ class Crawler
 
     // Callback methods
 
+    public function onWillCrawl(Closure $callback): self
+    {
+        $this->crawlObservers->onWillCrawl($callback);
+
+        return $this;
+    }
+
     public function onCrawled(Closure $callback): self
     {
         $this->crawlObservers->onCrawled($callback);
@@ -383,107 +390,9 @@ class Crawler
         return $collector->getUrls();
     }
 
-    // Legacy support
-
-    public function startCrawling(string $baseUrl): void
-    {
-        $this->baseUrl = $baseUrl;
-
-        $this->start();
-    }
-
-    // Backward compatible setter methods
-
-    public function setMaximumDepth(int $maximumDepth): self
-    {
-        return $this->depth($maximumDepth);
-    }
-
-    public function setConcurrency(int $concurrency): self
-    {
-        return $this->concurrency($concurrency);
-    }
-
-    public function setMaximumResponseSize(int $maximumResponseSizeInBytes): self
-    {
-        return $this->maxResponseSize($maximumResponseSizeInBytes);
-    }
-
-    public function setTotalCrawlLimit(int $totalCrawlLimit): self
-    {
-        return $this->limit($totalCrawlLimit);
-    }
-
-    public function setCurrentCrawlLimit(int $currentCrawlLimit): self
-    {
-        return $this->limitPerExecution($currentCrawlLimit);
-    }
-
-    public function setTotalExecutionTimeLimit(int $totalExecutionTimeLimitInSeconds): self
-    {
-        return $this->timeLimit($totalExecutionTimeLimitInSeconds);
-    }
-
-    public function setCurrentExecutionTimeLimit(int $currentExecutionTimeLimitInSeconds): self
-    {
-        return $this->timeLimitPerExecution($currentExecutionTimeLimitInSeconds);
-    }
-
-    public function setDelayBetweenRequests(int $delayInMilliseconds): self
-    {
-        return $this->delay($delayInMilliseconds);
-    }
-
-    public function setParseableMimeTypes(array $types): self
-    {
-        return $this->allowedMimeTypes($types);
-    }
-
-    public function setDefaultScheme(string $defaultScheme): self
-    {
-        return $this->defaultScheme($defaultScheme);
-    }
-
-    public function setUserAgent(string $userAgent): self
-    {
-        return $this->userAgent($userAgent);
-    }
-
-    public function setCrawlObserver(CrawlObserver|array $crawlObservers): self
-    {
-        if (! is_array($crawlObservers)) {
-            $crawlObservers = [$crawlObservers];
-        }
-
-        return $this->setCrawlObservers($crawlObservers);
-    }
-
-    public function setCrawlObservers(array $crawlObservers): self
-    {
-        $this->crawlObservers = new CrawlObserverCollection($crawlObservers);
-
-        return $this;
-    }
-
-    public function addCrawlObserver(CrawlObserver $crawlObserver): self
-    {
-        return $this->addObserver($crawlObserver);
-    }
-
     public function setCrawlQueue(CrawlQueue $crawlQueue): self
     {
         $this->crawlQueue = $crawlQueue;
-
-        return $this;
-    }
-
-    public function setUrlParserClass(string $urlParserClass): self
-    {
-        if ($urlParserClass === SitemapUrlParser::class) {
-            $this->urlParser = new SitemapUrlParser;
-        } else {
-            $this->urlParser = null;
-        }
 
         return $this;
     }

@@ -65,6 +65,25 @@ it('can fail', function () {
         ->failed->toBeTrue();
 });
 
+it('can dispatch willCrawl callback', function () {
+    $observers = new CrawlObserverCollection;
+
+    $willCrawlUrl = null;
+    $willCrawlLinkText = null;
+
+    $observers->onWillCrawl(function (string $url, ?string $linkText) use (&$willCrawlUrl, &$willCrawlLinkText) {
+        $willCrawlUrl = $url;
+        $willCrawlLinkText = $linkText;
+    });
+
+    $observers->willCrawl(
+        CrawlUrl::create('https://example.com', linkText: 'Example')
+    );
+
+    expect($willCrawlUrl)->toBe('https://example.com');
+    expect($willCrawlLinkText)->toBe('Example');
+});
+
 it('can dispatch closure callbacks', function () {
     $observers = new CrawlObserverCollection;
 

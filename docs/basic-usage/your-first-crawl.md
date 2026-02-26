@@ -16,12 +16,15 @@ Crawler::create('https://example.com')
     ->start();
 ```
 
-You can also handle failures and get notified when the crawl finishes:
+The following callbacks are available:
 
 ```php
 use GuzzleHttp\Exception\RequestException;
 
 Crawler::create('https://example.com')
+    ->onWillCrawl(function (string $url, ?string $linkText) {
+        // called before a URL is crawled
+    })
     ->onCrawled(function (string $url, CrawlResponse $response) {
         // called for every successfully crawled URL
     })
@@ -29,7 +32,7 @@ Crawler::create('https://example.com')
         // called when a URL could not be crawled
     })
     ->onFinished(function () {
-        // called when the crawl is complete
+        // called when the whole crawl is complete
     })
     ->start();
 ```

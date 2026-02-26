@@ -12,9 +12,6 @@ Crawler::create()->startCrawling('https://example.com');
 
 // After
 Crawler::create('https://example.com')->start();
-
-// startCrawling() still works as a legacy alias
-Crawler::create()->startCrawling('https://example.com');
 ```
 
 ### CrawlObserver signatures
@@ -249,14 +246,14 @@ $crawler->includeSubdomains();  // Same as setCrawlProfile(new CrawlSubdomains(.
 $crawler->shouldCrawl(fn (string $url) => ...); // Inline profile
 ```
 
-**Shorter method names** (old names still work):
+**Shorter method names**:
 
 ```php
-$crawler->depth(3);           // setMaximumDepth(3)
-$crawler->concurrency(10);    // setConcurrency(10)
-$crawler->delay(100);         // setDelayBetweenRequests(100)
-$crawler->userAgent('Bot');   // setUserAgent('Bot')
-$crawler->limit(500);         // setTotalCrawlLimit(500)
+$crawler->depth(3);
+$crawler->concurrency(10);
+$crawler->delay(100);
+$crawler->userAgent('Bot');
+$crawler->limit(500);
 ```
 
 ## From v5 to v6

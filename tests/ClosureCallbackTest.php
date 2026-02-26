@@ -5,6 +5,26 @@ use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Test\TestClasses\CrawlLogger;
 use Spatie\Crawler\Test\TestClasses\Log;
 
+it('can use onWillCrawl closure', function () {
+    $willCrawl = [];
+
+    Crawler::create('https://example.com')
+        ->fake([
+            'https://example.com' => '<html><body><a href="/about">About</a></body></html>',
+            'https://example.com/about' => '<html><body>About</body></html>',
+        ])
+        ->ignoreRobots()
+        ->onWillCrawl(function (string $url, ?string $linkText) use (&$willCrawl) {
+            $willCrawl[] = ['url' => $url, 'linkText' => $linkText];
+        })
+        ->start();
+
+    expect($willCrawl)->toHaveCount(2);
+    expect($willCrawl[0]['url'])->toBe('https://example.com/');
+    expect($willCrawl[1]['url'])->toBe('https://example.com/about');
+    expect($willCrawl[1]['linkText'])->toBe('About');
+});
+
 it('can use onCrawled closure', function () {
     $crawled = [];
 

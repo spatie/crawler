@@ -3,43 +3,43 @@
 use Spatie\Crawler\Test\TestClasses\Log;
 
 beforeEach(function () {
-    skipIfTestServerIsNotRunning();
-
     Log::reset();
 });
 
 it('should extract child sitemaps from sitemap index', function () {
-    createCrawler()
+    createCrawler('https://example.com/sitemap_index.xml')
+        ->fake(sitemapFakes())
         ->parseSitemaps()
-        ->startCrawling('http://localhost:8080/sitemap_index.xml');
+        ->start();
 
-    expect(['url' => 'http://localhost:8080/sitemap1.xml', 'foundOn' => 'http://localhost:8080/sitemap_index.xml'])
+    expect(['url' => 'https://example.com/sitemap1.xml', 'foundOn' => 'https://example.com/sitemap_index.xml'])
         ->toBeCrawledOnce();
 
-    expect(['url' => 'http://localhost:8080/sitemap2.xml', 'foundOn' => 'http://localhost:8080/sitemap_index.xml'])
+    expect(['url' => 'https://example.com/sitemap2.xml', 'foundOn' => 'https://example.com/sitemap_index.xml'])
         ->toBeCrawledOnce();
 });
 
 it('should extract urls from sitemaps trough sitemap index', function () {
-    createCrawler()
+    createCrawler('https://example.com/sitemap_index.xml')
+        ->fake(sitemapFakes())
         ->parseSitemaps()
-        ->startCrawling('http://localhost:8080/sitemap_index.xml');
+        ->start();
 
-    expect(['url' => 'http://localhost:8080/', 'foundOn' => 'http://localhost:8080/sitemap1.xml'])
+    expect(['url' => 'https://example.com/', 'foundOn' => 'https://example.com/sitemap1.xml'])
         ->toBeCrawledOnce();
 
-    expect(['url' => 'http://localhost:8080/link1', 'foundOn' => 'http://localhost:8080/sitemap1.xml'])
+    expect(['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/sitemap1.xml'])
         ->toBeCrawledOnce();
 
-    expect(['url' => 'http://localhost:8080/link1-next', 'foundOn' => 'http://localhost:8080/sitemap2.xml'])
+    expect(['url' => 'https://example.com/link1-next', 'foundOn' => 'https://example.com/sitemap2.xml'])
         ->toBeCrawledOnce();
 
-    expect(['url' => 'http://localhost:8080/link1-prev', 'foundOn' => 'http://localhost:8080/sitemap2.xml'])
+    expect(['url' => 'https://example.com/link1-prev', 'foundOn' => 'https://example.com/sitemap2.xml'])
         ->toBeCrawledOnce();
 
-    expect(['url' => 'http://localhost:8080/link2', 'foundOn' => 'http://localhost:8080/sitemap2.xml'])
+    expect(['url' => 'https://example.com/link2', 'foundOn' => 'https://example.com/sitemap2.xml'])
         ->toBeCrawledOnce();
 
-    expect(['url' => 'http://localhost:8080/link3', 'foundOn' => 'http://localhost:8080/sitemap2.xml'])
+    expect(['url' => 'https://example.com/link3', 'foundOn' => 'https://example.com/sitemap2.xml'])
         ->toBeCrawledOnce();
 });

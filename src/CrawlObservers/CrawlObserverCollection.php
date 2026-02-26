@@ -11,6 +11,8 @@ class CrawlObserverCollection
 {
     protected array $observers = [];
 
+    protected array $onWillCrawlCallbacks = [];
+
     protected array $onCrawledCallbacks = [];
 
     protected array $onFailedCallbacks = [];
@@ -25,6 +27,11 @@ class CrawlObserverCollection
     public function addObserver(CrawlObserver $observer): void
     {
         $this->observers[] = $observer;
+    }
+
+    public function onWillCrawl(Closure $callback): void
+    {
+        $this->onWillCrawlCallbacks[] = $callback;
     }
 
     public function onCrawled(Closure $callback): void
@@ -46,6 +53,10 @@ class CrawlObserverCollection
     {
         foreach ($this->observers as $observer) {
             $observer->willCrawl($crawlUrl->url, $crawlUrl->linkText);
+        }
+
+        foreach ($this->onWillCrawlCallbacks as $callback) {
+            $callback($crawlUrl->url, $crawlUrl->linkText);
         }
     }
 
