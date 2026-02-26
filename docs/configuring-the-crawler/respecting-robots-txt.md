@@ -21,13 +21,13 @@ Crawler::create('https://example.com')
 
 ## Accepting nofollow links
 
-By default, the crawler will reject all links containing `rel="nofollow"`. You can disable this check using the `acceptNofollowLinks` method.
+By default, the crawler will reject all links containing `rel="nofollow"`. You can disable this check using the `followNofollow` method.
 
 ```php
 use Spatie\Crawler\Crawler;
 
 Crawler::create('https://example.com')
-    ->acceptNofollowLinks()
+    ->followNofollow()
     ->start();
 ```
 

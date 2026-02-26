@@ -11,7 +11,7 @@ When a site is very large you may want to store that queue elsewhere, for exampl
 use Spatie\Crawler\Crawler;
 
 Crawler::create('https://example.com')
-    ->setCrawlQueue(new MyCustomQueue())
+    ->crawlQueue(new MyCustomQueue())
     ->start();
 ```
 

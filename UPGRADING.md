@@ -241,8 +241,8 @@ Crawler::create('https://example.com')
 **Scope helpers** for common crawl profiles:
 
 ```php
-$crawler->internalOnly();       // Same as setCrawlProfile(new CrawlInternalUrls(...))
-$crawler->includeSubdomains();  // Same as setCrawlProfile(new CrawlSubdomains(...))
+$crawler->internalOnly();       // Same as crawlProfile(new CrawlInternalUrls(...))
+$crawler->includeSubdomains();  // Same as crawlProfile(new CrawlSubdomains(...))
 $crawler->shouldCrawl(fn (string $url) => ...); // Inline profile
 ```
 

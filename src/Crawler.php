@@ -206,6 +206,7 @@ class Crawler
 
     public function basicAuth(string $username, string $password): self
     {
+        $this->authToken = null;
         $this->basicAuthUsername = $username;
         $this->basicAuthPassword = $password;
 
@@ -214,6 +215,8 @@ class Crawler
 
     public function token(string $token, string $type = 'Bearer'): self
     {
+        $this->basicAuthUsername = null;
+        $this->basicAuthPassword = null;
         $this->authToken = $token;
         $this->authTokenType = $type;
 
@@ -345,7 +348,7 @@ class Crawler
         return $this;
     }
 
-    public function setCrawlProfile(CrawlProfile $crawlProfile): self
+    public function crawlProfile(CrawlProfile $crawlProfile): self
     {
         $this->crawlProfile = $crawlProfile;
         $this->scopeMode = null;
@@ -481,14 +484,14 @@ class Crawler
         return $collector->getUrls();
     }
 
-    public function setCrawlQueue(CrawlQueue $crawlQueue): self
+    public function crawlQueue(CrawlQueue $crawlQueue): self
     {
         $this->crawlQueue = $crawlQueue;
 
         return $this;
     }
 
-    public function setCrawlFulfilledHandlerClass(string $crawlRequestFulfilledClass): self
+    public function fulfilledHandler(string $crawlRequestFulfilledClass): self
     {
         $baseClass = CrawlRequestFulfilled::class;
 
@@ -501,7 +504,7 @@ class Crawler
         return $this;
     }
 
-    public function setCrawlFailedHandlerClass(string $crawlRequestFailedClass): self
+    public function failedHandler(string $crawlRequestFailedClass): self
     {
         $baseClass = CrawlRequestFailed::class;
 
@@ -512,11 +515,6 @@ class Crawler
         $this->crawlRequestFailedClass = $crawlRequestFailedClass;
 
         return $this;
-    }
-
-    public function acceptNofollowLinks(): self
-    {
-        return $this->followNofollow();
     }
 
     public function rejectNofollowLinks(): self
@@ -726,21 +724,15 @@ class Crawler
     {
         $options = $this->clientOptions;
 
-        if ($this->userAgent !== null) {
-            $options[RequestOptions::HEADERS] = $options[RequestOptions::HEADERS] ?? [];
-            $options[RequestOptions::HEADERS]['User-Agent'] = $this->userAgent;
+        $options[RequestOptions::HEADERS] = $options[RequestOptions::HEADERS] ?? [];
 
-            // Handle case-insensitive headers
-            foreach ($options['headers'] ?? [] as $key => $value) {
-                if (strtolower($key) === 'user-agent' && $key !== 'User-Agent') {
-                    unset($options['headers'][$key]);
-                }
-            }
+        if ($this->userAgent !== null) {
+            $options[RequestOptions::HEADERS]['User-Agent'] = $this->userAgent;
         }
 
         if (! empty($this->extraHeaders)) {
             $options[RequestOptions::HEADERS] = array_merge(
-                $options[RequestOptions::HEADERS] ?? [],
+                $options[RequestOptions::HEADERS],
                 $this->extraHeaders,
             );
         }

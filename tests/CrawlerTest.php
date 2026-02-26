@@ -68,7 +68,7 @@ it('uses a crawl profile to determine what should be crawled', function () {
 
     createCrawler()
         ->fake(fullSiteFakes())
-        ->setCrawlProfile($crawlProfile)
+        ->crawlProfile($crawlProfile)
         ->start();
 
     expect([
@@ -107,7 +107,7 @@ it('will get the text from a html link', function () {
 it('uses crawl profile for internal urls', function () {
     createCrawler()
         ->fake(fullSiteFakes())
-        ->setCrawlProfile(new CrawlInternalUrls('https://example.com'))
+        ->crawlProfile(new CrawlInternalUrls('https://example.com'))
         ->start();
 
     expect(['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/', 'linkText' => 'Link1'])
@@ -128,7 +128,7 @@ it('can handle pages with invalid urls', function () {
 
     createCrawler('https://example.com/invalid-url')
         ->fake(fullSiteFakes())
-        ->setCrawlProfile($crawlProfile)
+        ->crawlProfile($crawlProfile)
         ->start();
 
     expect(['url' => 'https://example.com/invalid-url'])
@@ -143,7 +143,7 @@ it('respects the total crawl limit', function () {
             ->fake(fullSiteFakes())
             ->limit($maximumCrawlCount)
             ->ignoreRobots()
-            ->setCrawlProfile(new CrawlInternalUrls('https://example.com'))
+            ->crawlProfile(new CrawlInternalUrls('https://example.com'))
             ->start();
 
         expectCrawledUrlCount($maximumCrawlCount);
@@ -158,7 +158,7 @@ it('respects the current crawl limit', function () {
             ->fake(fullSiteFakes())
             ->limitPerExecution($maximumCrawlCount)
             ->ignoreRobots()
-            ->setCrawlProfile(new CrawlInternalUrls('https://example.com'))
+            ->crawlProfile(new CrawlInternalUrls('https://example.com'))
             ->start();
 
         expectCrawledUrlCount($maximumCrawlCount);
@@ -174,7 +174,7 @@ it('respects current before total limit', function () {
             ->limitPerExecution(4)
             ->limit($maximumCrawlCount)
             ->ignoreRobots()
-            ->setCrawlProfile(new CrawlInternalUrls('https://example.com'))
+            ->crawlProfile(new CrawlInternalUrls('https://example.com'))
             ->start();
 
         expectCrawledUrlCount($maximumCrawlCount > 4 ? 4 : $maximumCrawlCount);
@@ -266,7 +266,7 @@ it('crawls subdomains', function () {
     createCrawler()
         ->fake(fullSiteFakes())
         ->depth(2)
-        ->setCrawlProfile(new CrawlSubdomains('https://example.com'))
+        ->crawlProfile(new CrawlSubdomains('https://example.com'))
         ->start();
 
     expect([
@@ -338,7 +338,7 @@ it('respects the requested delay between requests', function () {
         ->fake(fullSiteFakes())
         ->depth(2)
         ->delay(500) // 500ms
-        ->setCrawlProfile(new CrawlSubdomains('https://example.com'))
+        ->crawlProfile(new CrawlSubdomains('https://example.com'))
         ->start();
 
     $end = time();
@@ -350,9 +350,9 @@ it('respects the requested delay between requests', function () {
 });
 
 test('custom crawl request handlers must extend abstracts', function () {
-    Crawler::create()->setCrawlFulfilledHandlerClass(stdClass::class);
+    Crawler::create()->fulfilledHandler(stdClass::class);
 
-    Crawler::create()->setCrawlFailedHandlerClass(stdClass::class);
+    Crawler::create()->failedHandler(stdClass::class);
 })->throws(InvalidCrawlRequestHandler::class);
 
 it('will only crawl correct mime types when asked to', function () {
@@ -415,7 +415,7 @@ it('respects the total execution time limit', function () {
         ->depth(2)
         ->delay(500) // 500ms
         ->timeLimit(2)
-        ->setCrawlProfile(new CrawlSubdomains('https://example.com'));
+        ->crawlProfile(new CrawlSubdomains('https://example.com'));
 
     $crawler->start();
 
@@ -433,7 +433,7 @@ it('respects the current execution time limit', function () {
         ->depth(2)
         ->delay(500) // 500ms
         ->timeLimitPerExecution(2)
-        ->setCrawlProfile(new CrawlSubdomains('https://example.com'));
+        ->crawlProfile(new CrawlSubdomains('https://example.com'));
 
     $crawler->start();
 

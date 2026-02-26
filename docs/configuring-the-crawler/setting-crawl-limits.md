@@ -23,13 +23,13 @@ $queue = <your queue implementation>;
 
 // Crawls 5 URLs and ends.
 Crawler::create('https://example.com')
-    ->setCrawlQueue($queue)
+    ->crawlQueue($queue)
     ->limit(5)
     ->start();
 
 // Doesn't crawl further as the total limit is reached.
 Crawler::create('https://example.com')
-    ->setCrawlQueue($queue)
+    ->crawlQueue($queue)
     ->limit(5)
     ->start();
 ```
@@ -45,13 +45,13 @@ $queue = <your queue implementation>;
 
 // Crawls 5 URLs and ends.
 Crawler::create('https://example.com')
-    ->setCrawlQueue($queue)
+    ->crawlQueue($queue)
     ->limitPerExecution(5)
     ->start();
 
 // Crawls the next 5 URLs and ends.
 Crawler::create('https://example.com')
-    ->setCrawlQueue($queue)
+    ->crawlQueue($queue)
     ->limitPerExecution(5)
     ->start();
 ```
@@ -67,21 +67,21 @@ $queue = <your queue implementation>;
 
 // Crawls 5 URLs and ends.
 Crawler::create('https://example.com')
-    ->setCrawlQueue($queue)
+    ->crawlQueue($queue)
     ->limit(10)
     ->limitPerExecution(5)
     ->start();
 
 // Crawls the next 5 URLs and ends.
 Crawler::create('https://example.com')
-    ->setCrawlQueue($queue)
+    ->crawlQueue($queue)
     ->limit(10)
     ->limitPerExecution(5)
     ->start();
 
 // Doesn't crawl further as the total limit is reached.
 Crawler::create('https://example.com')
-    ->setCrawlQueue($queue)
+    ->crawlQueue($queue)
     ->limit(10)
     ->limitPerExecution(5)
     ->start();

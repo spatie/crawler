@@ -17,7 +17,7 @@ $queue = new ArrayCrawlQueue(); // or your custom queue
 
 // Crawl the first batch of URLs
 Crawler::create('https://example.com')
-    ->setCrawlQueue($queue)
+    ->crawlQueue($queue)
     ->limitPerExecution(10)
     ->start();
 
@@ -36,7 +36,7 @@ $queue = unserialize($serializedQueue);
 
 // Crawl the next batch of URLs
 Crawler::create('https://example.com')
-    ->setCrawlQueue($queue)
+    ->crawlQueue($queue)
     ->limitPerExecution(10)
     ->start();
 

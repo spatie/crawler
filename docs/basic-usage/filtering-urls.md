@@ -60,7 +60,7 @@ Then pass it to the crawler:
 use Spatie\Crawler\Crawler;
 
 Crawler::create('https://example.com')
-    ->setCrawlProfile(new MyCustomProfile())
+    ->crawlProfile(new MyCustomProfile())
     ->start();
 ```
 
