@@ -5,7 +5,6 @@ namespace Spatie\Crawler\Handlers;
 use Exception;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\RedirectMiddleware;
 use Psr\Http\Message\ResponseInterface;
