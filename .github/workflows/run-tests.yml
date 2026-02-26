@@ -8,32 +8,15 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php: [8.5, 8.4, 8.3, 8.2]
-                illuminate: ['13.*', '12.*', '11.*', '10.*']
+                php: [8.5, 8.4]
+                illuminate: ['13.*', '12.*']
                 dependency-version: [prefer-stable]
-                exclude:
-                    - illuminate: 13.*
-                      php: 8.2
-                    - illuminate: 10.*
-                      php: 8.5
 
         name: P${{ matrix.php }} - I${{ matrix.illuminate }} - ${{ matrix.dependency-version }}
 
         steps:
             -   name: Checkout code
                 uses: actions/checkout@v4
-
-            -   name: Install Puppeteer
-                run: npm install puppeteer
-
-            -   name: Install and start test server
-                run: |
-                    cd tests/server
-                    npm install
-                    (node server.js &) || /bin/true
-
-            -   name: Wait for server bootup
-                run: sleep 5
 
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
