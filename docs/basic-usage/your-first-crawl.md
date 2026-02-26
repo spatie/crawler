@@ -35,3 +35,17 @@ Crawler::create('https://example.com')
 ```
 
 You can register multiple callbacks of the same type. They will all be called in the order they were added.
+
+```php
+use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlResponse;
+
+Crawler::create('https://example.com')
+    ->onCrawled(function (string $url, CrawlResponse $response) {
+        // first callback: log to database
+    })
+    ->onCrawled(function (string $url, CrawlResponse $response) {
+        // second callback: send notification
+    })
+    ->start();
+```
