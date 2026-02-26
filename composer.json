@@ -19,15 +19,17 @@
         "php": "^8.2",
         "guzzlehttp/guzzle": "^7.3",
         "guzzlehttp/psr7": "^2.0",
-        "illuminate/collections": "^10.0|^11.0|^12.0|^13.0",
-        "nicmart/tree": "^0.10",
-        "spatie/browsershot": "^5.0.5",
+        "illuminate/collections": "^12.0|^13.0",
         "spatie/robots-txt": "^2.0",
-        "symfony/dom-crawler": "^6.0|^7.0|^8.0"
+        "symfony/css-selector": "^7.0|^8.0",
+        "symfony/dom-crawler": "^7.0|^8.0"
     },
     "require-dev": {
-        "pestphp/pest": "^2.0|^3.0|^4.0",
+        "pestphp/pest": "^4.0",
         "spatie/ray": "^1.37"
+    },
+    "suggest": {
+        "spatie/browsershot": "Required for JavaScript rendering with BrowsershotRenderer (^5.0.5)"
     },
     "config": {
         "sort-packages": true,

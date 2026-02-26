@@ -2,24 +2,19 @@
 
 namespace Spatie\Crawler\CrawlProfiles;
 
-use GuzzleHttp\Psr7\Uri;
-use Psr\Http\Message\UriInterface;
-
-class CrawlInternalUrls extends CrawlProfile
+class CrawlInternalUrls implements CrawlProfile
 {
-    protected mixed $baseUrl;
+    protected string $baseHost;
 
-    public function __construct($baseUrl)
+    public function __construct(string $baseUrl)
     {
-        if (! $baseUrl instanceof UriInterface) {
-            $baseUrl = new Uri($baseUrl);
-        }
-
-        $this->baseUrl = $baseUrl;
+        $this->baseHost = parse_url($baseUrl, PHP_URL_HOST) ?? $baseUrl;
     }
 
-    public function shouldCrawl(UriInterface $url): bool
+    public function shouldCrawl(string $url): bool
     {
-        return $this->baseUrl->getHost() === $url->getHost();
+        $host = parse_url($url, PHP_URL_HOST);
+
+        return $this->baseHost === $host;
     }
 }

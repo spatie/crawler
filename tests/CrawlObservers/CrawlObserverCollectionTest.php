@@ -3,11 +3,9 @@
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Uri;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
 use Spatie\Crawler\CrawlObservers\CrawlObserverCollection;
+use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\CrawlUrl;
 
 beforeEach(function () {
@@ -18,18 +16,18 @@ beforeEach(function () {
         public $failed = false;
 
         public function crawled(
-            UriInterface $url,
-            ResponseInterface $response,
-            ?UriInterface $foundOnUrl = null,
+            string $url,
+            CrawlResponse $response,
+            ?string $foundOnUrl = null,
             ?string $linkText = null,
         ): void {
             $this->crawled = true;
         }
 
         public function crawlFailed(
-            UriInterface $url,
+            string $url,
             RequestException $requestException,
-            ?UriInterface $foundOnUrl = null,
+            ?string $foundOnUrl = null,
             ?string $linkText = null,
         ): void {
             $this->failed = true;
@@ -43,8 +41,8 @@ it('can be fulfilled', function () {
     ]);
 
     $observers->crawled(
-        CrawlUrl::create(new Uri('')),
-        new Response
+        CrawlUrl::create('https://example.com'),
+        new CrawlResponse(new Response)
     );
 
     expect($this->crawlObserver)
@@ -57,14 +55,43 @@ it('can fail', function () {
         $this->crawlObserver,
     ]);
 
-    $uri = new Uri('');
-
     $observers->crawlFailed(
-        CrawlUrl::create(new Uri('')),
-        new RequestException('', new Request('GET', $uri))
+        CrawlUrl::create('https://example.com'),
+        new RequestException('', new Request('GET', 'https://example.com'))
     );
 
     expect($this->crawlObserver)
         ->crawled->toBeFalse()
         ->failed->toBeTrue();
+});
+
+it('can dispatch closure callbacks', function () {
+    $observers = new CrawlObserverCollection;
+
+    $crawledUrl = null;
+
+    $observers->onCrawled(function (string $url) use (&$crawledUrl) {
+        $crawledUrl = $url;
+    });
+
+    $observers->crawled(
+        CrawlUrl::create('https://example.com'),
+        new CrawlResponse(new Response)
+    );
+
+    expect($crawledUrl)->toBe('https://example.com');
+});
+
+it('can dispatch finished callback', function () {
+    $observers = new CrawlObserverCollection;
+
+    $finished = false;
+
+    $observers->onFinished(function () use (&$finished) {
+        $finished = true;
+    });
+
+    $observers->finishedCrawling();
+
+    expect($finished)->toBeTrue();
 });

@@ -1,6 +1,5 @@
 <?php
 
-use GuzzleHttp\Psr7\Uri;
 use Spatie\Crawler\CrawlQueues\ArrayCrawlQueue;
 use Spatie\Crawler\CrawlUrl;
 
@@ -9,7 +8,7 @@ beforeEach(function () {
 });
 
 test('a url can be added to crawl queue', function () {
-    $crawlUrl = createCrawlUrl('https://example.com');
+    $crawlUrl = CrawlUrl::create('https://example.com');
 
     $this->crawlQueue->add($crawlUrl);
 
@@ -23,44 +22,43 @@ it('can determine if there are pending urls', function () {
 
     $this
         ->crawlQueue
-        ->add(createCrawlUrl('https://example.com'));
+        ->add(CrawlUrl::create('https://example.com'));
 
     expect($this->crawlQueue->hasPendingUrls())
         ->toBeTrue();
 });
 
 it('can get an url at the specified index', function () {
-    $url1 = createCrawlUrl('https://example1.com/');
-    $url2 = createCrawlUrl('https://example2.com/');
+    $url1 = CrawlUrl::create('https://example1.com/');
+    $url2 = CrawlUrl::create('https://example2.com/');
 
     $this->crawlQueue->add($url1);
     $this->crawlQueue->add($url2);
 
-    $urlInCrawlQueue = (string) $this->crawlQueue->getUrlById($url1->getId())->url;
+    $urlInCrawlQueue = $this->crawlQueue->getUrlById($url1->getId())->url;
 
     expect($urlInCrawlQueue)
         ->toBe('https://example1.com/');
 
-    $urlInCrawlQueue = (string) $this->crawlQueue->getUrlById($url2->getId())->url;
+    $urlInCrawlQueue = $this->crawlQueue->getUrlById($url2->getId())->url;
 
     expect($urlInCrawlQueue)
         ->toBe('https://example2.com/');
 });
 
 it('can determine if has a given url', function () {
-    $crawlUrl = createCrawlUrl('https://example1.com/');
-
-    expect($this->crawlQueue->has($crawlUrl))
+    expect($this->crawlQueue->has('https://example1.com/'))
         ->toBeFalse();
 
+    $crawlUrl = CrawlUrl::create('https://example1.com/');
     $this->crawlQueue->add($crawlUrl);
 
-    expect($this->crawlQueue->has($crawlUrl))
+    expect($this->crawlQueue->has('https://example1.com/'))
         ->toBeTrue();
 });
 
 it('can mark a url as processed', function () {
-    $crawlUrl = createCrawlUrl('https://example1.com/');
+    $crawlUrl = CrawlUrl::create('https://example1.com/');
 
     expect($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl))
         ->toBeFalse();
@@ -77,8 +75,8 @@ it('can mark a url as processed', function () {
 });
 
 it('can remove all processed urls from the pending urls', function () {
-    $crawlUrl1 = createCrawlUrl('https://example1.com/');
-    $crawlUrl2 = createCrawlUrl('https://example2.com/');
+    $crawlUrl1 = CrawlUrl::create('https://example1.com/');
+    $crawlUrl2 = CrawlUrl::create('https://example2.com/');
 
     $this->crawlQueue
         ->add($crawlUrl1)
@@ -95,8 +93,3 @@ it('can remove all processed urls from the pending urls', function () {
 
     expect($pendingUrlCount)->toBe(1);
 });
-
-function createCrawlUrl(string $url): CrawlUrl
-{
-    return CrawlUrl::create(new Uri($url));
-}

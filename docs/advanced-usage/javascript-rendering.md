@@ -1,0 +1,66 @@
+---
+title: JavaScript rendering
+weight: 1
+---
+
+By default, the crawler will not execute JavaScript. You can enable it:
+
+```php
+Crawler::create('https://example.com')
+    ->executeJavaScript()
+    ->start();
+```
+
+When called without arguments, the crawler will use `BrowsershotRenderer` which requires [spatie/browsershot](https://github.com/spatie/browsershot) to be installed. If Browsershot is not installed, an exception will be thrown.
+
+## Configuring Browsershot
+
+To customize Browsershot, pass a configured instance to `BrowsershotRenderer`:
+
+```php
+use Spatie\Browsershot\Browsershot;
+use Spatie\Crawler\JavaScriptRenderers\BrowsershotRenderer;
+
+$browsershot = (new Browsershot())
+    ->noSandbox()
+    ->waitUntilNetworkIdle();
+
+Crawler::create('https://example.com')
+    ->executeJavaScript(new BrowsershotRenderer($browsershot))
+    ->start();
+```
+
+## Custom renderers
+
+You can create your own JavaScript renderer by implementing the `JavaScriptRenderer` interface:
+
+```php
+use Spatie\Crawler\JavaScriptRenderers\JavaScriptRenderer;
+
+class MyRenderer implements JavaScriptRenderer
+{
+    public function getRenderedHtml(string $url): string
+    {
+        // return the rendered HTML for the given URL
+    }
+}
+```
+
+Then pass it to the crawler:
+
+```php
+Crawler::create('https://example.com')
+    ->executeJavaScript(new MyRenderer())
+    ->start();
+```
+
+## Disabling JavaScript execution
+
+If you've enabled JavaScript rendering but want to disable it later in a chain:
+
+```php
+$crawler = Crawler::create('https://example.com')
+    ->executeJavaScript();
+
+$crawler->doNotExecuteJavaScript();
+```

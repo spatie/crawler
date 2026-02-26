@@ -80,7 +80,7 @@ function skipIfTestServerIsNotRunning(): void
 
 function createCrawler($options = []): Crawler
 {
-    return Crawler::create($options)
+    return Crawler::create('', $options)
         ->setMaximumDepth(3)
         ->setCrawlObserver(new CrawlLogger);
 }

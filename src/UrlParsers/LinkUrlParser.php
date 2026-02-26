@@ -2,108 +2,62 @@
 
 namespace Spatie\Crawler\UrlParsers;
 
-use Illuminate\Support\Collection;
 use InvalidArgumentException;
-use Psr\Http\Message\UriInterface;
-use Spatie\Crawler\Crawler;
-use Spatie\Crawler\CrawlUrl;
-use Spatie\Crawler\Url;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
 use Symfony\Component\DomCrawler\Link;
-use Tree\Node\Node;
 
 class LinkUrlParser implements UrlParser
 {
-    protected Crawler $crawler;
+    public function __construct(
+        protected bool $rejectNofollowLinks = true,
+    ) {}
 
-    public function __construct(Crawler $crawler)
+    /** @return array<string, ?string> url => linkText */
+    public function extractUrls(string $html, string $baseUrl): array
     {
-        $this->crawler = $crawler;
-    }
+        $domCrawler = new DomCrawler($html, $baseUrl);
 
-    public function addFromHtml(string $html, UriInterface $foundOnUrl, ?UriInterface $originalUrl = null): void
-    {
-        $allLinks = $this->extractLinksFromHtml($html, $foundOnUrl);
+        $urls = [];
 
-        collect($allLinks)
-            ->filter(fn (Url $url) => $this->hasCrawlableScheme($url))
-            ->map(fn (Url $url) => $this->normalizeUrl($url))
-            ->filter(function (Url $url) use ($foundOnUrl, $originalUrl) {
-                if (! $node = $this->crawler->addToDepthTree($url, $foundOnUrl, null, $originalUrl)) {
-                    return false;
-                }
+        $links = $domCrawler->filterXpath('//a | //link[@rel="next" or @rel="prev"]')->links();
 
-                return $this->shouldCrawl($node);
-            })
-            ->filter(fn (Url $url) => ! str_contains($url->getPath(), '/tel:'))
-            ->each(function (Url $url) use ($foundOnUrl) {
-                $crawlUrl = CrawlUrl::create($url, $foundOnUrl, linkText: $url->linkText());
-
-                $this->crawler->addToCrawlQueue($crawlUrl);
-            });
-    }
-
-    protected function extractLinksFromHtml(string $html, UriInterface $foundOnUrl): ?Collection
-    {
-        $domCrawler = new DomCrawler($html, $foundOnUrl);
-
-        return collect($domCrawler->filterXpath('//a | //link[@rel="next" or @rel="prev"]')->links())
-            ->reject(function (Link $link) {
-                if ($this->isInvalidHrefNode($link)) {
-                    return true;
-                }
-
-                if ($this->crawler->mustRejectNofollowLinks() && str_contains($link->getNode()->getAttribute('rel'), 'nofollow')) {
-                    return true;
-                }
-
-                return false;
-            })
-            ->map(function (Link $link) {
-                try {
-                    $linkText = $link->getNode()->textContent;
-
-                    if ($linkText) {
-                        $linkText = substr($linkText, 0, 4000);
-                    }
-
-                    return new Url($link->getUri(), $linkText);
-                } catch (InvalidArgumentException $exception) {
-                    return null;
-                }
-            })
-            ->filter();
-    }
-
-    protected function hasCrawlableScheme(UriInterface $uri): bool
-    {
-        return in_array($uri->getScheme(), ['http', 'https']);
-    }
-
-    protected function normalizeUrl(UriInterface $url): UriInterface
-    {
-        return $url->withFragment('');
-    }
-
-    protected function shouldCrawl(Node $node): bool
-    {
-        $mustRespectRobots = $this->crawler->mustRespectRobots();
-        $robotsTxt = $this->crawler->getRobotsTxt();
-
-        if ($mustRespectRobots && $robotsTxt !== null) {
-            $isAllowed = $robotsTxt->allows($node->getValue(), $this->crawler->getUserAgent());
-            if (! $isAllowed) {
-                return false;
+        foreach ($links as $link) {
+            if ($this->isInvalidHrefNode($link)) {
+                continue;
             }
+
+            if ($this->rejectNofollowLinks && str_contains($link->getNode()->getAttribute('rel'), 'nofollow')) {
+                continue;
+            }
+
+            try {
+                $uri = $link->getUri();
+            } catch (InvalidArgumentException) {
+                continue;
+            }
+
+            $parsed = parse_url($uri);
+
+            if (! isset($parsed['scheme']) || ! in_array($parsed['scheme'], ['http', 'https'])) {
+                continue;
+            }
+
+            if (str_contains($parsed['path'] ?? '', '/tel:')) {
+                continue;
+            }
+
+            // Strip fragment
+            $uri = strtok($uri, '#');
+
+            $linkText = $link->getNode()->textContent;
+            if ($linkText) {
+                $linkText = substr($linkText, 0, 4000);
+            }
+
+            $urls[$uri] = $linkText ?: null;
         }
 
-        $maximumDepth = $this->crawler->getMaximumDepth();
-
-        if (is_null($maximumDepth)) {
-            return true;
-        }
-
-        return $node->getDepth() <= $maximumDepth;
+        return $urls;
     }
 
     protected function isInvalidHrefNode(Link $link): bool

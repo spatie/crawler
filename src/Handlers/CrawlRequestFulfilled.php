@@ -10,24 +10,16 @@ use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\RedirectMiddleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlerRobots;
 use Spatie\Crawler\CrawlProfiles\CrawlSubdomains;
+use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\CrawlUrl;
-use Spatie\Crawler\ResponseWithCachedBody;
-use Spatie\Crawler\UrlParsers\UrlParser;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class CrawlRequestFulfilled
 {
-    protected UrlParser $urlParser;
-
-    public function __construct(protected Crawler $crawler)
-    {
-        $urlParserClass = $this->crawler->getUrlParserClass();
-        $this->urlParser = new $urlParserClass($this->crawler);
-    }
+    public function __construct(protected Crawler $crawler) {}
 
     public function __invoke(ResponseInterface $response, $index)
     {
@@ -46,13 +38,13 @@ class CrawlRequestFulfilled
 
         $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
-        if ($this->crawler->mayExecuteJavaScript()) {
+        $renderer = $this->crawler->getJavaScriptRenderer();
+        if ($renderer !== null) {
             try {
-                $body = $this->getBodyAfterExecutingJavaScript($crawlUrl->url);
+                $body = $renderer->getRenderedHtml($crawlUrl->url);
             } catch (ProcessFailedException $exception) {
                 $request = new Request('GET', $crawlUrl->url);
                 $exception = new RequestException($exception->getMessage(), $request);
-                $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
                 $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception);
 
@@ -64,15 +56,23 @@ class CrawlRequestFulfilled
             $response = $response->withBody(Utils::streamFor($body));
         }
 
-        $responseWithCachedBody = ResponseWithCachedBody::fromGuzzlePsr7Response($response);
-        $responseWithCachedBody->setCachedBody($body);
+        $crawlResponse = new CrawlResponse(
+            $response,
+            $crawlUrl->foundOnUrl,
+            $crawlUrl->linkText,
+            $crawlUrl->depth,
+        );
+        $crawlResponse->setCachedBody($body);
 
         if ($robots->mayIndex()) {
-            $this->handleCrawled($responseWithCachedBody, $crawlUrl);
+            $this->crawler->getCrawlObservers()->crawled($crawlUrl, $crawlResponse);
         }
 
         if (! $this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
-            if ($crawlUrl->url->getHost() !== $this->crawler->getBaseUrl()->getHost()) {
+            $crawlHost = parse_url($crawlUrl->url, PHP_URL_HOST);
+            $baseHost = parse_url($this->crawler->getBaseUrl(), PHP_URL_HOST);
+
+            if ($crawlHost !== $baseHost) {
                 return;
             }
         }
@@ -82,14 +82,41 @@ class CrawlRequestFulfilled
         }
 
         $baseUrl = $this->getBaseUrl($response, $crawlUrl);
-        $originalUrl = $crawlUrl->url;
 
-        $this->urlParser->addFromHtml($body, $baseUrl, $originalUrl);
+        $urlParser = $this->crawler->getUrlParser();
+        $extractedUrls = $urlParser->extractUrls($body, $baseUrl);
+
+        $maximumDepth = $this->crawler->getMaximumDepth();
+
+        foreach ($extractedUrls as $url => $linkText) {
+            $newDepth = $crawlUrl->depth + 1;
+
+            if ($maximumDepth !== null && $newDepth > $maximumDepth) {
+                continue;
+            }
+
+            if ($this->crawler->mustRespectRobots()) {
+                $robotsTxt = $this->crawler->getRobotsTxt();
+
+                if ($robotsTxt !== null && ! $robotsTxt->allows($url, $this->crawler->getUserAgent())) {
+                    continue;
+                }
+            }
+
+            $newCrawlUrl = CrawlUrl::create(
+                url: $url,
+                foundOnUrl: $baseUrl,
+                linkText: $linkText,
+                depth: $newDepth,
+            );
+
+            $this->crawler->addToCrawlQueue($newCrawlUrl);
+        }
 
         usleep($this->crawler->getDelayBetweenRequests());
     }
 
-    protected function getBaseUrl(ResponseInterface $response, CrawlUrl $crawlUrl): UriInterface
+    protected function getBaseUrl(ResponseInterface $response, CrawlUrl $crawlUrl): string
     {
         $redirectHistory = $response->getHeader(RedirectMiddleware::HISTORY_HEADER);
 
@@ -97,12 +124,7 @@ class CrawlRequestFulfilled
             return $crawlUrl->url;
         }
 
-        return new Uri(end($redirectHistory));
-    }
-
-    protected function handleCrawled(ResponseInterface $response, CrawlUrl $crawlUrl): void
-    {
-        $this->crawler->getCrawlObservers()->crawled($crawlUrl, $response);
+        return end($redirectHistory);
     }
 
     protected function getBody(ResponseInterface $response): string
@@ -143,26 +165,19 @@ class CrawlRequestFulfilled
         return $body;
     }
 
-    protected function getBodyAfterExecutingJavaScript(UriInterface $url): string
-    {
-        $browsershot = $this->crawler->getBrowsershot();
-
-        $html = $browsershot->setUrl((string) $url)->bodyHtml();
-
-        return html_entity_decode($html);
-    }
-
     protected function isMimetypeAllowedToParse($contentType): bool
     {
         if (empty($contentType)) {
             return true;
         }
 
-        if (! count($this->crawler->getParseableMimeTypes())) {
+        $allowedTypes = $this->crawler->getAllowedMimeTypes();
+
+        if (! count($allowedTypes)) {
             return true;
         }
 
-        foreach ($this->crawler->getParseableMimeTypes() as $allowedType) {
+        foreach ($allowedTypes as $allowedType) {
             if (stristr($contentType, $allowedType)) {
                 return true;
             }

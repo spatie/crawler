@@ -2,42 +2,37 @@
 
 namespace Spatie\Crawler;
 
-use Psr\Http\Message\UriInterface;
-
 class CrawlUrl
 {
-    public UriInterface $url;
+    public string $url;
 
-    public ?UriInterface $foundOnUrl = null;
+    public ?string $foundOnUrl = null;
 
     public ?string $linkText = null;
+
+    public int $depth;
 
     protected mixed $id = null;
 
     public static function create(
-        UriInterface $url,
-        ?UriInterface $foundOnUrl = null,
-        $id = null,
+        string $url,
+        ?string $foundOnUrl = null,
+        mixed $id = null,
         ?string $linkText = null,
+        int $depth = 0,
     ): static {
-        $static = new static($url, $foundOnUrl, linkText: $linkText);
+        $crawlUrl = new static;
+
+        $crawlUrl->url = $url;
+        $crawlUrl->foundOnUrl = $foundOnUrl;
+        $crawlUrl->linkText = $linkText;
+        $crawlUrl->depth = $depth;
 
         if ($id !== null) {
-            $static->setId($id);
+            $crawlUrl->setId($id);
         }
 
-        return $static;
-    }
-
-    protected function __construct(UriInterface $url, $foundOnUrl = null, $linkText = null)
-    {
-        $this->url = $url;
-
-        $this->foundOnUrl = $foundOnUrl;
-
-        $this->linkText = $linkText;
-
-        $this->id = null;
+        return $crawlUrl;
     }
 
     public function getId(): mixed
@@ -45,7 +40,7 @@ class CrawlUrl
         return $this->id;
     }
 
-    public function setId($id): void
+    public function setId(mixed $id): void
     {
         $this->id = $id;
     }

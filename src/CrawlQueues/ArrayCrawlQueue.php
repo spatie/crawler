@@ -2,30 +2,20 @@
 
 namespace Spatie\Crawler\CrawlQueues;
 
-use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\CrawlUrl;
-use Spatie\Crawler\Exceptions\InvalidUrl;
 use Spatie\Crawler\Exceptions\UrlNotFoundByIndex;
 
 class ArrayCrawlQueue implements CrawlQueue
 {
-    /**
-     * All known URLs, indexed by URL string.
-     *
-     * @var CrawlUrl[]
-     */
+    /** @var CrawlUrl[] */
     protected array $urls = [];
 
-    /**
-     * Pending URLs, indexed by URL string.
-     *
-     * @var CrawlUrl[]
-     */
+    /** @var CrawlUrl[] */
     protected array $pendingUrls = [];
 
     public function add(CrawlUrl $crawlUrl): CrawlQueue
     {
-        $urlString = (string) $crawlUrl->url;
+        $urlString = $crawlUrl->url;
 
         if (! isset($this->urls[$urlString])) {
             $crawlUrl->setId($urlString);
@@ -53,7 +43,7 @@ class ArrayCrawlQueue implements CrawlQueue
 
     public function hasAlreadyBeenProcessed(CrawlUrl $crawlUrl): bool
     {
-        $urlString = (string) $crawlUrl->url;
+        $urlString = $crawlUrl->url;
 
         if (isset($this->pendingUrls[$urlString])) {
             return false;
@@ -68,7 +58,7 @@ class ArrayCrawlQueue implements CrawlQueue
 
     public function markAsProcessed(CrawlUrl $crawlUrl): void
     {
-        $urlString = (string) $crawlUrl->url;
+        $urlString = $crawlUrl->url;
 
         unset($this->pendingUrls[$urlString]);
     }
@@ -78,17 +68,9 @@ class ArrayCrawlQueue implements CrawlQueue
         return count($this->urls) - count($this->pendingUrls);
     }
 
-    public function has(CrawlUrl|UriInterface $crawlUrl): bool
+    public function has(string $url): bool
     {
-        if ($crawlUrl instanceof CrawlUrl) {
-            $urlString = (string) $crawlUrl->url;
-        } elseif ($crawlUrl instanceof UriInterface) {
-            $urlString = (string) $crawlUrl;
-        } else {
-            throw InvalidUrl::unexpectedType($crawlUrl);
-        }
-
-        return isset($this->urls[$urlString]);
+        return isset($this->urls[$url]);
     }
 
     public function getPendingUrl(): ?CrawlUrl

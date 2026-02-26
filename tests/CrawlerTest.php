@@ -2,10 +2,7 @@
 
 namespace Spatie\Crawler\Test;
 
-use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\RequestOptions;
-use Psr\Http\Message\UriInterface;
-use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfiles\CrawlInternalUrls;
 use Spatie\Crawler\CrawlProfiles\CrawlProfile;
@@ -14,7 +11,6 @@ use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
 use Spatie\Crawler\Test\TestClasses\CrawlLogger;
 use Spatie\Crawler\Test\TestClasses\Log;
 use stdClass;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 
 beforeEach(function () {
     skipIfTestServerIsNotRunning();
@@ -62,91 +58,24 @@ test('multiple observers can be set at once', function () {
 });
 
 it('can crawl uris without scheme', function () {
-    createCrawler()->startCrawling('localhost:8080');
+    createCrawler()
+        ->setDefaultScheme('http')
+        ->startCrawling('localhost:8080');
 
     expect(regularUrls())->each->toBeCrawledOnce();
-});
-
-it('can crawl all links rendered by javascript', function () {
-    $crawler = Crawler::create();
-
-    if (getenv('CI')) {
-        $browsershot = new Browsershot;
-
-        $browsershot->noSandbox();
-
-        $crawler->setBrowsershot($browsershot);
-    }
-
-    $crawler
-        ->executeJavaScript()
-        ->setCrawlObserver(new CrawlLogger)
-        ->startCrawling('http://localhost:8080');
-
-    expect(regularUrls())->each->toBeCrawledOnce();
-
-    expect(javascriptInjectedUrls())->each->toBeCrawledOnce();
-});
-
-it('allows for a browsershot instance to be set', function () {
-    $browsershot = new Browsershot;
-
-    if (getenv('CI')) {
-        $browsershot->noSandbox();
-    }
-
-    Crawler::create()
-        ->setBrowsershot($browsershot)
-        ->executeJavaScript()
-        ->setCrawlObserver(new CrawlLogger)
-        ->startCrawling('http://localhost:8080');
-
-    expect(regularUrls())->each->toBeCrawledOnce();
-
-    expect(javascriptInjectedUrls())->each->toBeCrawledOnce();
-});
-
-it('has a method to disable executing javascript', function () {
-    Crawler::create()
-        ->executeJavaScript()
-        ->doNotExecuteJavaScript()
-        ->setCrawlObserver(new CrawlLogger)
-        ->startCrawling('http://localhost:8080');
-
-    expect(regularUrls())->each->toBeCrawledOnce();
-
-    expect(javascriptInjectedUrls())->each->notToBeCrawled();
-});
-
-it('fails gracefully when browsershot fails', function () {
-    expect(function () {
-        $browsershot = (new Browsershot)->waitUntilNetworkIdle();
-
-        Crawler::create([
-            RequestOptions::CONNECT_TIMEOUT => 60,
-            RequestOptions::TIMEOUT => 60,
-            RequestOptions::READ_TIMEOUT => 60,
-        ])
-            ->setBrowsershot($browsershot)
-            ->executeJavaScript()
-            ->setCrawlObserver(new CrawlLogger)
-            ->startCrawling('http://localhost:8080/simulate-activity');
-    })->not->toThrow(ProcessFailedException::class);
-
-    expect(['url' => 'http://localhost:8080/simulate-activity'])->toBeCrawledOnce();
 });
 
 it('uses a crawl profile to determine what should be crawled', function () {
-    $crawlProfile = new class extends CrawlProfile
+    $crawlProfile = new class implements CrawlProfile
     {
-        public function shouldCrawl(UriInterface $url): bool
+        public function shouldCrawl(string $url): bool
         {
-            return $url->getPath() !== '/link3';
+            return parse_url($url, PHP_URL_PATH) !== '/link3';
         }
     };
 
     createCrawler()
-        ->setCrawlProfile(new $crawlProfile)
+        ->setCrawlProfile($crawlProfile)
         ->startCrawling('http://localhost:8080');
 
     expect([
@@ -181,7 +110,7 @@ it('will get the text from a html link', function () {
 
 it('uses crawl profile for internal urls', function () {
     createCrawler()
-        ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
+        ->setCrawlProfile(new CrawlInternalUrls('http://localhost:8080'))
         ->startCrawling('http://localhost:8080');
 
     $urls = [
@@ -200,15 +129,16 @@ it('uses crawl profile for internal urls', function () {
 });
 
 it('can handle pages with invalid urls', function () {
-    $crawlProfile = new class extends CrawlProfile
+    $crawlProfile = new class implements CrawlProfile
     {
-        public function shouldCrawl(UriInterface $url): bool
+        public function shouldCrawl(string $url): bool
         {
             return true;
         }
     };
 
     createCrawler()
+        ->setDefaultScheme('http')
         ->setCrawlProfile($crawlProfile)
         ->startCrawling('localhost:8080/invalid-url');
 
@@ -223,7 +153,7 @@ it('respects the total crawl limit', function () {
         createCrawler()
             ->setTotalCrawlLimit($maximumCrawlCount)
             ->ignoreRobots()
-            ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
+            ->setCrawlProfile(new CrawlInternalUrls('http://localhost:8080'))
             ->startCrawling('http://localhost:8080');
 
         assertCrawledUrlCount($maximumCrawlCount);
@@ -237,7 +167,7 @@ it('respects the current crawl limit', function () {
         createCrawler()
             ->setCurrentCrawlLimit($maximumCrawlCount)
             ->ignoreRobots()
-            ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
+            ->setCrawlProfile(new CrawlInternalUrls('http://localhost:8080'))
             ->startCrawling('http://localhost:8080');
 
         assertCrawledUrlCount($maximumCrawlCount);
@@ -252,7 +182,7 @@ it('respects current before total limit', function () {
             ->setCurrentCrawlLimit(4)
             ->setTotalCrawlLimit($maximumCrawlCount)
             ->ignoreRobots()
-            ->setCrawlProfile(new CrawlInternalUrls('localhost:8080'))
+            ->setCrawlProfile(new CrawlInternalUrls('http://localhost:8080'))
             ->startCrawling('http://localhost:8080');
 
         assertCrawledUrlCount($maximumCrawlCount > 4 ? 4 : $maximumCrawlCount);
@@ -332,7 +262,7 @@ test('profile crawls a domain and its subdomains', function () {
     $profile = new CrawlSubdomains($baseUrl);
 
     foreach ($urls as $url => $bool) {
-        expect($profile->isSubdomainOfHost(new Uri($url)))
+        expect($profile->isSubdomainOfHost($url))
             ->toBe($bool);
     }
 });
@@ -421,10 +351,9 @@ test('custom crawl request handlers must extend abstracts', function () {
 })->throws(InvalidCrawlRequestHandler::class);
 
 it('should ignore user agents header case', function () {
-    $clientConfig = ['headers' => ['user-agent' => 'foo']];
     $newUserAgent = 'bar';
 
-    $crawler = Crawler::create($clientConfig)->setUserAgent($newUserAgent);
+    $crawler = Crawler::create()->setUserAgent($newUserAgent);
     $actualUserAgent = $crawler->getUserAgent();
 
     expect($actualUserAgent)->toBe($newUserAgent);
@@ -432,41 +361,6 @@ it('should ignore user agents header case', function () {
 
 it('will only crawl correct mime types when asked to', function () {
     createCrawler()
-        ->setParseableMimeTypes(['text/html', 'text/plain'])
-        ->startCrawling('http://localhost:8080/content-types');
-
-    $urls = [
-        ['url' => 'http://localhost:8080/content-types/music.mp3', 'foundOn' => 'http://localhost:8080/content-types'],
-        ['url' => 'http://localhost:8080/content-types/video.mkv', 'foundOn' => 'http://localhost:8080/content-types'],
-        ['url' => 'http://localhost:8080/content-types/normal.html', 'foundOn' => 'http://localhost:8080/content-types'],
-    ];
-
-    expect($urls)->sequence(
-        function ($url) {
-            $url->notToBeCrawled();
-        },
-        function ($url) {
-            $url->notToBeCrawled();
-        },
-        function ($url) {
-            $url->toBeCrawledOnce();
-        },
-    );
-
-    assertCrawledUrlCount(2);
-});
-
-it('will only crawl correct mime types when asked to when executing javascript', function () {
-
-    $crawler = createCrawler();
-    if (getenv('CI')) {
-        $browsershot = new Browsershot;
-
-        $browsershot->noSandbox();
-
-        $crawler->setBrowsershot($browsershot);
-    }
-    $crawler->executeJavaScript()
         ->setParseableMimeTypes(['text/html', 'text/plain'])
         ->startCrawling('http://localhost:8080/content-types');
 

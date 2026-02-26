@@ -3,9 +3,8 @@
 namespace Spatie\Crawler\Test\TestClasses;
 
 use GuzzleHttp\Exception\RequestException;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
+use Spatie\Crawler\CrawlResponse;
 
 class CrawlLogger extends CrawlObserver
 {
@@ -20,40 +19,34 @@ class CrawlLogger extends CrawlObserver
         $this->observerId = $observerId;
     }
 
-    /**
-     * Called when the crawler will crawl the url.
-     */
-    public function willCrawl(UriInterface $url, ?string $linkText): void
+    public function willCrawl(string $url, ?string $linkText): void
     {
         Log::putContents("{$this->observerId}willCrawl: {$url}");
     }
 
-    /**
-     * Called when the crawler has crawled the given url.
-     */
     public function crawled(
-        UriInterface $url,
-        ResponseInterface $response,
-        ?UriInterface $foundOnUrl = null,
+        string $url,
+        CrawlResponse $response,
+        ?string $foundOnUrl = null,
         ?string $linkText = null,
     ): void {
         $this->logCrawl($url, $foundOnUrl, $linkText);
     }
 
     public function crawlFailed(
-        UriInterface $url,
+        string $url,
         RequestException $requestException,
-        ?UriInterface $foundOnUrl = null,
+        ?string $foundOnUrl = null,
         ?string $linkText = null,
     ): void {
         $this->logCrawl($url, $foundOnUrl, $linkText);
     }
 
-    protected function logCrawl(UriInterface $url, ?UriInterface $foundOnUrl, ?string $linkText = null)
+    protected function logCrawl(string $url, ?string $foundOnUrl, ?string $linkText = null)
     {
         $logText = "{$this->observerId}hasBeenCrawled: {$url}";
 
-        if ((string) $foundOnUrl) {
+        if ($foundOnUrl) {
             $logText .= " - found on {$foundOnUrl}";
         }
 
@@ -64,9 +57,6 @@ class CrawlLogger extends CrawlObserver
         Log::putContents($logText);
     }
 
-    /**
-     * Called when the crawl has ended.
-     */
     public function finishedCrawling(): void
     {
         Log::putContents("{$this->observerId}finished crawling");

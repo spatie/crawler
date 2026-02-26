@@ -1,7 +1,6 @@
 <?php
 
 use Spatie\Crawler\Test\TestClasses\Log;
-use Spatie\Crawler\UrlParsers\SitemapUrlParser;
 
 beforeEach(function () {
     skipIfTestServerIsNotRunning();
@@ -11,7 +10,7 @@ beforeEach(function () {
 
 it('should extract child sitemaps from sitemap index', function () {
     createCrawler()
-        ->setUrlParserClass(SitemapUrlParser::class)
+        ->parseSitemaps()
         ->startCrawling('http://localhost:8080/sitemap_index.xml');
 
     expect(['url' => 'http://localhost:8080/sitemap1.xml', 'foundOn' => 'http://localhost:8080/sitemap_index.xml'])
@@ -23,7 +22,7 @@ it('should extract child sitemaps from sitemap index', function () {
 
 it('should extract urls from sitemaps trough sitemap index', function () {
     createCrawler()
-        ->setUrlParserClass(SitemapUrlParser::class)
+        ->parseSitemaps()
         ->startCrawling('http://localhost:8080/sitemap_index.xml');
 
     expect(['url' => 'http://localhost:8080/', 'foundOn' => 'http://localhost:8080/sitemap1.xml'])

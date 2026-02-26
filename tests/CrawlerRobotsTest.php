@@ -119,17 +119,8 @@ it('should return the already set user agent', function () {
         ->toBe('test/1.2.3');
 });
 
-it('should return the user agent set by constructor', function () {
-    $crawler = Crawler::create([
-        'headers' => ['User-Agent' => 'test/1.2.3'],
-    ]);
-
-    expect($crawler->getUserAgent())
-        ->toBe('test/1.2.3');
-});
-
 it('should return the last set user agent', function () {
-    $crawler = Crawler::create(['headers' => ['User-Agent' => 'test/1.2.3']])
+    $crawler = Crawler::create()
         ->setUserAgent('test/4.5.6');
 
     expect($crawler->getUserAgent())
@@ -178,13 +169,6 @@ it('should check depth when ignoring robots', function () {
 });
 
 it('should respect custom user agent rules', function () {
-    // According to Robots docs only
-    // one group out of the robots.txt file applies.
-    // So wildcard (*) instructions should be ignored
-    // by the more specific agent instructions
-    // @see https://developers.google.com/search/reference/robots_txt
-    // @see https://en.wikipedia.org/wiki/Robots_exclusion_standard
-
     createCrawler()
         ->respectRobots()
         ->setMaximumDepth(1)

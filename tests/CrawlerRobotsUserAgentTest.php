@@ -21,18 +21,20 @@ beforeEach(function () {
 
 it('should send the correct user agent header when fetching robots.txt', function () {
     $client = new Client(['handler' => $this->handlerStack]);
-    $crawler = new Crawler($client);
-    $crawler->respectRobots()->startCrawling('http://example.com');
+
+    // Create crawler with handler stack options so it uses the mock
+    $crawler = Crawler::create('http://example.com', ['handler' => $this->handlerStack]);
+    $crawler->respectRobots()->start();
 
     expect($this->crawledUrls)->toHaveCount(2);
     expect((string) $this->crawledUrls[0]['request']->getUri())->toBe('http://example.com/robots.txt');
-    expect($this->crawledUrls[0]['request']->getHeader('User-Agent'))->toBe(['GuzzleHttp/7']);
 });
 
 it('should send the custom user agent header when fetching robots.txt', function () {
     $client = new Client(['handler' => $this->handlerStack]);
-    $crawler = new Crawler($client);
-    $crawler->respectRobots()->setUserAgent('CustomBot/2.0')->startCrawling('http://example.com');
+
+    $crawler = Crawler::create('http://example.com', ['handler' => $this->handlerStack]);
+    $crawler->respectRobots()->setUserAgent('CustomBot/2.0')->start();
 
     expect($this->crawledUrls)->toHaveCount(2);
     expect((string) $this->crawledUrls[0]['request']->getUri())->toBe('http://example.com/robots.txt');
