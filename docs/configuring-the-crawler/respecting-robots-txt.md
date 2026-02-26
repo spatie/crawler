@@ -1,6 +1,6 @@
 ---
 title: Respecting robots.txt
-weight: 11
+weight: 5
 ---
 
 By default, the crawler will respect robots data from `robots.txt` files, meta tags, and response headers. More information on the spec can be found at [robotstxt.org](http://www.robotstxt.org/).
@@ -19,6 +19,16 @@ Crawler::create('https://example.com')
     ->start();
 ```
 
+You can re-enable robots checking after disabling it using the `respectRobots` method.
+
+```php
+$crawler = Crawler::create('https://example.com')
+    ->ignoreRobots();
+
+// later...
+$crawler->respectRobots();
+```
+
 ## Accepting nofollow links
 
 By default, the crawler will reject all links containing `rel="nofollow"`. You can disable this check using the `followNofollow` method.
@@ -31,23 +41,23 @@ Crawler::create('https://example.com')
     ->start();
 ```
 
-## Custom user agent
-
-You can specify a custom User Agent using the `userAgent` method.
+You can re-enable nofollow rejection using the `rejectNofollowLinks` method.
 
 ```php
-use Spatie\Crawler\Crawler;
+$crawler = Crawler::create('https://example.com')
+    ->followNofollow();
 
-Crawler::create('https://example.com')
-    ->userAgent('my-agent')
-    ->start();
+// later...
+$crawler->rejectNofollowLinks();
 ```
 
-When you set a custom User Agent, robots.txt rules specific to that agent will be respected. For example, if your robots.txt contains:
+## Custom user agent
+
+The [user agent](/docs/crawler/v9/configuring-the-crawler/configuring-requests#user-agent) is also used when checking robots.txt rules. When you set a custom user agent, robots.txt rules specific to that agent will be respected. For example, if your robots.txt contains:
 
 ```txt
 User-agent: my-agent
 Disallow: /
 ```
 
-The crawler (when using `my-agent` as User Agent) will not crawl any pages on the site.
+The crawler (when using `my-agent` as user agent) will not crawl any pages on the site.

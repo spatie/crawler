@@ -18,6 +18,7 @@ $response->isRedirect();    // bool (3xx status)
 $response->foundOnUrl();    // ?string (the URL where this link was found)
 $response->linkText();      // ?string (the anchor text of the link)
 $response->depth();         // int (how deep this page is from the start URL)
+$response->resourceType();  // ResourceType (link, image, script, etc.)
 ```
 
 If you need access to the underlying PSR-7 response:

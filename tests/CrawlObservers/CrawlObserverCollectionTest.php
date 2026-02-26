@@ -7,6 +7,7 @@ use Spatie\Crawler\CrawlObservers\CrawlObserver;
 use Spatie\Crawler\CrawlObservers\CrawlObserverCollection;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\CrawlUrl;
+use Spatie\Crawler\Enums\ResourceType;
 
 beforeEach(function () {
     $this->crawlObserver = new class extends CrawlObserver
@@ -20,6 +21,7 @@ beforeEach(function () {
             CrawlResponse $response,
             ?string $foundOnUrl = null,
             ?string $linkText = null,
+            ?ResourceType $resourceType = null,
         ): void {
             $this->crawled = true;
         }
@@ -29,6 +31,7 @@ beforeEach(function () {
             RequestException $requestException,
             ?string $foundOnUrl = null,
             ?string $linkText = null,
+            ?ResourceType $resourceType = null,
         ): void {
             $this->failed = true;
         }

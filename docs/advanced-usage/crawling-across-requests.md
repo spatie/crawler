@@ -3,7 +3,7 @@ title: Crawling across requests
 weight: 4
 ---
 
-You can use `limitPerExecution()` to break up long running crawls across multiple HTTP requests. This is useful in serverless environments or when you want to avoid timeouts.
+You can use `limitPerExecution()` to break up long running crawls across multiple HTTP requests. This is useful in serverless environments or when you want to avoid timeouts. See [setting crawl limits](/docs/crawler/v9/configuring-the-crawler/setting-crawl-limits) for all available limit options.
 
 ## Initial request
 

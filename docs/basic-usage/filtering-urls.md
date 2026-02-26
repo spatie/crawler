@@ -69,3 +69,23 @@ This package comes with three built-in profiles:
 - `CrawlAllUrls`: crawls all URLs on all pages, including external sites (this is the default)
 - `CrawlInternalUrls`: only crawls URLs on the same host
 - `CrawlSubdomains`: crawls URLs on the same host and its subdomains
+
+## Always crawl and never crawl
+
+Sometimes you need to override your crawl profile for specific URL patterns. The `alwaysCrawl` and `neverCrawl` methods accept arrays of patterns (using `fnmatch` syntax) that take priority over your crawl profile.
+
+```php
+use Spatie\Crawler\Crawler;
+
+Crawler::create('https://example.com')
+    ->internalOnly()
+    ->alwaysCrawl(['https://cdn.example.com/*'])
+    ->neverCrawl(['*/admin/*', '*/tmp/*'])
+    ->start();
+```
+
+`alwaysCrawl` patterns bypass both the crawl profile and `robots.txt` rules. This is useful for checking external assets (like CDN resources) while keeping the crawl scoped to your own site.
+
+`neverCrawl` patterns block matching URLs from being added to the crawl queue, regardless of what the crawl profile returns.
+
+When a URL matches both an `alwaysCrawl` and a `neverCrawl` pattern, `alwaysCrawl` wins.

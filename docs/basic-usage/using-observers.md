@@ -11,10 +11,11 @@ namespace App;
 use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
 use Spatie\Crawler\CrawlResponse;
+use Spatie\Crawler\Enums\ResourceType;
 
 class MyCrawlObserver extends CrawlObserver
 {
-    public function willCrawl(string $url, ?string $linkText): void
+    public function willCrawl(string $url, ?string $linkText, ?ResourceType $resourceType = null): void
     {
         // called before a URL is crawled
     }
@@ -24,6 +25,7 @@ class MyCrawlObserver extends CrawlObserver
         CrawlResponse $response,
         ?string $foundOnUrl = null,
         ?string $linkText = null,
+        ?ResourceType $resourceType = null,
     ): void {
         // called when a URL has been successfully crawled
     }
@@ -33,6 +35,7 @@ class MyCrawlObserver extends CrawlObserver
         RequestException $requestException,
         ?string $foundOnUrl = null,
         ?string $linkText = null,
+        ?ResourceType $resourceType = null,
     ): void {
         // called when a URL could not be crawled
     }
@@ -51,6 +54,8 @@ Crawler::create('https://example.com')
     ->addObserver(new MyCrawlObserver())
     ->start();
 ```
+
+The `$resourceType` parameter tells you what kind of resource was crawled (link, image, script, etc.). It is `null` for the start URL, and defaults to `ResourceType::Link` for discovered links. See [extracting resources](/docs/crawler/v9/configuring-the-crawler/extracting-resources) for more information.
 
 ## Using multiple observers
 

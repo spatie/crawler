@@ -2,8 +2,10 @@
 
 namespace Spatie\Crawler\UrlParsers;
 
+use Spatie\Crawler\ExtractedUrl;
+
 interface UrlParser
 {
-    /** @return array<string, ?string> url => linkText */
+    /** @return array<int, ExtractedUrl> */
     public function extractUrls(string $html, string $baseUrl): array;
 }

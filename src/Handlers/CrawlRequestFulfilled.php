@@ -60,6 +60,7 @@ class CrawlRequestFulfilled
             $crawlUrl->foundOnUrl,
             $crawlUrl->linkText,
             $crawlUrl->depth,
+            $crawlUrl->resourceType ?? \Spatie\Crawler\Enums\ResourceType::Link,
         );
         $crawlResponse->setCachedBody($body);
 
@@ -87,26 +88,66 @@ class CrawlRequestFulfilled
 
         $maximumDepth = $this->crawler->getMaximumDepth();
 
-        foreach ($extractedUrls as $url => $linkText) {
+        foreach ($extractedUrls as $extractedUrl) {
+            if ($extractedUrl->isMalformed()) {
+                $malformedCrawlUrl = CrawlUrl::create(
+                    url: $extractedUrl->url,
+                    foundOnUrl: $baseUrl,
+                    linkText: $extractedUrl->linkText,
+                    depth: $crawlUrl->depth + 1,
+                    resourceType: $extractedUrl->resourceType,
+                );
+
+                try {
+                    $request = new Request('GET', $extractedUrl->url);
+                } catch (\Exception) {
+                    $request = new Request('GET', $baseUrl);
+                }
+
+                $exception = new RequestException(
+                    "Malformed URL `{$extractedUrl->url}`: {$extractedUrl->malformedReason}",
+                    $request,
+                );
+
+                $this->crawler->getCrawlObservers()->crawlFailed($malformedCrawlUrl, $exception);
+
+                continue;
+            }
+
             $newDepth = $crawlUrl->depth + 1;
 
             if ($maximumDepth !== null && $newDepth > $maximumDepth) {
                 continue;
             }
 
+            if ($this->crawler->matchesAlwaysCrawl($extractedUrl->url)) {
+                $newCrawlUrl = CrawlUrl::create(
+                    url: $extractedUrl->url,
+                    foundOnUrl: $baseUrl,
+                    linkText: $extractedUrl->linkText,
+                    depth: $newDepth,
+                    resourceType: $extractedUrl->resourceType,
+                );
+
+                $this->crawler->addToCrawlQueue($newCrawlUrl);
+
+                continue;
+            }
+
             if ($this->crawler->mustRespectRobots()) {
                 $robotsTxt = $this->crawler->getRobotsTxt();
 
-                if ($robotsTxt !== null && ! $robotsTxt->allows($url, $this->crawler->getUserAgent())) {
+                if ($robotsTxt !== null && ! $robotsTxt->allows($extractedUrl->url, $this->crawler->getUserAgent())) {
                     continue;
                 }
             }
 
             $newCrawlUrl = CrawlUrl::create(
-                url: $url,
+                url: $extractedUrl->url,
                 foundOnUrl: $baseUrl,
-                linkText: $linkText,
+                linkText: $extractedUrl->linkText,
                 depth: $newDepth,
+                resourceType: $extractedUrl->resourceType,
             );
 
             $this->crawler->addToCrawlQueue($newCrawlUrl);
@@ -144,21 +185,21 @@ class CrawlRequestFulfilled
         }
 
         $body = '';
+        $remaining = $readMaximumBytes;
 
-        $chunksToRead = $readMaximumBytes < 512 ? $readMaximumBytes : 512;
-
-        for ($bytesRead = 0; $bytesRead < $readMaximumBytes; $bytesRead += $chunksToRead) {
+        while ($remaining > 0) {
             try {
-                $newDataRead = $bodyStream->read($chunksToRead);
+                $chunk = $bodyStream->read(min($remaining, 65536));
             } catch (Exception $exception) {
-                $newDataRead = null;
-            }
-
-            if (! $newDataRead) {
                 break;
             }
 
-            $body .= $newDataRead;
+            if ($chunk === '') {
+                break;
+            }
+
+            $body .= $chunk;
+            $remaining -= strlen($chunk);
         }
 
         return $body;

@@ -19,16 +19,6 @@ class MyUrlParser implements UrlParser
 }
 ```
 
-Pass your custom parser to the crawler:
-
-```php
-use Spatie\Crawler\Crawler;
-
-Crawler::create('https://example.com')
-    ->setUrlParser(new MyUrlParser())
-    ->start();
-```
-
 By default, the `LinkUrlParser` is used. It extracts all links from the `href` attribute of `<a>` tags.
 
 ## Crawling sitemaps

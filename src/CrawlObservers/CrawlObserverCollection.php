@@ -52,11 +52,11 @@ class CrawlObserverCollection
     public function willCrawl(CrawlUrl $crawlUrl): void
     {
         foreach ($this->observers as $observer) {
-            $observer->willCrawl($crawlUrl->url, $crawlUrl->linkText);
+            $observer->willCrawl($crawlUrl->url, $crawlUrl->linkText, $crawlUrl->resourceType);
         }
 
         foreach ($this->onWillCrawlCallbacks as $callback) {
-            $callback($crawlUrl->url, $crawlUrl->linkText);
+            $callback($crawlUrl->url, $crawlUrl->linkText, $crawlUrl->resourceType);
         }
     }
 
@@ -68,11 +68,12 @@ class CrawlObserverCollection
                 $response,
                 $crawlUrl->foundOnUrl,
                 $crawlUrl->linkText,
+                $crawlUrl->resourceType,
             );
         }
 
         foreach ($this->onCrawledCallbacks as $callback) {
-            $callback($crawlUrl->url, $response);
+            $callback($crawlUrl->url, $response, $crawlUrl->resourceType);
         }
     }
 
@@ -84,11 +85,12 @@ class CrawlObserverCollection
                 $exception,
                 $crawlUrl->foundOnUrl,
                 $crawlUrl->linkText,
+                $crawlUrl->resourceType,
             );
         }
 
         foreach ($this->onFailedCallbacks as $callback) {
-            $callback($crawlUrl->url, $exception);
+            $callback($crawlUrl->url, $exception, $crawlUrl->resourceType);
         }
     }
 

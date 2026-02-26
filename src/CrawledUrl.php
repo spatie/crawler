@@ -2,6 +2,8 @@
 
 namespace Spatie\Crawler;
 
+use Spatie\Crawler\Enums\ResourceType;
+
 readonly class CrawledUrl
 {
     public function __construct(
@@ -9,5 +11,6 @@ readonly class CrawledUrl
         public int $status,
         public ?string $foundOnUrl = null,
         public int $depth = 0,
+        public ResourceType $resourceType = ResourceType::Link,
     ) {}
 }

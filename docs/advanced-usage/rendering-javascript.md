@@ -33,6 +33,31 @@ Crawler::create('https://example.com')
     ->start();
 ```
 
+## Using Cloudflare Browser Rendering
+
+The `CloudflareRenderer` uses a Cloudflare Browser Rendering endpoint to render JavaScript. It sends a POST request with the URL and expects a JSON response containing a `content` field with the rendered HTML.
+
+```php
+use Spatie\Crawler\Crawler;
+use Spatie\Crawler\JavaScriptRenderers\CloudflareRenderer;
+
+Crawler::create('https://example.com')
+    ->executeJavaScript(new CloudflareRenderer('https://your-worker.your-domain.workers.dev/render'))
+    ->start();
+```
+
+You can also pass a custom Guzzle client to the renderer:
+
+```php
+use GuzzleHttp\Client;
+use Spatie\Crawler\JavaScriptRenderers\CloudflareRenderer;
+
+$renderer = new CloudflareRenderer(
+    'https://your-worker.your-domain.workers.dev/render',
+    new Client(['timeout' => 30]),
+);
+```
+
 ## Custom renderers
 
 You can create your own JavaScript renderer by implementing the `JavaScriptRenderer` interface:

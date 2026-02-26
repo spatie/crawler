@@ -18,11 +18,14 @@ This returns a `Collection` of `CrawledUrl` objects. Each `CrawledUrl` has these
 
 ```php
 foreach ($urls as $crawledUrl) {
-    $crawledUrl->url;        // string
-    $crawledUrl->status;     // int (HTTP status code, or 0 if failed)
-    $crawledUrl->foundOnUrl; // ?string
-    $crawledUrl->depth;      // int
+    $crawledUrl->url;          // string
+    $crawledUrl->status;       // int (HTTP status code, or 0 if failed)
+    $crawledUrl->foundOnUrl;   // ?string
+    $crawledUrl->depth;        // int
+    $crawledUrl->resourceType; // ResourceType (link, image, script, etc.)
 }
 ```
+
+The `resourceType` property defaults to `ResourceType::Link`. When you use `alsoExtract()` or `extractAll()`, collected URLs will include the appropriate resource type for each discovered asset. See [extracting resources](/docs/crawler/v9/configuring-the-crawler/extracting-resources) for details.
 
 Any observers or closure callbacks you've registered will still be called alongside the URL collection.

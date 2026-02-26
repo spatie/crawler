@@ -30,6 +30,28 @@ When `fake()` is used, the crawler replaces Guzzle's HTTP handler with a fake ha
 
 The fake handler normalizes URLs (handling trailing slashes) and automatically handles `robots.txt` requests. If you don't include a `robots.txt` URL in the fakes array, it returns a 404, which means no restrictions.
 
+## Faking with custom status codes and headers
+
+By default, fake responses return a 200 status with a `text/html` content type. You can use `CrawlResponse::fake()` to create responses with custom status codes and headers:
+
+```php
+use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlResponse;
+
+Crawler::create('https://example.com')
+    ->fake([
+        'https://example.com' => '<html><a href="/redirect">Link</a></html>',
+        'https://example.com/redirect' => CrawlResponse::fake('', 301, [
+            'Location' => 'https://example.com/new-location',
+        ]),
+        'https://example.com/protected' => CrawlResponse::fake('Forbidden', 403),
+        'https://example.com/audio.mp3' => CrawlResponse::fake('audio data', 200, [
+            'Content-Type' => 'audio/mpeg',
+        ]),
+    ])
+    ->start();
+```
+
 ## Faking with collectUrls
 
 The `fake()` method works great with `collectUrls()`:
