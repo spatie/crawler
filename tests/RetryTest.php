@@ -1,7 +1,6 @@
 <?php
 
 use Spatie\Crawler\Crawler;
-use Spatie\Crawler\CrawlResponse;
 
 it('can configure retry', function () {
     $crawled = [];

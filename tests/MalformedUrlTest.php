@@ -2,8 +2,6 @@
 
 use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\Crawler;
-use Spatie\Crawler\CrawlResponse;
-use Spatie\Crawler\Enums\ResourceType;
 
 it('reports malformed urls via crawlFailed', function () {
     $failed = [];

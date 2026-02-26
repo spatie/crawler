@@ -2,7 +2,6 @@
 
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfiles\CrawlInternalUrls;
-use Spatie\Crawler\CrawlResponse;
 
 it('always crawls urls matching alwaysCrawl patterns', function () {
     $crawled = [];
