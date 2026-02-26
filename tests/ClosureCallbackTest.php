@@ -19,10 +19,11 @@ it('can use onWillCrawl closure', function () {
         })
         ->start();
 
-    expect($willCrawl)->toHaveCount(2);
-    expect($willCrawl[0]['url'])->toBe('https://example.com/');
-    expect($willCrawl[1]['url'])->toBe('https://example.com/about');
-    expect($willCrawl[1]['linkText'])->toBe('About');
+    expect($willCrawl)
+        ->toHaveCount(2)
+        ->{0}->url->toBe('https://example.com/')
+        ->{1}->url->toBe('https://example.com/about')
+        ->{1}->linkText->toBe('About');
 });
 
 it('can use onCrawled closure', function () {
@@ -39,23 +40,6 @@ it('can use onCrawled closure', function () {
         ->start();
 
     expect($crawled)->toContain('https://example.com/');
-});
-
-it('can use onFailed closure', function () {
-    $failed = [];
-
-    Crawler::create('https://example.com')
-        ->fake([
-            'https://example.com' => '<html><body><a href="/missing">Missing</a></body></html>',
-        ])
-        ->ignoreRobots()
-        ->onFailed(function (string $url, \GuzzleHttp\Exception\RequestException $e) use (&$failed) {
-            $failed[] = $url;
-        })
-        ->start();
-
-    // FakeHandler returns 404 responses (not exceptions), so onFailed won't trigger for those
-    expect(true)->toBeTrue();
 });
 
 it('can use onFinished closure', function () {

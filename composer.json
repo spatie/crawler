@@ -26,7 +26,16 @@
     },
     "require-dev": {
         "pestphp/pest": "^4.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0",
         "spatie/ray": "^1.37"
+    },
+    "scripts": {
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "format": "vendor/bin/pint"
     },
     "suggest": {
         "spatie/browsershot": "Required for JavaScript rendering with BrowsershotRenderer (^5.0.5)"

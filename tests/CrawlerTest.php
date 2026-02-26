@@ -48,18 +48,6 @@ it('will handle multiple observers', function () {
         ->toContain('Observer B');
 });
 
-test('multiple observers can be set at once', function () {
-    Crawler::create('https://example.com')
-        ->fake(fullSiteFakes())
-        ->addObserver(new CrawlLogger('Observer A'))
-        ->addObserver(new CrawlLogger('Observer B'))
-        ->start();
-
-    expect(Log::getContents())
-        ->toContain('Observer A')
-        ->toContain('Observer B');
-});
-
 it('can crawl uris without scheme', function () {
     createCrawler('example.com')
         ->fake(fullSiteFakes())
@@ -122,19 +110,11 @@ it('uses crawl profile for internal urls', function () {
         ->setCrawlProfile(new CrawlInternalUrls('https://example.com'))
         ->start();
 
-    $urls = [
-        ['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/', 'linkText' => 'Link1'],
-        ['url' => 'https://external.example.org/'],
-    ];
+    expect(['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/', 'linkText' => 'Link1'])
+        ->toBeCrawledOnce();
 
-    expect($urls)->sequence(
-        function ($url) {
-            $url->toBeCrawledOnce();
-        },
-        function ($url) {
-            $url->notToBeCrawled();
-        },
-    );
+    expect(['url' => 'https://external.example.org/'])
+        ->notToBeCrawled();
 });
 
 it('can handle pages with invalid urls', function () {
@@ -375,38 +355,19 @@ test('custom crawl request handlers must extend abstracts', function () {
     Crawler::create()->setCrawlFailedHandlerClass(stdClass::class);
 })->throws(InvalidCrawlRequestHandler::class);
 
-it('should ignore user agents header case', function () {
-    $newUserAgent = 'bar';
-
-    $crawler = Crawler::create()->userAgent($newUserAgent);
-    $actualUserAgent = $crawler->getUserAgent();
-
-    expect($actualUserAgent)->toBe($newUserAgent);
-});
-
 it('will only crawl correct mime types when asked to', function () {
     createCrawler('https://example.com/content-types')
         ->fake(contentTypeFakes())
         ->allowedMimeTypes(['text/html', 'text/plain'])
         ->start();
 
-    $urls = [
+    expect([
         ['url' => 'https://example.com/content-types/music.mp3', 'foundOn' => 'https://example.com/content-types'],
         ['url' => 'https://example.com/content-types/video.mkv', 'foundOn' => 'https://example.com/content-types'],
-        ['url' => 'https://example.com/content-types/normal.html', 'foundOn' => 'https://example.com/content-types'],
-    ];
+    ])->each->notToBeCrawled();
 
-    expect($urls)->sequence(
-        function ($url) {
-            $url->notToBeCrawled();
-        },
-        function ($url) {
-            $url->notToBeCrawled();
-        },
-        function ($url) {
-            $url->toBeCrawledOnce();
-        },
-    );
+    expect(['url' => 'https://example.com/content-types/normal.html', 'foundOn' => 'https://example.com/content-types'])
+        ->toBeCrawledOnce();
 
     expectCrawledUrlCount(2);
 });
@@ -482,6 +443,38 @@ it('respects the current execution time limit', function () {
     $crawler->start();
 
     expectCrawledUrlCount(11);
+});
+
+it('should return the user agent', function () {
+    $crawler = Crawler::create()
+        ->userAgent('test/1.2.3');
+
+    expect($crawler->getUserAgent())
+        ->toBe('test/1.2.3');
+});
+
+it('should return default user agent when none is set', function () {
+    expect(Crawler::create()->getUserAgent())
+        ->not->toBeEmpty();
+});
+
+it('should change the default base url scheme to https', function () {
+    $crawler = Crawler::create()
+        ->defaultScheme('https');
+
+    expect($crawler->getDefaultScheme())
+        ->toEqual('https');
+});
+
+it('should remember settings', function () {
+    $crawler = Crawler::create()
+        ->depth(10)
+        ->limit(10)
+        ->userAgent('test/1.2.3');
+
+    expect($crawler->getMaximumDepth())->toBe(10);
+    expect($crawler->getTotalCrawlLimit())->toBe(10);
+    expect($crawler->getUserAgent())->toBe('test/1.2.3');
 });
 
 function javascriptInjectedUrls(): array

@@ -1,0 +1,70 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 1
+			path: src/CrawlResponse.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 1
+			path: src/CrawlUrl.php
+
+		-
+			message: '''
+				#^Call to deprecated method getConfig\(\) of class GuzzleHttp\\Client\:
+				Client\:\:getConfig will be removed in guzzlehttp/guzzle\:8\.0\.$#
+			'''
+			identifier: method.deprecated
+			count: 1
+			path: src/Crawler.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 1
+			path: src/Crawler.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 1
+			path: src/Exceptions/InvalidCrawlRequestHandler.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 1
+			path: src/Exceptions/InvalidUrl.php
+
+		-
+			message: '#^Property Spatie\\Crawler\\Faking\\FakeHandler\:\:\$responses \(array\<string, GuzzleHttp\\Psr7\\Response\>\) does not accept array\<string, Psr\\Http\\Message\\ResponseInterface\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Faking/FakeHandler.php
+
+		-
+			message: '#^Call to method setUrl\(\) on an unknown class Spatie\\Browsershot\\Browsershot\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/JavaScriptRenderers/BrowsershotRenderer.php
+
+		-
+			message: '#^Instantiated class Spatie\\Browsershot\\Browsershot not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/JavaScriptRenderers/BrowsershotRenderer.php
+
+		-
+			message: '#^Parameter \$browsershot of method Spatie\\Crawler\\JavaScriptRenderers\\BrowsershotRenderer\:\:__construct\(\) has invalid type Spatie\\Browsershot\\Browsershot\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/JavaScriptRenderers/BrowsershotRenderer.php
+
+		-
+			message: '#^Property Spatie\\Crawler\\JavaScriptRenderers\\BrowsershotRenderer\:\:\$browsershot has unknown class Spatie\\Browsershot\\Browsershot as its type\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/JavaScriptRenderers/BrowsershotRenderer.php

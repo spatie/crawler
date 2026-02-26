@@ -59,20 +59,11 @@ it('should not index robots meta noindex', function () {
         ->fake(fullSiteFakes())
         ->start();
 
-    $urls = [
-        ['url' => 'https://example.com/meta-nofollow', 'foundOn' => 'https://example.com/meta-follow'],
-        ['url' => 'https://example.com/meta-follow'],
-    ];
+    expect(['url' => 'https://example.com/meta-nofollow', 'foundOn' => 'https://example.com/meta-follow'])
+        ->toBeCrawledOnce();
 
-    expect($urls)
-        ->sequence(
-            function ($url) {
-                $url->toBeCrawledOnce();
-            },
-            function ($url) {
-                $url->notToBeCrawled();
-            },
-        );
+    expect(['url' => 'https://example.com/meta-follow'])
+        ->notToBeCrawled();
 });
 
 it('should index robots meta noindex when robots are ignored', function () {
@@ -125,53 +116,6 @@ it('should not return RobotsTxt instance when not respecting robots', function (
         ->toBe(null);
 });
 
-it('should return the already set user agent', function () {
-    $crawler = Crawler::create()
-        ->userAgent('test/1.2.3');
-
-    expect($crawler->getUserAgent())
-        ->toBe('test/1.2.3');
-});
-
-it('should return the last set user agent', function () {
-    $crawler = Crawler::create()
-        ->userAgent('test/4.5.6');
-
-    expect($crawler->getUserAgent())
-        ->toBe('test/4.5.6');
-});
-
-it('should return default user agent when none is set', function () {
-    $crawler = Crawler::create();
-
-    expect($crawler->getUserAgent())
-        ->toBeNotEmpty();
-});
-
-it('should change the default base url scheme to https', function () {
-    $crawler = Crawler::create()
-        ->defaultScheme('https');
-
-    expect($crawler->getDefaultScheme())
-        ->toEqual('https');
-});
-
-it('should remember settings', function () {
-    $crawler = Crawler::create()
-        ->depth(10)
-        ->limit(10)
-        ->userAgent('test/1.2.3');
-
-    expect($crawler->getMaximumDepth())
-        ->toBe(10);
-
-    expect($crawler->getTotalCrawlLimit())
-        ->toBe(10);
-
-    expect($crawler->getUserAgent())
-        ->toBe('test/1.2.3');
-});
-
 it('should check depth when ignoring robots', function () {
     createCrawler()
         ->fake(fullSiteFakes())
@@ -191,22 +135,11 @@ it('should respect custom user agent rules', function () {
         ->userAgent('my-agent')
         ->start();
 
-    $urls = [
+    expect([
         ['url' => 'https://example.com/txt-disallow-custom-user-agent', 'foundOn' => 'https://example.com/'],
         ['url' => 'https://example.com/txt-disallow', 'foundOn' => 'https://example.com/'],
-        ['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/'],
-    ];
+    ])->each->notToBeCrawled();
 
-    expect($urls)
-        ->sequence(
-            function ($url) {
-                $url->notToBeCrawled();
-            },
-            function ($url) {
-                $url->notToBeCrawled();
-            },
-            function ($url) {
-                $url->toBeCrawledOnce();
-            },
-        );
+    expect(['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/'])
+        ->toBeCrawledOnce();
 });
