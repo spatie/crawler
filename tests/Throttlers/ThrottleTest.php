@@ -1,7 +1,6 @@
 <?php
 
 use Spatie\Crawler\Crawler;
-use Spatie\Crawler\CrawlProfiles\CrawlInternalUrls;
 use Spatie\Crawler\Test\TestClasses\Log;
 use Spatie\Crawler\Throttlers\AdaptiveThrottle;
 use Spatie\Crawler\Throttlers\FixedDelayThrottle;
