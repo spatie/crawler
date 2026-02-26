@@ -1,24 +1,24 @@
 ---
 title: Crawl limits
-weight: 3
+weight: 2
 ---
 
 By default, the crawler continues until it has crawled every page it can find. This behavior might cause issues if you are working in an environment with limitations such as a serverless environment.
 
 The crawl behavior can be controlled with these options:
 
-- **Total crawl limit** (`limit()`): the maximum number of URLs to crawl across all executions.
-- **Current crawl limit** (`limitPerExecution()`): how many URLs to process during the current crawl.
-- **Total execution time limit** (`timeLimit()`): the maximum execution time across all executions.
-- **Current execution time limit** (`timeLimitPerExecution()`): the maximum execution time for the current crawl.
-
-The long form methods (`setTotalCrawlLimit`, `setCurrentCrawlLimit`, `setTotalExecutionTimeLimit`, `setCurrentExecutionTimeLimit`) also work.
+- `limit()`: the maximum number of URLs to crawl across all executions
+- `limitPerExecution()`: how many URLs to process during the current crawl
+- `timeLimit()`: the maximum execution time across all executions
+- `timeLimitPerExecution()`: the maximum execution time for the current crawl
 
 ## Using the total crawl limit
 
 The `limit()` method allows you to limit the total number of URLs to crawl, no matter how often you call the crawler.
 
 ```php
+use Spatie\Crawler\Crawler;
+
 $queue = <your queue implementation>;
 
 // Crawls 5 URLs and ends.
@@ -39,6 +39,8 @@ Crawler::create('https://example.com')
 The `limitPerExecution()` method limits how many URLs will be crawled in a single execution. This code will process 5 pages with each execution, without a total limit of pages to crawl.
 
 ```php
+use Spatie\Crawler\Crawler;
+
 $queue = <your queue implementation>;
 
 // Crawls 5 URLs and ends.
@@ -59,6 +61,8 @@ Crawler::create('https://example.com')
 Both limits can be combined to control the crawler:
 
 ```php
+use Spatie\Crawler\Crawler;
+
 $queue = <your queue implementation>;
 
 // Crawls 5 URLs and ends.

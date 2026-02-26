@@ -3,9 +3,11 @@ title: JavaScript rendering
 weight: 1
 ---
 
-By default, the crawler will not execute JavaScript. You can enable it:
+By default, the crawler will not execute JavaScript. You can enable JavaScript rendering using the `executeJavaScript` method.
 
 ```php
+use Spatie\Crawler\Crawler;
+
 Crawler::create('https://example.com')
     ->executeJavaScript()
     ->start();
@@ -19,6 +21,7 @@ To customize Browsershot, pass a configured instance to `BrowsershotRenderer`:
 
 ```php
 use Spatie\Browsershot\Browsershot;
+use Spatie\Crawler\Crawler;
 use Spatie\Crawler\JavaScriptRenderers\BrowsershotRenderer;
 
 $browsershot = (new Browsershot())
@@ -49,6 +52,8 @@ class MyRenderer implements JavaScriptRenderer
 Then pass it to the crawler:
 
 ```php
+use Spatie\Crawler\Crawler;
+
 Crawler::create('https://example.com')
     ->executeJavaScript(new MyRenderer())
     ->start();
@@ -59,6 +64,8 @@ Crawler::create('https://example.com')
 If you've enabled JavaScript rendering but want to disable it later in a chain:
 
 ```php
+use Spatie\Crawler\Crawler;
+
 $crawler = Crawler::create('https://example.com')
     ->executeJavaScript();
 

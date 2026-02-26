@@ -8,6 +8,8 @@ When crawling a site, the crawler stores URLs to be crawled in a queue. By defau
 When a site is very large you may want to store that queue elsewhere, for example in a database. You can write your own crawl queue by implementing the `Spatie\Crawler\CrawlQueues\CrawlQueue` interface:
 
 ```php
+use Spatie\Crawler\Crawler;
+
 Crawler::create('https://example.com')
     ->setCrawlQueue(new MyCustomQueue())
     ->start();

@@ -35,6 +35,8 @@ The fake handler normalizes URLs (handling trailing slashes) and automatically h
 The `fake()` method works great with `collectUrls()`:
 
 ```php
+use Spatie\Crawler\Crawler;
+
 $urls = Crawler::create('https://example.com')
     ->fake([
         'https://example.com' => '<html><a href="/page-1">Page 1</a><a href="/page-2">Page 2</a></html>',
@@ -50,6 +52,8 @@ expect($urls)->toHaveCount(3);
 ## Testing depth limits
 
 ```php
+use Spatie\Crawler\Crawler;
+
 $urls = Crawler::create('https://example.com')
     ->fake([
         'https://example.com' => '<html><a href="/level-1">Level 1</a></html>',

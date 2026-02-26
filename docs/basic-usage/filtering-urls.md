@@ -10,6 +10,8 @@ By default, the crawler will crawl every URL it finds, including links to extern
 The simplest way to filter URLs is with the built-in scope helpers:
 
 ```php
+use Spatie\Crawler\Crawler;
+
 // Only crawl URLs on the same host
 Crawler::create('https://example.com')
     ->internalOnly()
@@ -26,6 +28,8 @@ Crawler::create('https://example.com')
 For custom filtering logic, use the `shouldCrawl` method with a closure:
 
 ```php
+use Spatie\Crawler\Crawler;
+
 Crawler::create('https://example.com')
     ->shouldCrawl(function (string $url) {
         return !str_contains($url, '/admin');
@@ -53,6 +57,8 @@ class MyCustomProfile implements CrawlProfile
 Then pass it to the crawler:
 
 ```php
+use Spatie\Crawler\Crawler;
+
 Crawler::create('https://example.com')
     ->setCrawlProfile(new MyCustomProfile())
     ->start();

@@ -12,7 +12,7 @@ interface CrawlQueue
 
     public function hasPendingUrls(): bool;
 
-    public function getUrlById($id): CrawlUrl;
+    public function getUrlById(mixed $id): CrawlUrl;
 
     public function getPendingUrl(): ?CrawlUrl;
 

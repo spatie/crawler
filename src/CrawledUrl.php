@@ -2,12 +2,12 @@
 
 namespace Spatie\Crawler;
 
-class CrawledUrl
+readonly class CrawledUrl
 {
     public function __construct(
-        public readonly string $url,
-        public readonly int $status,
-        public readonly ?string $foundOnUrl = null,
-        public readonly int $depth = 0,
+        public string $url,
+        public int $status,
+        public ?string $foundOnUrl = null,
+        public int $depth = 0,
     ) {}
 }

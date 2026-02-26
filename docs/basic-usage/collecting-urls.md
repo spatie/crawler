@@ -20,7 +20,7 @@ This returns a `Collection` of `CrawledUrl` objects. Each `CrawledUrl` has these
 foreach ($urls as $crawledUrl) {
     $crawledUrl->url;        // string
     $crawledUrl->status;     // int (HTTP status code, or 0 if failed)
-    $crawledUrl->foundOnUrl;  // ?string
+    $crawledUrl->foundOnUrl; // ?string
     $crawledUrl->depth;      // int
 }
 ```

@@ -18,7 +18,7 @@ class ArrayCrawlQueue implements CrawlQueue
         $urlString = $crawlUrl->url;
 
         if (! isset($this->urls[$urlString])) {
-            $crawlUrl->setId($urlString);
+            $crawlUrl->id = $urlString;
 
             $this->urls[$urlString] = $crawlUrl;
             $this->pendingUrls[$urlString] = $crawlUrl;
@@ -32,7 +32,7 @@ class ArrayCrawlQueue implements CrawlQueue
         return (bool) $this->pendingUrls;
     }
 
-    public function getUrlById($id): CrawlUrl
+    public function getUrlById(mixed $id): CrawlUrl
     {
         if (! isset($this->urls[$id])) {
             throw new UrlNotFoundByIndex("Crawl url {$id} not found in collection.");

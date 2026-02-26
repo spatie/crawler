@@ -6,14 +6,10 @@ use GuzzleHttp\Client;
 
 class CloudflareRenderer implements JavaScriptRenderer
 {
-    protected Client $client;
-
     public function __construct(
         protected string $endpoint,
-        ?Client $client = null,
-    ) {
-        $this->client = $client ?? new Client;
-    }
+        protected Client $client = new Client,
+    ) {}
 
     public function getRenderedHtml(string $url): string
     {

@@ -10,6 +10,9 @@ You can use `limitPerExecution()` to break up long running crawls across multipl
 To start crawling across different requests, create a queue instance and pass it to the crawler. The crawler will fill the queue as pages are processed and new URLs are discovered. After the crawler finishes (because it hit the per execution limit), serialize and store the queue.
 
 ```php
+use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlQueues\ArrayCrawlQueue;
+
 $queue = new ArrayCrawlQueue(); // or your custom queue
 
 // Crawl the first batch of URLs
@@ -27,6 +30,8 @@ $serializedQueue = serialize($queue);
 For following requests, unserialize the queue and pass it to the crawler:
 
 ```php
+use Spatie\Crawler\Crawler;
+
 $queue = unserialize($serializedQueue);
 
 // Crawl the next batch of URLs

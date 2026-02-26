@@ -6,6 +6,8 @@ weight: 4
 When a URL is successfully crawled, your callback or observer receives a `CrawlResponse` object. This provides a friendlier API than the raw PSR-7 response:
 
 ```php
+use Spatie\Crawler\CrawlResponse;
+
 $response->status();        // int (HTTP status code)
 $response->body();          // string (the response body, cached)
 $response->header('Name');  // ?string (a single header value)
@@ -29,6 +31,9 @@ $response->toPsrResponse(); // Psr\Http\Message\ResponseInterface
 The `dom()` method returns a [Symfony DomCrawler](https://symfony.com/doc/current/components/dom_crawler.html) instance, which makes it easy to extract structured data from pages:
 
 ```php
+use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlResponse;
+
 Crawler::create('https://example.com')
     ->onCrawled(function (string $url, CrawlResponse $response) {
         $title = $response->dom()->filter('title')->text('');

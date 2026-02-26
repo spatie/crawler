@@ -138,7 +138,7 @@ class CrawlRequestFulfilled
         return $this->convertBodyToString($response->getBody(), $this->crawler->getMaximumResponseSize());
     }
 
-    protected function convertBodyToString(StreamInterface $bodyStream, $readMaximumBytes = 1024 * 1024 * 2): string
+    protected function convertBodyToString(StreamInterface $bodyStream, int $readMaximumBytes = 1024 * 1024 * 2): string
     {
         if ($bodyStream->isSeekable()) {
             $bodyStream->rewind();
@@ -165,7 +165,7 @@ class CrawlRequestFulfilled
         return $body;
     }
 
-    protected function isMimetypeAllowedToParse($contentType): bool
+    protected function isMimetypeAllowedToParse(string $contentType): bool
     {
         if (empty($contentType)) {
             return true;
@@ -177,12 +177,6 @@ class CrawlRequestFulfilled
             return true;
         }
 
-        foreach ($allowedTypes as $allowedType) {
-            if (stristr($contentType, $allowedType)) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($allowedTypes, fn (string $allowedType) => stristr($contentType, $allowedType) !== false);
     }
 }

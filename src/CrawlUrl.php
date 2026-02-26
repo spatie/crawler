@@ -12,7 +12,7 @@ class CrawlUrl
 
     public int $depth;
 
-    protected mixed $id = null;
+    public mixed $id = null;
 
     public static function create(
         string $url,
@@ -29,19 +29,9 @@ class CrawlUrl
         $crawlUrl->depth = $depth;
 
         if ($id !== null) {
-            $crawlUrl->setId($id);
+            $crawlUrl->id = $id;
         }
 
         return $crawlUrl;
-    }
-
-    public function getId(): mixed
-    {
-        return $this->id;
-    }
-
-    public function setId(mixed $id): void
-    {
-        $this->id = $id;
     }
 }

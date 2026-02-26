@@ -36,14 +36,14 @@ it('can get and set an id', function () {
         id: 'custom-id',
     );
 
-    expect($crawlUrl->getId())->toBe('custom-id');
+    expect($crawlUrl->id)->toBe('custom-id');
 
-    $crawlUrl->setId('new-id');
-    expect($crawlUrl->getId())->toBe('new-id');
+    $crawlUrl->id = 'new-id';
+    expect($crawlUrl->id)->toBe('new-id');
 });
 
 it('has a null id by default', function () {
     $crawlUrl = CrawlUrl::create(url: 'https://example.com');
 
-    expect($crawlUrl->getId())->toBeNull();
+    expect($crawlUrl->id)->toBeNull();
 });

@@ -836,7 +836,7 @@ class Crawler
             $this->currentUrlCount++;
             $this->crawlQueue->markAsProcessed($crawlUrl);
 
-            yield $crawlUrl->getId() => new Request('GET', $crawlUrl->url);
+            yield $crawlUrl->id => new Request('GET', $crawlUrl->url);
         }
     }
 }

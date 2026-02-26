@@ -35,12 +35,12 @@ it('can get an url at the specified index', function () {
     $this->crawlQueue->add($url1);
     $this->crawlQueue->add($url2);
 
-    $urlInCrawlQueue = $this->crawlQueue->getUrlById($url1->getId())->url;
+    $urlInCrawlQueue = $this->crawlQueue->getUrlById($url1->id)->url;
 
     expect($urlInCrawlQueue)
         ->toBe('https://example1.com/');
 
-    $urlInCrawlQueue = $this->crawlQueue->getUrlById($url2->getId())->url;
+    $urlInCrawlQueue = $this->crawlQueue->getUrlById($url2->id)->url;
 
     expect($urlInCrawlQueue)
         ->toBe('https://example2.com/');

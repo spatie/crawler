@@ -12,22 +12,12 @@ class CrawlResponse
 
     protected ?DomCrawler $dom = null;
 
-    protected ?string $foundOnUrl;
-
-    protected ?string $linkText;
-
-    protected int $depth;
-
     public function __construct(
         protected ResponseInterface $response,
-        ?string $foundOnUrl = null,
-        ?string $linkText = null,
-        int $depth = 0,
-    ) {
-        $this->foundOnUrl = $foundOnUrl;
-        $this->linkText = $linkText;
-        $this->depth = $depth;
-    }
+        protected ?string $foundOnUrl = null,
+        protected ?string $linkText = null,
+        protected int $depth = 0,
+    ) {}
 
     public static function fake(
         string $body = '',
@@ -46,11 +36,7 @@ class CrawlResponse
 
     public function body(): string
     {
-        if ($this->cachedBody === null) {
-            $this->cachedBody = (string) $this->response->getBody();
-        }
-
-        return $this->cachedBody;
+        return $this->cachedBody ??= (string) $this->response->getBody();
     }
 
     public function setCachedBody(string $body): void
@@ -72,11 +58,7 @@ class CrawlResponse
 
     public function dom(): DomCrawler
     {
-        if ($this->dom === null) {
-            $this->dom = new DomCrawler($this->body());
-        }
-
-        return $this->dom;
+        return $this->dom ??= new DomCrawler($this->body());
     }
 
     public function isSuccessful(): bool
