@@ -1,6 +1,6 @@
 ---
-title: Crawl limits
-weight: 2
+title: Setting crawl limits
+weight: 10
 ---
 
 By default, the crawler continues until it has crawled every page it can find. This behavior might cause issues if you are working in an environment with limitations such as a serverless environment.

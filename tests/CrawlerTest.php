@@ -184,7 +184,7 @@ it('respects current before total limit', function () {
 it('doesnt extract links if the crawled page exceeds the maximum response size', function () {
     createCrawler()
         ->fake(fullSiteFakes())
-        ->maxResponseSize(10)
+        ->maxResponseSizeInBytes(10)
         ->start();
 
     expect(['url' => 'https://example.com/'])

@@ -1,6 +1,6 @@
 ---
-title: Robots
-weight: 3
+title: Respecting robots.txt
+weight: 11
 ---
 
 By default, the crawler will respect robots data from `robots.txt` files, meta tags, and response headers. More information on the spec can be found at [robotstxt.org](http://www.robotstxt.org/).

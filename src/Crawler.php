@@ -5,6 +5,7 @@ namespace Spatie\Crawler;
 use Closure;
 use Generator;
 use GuzzleHttp\Client;
+use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
@@ -91,6 +92,30 @@ class Crawler
 
     protected ?array $fakes = null;
 
+    protected array $extraHeaders = [];
+
+    protected ?int $connectTimeout = null;
+
+    protected ?int $requestTimeout = null;
+
+    protected ?string $basicAuthUsername = null;
+
+    protected ?string $basicAuthPassword = null;
+
+    protected ?string $authToken = null;
+
+    protected string $authTokenType = 'Bearer';
+
+    protected ?bool $verifySsl = null;
+
+    protected ?string $proxy = null;
+
+    protected ?array $cookies = null;
+
+    protected ?string $cookieDomain = null;
+
+    protected array $queryParameters = [];
+
     protected array $clientOptions;
 
     protected ?Client $client = null;
@@ -158,6 +183,72 @@ class Crawler
         return $this;
     }
 
+    public function headers(array $headers): self
+    {
+        $this->extraHeaders = array_merge($this->extraHeaders, $headers);
+
+        return $this;
+    }
+
+    public function connectTimeout(int $connectTimeoutInSeconds): self
+    {
+        $this->connectTimeout = $connectTimeoutInSeconds;
+
+        return $this;
+    }
+
+    public function requestTimeout(int $requestTimeoutInSeconds): self
+    {
+        $this->requestTimeout = $requestTimeoutInSeconds;
+
+        return $this;
+    }
+
+    public function basicAuth(string $username, string $password): self
+    {
+        $this->basicAuthUsername = $username;
+        $this->basicAuthPassword = $password;
+
+        return $this;
+    }
+
+    public function token(string $token, string $type = 'Bearer'): self
+    {
+        $this->authToken = $token;
+        $this->authTokenType = $type;
+
+        return $this;
+    }
+
+    public function withoutVerifying(): self
+    {
+        $this->verifySsl = false;
+
+        return $this;
+    }
+
+    public function proxy(string $proxy): self
+    {
+        $this->proxy = $proxy;
+
+        return $this;
+    }
+
+    public function cookies(array $cookies, string $domain): self
+    {
+        $this->cookies = $cookies;
+        $this->cookieDomain = $domain;
+
+        return $this;
+    }
+
+    public function queryParameters(array $parameters): self
+    {
+        $this->queryParameters = array_merge($this->queryParameters, $parameters);
+
+        return $this;
+    }
+
     public function limit(int $totalCrawlLimit): self
     {
         $this->totalCrawlLimit = $totalCrawlLimit;
@@ -172,7 +263,7 @@ class Crawler
         return $this;
     }
 
-    public function maxResponseSize(int $maximumResponseSizeInBytes): self
+    public function maxResponseSizeInBytes(int $maximumResponseSizeInBytes): self
     {
         $this->maximumResponseSize = $maximumResponseSizeInBytes;
 
@@ -645,6 +736,53 @@ class Crawler
                     unset($options['headers'][$key]);
                 }
             }
+        }
+
+        if (! empty($this->extraHeaders)) {
+            $options[RequestOptions::HEADERS] = array_merge(
+                $options[RequestOptions::HEADERS] ?? [],
+                $this->extraHeaders,
+            );
+        }
+
+        if ($this->connectTimeout !== null) {
+            $options[RequestOptions::CONNECT_TIMEOUT] = $this->connectTimeout;
+        }
+
+        if ($this->requestTimeout !== null) {
+            $options[RequestOptions::TIMEOUT] = $this->requestTimeout;
+        }
+
+        if ($this->basicAuthUsername !== null) {
+            $options[RequestOptions::AUTH] = [
+                $this->basicAuthUsername,
+                $this->basicAuthPassword,
+            ];
+        }
+
+        if ($this->authToken !== null) {
+            $options[RequestOptions::HEADERS] = $options[RequestOptions::HEADERS] ?? [];
+            $options[RequestOptions::HEADERS]['Authorization'] = trim($this->authTokenType.' '.$this->authToken);
+        }
+
+        if ($this->verifySsl === false) {
+            $options[RequestOptions::VERIFY] = false;
+        }
+
+        if ($this->proxy !== null) {
+            $options[RequestOptions::PROXY] = $this->proxy;
+        }
+
+        if ($this->cookies !== null) {
+            $cookieJar = CookieJar::fromArray(
+                $this->cookies,
+                $this->cookieDomain,
+            );
+            $options[RequestOptions::COOKIES] = $cookieJar;
+        }
+
+        if (! empty($this->queryParameters)) {
+            $options[RequestOptions::QUERY] = $this->queryParameters;
         }
 
         if ($this->fakes !== null) {
