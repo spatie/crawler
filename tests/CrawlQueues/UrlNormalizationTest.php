@@ -1,0 +1,112 @@
+<?php
+
+use Spatie\Crawler\CrawlQueues\ArrayCrawlQueue;
+use Spatie\Crawler\CrawlUrl;
+
+beforeEach(function () {
+    $this->crawlQueue = new ArrayCrawlQueue;
+});
+
+it('normalizes scheme to lowercase', function () {
+    $this->crawlQueue->add(CrawlUrl::create('HTTPS://example.com/page'));
+
+    expect($this->crawlQueue->has('https://example.com/page'))->toBeTrue();
+});
+
+it('normalizes host to lowercase', function () {
+    $this->crawlQueue->add(CrawlUrl::create('https://Example.COM/page'));
+
+    expect($this->crawlQueue->has('https://example.com/page'))->toBeTrue();
+});
+
+it('removes default port 80 for http', function () {
+    $this->crawlQueue->add(CrawlUrl::create('http://example.com:80/page'));
+
+    expect($this->crawlQueue->has('http://example.com/page'))->toBeTrue();
+});
+
+it('removes default port 443 for https', function () {
+    $this->crawlQueue->add(CrawlUrl::create('https://example.com:443/page'));
+
+    expect($this->crawlQueue->has('https://example.com/page'))->toBeTrue();
+});
+
+it('keeps non-default ports', function () {
+    $this->crawlQueue->add(CrawlUrl::create('https://example.com:8080/page'));
+
+    expect($this->crawlQueue->has('https://example.com:8080/page'))->toBeTrue();
+    expect($this->crawlQueue->has('https://example.com/page'))->toBeFalse();
+});
+
+it('strips trailing slash from non-root paths', function () {
+    $this->crawlQueue->add(CrawlUrl::create('https://example.com/page/'));
+
+    expect($this->crawlQueue->has('https://example.com/page'))->toBeTrue();
+});
+
+it('preserves trailing slash for root path', function () {
+    $this->crawlQueue->add(CrawlUrl::create('https://example.com/'));
+
+    expect($this->crawlQueue->has('https://example.com/'))->toBeTrue();
+});
+
+it('removes empty query strings', function () {
+    $this->crawlQueue->add(CrawlUrl::create('https://example.com/page?'));
+
+    expect($this->crawlQueue->has('https://example.com/page'))->toBeTrue();
+});
+
+it('preserves non-empty query strings', function () {
+    $this->crawlQueue->add(CrawlUrl::create('https://example.com/page?foo=bar'));
+
+    expect($this->crawlQueue->has('https://example.com/page?foo=bar'))->toBeTrue();
+});
+
+it('strips fragments', function () {
+    $this->crawlQueue->add(CrawlUrl::create('https://example.com/page#section'));
+
+    expect($this->crawlQueue->has('https://example.com/page'))->toBeTrue();
+});
+
+it('deduplicates urls that normalize to the same value', function () {
+    $this->crawlQueue->add(CrawlUrl::create('https://Example.com/page'));
+    $this->crawlQueue->add(CrawlUrl::create('https://example.com/page/'));
+    $this->crawlQueue->add(CrawlUrl::create('HTTPS://example.com/page'));
+    $this->crawlQueue->add(CrawlUrl::create('https://example.com:443/page'));
+
+    $count = 0;
+    while ($url = $this->crawlQueue->getPendingUrl()) {
+        $count++;
+        $this->crawlQueue->markAsProcessed($url);
+    }
+
+    expect($count)->toBe(1);
+});
+
+it('preserves original url on the CrawlUrl object', function () {
+    $originalUrl = 'https://Example.COM:443/Page/';
+
+    $this->crawlQueue->add(CrawlUrl::create($originalUrl));
+
+    $pending = $this->crawlQueue->getPendingUrl();
+
+    expect($pending->url)->toBe($originalUrl);
+});
+
+it('marks normalized variants as already processed', function () {
+    $crawlUrl1 = CrawlUrl::create('https://example.com/page');
+    $crawlUrl2 = CrawlUrl::create('https://Example.com/page/');
+
+    $this->crawlQueue->add($crawlUrl1);
+    $this->crawlQueue->markAsProcessed($crawlUrl1);
+
+    expect($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl2))->toBeTrue();
+});
+
+it('handles malformed urls gracefully', function () {
+    $crawlUrl = CrawlUrl::create('not-a-valid-url');
+
+    $this->crawlQueue->add($crawlUrl);
+
+    expect($this->crawlQueue->has('not-a-valid-url'))->toBeTrue();
+});

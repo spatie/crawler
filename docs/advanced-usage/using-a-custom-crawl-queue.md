@@ -5,6 +5,22 @@ weight: 3
 
 When crawling a site, the crawler stores URLs to be crawled in a queue. By default, this queue is stored in memory using the built-in `ArrayCrawlQueue`.
 
+## URL normalization
+
+The built-in `ArrayCrawlQueue` normalizes URLs before using them as deduplication keys. This means that `https://Example.com/page` and `https://example.com/page/` are treated as the same URL, preventing redundant requests.
+
+The following normalizations are applied (per RFC 3986):
+
+- Lowercasing scheme and host
+- Removing default ports (`:80` for http, `:443` for https)
+- Stripping trailing slashes (except for the root `/`)
+- Removing empty query strings
+- Stripping URL fragments
+
+The original URL is preserved on the `CrawlUrl` object and used for HTTP requests and observer notifications. Only the internal deduplication key uses the normalized form.
+
+If you implement a custom crawl queue, consider applying similar normalizations to avoid crawling duplicate URLs.
+
 When a site is very large you may want to store that queue elsewhere, for example in a database. You can write your own crawl queue by implementing the `Spatie\Crawler\CrawlQueues\CrawlQueue` interface:
 
 ```php

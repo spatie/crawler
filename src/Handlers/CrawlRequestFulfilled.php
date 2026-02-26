@@ -14,6 +14,7 @@ use Spatie\Crawler\CrawlerRobots;
 use Spatie\Crawler\CrawlProfiles\CrawlSubdomains;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\CrawlUrl;
+use Spatie\Crawler\Enums\ResourceType;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class CrawlRequestFulfilled
@@ -24,7 +25,7 @@ class CrawlRequestFulfilled
     {
         $body = $this->getBody($response);
         if (empty($body)) {
-            usleep($this->crawler->getDelayBetweenRequests());
+            $this->applyDelay();
 
             return;
         }
@@ -47,7 +48,7 @@ class CrawlRequestFulfilled
 
                 $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception);
 
-                usleep($this->crawler->getDelayBetweenRequests());
+                $this->applyDelay();
 
                 return;
             }
@@ -60,7 +61,7 @@ class CrawlRequestFulfilled
             $crawlUrl->foundOnUrl,
             $crawlUrl->linkText,
             $crawlUrl->depth,
-            $crawlUrl->resourceType ?? \Spatie\Crawler\Enums\ResourceType::Link,
+            $crawlUrl->resourceType ?? ResourceType::Link,
         );
         $crawlResponse->setCachedBody($body);
 
@@ -100,7 +101,7 @@ class CrawlRequestFulfilled
 
                 try {
                     $request = new Request('GET', $extractedUrl->url);
-                } catch (\Exception) {
+                } catch (Exception) {
                     $request = new Request('GET', $baseUrl);
                 }
 
@@ -151,6 +152,19 @@ class CrawlRequestFulfilled
             );
 
             $this->crawler->addToCrawlQueue($newCrawlUrl);
+        }
+
+        $this->applyDelay();
+    }
+
+    protected function applyDelay(): void
+    {
+        $throttle = $this->crawler->getThrottle();
+
+        if ($throttle !== null) {
+            $throttle->sleep();
+
+            return;
         }
 
         usleep($this->crawler->getDelayBetweenRequests());

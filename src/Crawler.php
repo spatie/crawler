@@ -2,6 +2,7 @@
 
 namespace Spatie\Crawler;
 
+use Exception;
 use Generator;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
@@ -17,11 +18,13 @@ use Spatie\Crawler\CrawlObservers\CollectUrlsObserver;
 use Spatie\Crawler\CrawlObservers\CrawlObserverCollection;
 use Spatie\Crawler\CrawlQueues\ArrayCrawlQueue;
 use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
+use Spatie\Crawler\Exceptions\MissingJavaScriptRenderer;
 use Spatie\Crawler\Handlers\CrawlRequestFailed;
 use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
 use Spatie\Crawler\JavaScriptRenderers\BrowsershotRenderer;
 use Spatie\Crawler\JavaScriptRenderers\JavaScriptRenderer;
 use Spatie\Crawler\UrlParsers\LinkUrlParser;
+use Spatie\Crawler\Throttlers\Throttle;
 use Spatie\Crawler\UrlParsers\SitemapUrlParser;
 use Spatie\Crawler\UrlParsers\UrlParser;
 use Spatie\Robots\RobotsTxt;
@@ -58,6 +61,8 @@ class Crawler
 
     protected int $delayBetweenRequests = 0;
 
+    protected ?Throttle $throttle = null;
+
     protected array $allowedMimeTypes = [];
 
     protected string $defaultScheme = 'https';
@@ -65,6 +70,8 @@ class Crawler
     protected int $concurrency = 10;
 
     protected ?array $fakes = null;
+
+    protected bool $shouldStop = false;
 
     /** @var array<int, ResourceType> */
     protected array $extractResourceTypes = [ResourceType::Link];
@@ -111,6 +118,13 @@ class Crawler
     public function delay(int $delayInMilliseconds): self
     {
         $this->delayBetweenRequests = ($delayInMilliseconds * 1000);
+
+        return $this;
+    }
+
+    public function throttle(Throttle $throttle): self
+    {
+        $this->throttle = $throttle;
 
         return $this;
     }
@@ -184,15 +198,11 @@ class Crawler
         return $this;
     }
 
-    // JS rendering
-
     public function executeJavaScript(?JavaScriptRenderer $renderer = null): self
     {
         if ($renderer === null) {
             if (! class_exists(\Spatie\Browsershot\Browsershot::class)) {
-                throw new \RuntimeException(
-                    'To execute JavaScript, install spatie/browsershot or provide a custom JavaScriptRenderer.'
-                );
+                throw MissingJavaScriptRenderer::browsershotNotInstalled();
             }
 
             $renderer = new BrowsershotRenderer;
@@ -210,16 +220,12 @@ class Crawler
         return $this;
     }
 
-    // Sitemap parsing
-
     public function parseSitemaps(): self
     {
         $this->urlParser = new SitemapUrlParser;
 
         return $this;
     }
-
-    // Faking
 
     public function fake(array $fakes): self
     {
@@ -228,10 +234,9 @@ class Crawler
         return $this;
     }
 
-    // Main execution
-
     public function start(): void
     {
+        $this->shouldStop = false;
         $this->startedAt = time();
 
         $baseUrl = $this->normalizeBaseUrl($this->baseUrl);
@@ -253,7 +258,13 @@ class Crawler
             $this->addToCrawlQueue($crawlUrl);
         }
 
-        $this->startCrawlingQueue($client);
+        $this->registerSignalHandlers();
+
+        try {
+            $this->startCrawlingQueue($client);
+        } finally {
+            $this->unregisterSignalHandlers();
+        }
 
         $this->crawlObservers->finishedCrawling();
 
@@ -319,6 +330,11 @@ class Crawler
     public function getDelayBetweenRequests(): int
     {
         return $this->delayBetweenRequests;
+    }
+
+    public function getThrottle(): ?Throttle
+    {
+        return $this->throttle;
     }
 
     public function getAllowedMimeTypes(): array
@@ -412,6 +428,7 @@ class Crawler
     protected function startCrawlingQueue(Client $client): void
     {
         while (
+            $this->shouldStop === false &&
             $this->reachedCrawlLimits() === false &&
             $this->reachedTimeLimits() === false &&
             $this->crawlQueue->hasPendingUrls()
@@ -438,7 +455,7 @@ class Crawler
             $content = (string) $response->getBody();
 
             return new RobotsTxt($content);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return new RobotsTxt('');
         }
     }
@@ -446,6 +463,7 @@ class Crawler
     protected function getCrawlRequests(): Generator
     {
         while (
+            $this->shouldStop === false &&
             $this->reachedCrawlLimits() === false &&
             $this->reachedTimeLimits() === false &&
             $crawlUrl = $this->crawlQueue->getPendingUrl()
@@ -473,5 +491,32 @@ class Crawler
 
             yield $crawlUrl->id => new Request('GET', $crawlUrl->url);
         }
+    }
+
+    protected function registerSignalHandlers(): void
+    {
+        if (! extension_loaded('pcntl')) {
+            return;
+        }
+
+        pcntl_async_signals(true);
+
+        pcntl_signal(SIGINT, function () {
+            $this->shouldStop = true;
+        });
+
+        pcntl_signal(SIGTERM, function () {
+            $this->shouldStop = true;
+        });
+    }
+
+    protected function unregisterSignalHandlers(): void
+    {
+        if (! extension_loaded('pcntl')) {
+            return;
+        }
+
+        pcntl_signal(SIGINT, SIG_DFL);
+        pcntl_signal(SIGTERM, SIG_DFL);
     }
 }

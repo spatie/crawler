@@ -23,6 +23,19 @@ class CrawlRequestFailed
             $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception);
         }
 
+        $this->applyDelay();
+    }
+
+    protected function applyDelay(): void
+    {
+        $throttle = $this->crawler->getThrottle();
+
+        if ($throttle !== null) {
+            $throttle->sleep();
+
+            return;
+        }
+
         usleep($this->crawler->getDelayBetweenRequests());
     }
 }

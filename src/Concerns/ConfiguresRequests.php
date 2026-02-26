@@ -2,12 +2,14 @@
 
 namespace Spatie\Crawler\Concerns;
 
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\RequestOptions;
+use GuzzleHttp\TransferStats;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Spatie\Crawler\Faking\FakeHandler;
@@ -204,6 +206,13 @@ trait ConfiguresRequests
             $options[RequestOptions::QUERY] = $this->queryParameters;
         }
 
+        if ($this->throttle !== null) {
+            $throttle = $this->throttle;
+            $options[RequestOptions::ON_STATS] = function (TransferStats $stats) use ($throttle) {
+                $throttle->recordResponseTime($stats->getTransferTime());
+            };
+        }
+
         if ($this->fakes !== null) {
             $handler = new FakeHandler($this->fakes);
             $stack = HandlerStack::create($handler);
@@ -236,7 +245,7 @@ trait ConfiguresRequests
         $maxRetries = $this->retryTimes;
 
         return Middleware::retry(
-            function (int $retries, RequestInterface $request, ?ResponseInterface $response = null, ?\Exception $exception = null) use ($maxRetries): bool {
+            function (int $retries, RequestInterface $request, ?ResponseInterface $response = null, ?Exception $exception = null) use ($maxRetries): bool {
                 if ($retries >= $maxRetries) {
                     return false;
                 }

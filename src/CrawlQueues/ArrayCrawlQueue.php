@@ -15,13 +15,13 @@ class ArrayCrawlQueue implements CrawlQueue
 
     public function add(CrawlUrl $crawlUrl): CrawlQueue
     {
-        $urlString = $crawlUrl->url;
+        $normalizedUrl = $this->normalizeUrl($crawlUrl->url);
 
-        if (! isset($this->urls[$urlString])) {
-            $crawlUrl->id = $urlString;
+        if (! isset($this->urls[$normalizedUrl])) {
+            $crawlUrl->id = $normalizedUrl;
 
-            $this->urls[$urlString] = $crawlUrl;
-            $this->pendingUrls[$urlString] = $crawlUrl;
+            $this->urls[$normalizedUrl] = $crawlUrl;
+            $this->pendingUrls[$normalizedUrl] = $crawlUrl;
         }
 
         return $this;
@@ -43,13 +43,13 @@ class ArrayCrawlQueue implements CrawlQueue
 
     public function hasAlreadyBeenProcessed(CrawlUrl $crawlUrl): bool
     {
-        $urlString = $crawlUrl->url;
+        $normalizedUrl = $this->normalizeUrl($crawlUrl->url);
 
-        if (isset($this->pendingUrls[$urlString])) {
+        if (isset($this->pendingUrls[$normalizedUrl])) {
             return false;
         }
 
-        if (isset($this->urls[$urlString])) {
+        if (isset($this->urls[$normalizedUrl])) {
             return true;
         }
 
@@ -58,9 +58,9 @@ class ArrayCrawlQueue implements CrawlQueue
 
     public function markAsProcessed(CrawlUrl $crawlUrl): void
     {
-        $urlString = $crawlUrl->url;
+        $normalizedUrl = $this->normalizeUrl($crawlUrl->url);
 
-        unset($this->pendingUrls[$urlString]);
+        unset($this->pendingUrls[$normalizedUrl]);
     }
 
     public function getProcessedUrlCount(): int
@@ -70,7 +70,7 @@ class ArrayCrawlQueue implements CrawlQueue
 
     public function has(string $url): bool
     {
-        return isset($this->urls[$url]);
+        return isset($this->urls[$this->normalizeUrl($url)]);
     }
 
     public function getPendingUrl(): ?CrawlUrl
@@ -80,5 +80,46 @@ class ArrayCrawlQueue implements CrawlQueue
         }
 
         return null;
+    }
+
+    protected function normalizeUrl(string $url): string
+    {
+        $parsed = parse_url($url);
+
+        if ($parsed === false || ! isset($parsed['host'])) {
+            return $url;
+        }
+
+        $scheme = strtolower($parsed['scheme'] ?? 'https');
+        $host = strtolower($parsed['host']);
+
+        $port = $parsed['port'] ?? null;
+        if (($scheme === 'http' && $port === 80) || ($scheme === 'https' && $port === 443)) {
+            $port = null;
+        }
+
+        $path = $parsed['path'] ?? '/';
+        if ($path !== '/' && str_ends_with($path, '/')) {
+            $path = rtrim($path, '/');
+        }
+
+        $query = $parsed['query'] ?? null;
+        if ($query === '') {
+            $query = null;
+        }
+
+        $normalized = $scheme.'://'.$host;
+
+        if ($port !== null) {
+            $normalized .= ':'.$port;
+        }
+
+        $normalized .= $path;
+
+        if ($query !== null) {
+            $normalized .= '?'.$query;
+        }
+
+        return $normalized;
     }
 }
