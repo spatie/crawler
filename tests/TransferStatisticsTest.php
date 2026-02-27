@@ -2,7 +2,6 @@
 
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\TransferStats;
 use Spatie\Crawler\TransferStatistics;
 
@@ -10,7 +9,7 @@ function createTransferStats(array $handlerStats = []): TransferStats
 {
     return new TransferStats(
         new Request('GET', 'https://example.com'),
-        new Response(),
+        new Response,
         transferTime: $handlerStats['total_time'] ?? 0.0,
         handlerStats: $handlerStats,
     );
