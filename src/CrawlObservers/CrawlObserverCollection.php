@@ -4,8 +4,10 @@ namespace Spatie\Crawler\CrawlObservers;
 
 use Closure;
 use GuzzleHttp\Exception\RequestException;
+use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\CrawlUrl;
+use Spatie\Crawler\Enums\FinishReason;
 
 class CrawlObserverCollection
 {
@@ -60,29 +62,28 @@ class CrawlObserverCollection
         }
     }
 
-    public function crawled(CrawlUrl $crawlUrl, CrawlResponse $response): void
+    public function crawled(CrawlUrl $crawlUrl, CrawlResponse $response, CrawlProgress $progress): void
     {
         foreach ($this->observers as $observer) {
             $observer->crawled(
                 $crawlUrl->url,
                 $response,
-                $crawlUrl->foundOnUrl,
-                $crawlUrl->linkText,
-                $crawlUrl->resourceType,
+                $progress,
             );
         }
 
         foreach ($this->onCrawledCallbacks as $callback) {
-            $callback($crawlUrl->url, $response, $crawlUrl->resourceType);
+            $callback($crawlUrl->url, $response, $progress);
         }
     }
 
-    public function crawlFailed(CrawlUrl $crawlUrl, RequestException $exception): void
+    public function crawlFailed(CrawlUrl $crawlUrl, RequestException $exception, CrawlProgress $progress): void
     {
         foreach ($this->observers as $observer) {
             $observer->crawlFailed(
                 $crawlUrl->url,
                 $exception,
+                $progress,
                 $crawlUrl->foundOnUrl,
                 $crawlUrl->linkText,
                 $crawlUrl->resourceType,
@@ -90,18 +91,18 @@ class CrawlObserverCollection
         }
 
         foreach ($this->onFailedCallbacks as $callback) {
-            $callback($crawlUrl->url, $exception, $crawlUrl->resourceType);
+            $callback($crawlUrl->url, $exception, $progress);
         }
     }
 
-    public function finishedCrawling(): void
+    public function finishedCrawling(FinishReason $reason, CrawlProgress $progress): void
     {
         foreach ($this->observers as $observer) {
-            $observer->finishedCrawling();
+            $observer->finishedCrawling($reason, $progress);
         }
 
         foreach ($this->onFinishedCallbacks as $callback) {
-            $callback();
+            $callback($reason, $progress);
         }
     }
 }

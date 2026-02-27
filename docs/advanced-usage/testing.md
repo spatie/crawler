@@ -52,9 +52,9 @@ Crawler::create('https://example.com')
     ->start();
 ```
 
-## Faking with collectUrls
+## Faking with foundUrls
 
-The `fake()` method works great with `collectUrls()`:
+The `fake()` method works great with `foundUrls()`:
 
 ```php
 use Spatie\Crawler\Crawler;
@@ -66,7 +66,7 @@ $urls = Crawler::create('https://example.com')
         'https://example.com/page-2' => '<html>Page 2</html>',
     ])
     ->internalOnly()
-    ->collectUrls();
+    ->foundUrls();
 
 expect($urls)->toHaveCount(3);
 ```
@@ -83,8 +83,27 @@ $urls = Crawler::create('https://example.com')
         'https://example.com/level-2' => '<html>Level 2</html>',
     ])
     ->depth(1)
-    ->collectUrls();
+    ->foundUrls();
 
 // Only the start URL and level-1 will be crawled (depth 0 and 1)
 expect($urls)->toHaveCount(2);
+```
+
+## Testing finish reasons
+
+You can assert which `FinishReason` was returned by `start()`:
+
+```php
+use Spatie\Crawler\Crawler;
+use Spatie\Crawler\Enums\FinishReason;
+
+$reason = Crawler::create('https://example.com')
+    ->fake([
+        'https://example.com' => '<html><a href="/page">Page</a></html>',
+        'https://example.com/page' => '<html>Page</html>',
+    ])
+    ->limit(1)
+    ->start();
+
+expect($reason)->toBe(FinishReason::CrawlLimitReached);
 ```

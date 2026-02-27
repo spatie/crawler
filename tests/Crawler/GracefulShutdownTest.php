@@ -1,6 +1,7 @@
 <?php
 
 use Spatie\Crawler\Crawler;
+use Spatie\Crawler\Enums\FinishReason;
 use Spatie\Crawler\Test\TestClasses\Log;
 
 beforeEach(function () {
@@ -23,11 +24,12 @@ it('stops crawling when shouldStop is set', function () {
             }
         });
 
-    $crawler->start();
+    $reason = $crawler->start();
 
     // Should have crawled fewer URLs than a full crawl
     expect(count($crawled))->toBeLessThan(10);
     expect(count($crawled))->toBeGreaterThanOrEqual(1);
+    expect($reason)->toBe(FinishReason::Interrupted);
 });
 
 it('calls finishedCrawling after graceful shutdown', function () {
@@ -36,7 +38,7 @@ it('calls finishedCrawling after graceful shutdown', function () {
     $crawler = Crawler::create('https://example.com')
         ->fake(fullSiteFakes())
         ->concurrency(1)
-        ->onFinished(function () use (&$finishedCalled) {
+        ->onFinished(function (FinishReason $reason) use (&$finishedCalled) {
             $finishedCalled = true;
         })
         ->onCrawled(function (string $url) use (&$crawler) {

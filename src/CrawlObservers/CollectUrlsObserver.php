@@ -4,6 +4,7 @@ namespace Spatie\Crawler\CrawlObservers;
 
 use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\CrawledUrl;
+use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Enums\ResourceType;
 
@@ -15,22 +16,21 @@ class CollectUrlsObserver extends CrawlObserver
     public function crawled(
         string $url,
         CrawlResponse $response,
-        ?string $foundOnUrl = null,
-        ?string $linkText = null,
-        ?ResourceType $resourceType = null,
+        CrawlProgress $progress,
     ): void {
         $this->crawledUrls[] = new CrawledUrl(
             url: $url,
             status: $response->status(),
-            foundOnUrl: $foundOnUrl,
+            foundOnUrl: $response->foundOnUrl(),
             depth: $response->depth(),
-            resourceType: $resourceType ?? ResourceType::Link,
+            resourceType: $response->resourceType(),
         );
     }
 
     public function crawlFailed(
         string $url,
         RequestException $requestException,
+        CrawlProgress $progress,
         ?string $foundOnUrl = null,
         ?string $linkText = null,
         ?ResourceType $resourceType = null,

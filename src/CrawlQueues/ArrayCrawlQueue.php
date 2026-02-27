@@ -82,6 +82,16 @@ class ArrayCrawlQueue implements CrawlQueue
         return null;
     }
 
+    public function getUrlCount(): int
+    {
+        return count($this->urls);
+    }
+
+    public function getPendingUrlCount(): int
+    {
+        return count($this->pendingUrls);
+    }
+
     protected function normalizeUrl(string $url): string
     {
         $parsed = parse_url($url);

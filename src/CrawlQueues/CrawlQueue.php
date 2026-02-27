@@ -21,4 +21,8 @@ interface CrawlQueue
     public function markAsProcessed(CrawlUrl $crawlUrl): void;
 
     public function getProcessedUrlCount(): int;
+
+    public function getUrlCount(): int;
+
+    public function getPendingUrlCount(): int;
 }

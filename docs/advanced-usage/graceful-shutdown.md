@@ -9,7 +9,20 @@ The crawler automatically registers signal handlers when the `pcntl` extension i
 
 1. The crawler stops yielding new requests
 2. Any in-flight requests complete normally
-3. The `finishedCrawling()` method on your observers is called as usual
+3. The `finishedCrawling()` method on your observers is called with `FinishReason::Interrupted`
+4. The `start()` method returns `FinishReason::Interrupted`
+
+```php
+use Spatie\Crawler\Crawler;
+use Spatie\Crawler\Enums\FinishReason;
+
+$reason = Crawler::create('https://example.com')
+    ->start();
+
+if ($reason === FinishReason::Interrupted) {
+    echo "Crawl was interrupted by a signal\n";
+}
+```
 
 No configuration is needed. This works out of the box on any system where the `pcntl` PHP extension is loaded.
 

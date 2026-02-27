@@ -22,7 +22,7 @@ it('crawls a site and discovers all linked pages', function () {
         ->ignoreRobots()
         ->depth(1)
         ->concurrency(1)
-        ->collectUrls();
+        ->foundUrls();
 
     $paths = array_map(fn ($crawledUrl) => parse_url($crawledUrl->url, PHP_URL_PATH), $urls);
     sort($paths);

@@ -15,7 +15,7 @@ use Spatie\Crawler\CrawlResponse;
 
 Crawler::create('https://example.com')
     ->onCrawled(function (string $url, CrawlResponse $response) {
-        echo "{$url} - status: {$response->status()}\n";
+        echo "{$url}: {$response->status()}\n";
     })
     ->start();
 ```
@@ -26,7 +26,7 @@ Or collect all URLs on a site:
 $urls = Crawler::create('https://example.com')
     ->internalOnly()
     ->depth(3)
-    ->collectUrls();
+    ->foundUrls();
 ```
 
 ## We got badges

@@ -21,14 +21,24 @@ class CrawlRequestFulfilled
 {
     public function __construct(protected Crawler $crawler) {}
 
-    public function __invoke(ResponseInterface $response, $index)
+    public function __invoke(ResponseInterface $response, mixed $index): void
+    {
+        try {
+            $this->handle($response, $index);
+        } finally {
+            $this->crawler->applyDelay();
+        }
+    }
+
+    protected function handle(ResponseInterface $response, mixed $index): void
     {
         $body = $this->getBody($response);
-        if (empty($body)) {
-            $this->applyDelay();
 
+        if ($body === '') {
             return;
         }
+
+        $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
         $robots = new CrawlerRobots(
             $response->getHeaders(),
@@ -36,9 +46,8 @@ class CrawlRequestFulfilled
             $this->crawler->mustRespectRobots()
         );
 
-        $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
-
         $renderer = $this->crawler->getJavaScriptRenderer();
+
         if ($renderer !== null) {
             try {
                 $body = $renderer->getRenderedHtml($crawlUrl->url);
@@ -46,9 +55,8 @@ class CrawlRequestFulfilled
                 $request = new Request('GET', $crawlUrl->url);
                 $exception = new RequestException($exception->getMessage(), $request);
 
-                $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception);
-
-                $this->applyDelay();
+                $this->crawler->recordFailed();
+                $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception, $this->crawler->getCrawlProgress());
 
                 return;
             }
@@ -67,7 +75,8 @@ class CrawlRequestFulfilled
         $crawlResponse->setCachedBody($body);
 
         if ($robots->mayIndex()) {
-            $this->crawler->getCrawlObservers()->crawled($crawlUrl, $crawlResponse);
+            $this->crawler->recordCrawled();
+            $this->crawler->getCrawlObservers()->crawled($crawlUrl, $crawlResponse, $this->crawler->getCrawlProgress());
         }
 
         if (! $this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
@@ -111,7 +120,8 @@ class CrawlRequestFulfilled
                     $request,
                 );
 
-                $this->crawler->getCrawlObservers()->crawlFailed($malformedCrawlUrl, $exception);
+                $this->crawler->recordFailed();
+                $this->crawler->getCrawlObservers()->crawlFailed($malformedCrawlUrl, $exception, $this->crawler->getCrawlProgress());
 
                 continue;
             }
@@ -154,21 +164,6 @@ class CrawlRequestFulfilled
 
             $this->crawler->addToCrawlQueue($newCrawlUrl);
         }
-
-        $this->applyDelay();
-    }
-
-    protected function applyDelay(): void
-    {
-        $throttle = $this->crawler->getThrottle();
-
-        if ($throttle !== null) {
-            $throttle->sleep();
-
-            return;
-        }
-
-        usleep($this->crawler->getDelayBetweenRequests());
     }
 
     protected function getBaseUrl(ResponseInterface $response, CrawlUrl $crawlUrl): string

@@ -1,7 +1,9 @@
 <?php
 
 use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
+use Spatie\Crawler\Enums\FinishReason;
 use Spatie\Crawler\Test\TestClasses\CrawlLogger;
 use Spatie\Crawler\Test\TestClasses\Log;
 
@@ -34,7 +36,7 @@ it('can use onCrawled closure', function () {
             'https://example.com' => '<html><body>Hello</body></html>',
         ])
         ->ignoreRobots()
-        ->onCrawled(function (string $url, CrawlResponse $response) use (&$crawled) {
+        ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) use (&$crawled) {
             $crawled[] = $url;
         })
         ->start();
@@ -50,7 +52,7 @@ it('can use onFinished closure', function () {
             'https://example.com' => '<html><body>Hello</body></html>',
         ])
         ->ignoreRobots()
-        ->onFinished(function () use (&$finished) {
+        ->onFinished(function (FinishReason $reason, CrawlProgress $progress) use (&$finished) {
             $finished = true;
         })
         ->start();
@@ -67,10 +69,10 @@ it('can stack multiple onCrawled closures', function () {
             'https://example.com' => '<html><body>Hello</body></html>',
         ])
         ->ignoreRobots()
-        ->onCrawled(function (string $url, CrawlResponse $response) use (&$firstCrawled) {
+        ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) use (&$firstCrawled) {
             $firstCrawled[] = $url;
         })
-        ->onCrawled(function (string $url, CrawlResponse $response) use (&$secondCrawled) {
+        ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) use (&$secondCrawled) {
             $secondCrawled[] = $url;
         })
         ->start();
@@ -90,7 +92,7 @@ it('can mix closures and observers', function () {
         ])
         ->ignoreRobots()
         ->addObserver(new CrawlLogger)
-        ->onCrawled(function (string $url, CrawlResponse $response) use (&$crawledFromClosure) {
+        ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) use (&$crawledFromClosure) {
             $crawledFromClosure[] = $url;
         })
         ->start();

@@ -16,6 +16,7 @@ use Spatie\Crawler\Concerns\HasCrawlScope;
 use Spatie\Crawler\CrawlObservers\CollectUrlsObserver;
 use Spatie\Crawler\CrawlObservers\CrawlObserverCollection;
 use Spatie\Crawler\CrawlQueues\ArrayCrawlQueue;
+use Spatie\Crawler\Enums\FinishReason;
 use Spatie\Crawler\Enums\ResourceType;
 use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
 use Spatie\Crawler\Exceptions\MissingJavaScriptRenderer;
@@ -72,6 +73,10 @@ class Crawler
     protected ?array $fakes = null;
 
     protected bool $shouldStop = false;
+
+    protected int $crawledUrlCount = 0;
+
+    protected int $failedUrlCount = 0;
 
     /** @var array<string, TransferStats> */
     protected array $transferStats = [];
@@ -237,9 +242,11 @@ class Crawler
         return $this;
     }
 
-    public function start(): void
+    public function start(): FinishReason
     {
         $this->shouldStop = false;
+        $this->crawledUrlCount = 0;
+        $this->failedUrlCount = 0;
         $this->startedAt = time();
 
         $baseUrl = $this->normalizeBaseUrl($this->baseUrl);
@@ -269,14 +276,23 @@ class Crawler
             $this->unregisterSignalHandlers();
         }
 
-        $this->crawlObservers->finishedCrawling();
+        $finishReason = match (true) {
+            $this->shouldStop => FinishReason::Interrupted,
+            $this->reachedCrawlLimits() => FinishReason::CrawlLimitReached,
+            $this->reachedTimeLimits() => FinishReason::TimeLimitReached,
+            default => FinishReason::Completed,
+        };
+
+        $this->crawlObservers->finishedCrawling($finishReason, $this->getCrawlProgress());
 
         $this->executionTime += time() - $this->startedAt;
         $this->startedAt = null;
+
+        return $finishReason;
     }
 
     /** @return array<CrawledUrl> */
-    public function collectUrls(): array
+    public function foundUrls(): array
     {
         $collector = new CollectUrlsObserver;
 
@@ -392,6 +408,37 @@ class Crawler
     public function getTransferStats(string $url): ?TransferStats
     {
         return $this->transferStats[$url] ?? null;
+    }
+
+    public function recordCrawled(): void
+    {
+        $this->crawledUrlCount++;
+    }
+
+    public function recordFailed(): void
+    {
+        $this->failedUrlCount++;
+    }
+
+    public function getCrawlProgress(): CrawlProgress
+    {
+        return new CrawlProgress(
+            urlsCrawled: $this->crawledUrlCount,
+            urlsFailed: $this->failedUrlCount,
+            urlsFound: $this->crawlQueue->getUrlCount(),
+            urlsPending: $this->crawlQueue->getPendingUrlCount(),
+        );
+    }
+
+    public function applyDelay(): void
+    {
+        if ($this->throttle !== null) {
+            $this->throttle->sleep();
+
+            return;
+        }
+
+        usleep($this->delayBetweenRequests);
     }
 
     // Internal methods

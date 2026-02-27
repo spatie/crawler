@@ -15,7 +15,7 @@ use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
 
 class MyFulfilledHandler extends CrawlRequestFulfilled
 {
-    public function __invoke(ResponseInterface $response, $index)
+    public function __invoke(ResponseInterface $response, mixed $index): void
     {
         // your custom logic here
 
@@ -44,7 +44,7 @@ use Spatie\Crawler\Handlers\CrawlRequestFailed;
 
 class MyFailedHandler extends CrawlRequestFailed
 {
-    public function __invoke(Exception $exception, $index)
+    public function __invoke(Exception $exception, mixed $index): void
     {
         // your custom logic here
 

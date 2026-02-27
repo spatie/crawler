@@ -7,7 +7,9 @@ use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfiles\CrawlInternalUrls;
 use Spatie\Crawler\CrawlProfiles\CrawlProfile;
 use Spatie\Crawler\CrawlProfiles\CrawlSubdomains;
+use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
+use Spatie\Crawler\Enums\FinishReason;
 use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
 use Spatie\Crawler\Test\TestClasses\CrawlLogger;
 use Spatie\Crawler\Test\TestClasses\Log;
@@ -18,13 +20,15 @@ beforeEach(function () {
 });
 
 it('will crawl all found urls', function () {
-    createCrawler()
+    $reason = createCrawler()
         ->fake(fullSiteFakes())
         ->start();
 
     expect(regularUrls())->each->toBeCrawledOnce();
 
     expect(javascriptInjectedUrls())->each->notToBeCrawled();
+
+    expect($reason)->toBe(FinishReason::Completed);
 });
 
 it('will not crawl tel links', function () {
@@ -139,7 +143,7 @@ it('respects the total crawl limit', function () {
     foreach (range(1, 8) as $maximumCrawlCount) {
         Log::reset();
 
-        createCrawler()
+        $reason = createCrawler()
             ->fake(fullSiteFakes())
             ->limit($maximumCrawlCount)
             ->ignoreRobots()
@@ -147,6 +151,7 @@ it('respects the total crawl limit', function () {
             ->start();
 
         expectCrawledUrlCount($maximumCrawlCount);
+        expect($reason)->toBe(FinishReason::CrawlLimitReached);
     }
 });
 
@@ -252,6 +257,8 @@ test('profile crawls a domain and its subdomains', function () {
         'https://sub.dom.ain.spatie.be' => true,
         'https://subdomain.example.com' => false,
         'https://example.com' => false,
+        'https://notspatie.be' => false,
+        'https://malicious-spatie.be' => false,
     ];
 
     $profile = new CrawlSubdomains($baseUrl);
@@ -372,6 +379,23 @@ it('will only crawl correct mime types when asked to', function () {
     expectCrawledUrlCount(2);
 });
 
+it('does not report filtered mime types to observers', function () {
+    $crawled = [];
+
+    Crawler::create('https://example.com/content-types')
+        ->fake(contentTypeFakes())
+        ->allowedMimeTypes(['text/html'])
+        ->ignoreRobots()
+        ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) use (&$crawled) {
+            $crawled[] = $url;
+        })
+        ->start();
+
+    expect($crawled)->not->toContain('https://example.com/content-types/music.mp3');
+    expect($crawled)->not->toContain('https://example.com/content-types/video.mkv');
+    expect($crawled)->toContain('https://example.com/content-types/normal.html');
+});
+
 it('will crawl all content types when not explicitly whitelisted', function () {
     createCrawler('https://example.com/content-types')
         ->fake(contentTypeFakes())
@@ -417,14 +441,16 @@ it('respects the total execution time limit', function () {
         ->timeLimit(2)
         ->crawlProfile(new CrawlSubdomains('https://example.com'));
 
-    $crawler->start();
+    $reason = $crawler->start();
 
     // At 500ms delay per URL, only four URLs can be crawled in 2 seconds.
     expectCrawledUrlCount(4);
+    expect($reason)->toBe(FinishReason::TimeLimitReached);
 
-    $crawler->start();
+    $reason = $crawler->start();
 
     expectCrawledUrlCount(4);
+    expect($reason)->toBe(FinishReason::TimeLimitReached);
 });
 
 it('respects the current execution time limit', function () {

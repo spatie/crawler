@@ -11,12 +11,13 @@ Use the `alsoExtract` method to extract additional resource types alongside link
 
 ```php
 use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Enums\ResourceType;
 
 Crawler::create('https://example.com')
     ->alsoExtract(ResourceType::Image, ResourceType::Stylesheet)
-    ->onCrawled(function (string $url, CrawlResponse $response, ?ResourceType $resourceType) {
-        echo "{$resourceType->value}: {$url}\n";
+    ->onCrawled(function (string $url, CrawlResponse $response) {
+        echo "{$response->resourceType()->value}: {$url}\n";
     })
     ->start();
 ```
@@ -38,36 +39,40 @@ To extract everything at once, use `extractAll`:
 ```php
 Crawler::create('https://example.com')
     ->extractAll()
-    ->onCrawled(function (string $url, CrawlResponse $response, ?ResourceType $resourceType) {
-        // $resourceType tells you what kind of resource this is
+    ->onCrawled(function (string $url, CrawlResponse $response) {
+        // $response->resourceType() tells you what kind of resource this is
     })
     ->start();
 ```
 
 ## Resource types in observers
 
-When using observers, the `$resourceType` parameter is available on all methods:
+When using observers, the resource type is available through the `CrawlResponse`:
 
 ```php
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
+use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
-use Spatie\Crawler\Enums\ResourceType;
 
 class AssetChecker extends CrawlObserver
 {
     public function crawled(
         string $url,
         CrawlResponse $response,
-        ?string $foundOnUrl = null,
-        ?string $linkText = null,
-        ?ResourceType $resourceType = null,
+        CrawlProgress $progress,
     ): void {
-        if ($resourceType === ResourceType::Image && $response->status() === 404) {
-            echo "Broken image: {$url} (found on {$foundOnUrl})\n";
+        if ($response->resourceType() === ResourceType::Image && $response->status() === 404) {
+            echo "Broken image: {$url} (found on {$response->foundOnUrl()})\n";
         }
     }
 }
 ```
+
+## Base href support
+
+When extracting resources (images, scripts, stylesheets, and Open Graph images), the crawler respects the `<base href>` tag in the HTML. If a page contains `<base href="https://example.com/assets/">`, relative resource URLs will be resolved against that base URL instead of the page URL.
+
+Links (`<a>` tags) also respect `<base href>` through Symfony's DomCrawler.
 
 ## Malformed URLs
 
@@ -85,12 +90,12 @@ Crawler::create('https://example.com')
 
 ## Resource types in collected URLs
 
-When using `collectUrls()`, each `CrawledUrl` includes the resource type:
+When using `foundUrls()`, each `CrawledUrl` includes the resource type:
 
 ```php
 $urls = Crawler::create('https://example.com')
     ->extractAll()
-    ->collectUrls();
+    ->foundUrls();
 
 foreach ($urls as $crawledUrl) {
     echo "{$crawledUrl->resourceType->value}: {$crawledUrl->url} ({$crawledUrl->status})\n";

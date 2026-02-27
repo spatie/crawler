@@ -24,6 +24,6 @@ class CrawlSubdomains implements CrawlProfile
             return false;
         }
 
-        return str_ends_with($host, $this->baseHost);
+        return $host === $this->baseHost || str_ends_with($host, ".{$this->baseHost}");
     }
 }

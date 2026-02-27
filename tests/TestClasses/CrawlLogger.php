@@ -4,7 +4,9 @@ namespace Spatie\Crawler\Test\TestClasses;
 
 use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
+use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
+use Spatie\Crawler\Enums\FinishReason;
 use Spatie\Crawler\Enums\ResourceType;
 
 class CrawlLogger extends CrawlObserver
@@ -28,16 +30,15 @@ class CrawlLogger extends CrawlObserver
     public function crawled(
         string $url,
         CrawlResponse $response,
-        ?string $foundOnUrl = null,
-        ?string $linkText = null,
-        ?ResourceType $resourceType = null,
+        CrawlProgress $progress,
     ): void {
-        $this->logCrawl($url, $foundOnUrl, $linkText);
+        $this->logCrawl($url, $response->foundOnUrl(), $response->linkText());
     }
 
     public function crawlFailed(
         string $url,
         RequestException $requestException,
+        CrawlProgress $progress,
         ?string $foundOnUrl = null,
         ?string $linkText = null,
         ?ResourceType $resourceType = null,
@@ -60,7 +61,7 @@ class CrawlLogger extends CrawlObserver
         Log::putContents($logText);
     }
 
-    public function finishedCrawling(): void
+    public function finishedCrawling(FinishReason $reason, CrawlProgress $progress): void
     {
         Log::putContents("{$this->observerId}finished crawling");
     }

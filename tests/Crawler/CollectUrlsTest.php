@@ -11,7 +11,7 @@ it('can collect urls', function () {
             'https://example.com/contact' => '<html><body>Contact</body></html>',
         ])
         ->ignoreRobots()
-        ->collectUrls();
+        ->foundUrls();
 
     expect($urls)->toHaveCount(3);
     expect($urls[0])->toBeInstanceOf(CrawledUrl::class);
@@ -23,7 +23,7 @@ it('collected urls contain status codes', function () {
             'https://example.com' => '<html><body><a href="/missing">Missing</a></body></html>',
         ])
         ->ignoreRobots()
-        ->collectUrls();
+        ->foundUrls();
 
     $home = findUrl($urls, 'https://example.com/');
     expect($home)->not->toBeNull();
@@ -37,7 +37,7 @@ it('collected urls contain found on url', function () {
             'https://example.com/about' => '<html><body>About</body></html>',
         ])
         ->ignoreRobots()
-        ->collectUrls();
+        ->foundUrls();
 
     $about = findUrl($urls, 'https://example.com/about');
     expect($about)->not->toBeNull();
@@ -52,7 +52,7 @@ it('collected urls contain depth', function () {
             'https://example.com/level2' => '<html><body>Deep</body></html>',
         ])
         ->ignoreRobots()
-        ->collectUrls();
+        ->foundUrls();
 
     $home = findUrl($urls, 'https://example.com/');
     expect($home->depth)->toBe(0);
@@ -64,7 +64,7 @@ it('collected urls contain depth', function () {
     expect($level2->depth)->toBe(2);
 });
 
-it('collectUrls is additive with observers', function () {
+it('foundUrls is additive with observers', function () {
     $crawledFromClosure = [];
 
     $urls = Crawler::create('https://example.com')
@@ -75,7 +75,7 @@ it('collectUrls is additive with observers', function () {
         ->onCrawled(function (string $url) use (&$crawledFromClosure) {
             $crawledFromClosure[] = $url;
         })
-        ->collectUrls();
+        ->foundUrls();
 
     expect($urls)->toHaveCount(1);
     expect($crawledFromClosure)->toContain('https://example.com/');
@@ -90,7 +90,7 @@ it('can collect urls with internalOnly', function () {
         ])
         ->ignoreRobots()
         ->internalOnly()
-        ->collectUrls();
+        ->foundUrls();
 
     $collectedUrls = array_map(fn (CrawledUrl $url) => $url->url, $urls);
     expect($collectedUrls)->toContain('https://example.com/');

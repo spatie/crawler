@@ -5,9 +5,16 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
 use Spatie\Crawler\CrawlObservers\CrawlObserverCollection;
+use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\CrawlUrl;
+use Spatie\Crawler\Enums\FinishReason;
 use Spatie\Crawler\Enums\ResourceType;
+
+function makeCrawlProgress(): CrawlProgress
+{
+    return new CrawlProgress(urlsCrawled: 0, urlsFailed: 0, urlsFound: 0, urlsPending: 0);
+}
 
 beforeEach(function () {
     $this->crawlObserver = new class extends CrawlObserver
@@ -19,9 +26,7 @@ beforeEach(function () {
         public function crawled(
             string $url,
             CrawlResponse $response,
-            ?string $foundOnUrl = null,
-            ?string $linkText = null,
-            ?ResourceType $resourceType = null,
+            CrawlProgress $progress,
         ): void {
             $this->crawled = true;
         }
@@ -29,6 +34,7 @@ beforeEach(function () {
         public function crawlFailed(
             string $url,
             RequestException $requestException,
+            CrawlProgress $progress,
             ?string $foundOnUrl = null,
             ?string $linkText = null,
             ?ResourceType $resourceType = null,
@@ -45,7 +51,8 @@ it('can be fulfilled', function () {
 
     $observers->crawled(
         CrawlUrl::create('https://example.com'),
-        new CrawlResponse(new Response)
+        new CrawlResponse(new Response),
+        makeCrawlProgress(),
     );
 
     expect($this->crawlObserver)
@@ -60,7 +67,8 @@ it('can fail', function () {
 
     $observers->crawlFailed(
         CrawlUrl::create('https://example.com'),
-        new RequestException('', new Request('GET', 'https://example.com'))
+        new RequestException('', new Request('GET', 'https://example.com')),
+        makeCrawlProgress(),
     );
 
     expect($this->crawlObserver)
@@ -98,7 +106,8 @@ it('can dispatch closure callbacks', function () {
 
     $observers->crawled(
         CrawlUrl::create('https://example.com'),
-        new CrawlResponse(new Response)
+        new CrawlResponse(new Response),
+        makeCrawlProgress(),
     );
 
     expect($crawledUrl)->toBe('https://example.com');
@@ -113,7 +122,7 @@ it('can dispatch finished callback', function () {
         $finished = true;
     });
 
-    $observers->finishedCrawling();
+    $observers->finishedCrawling(FinishReason::Completed, makeCrawlProgress());
 
     expect($finished)->toBeTrue();
 });

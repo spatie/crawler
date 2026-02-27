@@ -23,16 +23,18 @@ class LinkUrlParser implements UrlParser
     {
         $domCrawler = new DomCrawler($html, $baseUrl);
 
+        $resourceBaseUrl = $this->resolveBaseHref($domCrawler, $baseUrl);
+
         $urls = [];
         $seen = [];
 
         foreach ($this->resourceTypes as $resourceType) {
             $extracted = match ($resourceType) {
                 ResourceType::Link => $this->extractLinks($domCrawler, $baseUrl),
-                ResourceType::Image => $this->extractImages($domCrawler, $baseUrl),
-                ResourceType::Script => $this->extractScripts($domCrawler, $baseUrl),
-                ResourceType::Stylesheet => $this->extractStylesheets($domCrawler, $baseUrl),
-                ResourceType::OpenGraphImage => $this->extractOpenGraphImages($domCrawler, $baseUrl),
+                ResourceType::Image => $this->extractImages($domCrawler, $resourceBaseUrl),
+                ResourceType::Script => $this->extractScripts($domCrawler, $resourceBaseUrl),
+                ResourceType::Stylesheet => $this->extractStylesheets($domCrawler, $resourceBaseUrl),
+                ResourceType::OpenGraphImage => $this->extractOpenGraphImages($domCrawler, $resourceBaseUrl),
             };
 
             foreach ($extracted as $extractedUrl) {
@@ -241,5 +243,26 @@ class LinkUrlParser implements UrlParser
         }
 
         return true;
+    }
+
+    protected function resolveBaseHref(DomCrawler $domCrawler, string $baseUrl): string
+    {
+        $baseHrefNodes = $domCrawler->filterXpath('//base[@href]');
+
+        if ($baseHrefNodes->count() === 0) {
+            return $baseUrl;
+        }
+
+        $baseHref = $baseHrefNodes->first()->attr('href');
+
+        if (! $baseHref) {
+            return $baseUrl;
+        }
+
+        try {
+            return (string) UriResolver::resolve(new Uri($baseUrl), new Uri($baseHref));
+        } catch (InvalidArgumentException) {
+            return $baseUrl;
+        }
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Enums\ResourceType;
 
@@ -14,8 +15,8 @@ it('extracts images when configured with alsoExtract', function () {
         ])
         ->ignoreRobots()
         ->alsoExtract(ResourceType::Image)
-        ->onCrawled(function (string $url, CrawlResponse $response, ?ResourceType $resourceType) use (&$crawled) {
-            $crawled[] = ['url' => $url, 'type' => $resourceType];
+        ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) use (&$crawled) {
+            $crawled[] = ['url' => $url, 'type' => $response->resourceType()];
         })
         ->start();
 
@@ -34,8 +35,8 @@ it('extracts scripts when configured with alsoExtract', function () {
         ])
         ->ignoreRobots()
         ->alsoExtract(ResourceType::Script)
-        ->onCrawled(function (string $url, CrawlResponse $response, ?ResourceType $resourceType) use (&$crawled) {
-            $crawled[] = ['url' => $url, 'type' => $resourceType];
+        ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) use (&$crawled) {
+            $crawled[] = ['url' => $url, 'type' => $response->resourceType()];
         })
         ->start();
 
@@ -52,8 +53,8 @@ it('extracts stylesheets when configured with alsoExtract', function () {
         ])
         ->ignoreRobots()
         ->alsoExtract(ResourceType::Stylesheet)
-        ->onCrawled(function (string $url, CrawlResponse $response, ?ResourceType $resourceType) use (&$crawled) {
-            $crawled[] = ['url' => $url, 'type' => $resourceType];
+        ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) use (&$crawled) {
+            $crawled[] = ['url' => $url, 'type' => $response->resourceType()];
         })
         ->start();
 
@@ -70,8 +71,8 @@ it('extracts open graph images when configured with alsoExtract', function () {
         ])
         ->ignoreRobots()
         ->alsoExtract(ResourceType::OpenGraphImage)
-        ->onCrawled(function (string $url, CrawlResponse $response, ?ResourceType $resourceType) use (&$crawled) {
-            $crawled[] = ['url' => $url, 'type' => $resourceType];
+        ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) use (&$crawled) {
+            $crawled[] = ['url' => $url, 'type' => $response->resourceType()];
         })
         ->start();
 
@@ -90,8 +91,8 @@ it('extracts all resource types with extractAll', function () {
         ])
         ->ignoreRobots()
         ->extractAll()
-        ->onCrawled(function (string $url, CrawlResponse $response, ?ResourceType $resourceType) use (&$crawled) {
-            $crawled[] = ['url' => $url, 'type' => $resourceType];
+        ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) use (&$crawled) {
+            $crawled[] = ['url' => $url, 'type' => $response->resourceType()];
         })
         ->start();
 
@@ -114,8 +115,8 @@ it('passes resourceType through to observers', function () {
         ])
         ->ignoreRobots()
         ->alsoExtract(ResourceType::Image)
-        ->onCrawled(function (string $url, CrawlResponse $response, ?ResourceType $resourceType) use (&$resourceTypes) {
-            $resourceTypes[$url] = $resourceType;
+        ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) use (&$resourceTypes) {
+            $resourceTypes[$url] = $response->resourceType();
         })
         ->start();
 
@@ -131,7 +132,7 @@ it('includes resourceType on collected urls', function () {
         ])
         ->ignoreRobots()
         ->alsoExtract(ResourceType::Image)
-        ->collectUrls();
+        ->foundUrls();
 
     $image = findUrl($urls, 'https://example.com/logo.png');
     expect($image)->not->toBeNull();
@@ -168,8 +169,8 @@ it('extracts modulepreload links as scripts', function () {
         ])
         ->ignoreRobots()
         ->alsoExtract(ResourceType::Script)
-        ->onCrawled(function (string $url, CrawlResponse $response, ?ResourceType $resourceType) use (&$crawled) {
-            $crawled[] = ['url' => $url, 'type' => $resourceType];
+        ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) use (&$crawled) {
+            $crawled[] = ['url' => $url, 'type' => $response->resourceType()];
         })
         ->start();
 
@@ -178,6 +179,26 @@ it('extracts modulepreload links as scripts', function () {
 
     $module = array_values(array_filter($crawled, fn ($item) => $item['url'] === 'https://example.com/module.js'))[0] ?? null;
     expect($module['type'])->toBe(ResourceType::Script);
+});
+
+it('respects base href tag when extracting resource urls', function () {
+    $crawled = [];
+
+    Crawler::create('https://example.com/page')
+        ->fake([
+            'https://example.com/page' => '<html><head><base href="https://example.com/assets/"><script src="app.js"></script><link rel="stylesheet" href="style.css"><meta property="og:image" content="og.jpg"></head><body><img src="logo.png"></body></html>',
+        ])
+        ->ignoreRobots()
+        ->extractAll()
+        ->onCrawled(function (string $url) use (&$crawled) {
+            $crawled[] = $url;
+        })
+        ->start();
+
+    expect($crawled)->toContain('https://example.com/assets/logo.png');
+    expect($crawled)->toContain('https://example.com/assets/app.js');
+    expect($crawled)->toContain('https://example.com/assets/style.css');
+    expect($crawled)->toContain('https://example.com/assets/og.jpg');
 });
 
 it('does not extract resources by default', function () {

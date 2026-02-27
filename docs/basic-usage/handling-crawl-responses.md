@@ -54,18 +54,18 @@ All timing methods return values in milliseconds. They return `null` when the st
 $stats = $response->transferStats();
 
 // Timing (all in milliseconds)
-$stats->transferTimeInMs();      // ?float - Total transfer time
-$stats->connectionTimeInMs();    // ?float - TCP connection time
-$stats->dnsLookupTimeInMs();     // ?float - DNS resolution time
-$stats->tlsHandshakeTimeInMs();  // ?float - SSL/TLS handshake time
-$stats->timeToFirstByteInMs();   // ?float - Time to first byte (TTFB)
-$stats->redirectTimeInMs();      // ?float - Time spent on redirects
+$stats->transferTimeInMs();      // ?float (total transfer time)
+$stats->connectionTimeInMs();    // ?float (TCP connection time)
+$stats->dnsLookupTimeInMs();     // ?float (DNS resolution time)
+$stats->tlsHandshakeTimeInMs();  // ?float (SSL/TLS handshake time)
+$stats->timeToFirstByteInMs();   // ?float (time to first byte, TTFB)
+$stats->redirectTimeInMs();      // ?float (time spent on redirects)
 
 // Other
-$stats->effectiveUri();                    // UriInterface - Final URI after redirects
-$stats->primaryIp();                       // ?string - IP address of the server
-$stats->downloadSpeedInBytesPerSecond();   // ?float - Average download speed
-$stats->requestSizeInBytes();              // ?int - Size of the HTTP request
+$stats->effectiveUri();                    // UriInterface (final URI after redirects)
+$stats->primaryIp();                       // ?string (IP address of the server)
+$stats->downloadSpeedInBytesPerSecond();   // ?float (average download speed)
+$stats->requestSizeInBytes();              // ?int (size of the HTTP request)
 ```
 
 ## Using the DOM crawler

@@ -34,12 +34,6 @@ parameters:
 			path: src/Exceptions/InvalidCrawlRequestHandler.php
 
 		-
-			message: '#^Unsafe usage of new static\(\)\.$#'
-			identifier: new.static
-			count: 1
-			path: src/Exceptions/InvalidUrl.php
-
-		-
 			message: '#^Property Spatie\\Crawler\\Faking\\FakeHandler\:\:\$responses \(array\<string, GuzzleHttp\\Psr7\\Response\>\) does not accept array\<string, Psr\\Http\\Message\\ResponseInterface\>\.$#'
 			identifier: assign.propertyType
 			count: 1

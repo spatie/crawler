@@ -10,7 +10,9 @@ namespace App;
 
 use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
+use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
+use Spatie\Crawler\Enums\FinishReason;
 use Spatie\Crawler\Enums\ResourceType;
 
 class MyCrawlObserver extends CrawlObserver
@@ -23,9 +25,7 @@ class MyCrawlObserver extends CrawlObserver
     public function crawled(
         string $url,
         CrawlResponse $response,
-        ?string $foundOnUrl = null,
-        ?string $linkText = null,
-        ?ResourceType $resourceType = null,
+        CrawlProgress $progress,
     ): void {
         // called when a URL has been successfully crawled
     }
@@ -33,6 +33,7 @@ class MyCrawlObserver extends CrawlObserver
     public function crawlFailed(
         string $url,
         RequestException $requestException,
+        CrawlProgress $progress,
         ?string $foundOnUrl = null,
         ?string $linkText = null,
         ?ResourceType $resourceType = null,
@@ -40,7 +41,7 @@ class MyCrawlObserver extends CrawlObserver
         // called when a URL could not be crawled
     }
 
-    public function finishedCrawling(): void
+    public function finishedCrawling(FinishReason $reason, CrawlProgress $progress): void
     {
         // called when the entire crawl is complete
     }
@@ -55,7 +56,9 @@ Crawler::create('https://example.com')
     ->start();
 ```
 
-The `$resourceType` parameter tells you what kind of resource was crawled (link, image, script, etc.). It is `null` for the start URL, and defaults to `ResourceType::Link` for discovered links. See [extracting resources](/docs/crawler/v9/configuring-the-crawler/extracting-resources) for more information.
+The `crawled()` method receives a `CrawlProgress` object with live crawl statistics and a `CrawlResponse` that provides access to `foundOnUrl()`, `linkText()`, `resourceType()`, and other response data. See [tracking progress](/docs/crawler/v9/basic-usage/tracking-progress) for more on `CrawlProgress`.
+
+The `crawlFailed()` method also includes `$foundOnUrl`, `$linkText`, and `$resourceType` parameters since there is no `CrawlResponse` available for failed requests.
 
 ## Using multiple observers
 

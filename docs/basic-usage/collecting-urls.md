@@ -3,7 +3,7 @@ title: Collecting URLs
 weight: 3
 ---
 
-The most common use case is to collect all URLs on a site. The `collectUrls()` method makes this easy:
+The most common use case is to collect all URLs on a site. The `foundUrls()` method makes this easy:
 
 ```php
 use Spatie\Crawler\Crawler;
@@ -11,10 +11,10 @@ use Spatie\Crawler\Crawler;
 $urls = Crawler::create('https://example.com')
     ->internalOnly()
     ->depth(3)
-    ->collectUrls();
+    ->foundUrls();
 ```
 
-This returns a `Collection` of `CrawledUrl` objects. Each `CrawledUrl` has these properties:
+This returns an array of `CrawledUrl` objects. Each `CrawledUrl` has these properties:
 
 ```php
 foreach ($urls as $crawledUrl) {

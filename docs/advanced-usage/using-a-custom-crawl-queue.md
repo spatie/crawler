@@ -31,6 +31,26 @@ Crawler::create('https://example.com')
     ->start();
 ```
 
+The `CrawlQueue` interface requires the following methods:
+
+```php
+interface CrawlQueue
+{
+    public function add(CrawlUrl $url): self;
+    public function has(string $url): bool;
+    public function hasPendingUrls(): bool;
+    public function getUrlById(mixed $id): CrawlUrl;
+    public function getPendingUrl(): ?CrawlUrl;
+    public function hasAlreadyBeenProcessed(CrawlUrl $url): bool;
+    public function markAsProcessed(CrawlUrl $crawlUrl): void;
+    public function getProcessedUrlCount(): int;
+    public function getUrlCount(): int;        // total URLs added to the queue
+    public function getPendingUrlCount(): int;  // URLs not yet processed
+}
+```
+
+The `getUrlCount()` and `getPendingUrlCount()` methods are used by the `CrawlProgress` object to report queue statistics. See [tracking progress](/docs/crawler/v9/basic-usage/tracking-progress) for details.
+
 Here are some queue implementations:
 
 - [ArrayCrawlQueue](https://github.com/spatie/crawler/blob/main/src/CrawlQueues/ArrayCrawlQueue.php) (built in, in memory)

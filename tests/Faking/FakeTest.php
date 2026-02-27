@@ -129,7 +129,7 @@ it('can collect urls using fake', function () {
             'https://example.com/about' => '<html><body>About</body></html>',
         ])
         ->ignoreRobots()
-        ->collectUrls();
+        ->foundUrls();
 
     expect($urls)->toHaveCount(2);
     $collectedUrls = array_map(fn ($url) => $url->url, $urls);

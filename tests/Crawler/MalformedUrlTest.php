@@ -2,6 +2,7 @@
 
 use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlProgress;
 
 it('reports malformed urls via crawlFailed', function () {
     $failed = [];
@@ -13,7 +14,7 @@ it('reports malformed urls via crawlFailed', function () {
         ])
         ->ignoreRobots()
         ->onCrawled(function () {})
-        ->onFailed(function (string $url, RequestException $exception) use (&$failed) {
+        ->onFailed(function (string $url, RequestException $exception, CrawlProgress $progress) use (&$failed) {
             $failed[] = ['url' => $url, 'message' => $exception->getMessage()];
         })
         ->start();

@@ -16,7 +16,7 @@ Crawler::create('https://example.com')->start();
 
 ### CrawlObserver signatures
 
-All `UriInterface` parameters have been replaced with plain `string` URLs. The `ResponseInterface` parameter in `crawled()` is now a `CrawlResponse` object.
+All `UriInterface` parameters have been replaced with plain `string` URLs. The `ResponseInterface` parameter in `crawled()` is now a `CrawlResponse` object. All callbacks now receive a `CrawlProgress` object, and `finishedCrawling()` receives a `FinishReason` enum.
 
 ```php
 // Before
@@ -39,25 +39,33 @@ public function crawlFailed(
     ?string $linkText = null,
 ): void {}
 
+public function finishedCrawling(): void {}
+
 // After
+use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
+use Spatie\Crawler\Enums\FinishReason;
 
 public function willCrawl(string $url, ?string $linkText): void {}
 
 public function crawled(
     string $url,
     CrawlResponse $response,
-    ?string $foundOnUrl = null,
-    ?string $linkText = null,
+    CrawlProgress $progress,
 ): void {}
 
 public function crawlFailed(
     string $url,
     RequestException $requestException,
+    CrawlProgress $progress,
     ?string $foundOnUrl = null,
     ?string $linkText = null,
 ): void {}
+
+public function finishedCrawling(FinishReason $reason, CrawlProgress $progress): void {}
 ```
+
+In `crawled()`, `foundOnUrl`, `linkText`, and `resourceType` have been removed from the method parameters since they are available on the `CrawlResponse` object via `$response->foundOnUrl()`, `$response->linkText()`, and `$response->resourceType()`.
 
 The `CrawlResponse` object provides a friendlier API than the raw PSR-7 response:
 
@@ -210,21 +218,34 @@ These are new additions that do not require any changes to existing code.
 
 ```php
 Crawler::create('https://example.com')
-    ->onCrawled(function (string $url, CrawlResponse $response) {
-        echo $url . ' - ' . $response->status();
+    ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) {
+        echo $url . ': ' . $response->status();
     })
-    ->onFailed(function (string $url, RequestException $e) { ... })
-    ->onFinished(function () { ... })
+    ->onFailed(function (string $url, RequestException $e, CrawlProgress $progress) { ... })
+    ->onFinished(function (FinishReason $reason, CrawlProgress $progress) { ... })
     ->start();
 ```
 
-**`collectUrls()`** for the most common use case:
+**Crawl progress tracking** with `CrawlProgress` and `FinishReason`:
+
+```php
+$reason = Crawler::create('https://example.com')
+    ->limit(100)
+    ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) {
+        echo "[{$progress->urlsProcessed}/{$progress->urlsFound}] {$url}\n";
+    })
+    ->start();
+
+// $reason is a FinishReason enum: Completed, CrawlLimitReached, TimeLimitReached, or Interrupted
+```
+
+**`foundUrls()`** for the most common use case:
 
 ```php
 $urls = Crawler::create('https://example.com')
     ->internalOnly()
     ->depth(3)
-    ->collectUrls(); // Returns Collection<CrawledUrl>
+    ->foundUrls(); // Returns array<CrawledUrl>
 ```
 
 **`fake()`** for testing without an HTTP server:
@@ -235,7 +256,7 @@ Crawler::create('https://example.com')
         'https://example.com' => '<html><a href="/about">About</a></html>',
         'https://example.com/about' => '<html>About page</html>',
     ])
-    ->collectUrls();
+    ->foundUrls();
 ```
 
 **Scope helpers** for common crawl profiles:
