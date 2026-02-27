@@ -46,6 +46,9 @@ trait ConfiguresRequests
 
     protected ?Client $client = null;
 
+    /** @var array<array{callable, string}> */
+    protected array $middlewares = [];
+
     protected int $retryTimes = 0;
 
     protected int $retryDelayMs = 500;
@@ -136,6 +139,13 @@ trait ConfiguresRequests
         return $this;
     }
 
+    public function middleware(callable $middleware, string $name = ''): self
+    {
+        $this->middlewares[] = [$middleware, $name];
+
+        return $this;
+    }
+
     public function retry(int $times = 2, int $delayInMs = 500): self
     {
         $this->retryTimes = $times;
@@ -216,25 +226,25 @@ trait ConfiguresRequests
         };
 
         if ($this->fakes !== null) {
-            $handler = new FakeHandler($this->fakes);
-            $stack = HandlerStack::create($handler);
-
-            if ($this->retryTimes > 0) {
-                $stack->push($this->createRetryMiddleware());
-            }
-
-            $options['handler'] = $stack;
+            $stack = HandlerStack::create(new FakeHandler($this->fakes));
             $options[RequestOptions::HTTP_ERRORS] = false;
-        } elseif ($this->retryTimes > 0) {
-            $stack = $options['handler'] ?? HandlerStack::create();
+        } else {
+            $existingHandler = $options['handler'] ?? null;
 
-            if (! $stack instanceof HandlerStack) {
-                $stack = HandlerStack::create($stack);
-            }
-
-            $stack->push($this->createRetryMiddleware());
-            $options['handler'] = $stack;
+            $stack = $existingHandler instanceof HandlerStack
+                ? $existingHandler
+                : HandlerStack::create($existingHandler);
         }
+
+        if ($this->retryTimes > 0) {
+            $stack->push($this->createRetryMiddleware(), 'retry');
+        }
+
+        foreach ($this->middlewares as [$middleware, $name]) {
+            $stack->push($middleware, $name);
+        }
+
+        $options['handler'] = $stack;
 
         $this->client = new Client($options);
 

@@ -162,3 +162,33 @@ Crawler::create('https://example.com')
 The first argument is the maximum number of retries per request. The second argument is the base delay between retries in milliseconds. The delay increases linearly with each attempt (500ms, 1000ms, 1500ms, ...).
 
 A request will be retried when it results in a connection error or a 5xx response status code.
+
+## Guzzle middleware
+
+You can add custom [Guzzle middleware](https://docs.guzzlephp.org/en/stable/handlers-and-middleware.html) to the underlying HTTP client using the `middleware` method. This lets you hook into the request/response lifecycle for logging, caching, modifying headers, or any other purpose.
+
+```php
+use GuzzleHttp\Middleware;
+use Psr\Http\Message\RequestInterface;
+use Spatie\Crawler\Crawler;
+
+Crawler::create('https://example.com')
+    ->middleware(Middleware::mapRequest(function (RequestInterface $request) {
+        return $request->withHeader('X-Custom-Header', 'value');
+    }), 'add-custom-header')
+    ->start();
+```
+
+The first argument is a callable that follows Guzzle's middleware signature. The optional second argument is a name for the middleware, which can be useful for debugging.
+
+You can call `middleware` multiple times to add multiple middlewares. They will be pushed onto the handler stack in the order they are added.
+
+```php
+use GuzzleHttp\Middleware;
+use Spatie\Crawler\Crawler;
+
+Crawler::create('https://example.com')
+    ->middleware($loggingMiddleware, 'logging')
+    ->middleware($cachingMiddleware, 'caching')
+    ->start();
+```

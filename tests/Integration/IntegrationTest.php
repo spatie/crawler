@@ -1,5 +1,6 @@
 <?php
 
+use GuzzleHttp\Middleware;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Test\TestServer\TestServer;
@@ -191,4 +192,25 @@ it('exposes transfer stats on crawl response', function () {
 
     expect($stats)->toBeInstanceOf(TransferStatistics::class);
     expect($stats->transferTimeInMs())->toBeGreaterThan(0);
+});
+
+it('applies custom guzzle middleware to requests', function () {
+    $requestedUrls = [];
+
+    $trackRequests = Middleware::mapRequest(function ($request) use (&$requestedUrls) {
+        $requestedUrls[] = (string) $request->getUri();
+
+        return $request->withHeader('X-Custom-Middleware', 'applied');
+    });
+
+    Crawler::create(TestServer::baseUrl())
+        ->ignoreRobots()
+        ->depth(0)
+        ->concurrency(1)
+        ->middleware($trackRequests, 'track-requests')
+        ->onCrawled(function () {})
+        ->start();
+
+    expect($requestedUrls)->toHaveCount(1);
+    expect($requestedUrls[0])->toContain(TestServer::baseUrl());
 });
