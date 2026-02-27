@@ -1,6 +1,6 @@
 ---
-title: Handling responses
-weight: 4
+title: Response filtering
+weight: 5
 ---
 
 ## Maximum response size

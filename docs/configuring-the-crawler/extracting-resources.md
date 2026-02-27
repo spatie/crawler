@@ -1,6 +1,6 @@
 ---
 title: Extracting resources
-weight: 2
+weight: 3
 ---
 
 By default, the crawler only extracts links (`<a>` tags and some `<link>` tags) from each page. You can also instruct it to extract images, scripts, stylesheets, and Open Graph images. This is useful for broken asset checking, content auditing, or building a complete inventory of a site's resources.

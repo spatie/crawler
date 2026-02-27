@@ -1,6 +1,6 @@
 ---
 title: Using observers
-weight: 2
+weight: 3
 ---
 
 For more structured crawl handling, you can create observer classes instead of using closures. An observer must extend `Spatie\Crawler\CrawlObservers\CrawlObserver`:

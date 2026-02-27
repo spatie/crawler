@@ -1,6 +1,6 @@
 ---
 title: Configuring requests
-weight: 3
+weight: 4
 ---
 
 ## User agent

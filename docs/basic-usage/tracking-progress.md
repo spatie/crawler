@@ -1,6 +1,6 @@
 ---
 title: Tracking progress
-weight: 5
+weight: 6
 ---
 
 The crawler provides real-time progress tracking through the `CrawlProgress` object and reports why a crawl stopped through the `FinishReason` enum.

@@ -1,6 +1,6 @@
 ---
 title: Collecting URLs
-weight: 3
+weight: 4
 ---
 
 The most common use case is to collect all URLs on a site. The `foundUrls()` method makes this easy:

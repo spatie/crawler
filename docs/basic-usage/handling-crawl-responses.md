@@ -1,6 +1,6 @@
 ---
 title: Crawl responses
-weight: 4
+weight: 2
 ---
 
 When a URL is successfully crawled, your callback or observer receives a `CrawlResponse` object. This provides a friendlier API than the raw PSR-7 response:

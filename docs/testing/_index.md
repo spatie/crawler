@@ -1,6 +1,6 @@
 ---
 title: Testing
-weight: 5
+weight: 6
 ---
 
 The crawler provides a `fake()` method that lets you test your crawl logic without making real HTTP requests. Pass an array of URLs mapped to HTML strings:

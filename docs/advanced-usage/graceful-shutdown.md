@@ -1,6 +1,6 @@
 ---
 title: Graceful shutdown
-weight: 5
+weight: 6
 ---
 
 When running the crawler as a long-lived CLI process, you may want to stop it cleanly with `Ctrl+C` (SIGINT) or `SIGTERM` instead of killing it mid-request.

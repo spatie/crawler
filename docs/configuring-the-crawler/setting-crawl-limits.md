@@ -1,9 +1,25 @@
 ---
-title: Setting crawl limits
+title: Limits
 weight: 2
 ---
 
 By default, the crawler continues until it has crawled every page it can find. This behavior might cause issues if you are working in an environment with limitations such as a serverless environment.
+
+## Crawl depth
+
+You can limit how deep the crawler will go using the `depth` method.
+
+```php
+use Spatie\Crawler\Crawler;
+
+Crawler::create('https://example.com')
+    ->depth(2)
+    ->start();
+```
+
+A depth of 0 means only the start URL will be crawled. A depth of 1 means the start URL and any pages it links to, and so on.
+
+## Crawl and time limits
 
 The crawl behavior can be controlled with these options:
 

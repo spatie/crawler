@@ -1,6 +1,6 @@
 ---
 title: Installation & setup
-weight: 3
+weight: 2
 ---
 
 This package can be installed via Composer:

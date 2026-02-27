@@ -1,6 +1,6 @@
 ---
 title: Custom crawl queue
-weight: 3
+weight: 5
 ---
 
 When crawling a site, the crawler stores URLs to be crawled in a queue. By default, this queue is stored in memory using the built-in `ArrayCrawlQueue`.
