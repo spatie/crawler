@@ -9,8 +9,8 @@ The crawl behavior can be controlled with these options:
 
 - `limit()`: the maximum number of URLs to crawl across all executions
 - `limitPerExecution()`: how many URLs to process during the current crawl
-- `timeLimit()`: the maximum execution time across all executions
-- `timeLimitPerExecution()`: the maximum execution time for the current crawl
+- `timeLimit()`: the maximum execution time in seconds across all executions
+- `timeLimitPerExecution()`: the maximum execution time in seconds for the current crawl
 
 ## Using the total crawl limit
 
@@ -56,9 +56,28 @@ Crawler::create('https://example.com')
     ->start();
 ```
 
+## Using time limits
+
+The `timeLimit()` method sets the maximum execution time across all executions. The `timeLimitPerExecution()` method sets the maximum execution time for a single crawl. Both accept a value in seconds.
+
+```php
+use Spatie\Crawler\Crawler;
+
+// Stop crawling after 60 seconds total
+Crawler::create('https://example.com')
+    ->timeLimit(60)
+    ->start();
+
+// Stop each execution after 30 seconds, but allow resuming
+Crawler::create('https://example.com')
+    ->crawlQueue($queue)
+    ->timeLimitPerExecution(30)
+    ->start();
+```
+
 ## Combining limits
 
-Both limits can be combined to control the crawler:
+All limits can be combined to control the crawler:
 
 ```php
 use Spatie\Crawler\Crawler;

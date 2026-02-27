@@ -50,6 +50,27 @@ it('calls finishedCrawling after graceful shutdown', function () {
     expect($finishedCalled)->toBeTrue();
 });
 
+it('resets shouldStop between crawls', function () {
+    $crawler = Crawler::create('https://example.com')
+        ->fake(fullSiteFakes())
+        ->depth(0)
+        ->concurrency(1);
+
+    // First crawl: set shouldStop before starting
+    $reflection = new ReflectionProperty($crawler, 'shouldStop');
+    $reflection->setValue($crawler, true);
+
+    $firstCrawled = [];
+    $crawler->onCrawled(function (string $url) use (&$firstCrawled) {
+        $firstCrawled[] = $url;
+    });
+
+    // start() should reset shouldStop, so the crawl runs normally
+    $crawler->start();
+
+    expect(count($firstCrawled))->toBeGreaterThanOrEqual(1);
+});
+
 it('registers signal handlers when pcntl is available', function () {
     if (! extension_loaded('pcntl')) {
         $this->markTestSkipped('pcntl extension is not loaded');

@@ -99,6 +99,52 @@ it('adaptive throttle clamps delay to min', function () {
     expect($elapsed)->toBeLessThan(150);
 });
 
+it('adaptive throttle converges over multiple recordings', function () {
+    $throttle = new AdaptiveThrottle(minDelayMs: 10, maxDelayMs: 5000);
+
+    // Record a series of 500ms responses
+    for ($i = 0; $i < 10; $i++) {
+        $throttle->recordResponseTime(0.5); // 500ms
+    }
+
+    // After many 500ms recordings starting from min (10ms), delay should converge toward 500ms
+    $start = microtime(true);
+    $throttle->sleep();
+    $elapsed = (microtime(true) - $start) * 1000;
+
+    expect($elapsed)->toBeGreaterThan(300);
+});
+
+it('applies throttle on failed requests', function () {
+    $sleepCount = 0;
+
+    $throttle = new class($sleepCount) implements \Spatie\Crawler\Throttlers\Throttle
+    {
+        public function __construct(protected int &$sleepCount) {}
+
+        public function sleep(): void
+        {
+            $this->sleepCount++;
+        }
+
+        public function recordResponseTime(float $seconds): void {}
+    };
+
+    Crawler::create('https://example.com')
+        ->fake([
+            'https://example.com/robots.txt' => '',
+            'https://example.com' => '<a href="/missing">link</a>',
+            'https://example.com/missing' => \Spatie\Crawler\CrawlResponse::fake('', 404),
+        ])
+        ->throttle($throttle)
+        ->depth(1)
+        ->onFailed(function () {})
+        ->start();
+
+    // Throttle should have been called for both fulfilled and failed responses
+    expect($sleepCount)->toBeGreaterThanOrEqual(2);
+});
+
 it('throttle takes precedence over delay', function () {
     $start = microtime(true);
 

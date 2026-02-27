@@ -20,15 +20,16 @@ The following callbacks are available:
 
 ```php
 use GuzzleHttp\Exception\RequestException;
+use Spatie\Crawler\Enums\ResourceType;
 
 Crawler::create('https://example.com')
-    ->onWillCrawl(function (string $url, ?string $linkText) {
+    ->onWillCrawl(function (string $url, ?string $linkText, ?ResourceType $resourceType) {
         // called before a URL is crawled
     })
-    ->onCrawled(function (string $url, CrawlResponse $response) {
+    ->onCrawled(function (string $url, CrawlResponse $response, ?ResourceType $resourceType) {
         // called for every successfully crawled URL
     })
-    ->onFailed(function (string $url, RequestException $e) {
+    ->onFailed(function (string $url, RequestException $e, ?ResourceType $resourceType) {
         // called when a URL could not be crawled
     })
     ->onFinished(function () {
@@ -36,6 +37,8 @@ Crawler::create('https://example.com')
     })
     ->start();
 ```
+
+The `$resourceType` parameter tells you what kind of resource was crawled. It is `null` for the start URL. See [extracting resources](/docs/crawler/v9/configuring-the-crawler/extracting-resources) for more details.
 
 You can register multiple callbacks of the same type. They will all be called in the order they were added.
 

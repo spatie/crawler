@@ -2,6 +2,7 @@
 
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlResponse;
+use Spatie\Crawler\Exceptions\MissingJavaScriptRenderer;
 use Spatie\Crawler\JavaScriptRenderers\JavaScriptRenderer;
 
 it('can use a custom javascript renderer', function () {
@@ -30,6 +31,10 @@ it('can use a custom javascript renderer', function () {
     expect($crawled)->toContain('https://example.com/');
     expect($crawled)->toContain('https://example.com/js-page');
 });
+
+it('throws MissingJavaScriptRenderer when browsershot is not installed', function () {
+    Crawler::create('https://example.com')->executeJavaScript();
+})->throws(MissingJavaScriptRenderer::class);
 
 it('can disable javascript execution', function () {
     $crawler = Crawler::create('https://example.com');

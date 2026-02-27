@@ -103,6 +103,31 @@ it('marks normalized variants as already processed', function () {
     expect($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl2))->toBeTrue();
 });
 
+it('can retrieve url by normalized id after adding', function () {
+    $crawlUrl = CrawlUrl::create('https://Example.com:443/page/');
+
+    $this->crawlQueue->add($crawlUrl);
+
+    $retrieved = $this->crawlQueue->getUrlById($crawlUrl->id);
+
+    expect($retrieved)->toBe($crawlUrl);
+    expect($retrieved->url)->toBe('https://Example.com:443/page/');
+});
+
+it('does not inflate processed count with normalized duplicates', function () {
+    $this->crawlQueue->add(CrawlUrl::create('https://example.com/page'));
+    $this->crawlQueue->add(CrawlUrl::create('https://Example.com/page/'));
+    $this->crawlQueue->add(CrawlUrl::create('https://example.com:443/page'));
+
+    expect($this->crawlQueue->getProcessedUrlCount())->toBe(0);
+
+    $url = $this->crawlQueue->getPendingUrl();
+    $this->crawlQueue->markAsProcessed($url);
+
+    expect($this->crawlQueue->getProcessedUrlCount())->toBe(1);
+    expect($this->crawlQueue->hasPendingUrls())->toBeFalse();
+});
+
 it('handles malformed urls gracefully', function () {
     $crawlUrl = CrawlUrl::create('not-a-valid-url');
 
