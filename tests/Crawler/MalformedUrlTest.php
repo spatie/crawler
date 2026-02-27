@@ -22,7 +22,7 @@ it('reports malformed urls via crawlFailed', function () {
 
     expect($failedUrls)->toContain('https:///AfyaVzw');
 
-    $malformed = collect($failed)->firstWhere('url', 'https:///AfyaVzw');
+    $malformed = array_values(array_filter($failed, fn ($item) => $item['url'] === 'https:///AfyaVzw'))[0] ?? null;
     expect($malformed['message'])->toContain('Malformed URL');
 });
 
