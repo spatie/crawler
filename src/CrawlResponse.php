@@ -3,6 +3,7 @@
 namespace Spatie\Crawler;
 
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\TransferStats;
 use Psr\Http\Message\ResponseInterface;
 use Spatie\Crawler\Enums\ResourceType;
 use Symfony\Component\DomCrawler\Crawler as DomCrawler;
@@ -13,12 +14,15 @@ class CrawlResponse
 
     protected ?DomCrawler $dom = null;
 
+    protected ?TransferStatistics $cachedTransferStatistics = null;
+
     public function __construct(
         protected ResponseInterface $response,
         protected ?string $foundOnUrl = null,
         protected ?string $linkText = null,
         protected int $depth = 0,
         protected ResourceType $resourceType = ResourceType::Link,
+        protected ?TransferStats $transferStats = null,
     ) {}
 
     public static function fake(
@@ -92,6 +96,15 @@ class CrawlResponse
     public function resourceType(): ResourceType
     {
         return $this->resourceType;
+    }
+
+    public function transferStats(): ?TransferStatistics
+    {
+        if ($this->transferStats === null) {
+            return null;
+        }
+
+        return $this->cachedTransferStatistics ??= TransferStatistics::fromTransferStats($this->transferStats);
     }
 
     public function toPsrResponse(): ResponseInterface

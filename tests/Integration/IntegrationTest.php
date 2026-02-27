@@ -1,10 +1,12 @@
 <?php
 
 use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Test\TestServer\TestServer;
 use Spatie\Crawler\Throttlers\AdaptiveThrottle;
 use Spatie\Crawler\Throttlers\FixedDelayThrottle;
 use Spatie\Crawler\Throttlers\Throttle;
+use Spatie\Crawler\TransferStatistics;
 
 beforeAll(function () {
     TestServer::start();
@@ -173,4 +175,20 @@ it('respects depth limits with real http', function () {
     // depth(2) from /deep/1 should reach /deep/1, /deep/2, /deep/3 but not /deep/4.
     expect($crawled)->toHaveCount(3);
     expect($crawled)->each->toMatch('/\/deep\/[123]$/');
+});
+
+it('exposes transfer stats on crawl response', function () {
+    $stats = null;
+
+    Crawler::create(TestServer::baseUrl())
+        ->ignoreRobots()
+        ->depth(0)
+        ->concurrency(1)
+        ->onCrawled(function (string $url, CrawlResponse $response) use (&$stats) {
+            $stats = $response->transferStats();
+        })
+        ->start();
+
+    expect($stats)->toBeInstanceOf(TransferStatistics::class);
+    expect($stats->transferTimeInMs())->toBeGreaterThan(0);
 });

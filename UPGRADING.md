@@ -1,8 +1,8 @@
 # Upgrading
 
-## From v7 to v8
+## From v8 to v9
 
-v8 is a major rewrite that simplifies the API, removes dependencies, and adds built-in testability. Below is a complete list of breaking changes.
+v9 is a major rewrite that simplifies the API, removes dependencies, and adds built-in testability. Below is a complete list of breaking changes.
 
 ### Entry point
 
@@ -254,6 +254,41 @@ $crawler->concurrency(10);
 $crawler->delay(100);
 $crawler->userAgent('Bot');
 $crawler->limit(500);
+```
+
+**Built-in throttling** with two strategies:
+
+```php
+// Fixed delay between requests
+$crawler->throttle(new FixedDelayThrottle(200));
+
+// Adaptive: adjusts delay based on server response times
+$crawler->throttle(new AdaptiveThrottle(minDelayMs: 50, maxDelayMs: 5000));
+```
+
+**Resource type extraction** to discover images, scripts, and stylesheets alongside links:
+
+```php
+$crawler->alsoExtract(ResourceType::Image, ResourceType::Script);
+// or extract everything
+$crawler->extractAll();
+```
+
+**URL normalization** in the crawl queue deduplicates URLs that differ only in trailing slashes, default ports, casing, or fragments.
+
+**Graceful shutdown**: the crawler handles SIGINT and SIGTERM signals to stop cleanly after completing the current request.
+
+**`alwaysCrawl` and `neverCrawl` patterns** to override the crawl profile for specific URL patterns:
+
+```php
+$crawler->alwaysCrawl(['*/critical-page*']);
+$crawler->neverCrawl(['*/admin*', '*/internal*']);
+```
+
+**Automatic retry** for failed requests (connection errors and 5xx responses):
+
+```php
+$crawler->retry(times: 3, delayInMs: 500);
 ```
 
 ## From v5 to v6

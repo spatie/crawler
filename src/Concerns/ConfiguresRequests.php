@@ -206,12 +206,14 @@ trait ConfiguresRequests
             $options[RequestOptions::QUERY] = $this->queryParameters;
         }
 
-        if ($this->throttle !== null) {
-            $throttle = $this->throttle;
-            $options[RequestOptions::ON_STATS] = function (TransferStats $stats) use ($throttle) {
+        $throttle = $this->throttle;
+        $options[RequestOptions::ON_STATS] = function (TransferStats $stats) use ($throttle) {
+            $this->setTransferStats((string) $stats->getEffectiveUri(), $stats);
+
+            if ($throttle !== null) {
                 $throttle->recordResponseTime($stats->getTransferTime());
-            };
-        }
+            }
+        };
 
         if ($this->fakes !== null) {
             $handler = new FakeHandler($this->fakes);

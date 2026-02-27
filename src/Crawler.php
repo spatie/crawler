@@ -23,6 +23,7 @@ use Spatie\Crawler\Handlers\CrawlRequestFailed;
 use Spatie\Crawler\Handlers\CrawlRequestFulfilled;
 use Spatie\Crawler\JavaScriptRenderers\BrowsershotRenderer;
 use Spatie\Crawler\JavaScriptRenderers\JavaScriptRenderer;
+use GuzzleHttp\TransferStats;
 use Spatie\Crawler\Throttlers\Throttle;
 use Spatie\Crawler\UrlParsers\LinkUrlParser;
 use Spatie\Crawler\UrlParsers\SitemapUrlParser;
@@ -72,6 +73,9 @@ class Crawler
     protected ?array $fakes = null;
 
     protected bool $shouldStop = false;
+
+    /** @var array<string, TransferStats> */
+    protected array $transferStats = [];
 
     /** @var array<int, ResourceType> */
     protected array $extractResourceTypes = [ResourceType::Link];
@@ -379,6 +383,16 @@ class Crawler
     public function mayExecuteJavascript(): bool
     {
         return $this->javaScriptRenderer !== null;
+    }
+
+    public function setTransferStats(string $url, TransferStats $stats): void
+    {
+        $this->transferStats[$url] = $stats;
+    }
+
+    public function getTransferStats(string $url): ?TransferStats
+    {
+        return $this->transferStats[$url] ?? null;
     }
 
     // Internal methods
