@@ -225,15 +225,15 @@ trait ConfiguresRequests
             }
         };
 
+        $existingHandler = $options['handler'] ?? null;
+
+        $stack = $existingHandler instanceof HandlerStack
+            ? $existingHandler
+            : HandlerStack::create($existingHandler);
+
         if ($this->fakes !== null) {
             $stack = HandlerStack::create(new FakeHandler($this->fakes));
             $options[RequestOptions::HTTP_ERRORS] = false;
-        } else {
-            $existingHandler = $options['handler'] ?? null;
-
-            $stack = $existingHandler instanceof HandlerStack
-                ? $existingHandler
-                : HandlerStack::create($existingHandler);
         }
 
         if ($this->retryTimes > 0) {
