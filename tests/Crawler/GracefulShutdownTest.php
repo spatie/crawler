@@ -19,8 +19,7 @@ it('stops crawling when shouldStop is set', function () {
 
             // Simulate a graceful stop after the first page
             if (count($crawled) === 1) {
-                $reflection = new ReflectionProperty($crawler, 'shouldStop');
-                $reflection->setValue($crawler, true);
+                invade($crawler)->shouldStop = true;
             }
         });
 
@@ -57,8 +56,7 @@ it('resets shouldStop between crawls', function () {
         ->concurrency(1);
 
     // First crawl: set shouldStop before starting
-    $reflection = new ReflectionProperty($crawler, 'shouldStop');
-    $reflection->setValue($crawler, true);
+    invade($crawler)->shouldStop = true;
 
     $firstCrawled = [];
     $crawler->onCrawled(function (string $url) use (&$firstCrawled) {

@@ -14,6 +14,26 @@ afterAll(function () {
     TestServer::stop();
 });
 
+it('crawls a site and discovers all linked pages', function () {
+    $urls = Crawler::create(TestServer::baseUrl())
+        ->ignoreRobots()
+        ->depth(1)
+        ->concurrency(1)
+        ->collectUrls();
+
+    $paths = $urls->map(fn ($crawledUrl) => parse_url($crawledUrl->url, PHP_URL_PATH))->sort()->values();
+
+    expect($paths->all())->toBe(['/', '/page1', '/page2', '/page3', '/slow']);
+
+    // All pages should return 200.
+    expect($urls->every(fn ($crawledUrl) => $crawledUrl->status === 200))->toBeTrue();
+
+    // Child pages should have the homepage as foundOnUrl.
+    $page1 = $urls->first(fn ($crawledUrl) => str_contains($crawledUrl->url, '/page1'));
+    expect($page1->foundOnUrl)->toBe(TestServer::baseUrl().'/');
+    expect($page1->depth)->toBe(1);
+});
+
 it('adaptive throttle records real response times', function () {
     $throttle = new AdaptiveThrottle(minDelayMs: 10, maxDelayMs: 5000);
 
@@ -25,8 +45,7 @@ it('adaptive throttle records real response times', function () {
         ->onCrawled(function () {})
         ->start();
 
-    $ref = new ReflectionProperty($throttle, 'currentDelayMs');
-    $currentDelay = $ref->getValue($throttle);
+    $currentDelay = invade($throttle)->currentDelayMs;
 
     // The /slow endpoint has a 300ms delay, so the recorded transfer time
     // should push currentDelayMs well above the 10ms minimum.
@@ -78,8 +97,7 @@ it('graceful shutdown stops a real crawl', function () {
             $crawled[] = $url;
 
             if (count($crawled) === 1) {
-                $reflection = new ReflectionProperty($crawler, 'shouldStop');
-                $reflection->setValue($crawler, true);
+                invade($crawler)->shouldStop = true;
             }
         })
         ->onFinished(function () use (&$finishedCalled) {
@@ -121,4 +139,38 @@ it('throttle is called on real failed requests', function () {
 
     // sleep() should be called for both the parent page (fulfilled) and the 404 (failed).
     expect($sleepCount)->toBeGreaterThanOrEqual(2);
+});
+
+it('respects robots.txt over real http', function () {
+    $crawled = [];
+
+    Crawler::create(TestServer::baseUrl().'/link-to-secret')
+        ->respectRobots()
+        ->depth(1)
+        ->concurrency(1)
+        ->onCrawled(function (string $url) use (&$crawled) {
+            $crawled[] = $url;
+        })
+        ->start();
+
+    $secretCrawls = array_filter($crawled, fn (string $url) => str_contains($url, '/secret'));
+
+    expect($secretCrawls)->toBeEmpty();
+});
+
+it('respects depth limits with real http', function () {
+    $crawled = [];
+
+    Crawler::create(TestServer::baseUrl().'/deep/1')
+        ->ignoreRobots()
+        ->depth(2)
+        ->concurrency(1)
+        ->onCrawled(function (string $url) use (&$crawled) {
+            $crawled[] = $url;
+        })
+        ->start();
+
+    // depth(2) from /deep/1 should reach /deep/1, /deep/2, /deep/3 but not /deep/4.
+    expect($crawled)->toHaveCount(3);
+    expect($crawled)->each->toMatch('/\/deep\/[123]$/');
 });

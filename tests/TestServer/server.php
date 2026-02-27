@@ -40,9 +40,39 @@ switch ($uri) {
         echo '<html><body><a href="/not-found">Broken link</a></body></html>';
         break;
 
+    case '/link-to-secret':
+        header('Content-Type: text/html');
+        echo '<html><body><a href="/secret">Secret link</a></body></html>';
+        break;
+
+    case '/secret':
+        header('Content-Type: text/html');
+        echo '<html><body><h1>Secret page</h1></body></html>';
+        break;
+
+    case '/deep/1':
+        header('Content-Type: text/html');
+        echo '<html><body><h1>Deep 1</h1><a href="/deep/2">Next</a></body></html>';
+        break;
+
+    case '/deep/2':
+        header('Content-Type: text/html');
+        echo '<html><body><h1>Deep 2</h1><a href="/deep/3">Next</a></body></html>';
+        break;
+
+    case '/deep/3':
+        header('Content-Type: text/html');
+        echo '<html><body><h1>Deep 3</h1><a href="/deep/4">Next</a></body></html>';
+        break;
+
+    case '/deep/4':
+        header('Content-Type: text/html');
+        echo '<html><body><h1>Deep 4</h1></body></html>';
+        break;
+
     case '/robots.txt':
         header('Content-Type: text/plain');
-        echo "User-agent: *\nAllow: /\n";
+        echo "User-agent: *\nDisallow: /secret\n";
         break;
 
     default:
