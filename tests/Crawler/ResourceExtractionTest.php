@@ -133,11 +133,11 @@ it('includes resourceType on collected urls', function () {
         ->alsoExtract(ResourceType::Image)
         ->collectUrls();
 
-    $image = $urls->firstWhere('url', 'https://example.com/logo.png');
+    $image = findUrl($urls, 'https://example.com/logo.png');
     expect($image)->not->toBeNull();
     expect($image->resourceType)->toBe(ResourceType::Image);
 
-    $about = $urls->firstWhere('url', 'https://example.com/about');
+    $about = findUrl($urls, 'https://example.com/about');
     expect($about)->not->toBeNull();
     expect($about->resourceType)->toBe(ResourceType::Link);
 });
@@ -176,7 +176,7 @@ it('extracts modulepreload links as scripts', function () {
     $urls = array_column($crawled, 'url');
     expect($urls)->toContain('https://example.com/module.js');
 
-    $module = collect($crawled)->firstWhere('url', 'https://example.com/module.js');
+    $module = array_values(array_filter($crawled, fn ($item) => $item['url'] === 'https://example.com/module.js'))[0] ?? null;
     expect($module['type'])->toBe(ResourceType::Script);
 });
 

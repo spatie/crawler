@@ -8,7 +8,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\TransferStats;
-use Illuminate\Support\Collection;
 use Spatie\Crawler\Concerns\ConfiguresRequests;
 use Spatie\Crawler\Concerns\HasCrawlLimits;
 use Spatie\Crawler\Concerns\HasCrawlObservers;
@@ -276,8 +275,8 @@ class Crawler
         $this->startedAt = null;
     }
 
-    /** @return Collection<CrawledUrl> */
-    public function collectUrls(): Collection
+    /** @return array<CrawledUrl> */
+    public function collectUrls(): array
     {
         $collector = new CollectUrlsObserver;
 

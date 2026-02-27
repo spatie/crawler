@@ -24,15 +24,16 @@ it('crawls a site and discovers all linked pages', function () {
         ->concurrency(1)
         ->collectUrls();
 
-    $paths = $urls->map(fn ($crawledUrl) => parse_url($crawledUrl->url, PHP_URL_PATH))->sort()->values();
+    $paths = array_map(fn ($crawledUrl) => parse_url($crawledUrl->url, PHP_URL_PATH), $urls);
+    sort($paths);
 
-    expect($paths->all())->toBe(['/', '/page1', '/page2', '/page3', '/slow']);
+    expect(array_values($paths))->toBe(['/', '/page1', '/page2', '/page3', '/slow']);
 
     // All pages should return 200.
-    expect($urls->every(fn ($crawledUrl) => $crawledUrl->status === 200))->toBeTrue();
+    expect(array_all($urls, fn ($crawledUrl) => $crawledUrl->status === 200))->toBeTrue();
 
     // Child pages should have the homepage as foundOnUrl.
-    $page1 = $urls->first(fn ($crawledUrl) => str_contains($crawledUrl->url, '/page1'));
+    $page1 = array_values(array_filter($urls, fn ($crawledUrl) => str_contains($crawledUrl->url, '/page1')))[0] ?? null;
     expect($page1->foundOnUrl)->toBe(TestServer::baseUrl().'/');
     expect($page1->depth)->toBe(1);
 });

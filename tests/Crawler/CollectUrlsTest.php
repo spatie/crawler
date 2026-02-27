@@ -14,7 +14,7 @@ it('can collect urls', function () {
         ->collectUrls();
 
     expect($urls)->toHaveCount(3);
-    expect($urls->first())->toBeInstanceOf(CrawledUrl::class);
+    expect($urls[0])->toBeInstanceOf(CrawledUrl::class);
 });
 
 it('collected urls contain status codes', function () {
@@ -25,7 +25,7 @@ it('collected urls contain status codes', function () {
         ->ignoreRobots()
         ->collectUrls();
 
-    $home = $urls->firstWhere('url', 'https://example.com/');
+    $home = findUrl($urls, 'https://example.com/');
     expect($home)->not->toBeNull();
     expect($home->status)->toBe(200);
 });
@@ -39,7 +39,7 @@ it('collected urls contain found on url', function () {
         ->ignoreRobots()
         ->collectUrls();
 
-    $about = $urls->firstWhere('url', 'https://example.com/about');
+    $about = findUrl($urls, 'https://example.com/about');
     expect($about)->not->toBeNull();
     expect($about->foundOnUrl)->toBe('https://example.com/');
 });
@@ -54,13 +54,13 @@ it('collected urls contain depth', function () {
         ->ignoreRobots()
         ->collectUrls();
 
-    $home = $urls->firstWhere('url', 'https://example.com/');
+    $home = findUrl($urls, 'https://example.com/');
     expect($home->depth)->toBe(0);
 
-    $level1 = $urls->firstWhere('url', 'https://example.com/level1');
+    $level1 = findUrl($urls, 'https://example.com/level1');
     expect($level1->depth)->toBe(1);
 
-    $level2 = $urls->firstWhere('url', 'https://example.com/level2');
+    $level2 = findUrl($urls, 'https://example.com/level2');
     expect($level2->depth)->toBe(2);
 });
 
@@ -92,8 +92,19 @@ it('can collect urls with internalOnly', function () {
         ->internalOnly()
         ->collectUrls();
 
-    $collectedUrls = $urls->pluck('url')->toArray();
+    $collectedUrls = array_map(fn (CrawledUrl $url) => $url->url, $urls);
     expect($collectedUrls)->toContain('https://example.com/');
     expect($collectedUrls)->toContain('https://example.com/page');
     expect($collectedUrls)->not->toContain('https://other.com');
 });
+
+function findUrl(array $urls, string $targetUrl): ?CrawledUrl
+{
+    foreach ($urls as $url) {
+        if ($url->url === $targetUrl) {
+            return $url;
+        }
+    }
+
+    return null;
+}

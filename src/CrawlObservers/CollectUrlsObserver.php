@@ -3,19 +3,14 @@
 namespace Spatie\Crawler\CrawlObservers;
 
 use GuzzleHttp\Exception\RequestException;
-use Illuminate\Support\Collection;
 use Spatie\Crawler\CrawledUrl;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Enums\ResourceType;
 
 class CollectUrlsObserver extends CrawlObserver
 {
-    protected Collection $crawledUrls;
-
-    public function __construct()
-    {
-        $this->crawledUrls = new Collection;
-    }
+    /** @var array<CrawledUrl> */
+    protected array $crawledUrls = [];
 
     public function crawled(
         string $url,
@@ -24,13 +19,13 @@ class CollectUrlsObserver extends CrawlObserver
         ?string $linkText = null,
         ?ResourceType $resourceType = null,
     ): void {
-        $this->crawledUrls->push(new CrawledUrl(
+        $this->crawledUrls[] = new CrawledUrl(
             url: $url,
             status: $response->status(),
             foundOnUrl: $foundOnUrl,
             depth: $response->depth(),
             resourceType: $resourceType ?? ResourceType::Link,
-        ));
+        );
     }
 
     public function crawlFailed(
@@ -42,16 +37,16 @@ class CollectUrlsObserver extends CrawlObserver
     ): void {
         $response = $requestException->getResponse();
 
-        $this->crawledUrls->push(new CrawledUrl(
+        $this->crawledUrls[] = new CrawledUrl(
             url: $url,
             status: $response ? $response->getStatusCode() : 0,
             foundOnUrl: $foundOnUrl,
             resourceType: $resourceType ?? ResourceType::Link,
-        ));
+        );
     }
 
-    /** @return Collection<CrawledUrl> */
-    public function getUrls(): Collection
+    /** @return array<CrawledUrl> */
+    public function getUrls(): array
     {
         return $this->crawledUrls;
     }

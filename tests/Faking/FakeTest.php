@@ -132,8 +132,9 @@ it('can collect urls using fake', function () {
         ->collectUrls();
 
     expect($urls)->toHaveCount(2);
-    expect($urls->pluck('url')->toArray())->toContain('https://example.com/');
-    expect($urls->pluck('url')->toArray())->toContain('https://example.com/about');
+    $collectedUrls = array_map(fn ($url) => $url->url, $urls);
+    expect($collectedUrls)->toContain('https://example.com/');
+    expect($collectedUrls)->toContain('https://example.com/about');
 });
 
 it('can use internalOnly with fake', function () {
