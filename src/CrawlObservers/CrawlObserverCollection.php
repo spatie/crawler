@@ -26,7 +26,8 @@ class CrawlObserverCollection
 
     public function onWillCrawl(Closure $callback): void
     {
-        $this->observers[] = new class($callback) extends CrawlObserver {
+        $this->observers[] = new class($callback) extends CrawlObserver
+        {
             public function __construct(protected Closure $callback) {}
 
             public function willCrawl(string $url, ?string $linkText, ?ResourceType $resourceType = null): void
@@ -38,7 +39,8 @@ class CrawlObserverCollection
 
     public function onCrawled(Closure $callback): void
     {
-        $this->observers[] = new class($callback) extends CrawlObserver {
+        $this->observers[] = new class($callback) extends CrawlObserver
+        {
             public function __construct(protected Closure $callback) {}
 
             public function crawled(string $url, CrawlResponse $response, CrawlProgress $progress): void
@@ -50,7 +52,8 @@ class CrawlObserverCollection
 
     public function onFailed(Closure $callback): void
     {
-        $this->observers[] = new class($callback) extends CrawlObserver {
+        $this->observers[] = new class($callback) extends CrawlObserver
+        {
             public function __construct(protected Closure $callback) {}
 
             public function crawlFailed(
@@ -68,7 +71,8 @@ class CrawlObserverCollection
 
     public function onFinished(Closure $callback): void
     {
-        $this->observers[] = new class($callback) extends CrawlObserver {
+        $this->observers[] = new class($callback) extends CrawlObserver
+        {
             public function __construct(protected Closure $callback) {}
 
             public function finishedCrawling(FinishReason $reason, CrawlProgress $progress): void
