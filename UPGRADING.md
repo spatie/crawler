@@ -146,7 +146,7 @@ interface UrlParser
 // After
 interface UrlParser
 {
-    /** @return array<string, ?string> url => linkText */
+    /** @return array<int, ExtractedUrl> */
     public function extractUrls(string $html, string $baseUrl): array;
 }
 ```
@@ -221,7 +221,7 @@ Crawler::create('https://example.com')
     ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) {
         echo $url . ': ' . $response->status();
     })
-    ->onFailed(function (string $url, RequestException $e, CrawlProgress $progress, ?string $foundOnUrl, ?string $linkText) { ... })
+    ->onFailed(function (string $url, RequestException $e, CrawlProgress $progress, ?string $foundOnUrl, ?string $linkText, ?ResourceType $resourceType) { ... })
     ->onFinished(function (FinishReason $reason, CrawlProgress $progress) { ... })
     ->start();
 ```
