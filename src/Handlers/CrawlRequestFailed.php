@@ -3,6 +3,7 @@
 namespace Spatie\Crawler\Handlers;
 
 use Exception;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use Spatie\Crawler\Crawler;
@@ -16,7 +17,10 @@ class CrawlRequestFailed
         $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
         if (! $exception instanceof RequestException) {
-            $request = new Request('GET', $crawlUrl->url);
+            $request = $exception instanceof ConnectException
+                ? $exception->getRequest()
+                : new Request('GET', $crawlUrl->url);
+
             $exception = new RequestException($exception->getMessage(), $request, previous: $exception);
         }
 
