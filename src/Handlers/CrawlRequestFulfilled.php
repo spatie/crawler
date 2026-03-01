@@ -36,15 +36,7 @@ class CrawlRequestFulfilled
         $body = $this->getBody($response);
 
         if ($body === '') {
-            $crawlResponse = new CrawlResponse(
-                $response,
-                $crawlUrl->foundOnUrl,
-                $crawlUrl->linkText,
-                $crawlUrl->depth,
-                $crawlUrl->resourceType ?? ResourceType::Link,
-                $this->crawler->getTransferStats($crawlUrl->url),
-            );
-            $crawlResponse->setCachedBody('');
+            $crawlResponse = $this->createCrawlResponse($response, $crawlUrl, '');
 
             $this->crawler->recordCrawled();
             $this->crawler->getCrawlObservers()->crawled($crawlUrl, $crawlResponse, $this->crawler->getCrawlProgress());
@@ -64,6 +56,8 @@ class CrawlRequestFulfilled
             try {
                 $body = $renderer->getRenderedHtml($crawlUrl->url);
             } catch (ProcessFailedException $exception) {
+                // ProcessFailedException comes from symfony/process, a transitive
+                // dependency through spatie/browsershot.
                 $request = new Request('GET', $crawlUrl->url);
                 $exception = new RequestException($exception->getMessage(), $request);
 
@@ -76,15 +70,7 @@ class CrawlRequestFulfilled
             $response = $response->withBody(Utils::streamFor($body));
         }
 
-        $crawlResponse = new CrawlResponse(
-            $response,
-            $crawlUrl->foundOnUrl,
-            $crawlUrl->linkText,
-            $crawlUrl->depth,
-            $crawlUrl->resourceType ?? ResourceType::Link,
-            $this->crawler->getTransferStats($crawlUrl->url),
-        );
-        $crawlResponse->setCachedBody($body);
+        $crawlResponse = $this->createCrawlResponse($response, $crawlUrl, $body);
 
         if ($robots->mayIndex()) {
             $this->crawler->recordCrawled();
@@ -143,6 +129,21 @@ class CrawlRequestFulfilled
                 resourceType: $extractedUrl->resourceType,
             ));
         }
+    }
+
+    protected function createCrawlResponse(ResponseInterface $response, CrawlUrl $crawlUrl, string $body): CrawlResponse
+    {
+        $crawlResponse = new CrawlResponse(
+            $response,
+            $crawlUrl->foundOnUrl,
+            $crawlUrl->linkText,
+            $crawlUrl->depth,
+            $crawlUrl->resourceType ?? ResourceType::Link,
+            $this->crawler->getTransferStats($crawlUrl->url),
+        );
+        $crawlResponse->setCachedBody($body);
+
+        return $crawlResponse;
     }
 
     protected function getBaseUrl(ResponseInterface $response, CrawlUrl $crawlUrl): string

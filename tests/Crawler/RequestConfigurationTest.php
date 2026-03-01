@@ -118,6 +118,44 @@ it('follows redirects and tracks them by default', function () {
     expect($config[RequestOptions::ALLOW_REDIRECTS])->toBe(['track_redirects' => true]);
 });
 
+it('merges custom client options with defaults', function () {
+    $crawler = Crawler::create('https://example.com', [
+        RequestOptions::STREAM => true,
+    ]);
+
+    $config = getClientConfig($crawler);
+
+    // Custom option is set
+    expect($config[RequestOptions::STREAM])->toBeTrue();
+
+    // Defaults are preserved
+    expect($config[RequestOptions::CONNECT_TIMEOUT])->toBe(10);
+    expect($config[RequestOptions::TIMEOUT])->toBe(10);
+    expect($config[RequestOptions::ALLOW_REDIRECTS])->toBe(['track_redirects' => true]);
+});
+
+it('can override a default client option', function () {
+    $crawler = Crawler::create('https://example.com', [
+        RequestOptions::TIMEOUT => 30,
+    ]);
+
+    $config = getClientConfig($crawler);
+
+    expect($config[RequestOptions::TIMEOUT])->toBe(30);
+    expect($config[RequestOptions::CONNECT_TIMEOUT])->toBe(10);
+});
+
+it('can remove a default client option with null', function () {
+    $crawler = Crawler::create('https://example.com', [
+        RequestOptions::CONNECT_TIMEOUT => null,
+    ]);
+
+    $config = getClientConfig($crawler);
+
+    expect($config)->not->toHaveKey(RequestOptions::CONNECT_TIMEOUT);
+    expect($config[RequestOptions::TIMEOUT])->toBe(10);
+});
+
 function getClientConfig(Crawler $crawler): array
 {
     $buildClient = new ReflectionMethod($crawler, 'buildClient');

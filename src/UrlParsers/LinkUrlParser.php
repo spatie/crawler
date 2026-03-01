@@ -202,6 +202,7 @@ class LinkUrlParser implements UrlParser
 
         $linkText = $link->getNode()->textContent;
         if ($linkText) {
+            // Limit link text to prevent excessive memory usage from large DOM nodes
             $linkText = substr($linkText, 0, 4000);
         }
 
@@ -295,7 +296,17 @@ class LinkUrlParser implements UrlParser
             $normalizedPath = '/'.$normalizedPath;
         }
 
-        $result = ($parsed['scheme'] ?? '').'://'.($parsed['host'] ?? '');
+        $result = ($parsed['scheme'] ?? '').'://';
+
+        if (isset($parsed['user'])) {
+            $result .= $parsed['user'];
+            if (isset($parsed['pass'])) {
+                $result .= ':'.$parsed['pass'];
+            }
+            $result .= '@';
+        }
+
+        $result .= $parsed['host'] ?? '';
 
         if (isset($parsed['port'])) {
             $result .= ':'.$parsed['port'];

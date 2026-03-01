@@ -3,8 +3,8 @@
 namespace Spatie\Crawler\Handlers;
 
 use Exception;
-use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Request;
 use Spatie\Crawler\Crawler;
 
 class CrawlRequestFailed
@@ -13,16 +13,15 @@ class CrawlRequestFailed
 
     public function __invoke(Exception $exception, mixed $index): void
     {
-        if ($exception instanceof ConnectException) {
-            $exception = new RequestException($exception->getMessage(), $exception->getRequest());
+        $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
+
+        if (! $exception instanceof RequestException) {
+            $request = new Request('GET', $crawlUrl->url);
+            $exception = new RequestException($exception->getMessage(), $request, previous: $exception);
         }
 
-        if ($exception instanceof RequestException) {
-            $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
-
-            $this->crawler->recordFailed();
-            $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception, $this->crawler->getCrawlProgress());
-        }
+        $this->crawler->recordFailed();
+        $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception, $this->crawler->getCrawlProgress());
 
         $this->crawler->applyDelay();
     }

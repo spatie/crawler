@@ -58,6 +58,16 @@ it('normalizes multiple parent dot segments', function () {
     expect($urls[0]->url)->toBe('https://example.com/a/d');
 });
 
+it('preserves userinfo when normalizing dot segments', function () {
+    $parser = new LinkUrlParser;
+
+    $html = '<html><body><a href="https://user:pass@example.com/a/b/../c">link</a></body></html>';
+    $urls = $parser->extractUrls($html, 'https://example.com');
+
+    expect($urls)->not->toBeEmpty();
+    expect($urls[0]->url)->toBe('https://user:pass@example.com/a/c');
+});
+
 it('leaves urls without dot segments unchanged', function () {
     $parser = new LinkUrlParser;
 

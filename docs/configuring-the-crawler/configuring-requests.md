@@ -193,6 +193,40 @@ Crawler::create('https://example.com')
     ->start();
 ```
 
+## Custom Guzzle client options
+
+The second argument to `Crawler::create()` accepts an array of [Guzzle request options](https://docs.guzzlephp.org/en/stable/request-options.html). These are merged with the crawler's defaults, so you only need to specify the options you want to change.
+
+```php
+use GuzzleHttp\RequestOptions;
+use Spatie\Crawler\Crawler;
+
+Crawler::create('https://example.com', [
+    RequestOptions::STREAM => true,
+    RequestOptions::TIMEOUT => 30,
+])->start();
+```
+
+The defaults are:
+
+```php
+[
+    RequestOptions::COOKIES => true,
+    RequestOptions::CONNECT_TIMEOUT => 10,
+    RequestOptions::TIMEOUT => 10,
+    RequestOptions::ALLOW_REDIRECTS => ['track_redirects' => true],
+    RequestOptions::HEADERS => ['User-Agent' => '*'],
+]
+```
+
+To explicitly remove a default option, set it to `null`:
+
+```php
+Crawler::create('https://example.com', [
+    RequestOptions::COOKIES => null, // removes the default COOKIES option entirely
+])->start();
+```
+
 ## Redirects
 
 By default, the crawler follows redirects and tracks the redirect chain. This means that when a URL redirects to another location, the crawler will follow the redirect and use the final URL as the base for extracting links.

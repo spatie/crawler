@@ -9,6 +9,9 @@ All notable changes to `spatie/crawler` will be documented in this file.
 - Non-parseable responses (e.g. binary files filtered by `allowedMimeTypes`) now notify observers via `crawled()` with an empty body instead of being silently skipped
 - URLs containing control characters are now detected and reported as malformed
 - Dot segments (`/../`, `/./`) in extracted URLs are now normalized per RFC 3986
+- Custom client options passed to `Crawler::create()` now merge with defaults instead of replacing them (pass `null` to remove a default)
+- `CrawlRequestFailed` now wraps non-`RequestException` errors so observers always receive a `RequestException`
+- Removed unused classes: `Url`, `ResponseWithCachedBody`, `InvalidUrl`
 
 ### Added
 - `stream()` method to opt-in to streaming HTTP responses for reduced memory usage

@@ -16,6 +16,33 @@ Crawler::create('https://example.com', [
 ])->start();
 ```
 
+### Custom client options are now merged with defaults
+
+Previously, passing client options to `Crawler::create()` would replace all default options. Now custom options are merged with the defaults, so you only need to specify what you want to change.
+
+The defaults are:
+
+- `connect_timeout`: 10 seconds
+- `timeout`: 10 seconds
+- `cookies`: enabled
+- `allow_redirects`: enabled with redirect tracking
+
+To override a default, pass the new value:
+
+```php
+Crawler::create('https://example.com', [
+    RequestOptions::TIMEOUT => 30,
+]);
+```
+
+To remove a default entirely, pass `null`:
+
+```php
+Crawler::create('https://example.com', [
+    RequestOptions::CONNECT_TIMEOUT => null,
+]);
+```
+
 ### Non-parseable responses now trigger observers
 
 Previously, responses with MIME types not in `allowedMimeTypes` were silently skipped. Now they trigger `crawled()` on your observers with an empty body. If your observer logic assumes `$response->body()` is never empty, you may need to add a check.

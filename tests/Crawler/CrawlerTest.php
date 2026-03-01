@@ -2,7 +2,6 @@
 
 namespace Spatie\Crawler\Test;
 
-use GuzzleHttp\RequestOptions;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProfiles\CrawlInternalUrls;
 use Spatie\Crawler\CrawlProfiles\CrawlProfile;
@@ -376,11 +375,7 @@ it('should handle redirects correctly when tracking is active', function () {
     $fakes['https://example.com/dir1/internal-redirect/trap/'] = CrawlResponse::fake('', 301, ['Location' => 'https://example.com/dir1/internal-redirect-entry/']);
     $fakes['https://example.com/dir1/loop-generator/internal-redirect/trapped/'] = 'It should be crawled once';
 
-    createCrawler('https://example.com/dir1/internal-redirect-entry/', [
-        RequestOptions::ALLOW_REDIRECTS => [
-            'track_redirects' => true,
-        ],
-    ])
+    createCrawler('https://example.com/dir1/internal-redirect-entry/')
         ->fake($fakes)
         ->start();
 
@@ -391,11 +386,7 @@ it('should handle redirects correctly when max depth is specified', function () 
     $fakes = fullSiteFakes();
     $fakes['https://example.com/redirect-home/'] = CrawlResponse::fake('', 301, ['Location' => 'https://example.com/']);
 
-    createCrawler('https://example.com/redirect-home/', [
-        RequestOptions::ALLOW_REDIRECTS => [
-            'track_redirects' => true,
-        ],
-    ])
+    createCrawler('https://example.com/redirect-home/')
         ->fake($fakes)
         ->depth(5)
         ->start();

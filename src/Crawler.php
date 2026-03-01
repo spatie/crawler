@@ -95,9 +95,10 @@ class Crawler
 
     public function __construct(array $clientOptions = [])
     {
-        $this->clientOptions = count($clientOptions)
-            ? $clientOptions
-            : static::$defaultClientOptions;
+        $merged = array_merge(static::$defaultClientOptions, $clientOptions);
+
+        // A null value explicitly removes a default option
+        $this->clientOptions = array_filter($merged, fn ($value) => $value !== null);
 
         $this->crawlQueue = new ArrayCrawlQueue;
         $this->crawlObservers = new CrawlObserverCollection;
@@ -336,7 +337,7 @@ class Crawler
         return $this->maximumDepth;
     }
 
-    public function getMaximumResponseSize(): ?int
+    public function getMaximumResponseSize(): int
     {
         return $this->maximumResponseSize;
     }
