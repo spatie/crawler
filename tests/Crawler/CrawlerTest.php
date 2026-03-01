@@ -436,15 +436,21 @@ it('will only crawl correct mime types when asked to', function () {
     expect([
         ['url' => 'https://example.com/content-types/music.mp3', 'foundOn' => 'https://example.com/content-types'],
         ['url' => 'https://example.com/content-types/video.mkv', 'foundOn' => 'https://example.com/content-types'],
-    ])->each->notToBeCrawled();
+    ])->each->toBeCrawledOnce();
 
     expect(['url' => 'https://example.com/content-types/normal.html', 'foundOn' => 'https://example.com/content-types'])
         ->toBeCrawledOnce();
 
-    expectCrawledUrlCount(2);
+    // Non-parseable responses are reported to observers but links are not extracted from them
+    expect([
+        ['url' => 'https://example.com/content-types/music.html', 'foundOn' => 'https://example.com/content-types/music.mp3'],
+        ['url' => 'https://example.com/content-types/video.html', 'foundOn' => 'https://example.com/content-types/video.mkv'],
+    ])->each->notToBeCrawled();
+
+    expectCrawledUrlCount(4);
 });
 
-it('does not report filtered mime types to observers', function () {
+it('reports filtered mime types to observers with empty body', function () {
     $crawled = [];
 
     Crawler::create('https://example.com/content-types')
@@ -452,13 +458,17 @@ it('does not report filtered mime types to observers', function () {
         ->allowedMimeTypes(['text/html'])
         ->ignoreRobots()
         ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) use (&$crawled) {
-            $crawled[] = $url;
+            $crawled[$url] = $response->body();
         })
         ->start();
 
-    expect($crawled)->not->toContain('https://example.com/content-types/music.mp3');
-    expect($crawled)->not->toContain('https://example.com/content-types/video.mkv');
-    expect($crawled)->toContain('https://example.com/content-types/normal.html');
+    expect($crawled)->toHaveKey('https://example.com/content-types/music.mp3');
+    expect($crawled)->toHaveKey('https://example.com/content-types/video.mkv');
+    expect($crawled)->toHaveKey('https://example.com/content-types/normal.html');
+
+    expect($crawled['https://example.com/content-types/music.mp3'])->toBe('');
+    expect($crawled['https://example.com/content-types/video.mkv'])->toBe('');
+    expect($crawled['https://example.com/content-types/normal.html'])->not->toBe('');
 });
 
 it('will crawl all content types when not explicitly whitelisted', function () {

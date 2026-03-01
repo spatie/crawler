@@ -93,6 +93,31 @@ it('can combine multiple request configuration methods', function () {
     expect($config[RequestOptions::QUERY])->toBe(['key' => 'value']);
 });
 
+it('can enable streaming responses', function () {
+    $crawler = Crawler::create('https://example.com')
+        ->stream();
+
+    $config = getClientConfig($crawler);
+
+    expect($config[RequestOptions::STREAM])->toBeTrue();
+});
+
+it('does not enable streaming by default', function () {
+    $crawler = Crawler::create('https://example.com');
+
+    $config = getClientConfig($crawler);
+
+    expect($config)->not->toHaveKey(RequestOptions::STREAM);
+});
+
+it('follows redirects and tracks them by default', function () {
+    $crawler = Crawler::create('https://example.com');
+
+    $config = getClientConfig($crawler);
+
+    expect($config[RequestOptions::ALLOW_REDIRECTS])->toBe(['track_redirects' => true]);
+});
+
 function getClientConfig(Crawler $crawler): array
 {
     $buildClient = new ReflectionMethod($crawler, 'buildClient');

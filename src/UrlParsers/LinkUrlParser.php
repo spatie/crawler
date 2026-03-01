@@ -167,6 +167,17 @@ class LinkUrlParser implements UrlParser
             );
         }
 
+        if (preg_match('/[\x00-\x1f\x7f]/', $uri)) {
+            return new ExtractedUrl(
+                url: $link->getNode()->getAttribute('href'),
+                linkText: $link->getNode()->textContent ?: null,
+                resourceType: ResourceType::Link,
+                malformedReason: 'URL contains control characters',
+            );
+        }
+
+        $uri = $this->removeDotSegments($uri);
+
         $parsed = parse_url($uri);
 
         if ($parsed === false) {
@@ -213,6 +224,14 @@ class LinkUrlParser implements UrlParser
             );
         }
 
+        if (preg_match('/[\x00-\x1f\x7f]/', $resolved)) {
+            return new ExtractedUrl(
+                url: $src,
+                resourceType: $resourceType,
+                malformedReason: 'URL contains control characters',
+            );
+        }
+
         $parsed = parse_url($resolved);
 
         if (! isset($parsed['scheme']) || ! in_array($parsed['scheme'], ['http', 'https'])) {
@@ -243,6 +262,56 @@ class LinkUrlParser implements UrlParser
         }
 
         return true;
+    }
+
+    protected function removeDotSegments(string $uri): string
+    {
+        $parsed = parse_url($uri);
+
+        if (! isset($parsed['path']) || ! str_contains($parsed['path'], '.')) {
+            return $uri;
+        }
+
+        $path = $parsed['path'];
+        $output = [];
+
+        foreach (explode('/', $path) as $segment) {
+            if ($segment === '.') {
+                continue;
+            }
+
+            if ($segment === '..') {
+                array_pop($output);
+
+                continue;
+            }
+
+            $output[] = $segment;
+        }
+
+        $normalizedPath = implode('/', $output);
+
+        if ($normalizedPath !== '' && $normalizedPath[0] !== '/' && ($path[0] ?? '') === '/') {
+            $normalizedPath = '/'.$normalizedPath;
+        }
+
+        $result = ($parsed['scheme'] ?? '').'://'.($parsed['host'] ?? '');
+
+        if (isset($parsed['port'])) {
+            $result .= ':'.$parsed['port'];
+        }
+
+        $result .= $normalizedPath;
+
+        if (isset($parsed['query'])) {
+            $result .= '?'.$parsed['query'];
+        }
+
+        if (isset($parsed['fragment'])) {
+            $result .= '#'.$parsed['fragment'];
+        }
+
+        return $result;
     }
 
     protected function resolveBaseHref(DomCrawler $domCrawler, string $baseUrl): string

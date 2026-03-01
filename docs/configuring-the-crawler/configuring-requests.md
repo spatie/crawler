@@ -192,3 +192,30 @@ Crawler::create('https://example.com')
     ->middleware($cachingMiddleware, 'caching')
     ->start();
 ```
+
+## Redirects
+
+By default, the crawler follows redirects and tracks the redirect chain. This means that when a URL redirects to another location, the crawler will follow the redirect and use the final URL as the base for extracting links.
+
+If you need to disable redirect following, you can pass custom client options:
+
+```php
+use GuzzleHttp\RequestOptions;
+use Spatie\Crawler\Crawler;
+
+Crawler::create('https://example.com', [
+    RequestOptions::ALLOW_REDIRECTS => false,
+])->start();
+```
+
+## Streaming responses
+
+For sites with large responses, you can enable streaming to reduce memory usage. When streaming is enabled, response bodies are read in chunks rather than loaded entirely into memory.
+
+```php
+use Spatie\Crawler\Crawler;
+
+Crawler::create('https://example.com')
+    ->stream()
+    ->start();
+```

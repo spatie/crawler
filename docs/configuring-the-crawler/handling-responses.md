@@ -31,3 +31,5 @@ Crawler::create('https://example.com')
 ```
 
 This will prevent downloading the body of pages that have different MIME types, like binary files or audio/video that are unlikely to have links embedded in them. This feature mostly saves bandwidth.
+
+When a response has a non-allowed MIME type, the crawler will still notify your observers via `crawled()` with an empty body. This lets you track all URLs the crawler visits, regardless of content type. The crawler simply skips robots checking and URL extraction for these responses since there is no HTML to parse.

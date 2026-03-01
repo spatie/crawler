@@ -113,6 +113,30 @@ it('can dispatch closure callbacks', function () {
     expect($crawledUrl)->toBe('https://example.com');
 });
 
+it('can dispatch multiple closure callbacks for the same event', function () {
+    $observers = new CrawlObserverCollection;
+
+    $firstCrawledUrl = null;
+    $secondCrawledUrl = null;
+
+    $observers->onCrawled(function (string $url) use (&$firstCrawledUrl) {
+        $firstCrawledUrl = $url;
+    });
+
+    $observers->onCrawled(function (string $url) use (&$secondCrawledUrl) {
+        $secondCrawledUrl = $url;
+    });
+
+    $observers->crawled(
+        new CrawlUrl('https://example.com'),
+        new CrawlResponse(new Response),
+        makeCrawlProgress(),
+    );
+
+    expect($firstCrawledUrl)->toBe('https://example.com');
+    expect($secondCrawledUrl)->toBe('https://example.com');
+});
+
 it('can dispatch finished callback', function () {
     $observers = new CrawlObserverCollection;
 

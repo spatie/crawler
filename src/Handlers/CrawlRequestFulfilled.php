@@ -31,13 +31,26 @@ class CrawlRequestFulfilled
 
     protected function handle(ResponseInterface $response, mixed $index): void
     {
+        $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
+
         $body = $this->getBody($response);
 
         if ($body === '') {
+            $crawlResponse = new CrawlResponse(
+                $response,
+                $crawlUrl->foundOnUrl,
+                $crawlUrl->linkText,
+                $crawlUrl->depth,
+                $crawlUrl->resourceType ?? ResourceType::Link,
+                $this->crawler->getTransferStats($crawlUrl->url),
+            );
+            $crawlResponse->setCachedBody('');
+
+            $this->crawler->recordCrawled();
+            $this->crawler->getCrawlObservers()->crawled($crawlUrl, $crawlResponse, $this->crawler->getCrawlProgress());
+
             return;
         }
-
-        $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
         $robots = new CrawlerRobots(
             $response->getHeaders(),

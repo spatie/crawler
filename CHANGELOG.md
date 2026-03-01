@@ -2,6 +2,17 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 9.0.1 - 2026-03-02
+
+### Fixed
+- Fixed `allow_redirects` default: changed from `false` to `['track_redirects' => true]` so redirects are followed and the redirect history header is populated correctly
+- Non-parseable responses (e.g. binary files filtered by `allowedMimeTypes`) now notify observers via `crawled()` with an empty body instead of being silently skipped
+- URLs containing control characters are now detected and reported as malformed
+- Dot segments (`/../`, `/./`) in extracted URLs are now normalized per RFC 3986
+
+### Added
+- `stream()` method to opt-in to streaming HTTP responses for reduced memory usage
+
 ## 9.0.0 - 2026-03-01
 
 Major rewrite. See [UPGRADING.md](UPGRADING.md) for a full list of breaking changes.

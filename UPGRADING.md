@@ -4,6 +4,22 @@
 
 v9 is a major rewrite that simplifies the API, removes dependencies, and adds built-in testability. Below is a complete list of breaking changes.
 
+### Redirects are now followed by default
+
+The default `allow_redirects` option changed from `false` to `['track_redirects' => true]`. This means the crawler now follows redirects and tracks the redirect chain. If you relied on the previous behavior of not following redirects, pass custom client options:
+
+```php
+use GuzzleHttp\RequestOptions;
+
+Crawler::create('https://example.com', [
+    RequestOptions::ALLOW_REDIRECTS => false,
+])->start();
+```
+
+### Non-parseable responses now trigger observers
+
+Previously, responses with MIME types not in `allowedMimeTypes` were silently skipped. Now they trigger `crawled()` on your observers with an empty body. If your observer logic assumes `$response->body()` is never empty, you may need to add a check.
+
 ### Entry point
 
 ```php

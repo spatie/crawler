@@ -42,6 +42,8 @@ trait ConfiguresRequests
 
     protected ?string $userAgent = null;
 
+    protected bool $streamResponses = false;
+
     protected array $clientOptions;
 
     protected ?Client $client = null;
@@ -57,7 +59,7 @@ trait ConfiguresRequests
         RequestOptions::COOKIES => true,
         RequestOptions::CONNECT_TIMEOUT => 10,
         RequestOptions::TIMEOUT => 10,
-        RequestOptions::ALLOW_REDIRECTS => false,
+        RequestOptions::ALLOW_REDIRECTS => ['track_redirects' => true],
         RequestOptions::HEADERS => [
             'User-Agent' => self::DEFAULT_USER_AGENT,
         ],
@@ -154,6 +156,13 @@ trait ConfiguresRequests
         return $this;
     }
 
+    public function stream(): self
+    {
+        $this->streamResponses = true;
+
+        return $this;
+    }
+
     public function getUserAgent(): string
     {
         return $this->userAgent ?? static::DEFAULT_USER_AGENT;
@@ -214,6 +223,10 @@ trait ConfiguresRequests
 
         if (! empty($this->queryParameters)) {
             $options[RequestOptions::QUERY] = $this->queryParameters;
+        }
+
+        if ($this->streamResponses) {
+            $options[RequestOptions::STREAM] = true;
         }
 
         $throttle = $this->throttle;

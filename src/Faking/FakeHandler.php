@@ -19,11 +19,9 @@ class FakeHandler
         foreach ($fakes as $url => $content) {
             $normalizedUrl = $this->normalizeUrl($url);
 
-            if ($content instanceof CrawlResponse) {
-                $this->responses[$normalizedUrl] = $content->toPsrResponse();
-            } else {
-                $this->responses[$normalizedUrl] = new Response(200, ['Content-Type' => 'text/html'], $content);
-            }
+            $this->responses[$normalizedUrl] = $content instanceof CrawlResponse
+                ? $content->toPsrResponse()
+                : new Response(200, ['Content-Type' => 'text/html'], $content);
         }
     }
 
