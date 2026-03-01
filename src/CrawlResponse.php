@@ -30,10 +30,10 @@ class CrawlResponse
         int $status = 200,
         array $headers = [],
         ResourceType $resourceType = ResourceType::Link,
-    ): static {
+    ): self {
         $response = new Response($status, $headers, $body);
 
-        return new static($response, resourceType: $resourceType);
+        return new self($response, resourceType: $resourceType);
     }
 
     public function status(): int

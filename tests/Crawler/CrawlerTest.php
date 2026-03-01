@@ -357,9 +357,9 @@ it('respects the requested delay between requests', function () {
 });
 
 test('custom crawl request handlers must extend abstracts', function () {
-    Crawler::create()->fulfilledHandler(stdClass::class);
+    Crawler::create('https://example.com')->fulfilledHandler(stdClass::class);
 
-    Crawler::create()->failedHandler(stdClass::class);
+    Crawler::create('https://example.com')->failedHandler(stdClass::class);
 })->throws(InvalidCrawlRequestHandler::class);
 
 it('will only crawl correct mime types when asked to', function () {
@@ -472,7 +472,7 @@ it('respects the current execution time limit', function () {
 });
 
 it('should return the user agent', function () {
-    $crawler = Crawler::create()
+    $crawler = Crawler::create('https://example.com')
         ->userAgent('test/1.2.3');
 
     expect($crawler->getUserAgent())
@@ -480,12 +480,12 @@ it('should return the user agent', function () {
 });
 
 it('should return default user agent when none is set', function () {
-    expect(Crawler::create()->getUserAgent())
+    expect(Crawler::create('https://example.com')->getUserAgent())
         ->not->toBeEmpty();
 });
 
 it('should change the default base url scheme to https', function () {
-    $crawler = Crawler::create()
+    $crawler = Crawler::create('https://example.com')
         ->defaultScheme('https');
 
     expect($crawler->getDefaultScheme())
@@ -493,7 +493,7 @@ it('should change the default base url scheme to https', function () {
 });
 
 it('should remember settings', function () {
-    $crawler = Crawler::create()
+    $crawler = Crawler::create('https://example.com')
         ->depth(10)
         ->limit(10)
         ->userAgent('test/1.2.3');

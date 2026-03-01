@@ -50,7 +50,7 @@ it('can be fulfilled', function () {
     ]);
 
     $observers->crawled(
-        CrawlUrl::create('https://example.com'),
+        new CrawlUrl('https://example.com'),
         new CrawlResponse(new Response),
         makeCrawlProgress(),
     );
@@ -66,7 +66,7 @@ it('can fail', function () {
     ]);
 
     $observers->crawlFailed(
-        CrawlUrl::create('https://example.com'),
+        new CrawlUrl('https://example.com'),
         new RequestException('', new Request('GET', 'https://example.com')),
         makeCrawlProgress(),
     );
@@ -88,7 +88,7 @@ it('can dispatch willCrawl callback', function () {
     });
 
     $observers->willCrawl(
-        CrawlUrl::create('https://example.com', linkText: 'Example')
+        new CrawlUrl('https://example.com', linkText: 'Example')
     );
 
     expect($willCrawlUrl)->toBe('https://example.com');
@@ -105,7 +105,7 @@ it('can dispatch closure callbacks', function () {
     });
 
     $observers->crawled(
-        CrawlUrl::create('https://example.com'),
+        new CrawlUrl('https://example.com'),
         new CrawlResponse(new Response),
         makeCrawlProgress(),
     );

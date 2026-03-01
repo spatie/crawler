@@ -3,7 +3,6 @@
 namespace Spatie\Crawler;
 
 use GuzzleHttp\TransferStats;
-use Psr\Http\Message\UriInterface;
 
 readonly class TransferStatistics
 {
@@ -46,9 +45,9 @@ readonly class TransferStatistics
         return $this->secondsToMs($this->getHandlerStat('redirect_time'));
     }
 
-    public function effectiveUri(): UriInterface
+    public function effectiveUri(): string
     {
-        return $this->stats->getEffectiveUri();
+        return (string) $this->stats->getEffectiveUri();
     }
 
     public function primaryIp(): ?string

@@ -98,7 +98,7 @@ it('returns the effective uri', function () {
         createTransferStats([])
     );
 
-    expect((string) $stats->effectiveUri())->toBe('https://example.com');
+    expect($stats->effectiveUri())->toBe('https://example.com');
 });
 
 it('returns the primary ip', function () {

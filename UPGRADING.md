@@ -107,16 +107,16 @@ class MyCrawlProfile implements CrawlProfile
 }
 ```
 
-### CrawlUrl uses strings
+### CrawlUrl uses strings and constructor
 
-`CrawlUrl::$url` and `CrawlUrl::$foundOnUrl` are now `string` and `?string` instead of `UriInterface` and `?UriInterface`. A new `int $depth` property tracks crawl depth.
+`CrawlUrl::$url` and `CrawlUrl::$foundOnUrl` are now `string` and `?string` instead of `UriInterface` and `?UriInterface`. A new `int $depth` property tracks crawl depth. The static `create()` factory has been replaced with a regular constructor.
 
 ```php
 // Before
 CrawlUrl::create(new Uri('https://example.com'), new Uri('https://example.com/page'));
 
 // After
-CrawlUrl::create('https://example.com', 'https://example.com/page');
+new CrawlUrl('https://example.com', 'https://example.com/page');
 ```
 
 ### CrawlQueue interface

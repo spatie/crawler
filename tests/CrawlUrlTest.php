@@ -3,7 +3,7 @@
 use Spatie\Crawler\CrawlUrl;
 
 it('creates a CrawlUrl instance', function () {
-    $crawlUrl = CrawlUrl::create(
+    $crawlUrl = new CrawlUrl(
         url: 'https://example.com/some/test-uri',
         foundOnUrl: 'https://example.com/',
         linkText: 'Some link text',
@@ -16,13 +16,13 @@ it('creates a CrawlUrl instance', function () {
 });
 
 it('has a default depth of 0', function () {
-    $crawlUrl = CrawlUrl::create(url: 'https://example.com');
+    $crawlUrl = new CrawlUrl(url: 'https://example.com');
 
     expect($crawlUrl->depth)->toBe(0);
 });
 
 it('can set a custom depth', function () {
-    $crawlUrl = CrawlUrl::create(
+    $crawlUrl = new CrawlUrl(
         url: 'https://example.com',
         depth: 3,
     );
@@ -31,7 +31,7 @@ it('can set a custom depth', function () {
 });
 
 it('can get and set an id', function () {
-    $crawlUrl = CrawlUrl::create(
+    $crawlUrl = new CrawlUrl(
         url: 'https://example.com',
         id: 'custom-id',
     );
@@ -43,7 +43,7 @@ it('can get and set an id', function () {
 });
 
 it('has a null id by default', function () {
-    $crawlUrl = CrawlUrl::create(url: 'https://example.com');
+    $crawlUrl = new CrawlUrl(url: 'https://example.com');
 
     expect($crawlUrl->id)->toBeNull();
 });

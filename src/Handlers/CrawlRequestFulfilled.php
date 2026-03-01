@@ -101,7 +101,7 @@ class CrawlRequestFulfilled
 
         foreach ($extractedUrls as $extractedUrl) {
             if ($extractedUrl->isMalformed()) {
-                $malformedCrawlUrl = CrawlUrl::create(
+                $malformedCrawlUrl = new CrawlUrl(
                     url: $extractedUrl->url,
                     foundOnUrl: $baseUrl,
                     linkText: $extractedUrl->linkText,
@@ -132,37 +132,13 @@ class CrawlRequestFulfilled
                 continue;
             }
 
-            if ($this->crawler->matchesAlwaysCrawl($extractedUrl->url)) {
-                $newCrawlUrl = CrawlUrl::create(
-                    url: $extractedUrl->url,
-                    foundOnUrl: $baseUrl,
-                    linkText: $extractedUrl->linkText,
-                    depth: $newDepth,
-                    resourceType: $extractedUrl->resourceType,
-                );
-
-                $this->crawler->addToCrawlQueue($newCrawlUrl);
-
-                continue;
-            }
-
-            if ($this->crawler->mustRespectRobots()) {
-                $robotsTxt = $this->crawler->getRobotsTxt();
-
-                if ($robotsTxt !== null && ! $robotsTxt->allows($extractedUrl->url, $this->crawler->getUserAgent())) {
-                    continue;
-                }
-            }
-
-            $newCrawlUrl = CrawlUrl::create(
+            $this->crawler->addToCrawlQueue(new CrawlUrl(
                 url: $extractedUrl->url,
                 foundOnUrl: $baseUrl,
                 linkText: $extractedUrl->linkText,
                 depth: $newDepth,
                 resourceType: $extractedUrl->resourceType,
-            );
-
-            $this->crawler->addToCrawlQueue($newCrawlUrl);
+            ));
         }
     }
 

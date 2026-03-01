@@ -66,16 +66,6 @@ All documentation is available [on our documentation site](https://spatie.be/doc
 
 ## Testing
 
-To run the tests you'll have to start the included Node.js based server first in a separate terminal window.
-
-```bash
-cd tests/server
-npm install
-node server.js
-```
-
-With the server running, you can start testing.
-
 ```bash
 composer test
 ```

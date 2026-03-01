@@ -8,71 +8,71 @@ beforeEach(function () {
 });
 
 it('normalizes scheme to lowercase', function () {
-    $this->crawlQueue->add(CrawlUrl::create('HTTPS://example.com/page'));
+    $this->crawlQueue->add(new CrawlUrl('HTTPS://example.com/page'));
 
     expect($this->crawlQueue->has('https://example.com/page'))->toBeTrue();
 });
 
 it('normalizes host to lowercase', function () {
-    $this->crawlQueue->add(CrawlUrl::create('https://Example.COM/page'));
+    $this->crawlQueue->add(new CrawlUrl('https://Example.COM/page'));
 
     expect($this->crawlQueue->has('https://example.com/page'))->toBeTrue();
 });
 
 it('removes default port 80 for http', function () {
-    $this->crawlQueue->add(CrawlUrl::create('http://example.com:80/page'));
+    $this->crawlQueue->add(new CrawlUrl('http://example.com:80/page'));
 
     expect($this->crawlQueue->has('http://example.com/page'))->toBeTrue();
 });
 
 it('removes default port 443 for https', function () {
-    $this->crawlQueue->add(CrawlUrl::create('https://example.com:443/page'));
+    $this->crawlQueue->add(new CrawlUrl('https://example.com:443/page'));
 
     expect($this->crawlQueue->has('https://example.com/page'))->toBeTrue();
 });
 
 it('keeps non-default ports', function () {
-    $this->crawlQueue->add(CrawlUrl::create('https://example.com:8080/page'));
+    $this->crawlQueue->add(new CrawlUrl('https://example.com:8080/page'));
 
     expect($this->crawlQueue->has('https://example.com:8080/page'))->toBeTrue();
     expect($this->crawlQueue->has('https://example.com/page'))->toBeFalse();
 });
 
 it('strips trailing slash from non-root paths', function () {
-    $this->crawlQueue->add(CrawlUrl::create('https://example.com/page/'));
+    $this->crawlQueue->add(new CrawlUrl('https://example.com/page/'));
 
     expect($this->crawlQueue->has('https://example.com/page'))->toBeTrue();
 });
 
 it('preserves trailing slash for root path', function () {
-    $this->crawlQueue->add(CrawlUrl::create('https://example.com/'));
+    $this->crawlQueue->add(new CrawlUrl('https://example.com/'));
 
     expect($this->crawlQueue->has('https://example.com/'))->toBeTrue();
 });
 
 it('removes empty query strings', function () {
-    $this->crawlQueue->add(CrawlUrl::create('https://example.com/page?'));
+    $this->crawlQueue->add(new CrawlUrl('https://example.com/page?'));
 
     expect($this->crawlQueue->has('https://example.com/page'))->toBeTrue();
 });
 
 it('preserves non-empty query strings', function () {
-    $this->crawlQueue->add(CrawlUrl::create('https://example.com/page?foo=bar'));
+    $this->crawlQueue->add(new CrawlUrl('https://example.com/page?foo=bar'));
 
     expect($this->crawlQueue->has('https://example.com/page?foo=bar'))->toBeTrue();
 });
 
 it('strips fragments', function () {
-    $this->crawlQueue->add(CrawlUrl::create('https://example.com/page#section'));
+    $this->crawlQueue->add(new CrawlUrl('https://example.com/page#section'));
 
     expect($this->crawlQueue->has('https://example.com/page'))->toBeTrue();
 });
 
 it('deduplicates urls that normalize to the same value', function () {
-    $this->crawlQueue->add(CrawlUrl::create('https://Example.com/page'));
-    $this->crawlQueue->add(CrawlUrl::create('https://example.com/page/'));
-    $this->crawlQueue->add(CrawlUrl::create('HTTPS://example.com/page'));
-    $this->crawlQueue->add(CrawlUrl::create('https://example.com:443/page'));
+    $this->crawlQueue->add(new CrawlUrl('https://Example.com/page'));
+    $this->crawlQueue->add(new CrawlUrl('https://example.com/page/'));
+    $this->crawlQueue->add(new CrawlUrl('HTTPS://example.com/page'));
+    $this->crawlQueue->add(new CrawlUrl('https://example.com:443/page'));
 
     $count = 0;
     while ($url = $this->crawlQueue->getPendingUrl()) {
@@ -86,7 +86,7 @@ it('deduplicates urls that normalize to the same value', function () {
 it('preserves original url on the CrawlUrl object', function () {
     $originalUrl = 'https://Example.COM:443/Page/';
 
-    $this->crawlQueue->add(CrawlUrl::create($originalUrl));
+    $this->crawlQueue->add(new CrawlUrl($originalUrl));
 
     $pending = $this->crawlQueue->getPendingUrl();
 
@@ -94,8 +94,8 @@ it('preserves original url on the CrawlUrl object', function () {
 });
 
 it('marks normalized variants as already processed', function () {
-    $crawlUrl1 = CrawlUrl::create('https://example.com/page');
-    $crawlUrl2 = CrawlUrl::create('https://Example.com/page/');
+    $crawlUrl1 = new CrawlUrl('https://example.com/page');
+    $crawlUrl2 = new CrawlUrl('https://Example.com/page/');
 
     $this->crawlQueue->add($crawlUrl1);
     $this->crawlQueue->markAsProcessed($crawlUrl1);
@@ -104,7 +104,7 @@ it('marks normalized variants as already processed', function () {
 });
 
 it('can retrieve url by normalized id after adding', function () {
-    $crawlUrl = CrawlUrl::create('https://Example.com:443/page/');
+    $crawlUrl = new CrawlUrl('https://Example.com:443/page/');
 
     $this->crawlQueue->add($crawlUrl);
 
@@ -115,9 +115,9 @@ it('can retrieve url by normalized id after adding', function () {
 });
 
 it('does not inflate processed count with normalized duplicates', function () {
-    $this->crawlQueue->add(CrawlUrl::create('https://example.com/page'));
-    $this->crawlQueue->add(CrawlUrl::create('https://Example.com/page/'));
-    $this->crawlQueue->add(CrawlUrl::create('https://example.com:443/page'));
+    $this->crawlQueue->add(new CrawlUrl('https://example.com/page'));
+    $this->crawlQueue->add(new CrawlUrl('https://Example.com/page/'));
+    $this->crawlQueue->add(new CrawlUrl('https://example.com:443/page'));
 
     expect($this->crawlQueue->getProcessedUrlCount())->toBe(0);
 
@@ -129,7 +129,7 @@ it('does not inflate processed count with normalized duplicates', function () {
 });
 
 it('handles malformed urls gracefully', function () {
-    $crawlUrl = CrawlUrl::create('not-a-valid-url');
+    $crawlUrl = new CrawlUrl('not-a-valid-url');
 
     $this->crawlQueue->add($crawlUrl);
 

@@ -1,45 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Unsafe usage of new static\(\)\.$#'
-			identifier: new.static
-			count: 1
-			path: src/CrawlResponse.php
-
-		-
-			message: '#^Unsafe usage of new static\(\)\.$#'
-			identifier: new.static
-			count: 1
-			path: src/CrawlUrl.php
-
-		-
-			message: '''
-				#^Call to deprecated method getConfig\(\) of class GuzzleHttp\\Client\:
-				Client\:\:getConfig will be removed in guzzlehttp/guzzle\:8\.0\.$#
-			'''
-			identifier: method.deprecated
-			count: 1
-			path: src/Crawler.php
-
-		-
-			message: '#^Unsafe usage of new static\(\)\.$#'
-			identifier: new.static
-			count: 1
-			path: src/Crawler.php
-
-		-
-			message: '#^Unsafe usage of new static\(\)\.$#'
-			identifier: new.static
-			count: 1
-			path: src/Exceptions/InvalidCrawlRequestHandler.php
-
-		-
-			message: '#^Property Spatie\\Crawler\\Faking\\FakeHandler\:\:\$responses \(array\<string, GuzzleHttp\\Psr7\\Response\>\) does not accept array\<string, Psr\\Http\\Message\\ResponseInterface\>\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: src/Faking/FakeHandler.php
-
-		-
 			message: '#^Call to method setUrl\(\) on an unknown class Spatie\\Browsershot\\Browsershot\.$#'
 			identifier: class.notFound
 			count: 1

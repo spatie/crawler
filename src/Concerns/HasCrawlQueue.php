@@ -37,6 +37,12 @@ trait HasCrawlQueue
             return $this;
         }
 
+        if ($this->respectRobots && $this->robotsTxt !== null) {
+            if (! $this->robotsTxt->allows($crawlUrl->url, $this->getUserAgent())) {
+                return $this;
+            }
+        }
+
         if (! $this->getCrawlProfile()->shouldCrawl($crawlUrl->url)) {
             return $this;
         }

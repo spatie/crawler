@@ -5,11 +5,12 @@ namespace Spatie\Crawler\Faking;
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Spatie\Crawler\CrawlResponse;
 
 class FakeHandler
 {
-    /** @var array<string, Response> */
+    /** @var array<string, ResponseInterface> */
     protected array $responses = [];
 
     /** @param array<string, string|CrawlResponse> $fakes */

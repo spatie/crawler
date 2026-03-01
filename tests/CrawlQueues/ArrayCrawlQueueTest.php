@@ -8,7 +8,7 @@ beforeEach(function () {
 });
 
 test('a url can be added to crawl queue', function () {
-    $crawlUrl = CrawlUrl::create('https://example.com');
+    $crawlUrl = new CrawlUrl('https://example.com');
 
     $this->crawlQueue->add($crawlUrl);
 
@@ -22,15 +22,15 @@ it('can determine if there are pending urls', function () {
 
     $this
         ->crawlQueue
-        ->add(CrawlUrl::create('https://example.com'));
+        ->add(new CrawlUrl('https://example.com'));
 
     expect($this->crawlQueue->hasPendingUrls())
         ->toBeTrue();
 });
 
 it('can get an url at the specified index', function () {
-    $url1 = CrawlUrl::create('https://example1.com/');
-    $url2 = CrawlUrl::create('https://example2.com/');
+    $url1 = new CrawlUrl('https://example1.com/');
+    $url2 = new CrawlUrl('https://example2.com/');
 
     $this->crawlQueue->add($url1);
     $this->crawlQueue->add($url2);
@@ -50,7 +50,7 @@ it('can determine if has a given url', function () {
     expect($this->crawlQueue->has('https://example1.com/'))
         ->toBeFalse();
 
-    $crawlUrl = CrawlUrl::create('https://example1.com/');
+    $crawlUrl = new CrawlUrl('https://example1.com/');
     $this->crawlQueue->add($crawlUrl);
 
     expect($this->crawlQueue->has('https://example1.com/'))
@@ -58,7 +58,7 @@ it('can determine if has a given url', function () {
 });
 
 it('can mark a url as processed', function () {
-    $crawlUrl = CrawlUrl::create('https://example1.com/');
+    $crawlUrl = new CrawlUrl('https://example1.com/');
 
     expect($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl))
         ->toBeFalse();
@@ -75,8 +75,8 @@ it('can mark a url as processed', function () {
 });
 
 it('can remove all processed urls from the pending urls', function () {
-    $crawlUrl1 = CrawlUrl::create('https://example1.com/');
-    $crawlUrl2 = CrawlUrl::create('https://example2.com/');
+    $crawlUrl1 = new CrawlUrl('https://example1.com/');
+    $crawlUrl2 = new CrawlUrl('https://example2.com/');
 
     $this->crawlQueue
         ->add($crawlUrl1)

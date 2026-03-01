@@ -41,7 +41,7 @@ Crawler::create('https://example.com')
         $stats = $response->transferStats();
 
         $stats->transferTimeInMs();   // ?float (total transfer time)
-        $stats->effectiveUri();       // UriInterface (final URI after redirects)
+        $stats->effectiveUri();       // string (final URI after redirects)
     })
     ->start();
 ```

@@ -84,13 +84,11 @@ class Crawler
     /** @var array<int, ResourceType> */
     protected array $extractResourceTypes = [ResourceType::Link];
 
-    public static function create(string $url = '', array $clientOptions = []): static
+    public static function create(string $url, array $clientOptions = []): self
     {
-        $crawler = new static($clientOptions);
+        $crawler = new self($clientOptions);
 
-        if ($url !== '') {
-            $crawler->baseUrl = $url;
-        }
+        $crawler->baseUrl = $url;
 
         return $crawler;
     }
@@ -262,11 +260,7 @@ class Crawler
             $this->robotsTxt = $this->createRobotsTxt($client);
         }
 
-        $crawlUrl = CrawlUrl::create($this->baseUrl);
-
-        if ($this->shouldAddToCrawlQueue($crawlUrl)) {
-            $this->addToCrawlQueue($crawlUrl);
-        }
+        $this->addToCrawlQueue(new CrawlUrl($this->baseUrl));
 
         $this->registerSignalHandlers();
 
@@ -460,31 +454,6 @@ class Crawler
         return $baseUrl;
     }
 
-    protected function shouldAddToCrawlQueue(CrawlUrl $crawlUrl): bool
-    {
-        if ($this->matchesAlwaysCrawl($crawlUrl->url)) {
-            return true;
-        }
-
-        if ($this->matchesNeverCrawl($crawlUrl->url)) {
-            return false;
-        }
-
-        if (! $this->respectRobots) {
-            return true;
-        }
-
-        if ($this->robotsTxt === null) {
-            return false;
-        }
-
-        if ($this->robotsTxt->allows($crawlUrl->url, $this->getUserAgent())) {
-            return true;
-        }
-
-        return false;
-    }
-
     protected function startCrawlingQueue(Client $client): void
     {
         while (
@@ -495,7 +464,6 @@ class Crawler
         ) {
             $pool = new Pool($client, $this->getCrawlRequests(), [
                 'concurrency' => $this->concurrency,
-                'options' => $client->getConfig(),
                 'fulfilled' => new $this->crawlRequestFulfilledClass($this),
                 'rejected' => new $this->crawlRequestFailedClass($this),
             ]);
