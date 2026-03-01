@@ -11,7 +11,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlerRobots;
-use Spatie\Crawler\CrawlProfiles\CrawlSubdomains;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\Enums\ResourceType;
@@ -77,15 +76,6 @@ class CrawlRequestFulfilled
         if ($robots->mayIndex()) {
             $this->crawler->recordCrawled();
             $this->crawler->getCrawlObservers()->crawled($crawlUrl, $crawlResponse, $this->crawler->getCrawlProgress());
-        }
-
-        if (! $this->crawler->getCrawlProfile() instanceof CrawlSubdomains) {
-            $crawlHost = parse_url($crawlUrl->url, PHP_URL_HOST);
-            $baseHost = parse_url($this->crawler->getBaseUrl(), PHP_URL_HOST);
-
-            if ($crawlHost !== $baseHost) {
-                return;
-            }
         }
 
         if (! $robots->mayFollow()) {
@@ -203,6 +193,12 @@ class CrawlRequestFulfilled
             return true;
         }
 
-        return array_any($allowedTypes, fn (string $allowedType) => stristr($contentType, $allowedType) !== false);
+        foreach ($allowedTypes as $allowedType) {
+            if (stristr($contentType, $allowedType) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

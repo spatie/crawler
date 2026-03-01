@@ -186,6 +186,28 @@ it('respects current before total limit', function () {
     }
 });
 
+it('resets limitPerExecution count between start calls', function () {
+    $crawled = [];
+
+    $crawler = Crawler::create('https://example.com')
+        ->fake(fullSiteFakes())
+        ->limitPerExecution(2)
+        ->ignoreRobots()
+        ->crawlProfile(new CrawlInternalUrls('https://example.com'))
+        ->onCrawled(function (string $url) use (&$crawled) {
+            $crawled[] = $url;
+        });
+
+    $crawler->start();
+    $firstRunCount = count($crawled);
+
+    $crawler->start();
+    $secondRunCount = count($crawled) - $firstRunCount;
+
+    expect($firstRunCount)->toBe(2);
+    expect($secondRunCount)->toBeGreaterThanOrEqual(1);
+});
+
 it('doesnt extract links if the crawled page exceeds the maximum response size', function () {
     createCrawler()
         ->fake(fullSiteFakes())
@@ -293,6 +315,49 @@ it('crawls subdomains', function () {
         ['url' => 'https://example.com/dir/subdir/link5'],
         ['url' => 'https://external.example.org/', 'foundOn' => 'https://example.com/link1'],
     ])->each->notToBeCrawled();
+});
+
+it('extracts links from external pages when profile allows them', function () {
+    $crawled = [];
+
+    Crawler::create('https://example.com')
+        ->fake([
+            'https://example.com' => '<html><a href="https://external.com/page">External</a></html>',
+            'https://external.com/page' => '<html><a href="https://external.com/deeper">Deeper</a></html>',
+            'https://external.com/deeper' => '<html>Deeper page</html>',
+        ])
+        ->ignoreRobots()
+        ->depth(3)
+        ->onCrawled(function (string $url) use (&$crawled) {
+            $crawled[] = $url;
+        })
+        ->start();
+
+    expect($crawled)->toContain('https://example.com/');
+    expect($crawled)->toContain('https://external.com/page');
+    expect($crawled)->toContain('https://external.com/deeper');
+});
+
+it('extracts links from alwaysCrawl external pages', function () {
+    $crawled = [];
+
+    Crawler::create('https://example.com')
+        ->fake([
+            'https://example.com' => '<html><a href="https://cdn.example.com/asset">Asset</a></html>',
+            'https://cdn.example.com/asset' => '<html><a href="https://cdn.example.com/sub">Sub</a></html>',
+            'https://cdn.example.com/sub' => '<html>Sub page</html>',
+        ])
+        ->ignoreRobots()
+        ->internalOnly()
+        ->alwaysCrawl(['https://cdn.example.com/*'])
+        ->depth(3)
+        ->onCrawled(function (string $url) use (&$crawled) {
+            $crawled[] = $url;
+        })
+        ->start();
+
+    expect($crawled)->toContain('https://cdn.example.com/asset');
+    expect($crawled)->toContain('https://cdn.example.com/sub');
 });
 
 it('should not follow nofollow links', function () {

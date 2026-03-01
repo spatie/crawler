@@ -91,7 +91,7 @@ class CrawlObserverCollection
         }
 
         foreach ($this->onFailedCallbacks as $callback) {
-            $callback($crawlUrl->url, $exception, $progress);
+            $callback($crawlUrl->url, $exception, $progress, $crawlUrl->foundOnUrl, $crawlUrl->linkText, $crawlUrl->resourceType);
         }
     }
 

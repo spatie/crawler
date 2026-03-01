@@ -1,9 +1,11 @@
 <?php
 
+use GuzzleHttp\Exception\RequestException;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Enums\FinishReason;
+use Spatie\Crawler\Enums\ResourceType;
 use Spatie\Crawler\Test\TestClasses\CrawlLogger;
 use Spatie\Crawler\Test\TestClasses\Log;
 
@@ -99,4 +101,35 @@ it('can mix closures and observers', function () {
 
     expect($crawledFromClosure)->toContain('https://example.com/');
     expect(Log::getContents())->toContain('hasBeenCrawled: https://example.com/');
+});
+
+it('onFailed closure receives foundOnUrl and linkText', function () {
+    $failures = [];
+
+    Crawler::create('https://example.com')
+        ->fake([
+            'https://example.com' => '<html><a href="https:///invalid">Bad link</a></html>',
+        ])
+        ->ignoreRobots()
+        ->onFailed(function (
+            string $url,
+            RequestException $exception,
+            CrawlProgress $progress,
+            ?string $foundOnUrl,
+            ?string $linkText,
+            ?ResourceType $resourceType,
+        ) use (&$failures) {
+            $failures[] = [
+                'url' => $url,
+                'foundOnUrl' => $foundOnUrl,
+                'linkText' => $linkText,
+                'resourceType' => $resourceType,
+            ];
+        })
+        ->start();
+
+    expect($failures)->toHaveCount(1);
+    expect($failures[0]['foundOnUrl'])->toBe('https://example.com/');
+    expect($failures[0]['linkText'])->toBe('Bad link');
+    expect($failures[0]['resourceType'])->toBe(ResourceType::Link);
 });

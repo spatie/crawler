@@ -221,7 +221,7 @@ Crawler::create('https://example.com')
     ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) {
         echo $url . ': ' . $response->status();
     })
-    ->onFailed(function (string $url, RequestException $e, CrawlProgress $progress) { ... })
+    ->onFailed(function (string $url, RequestException $e, CrawlProgress $progress, ?string $foundOnUrl, ?string $linkText) { ... })
     ->onFinished(function (FinishReason $reason, CrawlProgress $progress) { ... })
     ->start();
 ```

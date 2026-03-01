@@ -245,6 +245,7 @@ class Crawler
         $this->shouldStop = false;
         $this->crawledUrlCount = 0;
         $this->failedUrlCount = 0;
+        $this->currentUrlCount = 0;
         $this->startedAt = time();
 
         $baseUrl = $this->normalizeBaseUrl($this->baseUrl);

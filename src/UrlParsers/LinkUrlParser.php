@@ -187,7 +187,7 @@ class LinkUrlParser implements UrlParser
         }
 
         // Strip fragment
-        $uri = strtok($uri, '#');
+        $uri = explode('#', $uri, 2)[0];
 
         $linkText = $link->getNode()->textContent;
         if ($linkText) {
@@ -220,7 +220,7 @@ class LinkUrlParser implements UrlParser
         }
 
         // Strip fragment
-        $resolved = strtok($resolved, '#');
+        $resolved = explode('#', $resolved, 2)[0];
 
         return new ExtractedUrl(
             url: $resolved,

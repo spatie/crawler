@@ -58,6 +58,6 @@ class FakeHandler
 
     protected function normalizeUrl(string $url): string
     {
-        return strtok($url, '#') ?: $url;
+        return explode('#', $url, 2)[0];
     }
 }

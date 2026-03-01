@@ -31,7 +31,7 @@ Crawler::create('https://example.com')
     ->onCrawled(function (string $url, CrawlResponse $response, CrawlProgress $progress) {
         // called for every successfully crawled URL
     })
-    ->onFailed(function (string $url, RequestException $e, CrawlProgress $progress) {
+    ->onFailed(function (string $url, RequestException $e, CrawlProgress $progress, ?string $foundOnUrl, ?string $linkText) {
         // called when a URL could not be crawled
     })
     ->onFinished(function (FinishReason $reason, CrawlProgress $progress) {

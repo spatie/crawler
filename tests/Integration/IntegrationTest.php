@@ -30,7 +30,7 @@ it('crawls a site and discovers all linked pages', function () {
     expect(array_values($paths))->toBe(['/', '/page1', '/page2', '/page3', '/slow']);
 
     // All pages should return 200.
-    expect(array_all($urls, fn ($crawledUrl) => $crawledUrl->status === 200))->toBeTrue();
+    expect($urls)->each(fn ($url) => $url->status->toBe(200));
 
     // Child pages should have the homepage as foundOnUrl.
     $page1 = array_values(array_filter($urls, fn ($crawledUrl) => str_contains($crawledUrl->url, '/page1')))[0] ?? null;
