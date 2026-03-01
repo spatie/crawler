@@ -57,6 +57,11 @@
             "Spatie\\Crawler\\Test\\": "tests"
         }
     },
+    "extra": {
+        "branch-alias": {
+            "dev-v9": "9.x-dev"
+        }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true
 }
