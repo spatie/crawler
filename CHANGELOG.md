@@ -39,6 +39,7 @@ Major rewrite. See [UPGRADING.md](UPGRADING.md) for a full list of breaking chan
 - Request configuration: `basicAuth()`, `token()`, `withoutVerifying()`, `proxy()`, `cookies()`, `queryParameters()`, `middleware()`
 
 ### Removed
+- `CrawlUrl::create()` static factory (use `new CrawlUrl(...)` instead)
 - `Spatie\Crawler\Url` class
 - `ResponseWithCachedBody` (replaced by `CrawlResponse`)
 - `nicmart/tree` dependency

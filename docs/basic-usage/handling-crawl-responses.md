@@ -62,7 +62,7 @@ $stats->timeToFirstByteInMs();   // ?float (time to first byte, TTFB)
 $stats->redirectTimeInMs();      // ?float (time spent on redirects)
 
 // Other
-$stats->effectiveUri();                    // UriInterface (final URI after redirects)
+$stats->effectiveUri();                    // string (final URI after redirects)
 $stats->primaryIp();                       // ?string (IP address of the server)
 $stats->downloadSpeedInBytesPerSecond();   // ?float (average download speed)
 $stats->requestSizeInBytes();              // ?int (size of the HTTP request)

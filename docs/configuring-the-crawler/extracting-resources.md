@@ -53,6 +53,7 @@ When using observers, the resource type is available through the `CrawlResponse`
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
 use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
+use Spatie\Crawler\Enums\ResourceType;
 
 class AssetChecker extends CrawlObserver
 {
@@ -79,8 +80,10 @@ Links (`<a>` tags) also respect `<base href>` through Symfony's DomCrawler.
 When the crawler encounters a malformed URL in the HTML (for example, `href="https:///invalid"`), it will report it through your `crawlFailed` callback or observer instead of silently ignoring it. The `RequestException` message will contain the reason the URL could not be parsed.
 
 ```php
+use GuzzleHttp\Exception\RequestException;
+
 Crawler::create('https://example.com')
-    ->onFailed(function (string $url, RequestException $exception) {
+    ->onFailed(function (string $url, RequestException $exception, CrawlProgress $progress) {
         if (str_contains($exception->getMessage(), 'Malformed URL')) {
             echo "Found malformed URL: {$url}\n";
         }
