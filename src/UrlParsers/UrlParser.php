@@ -2,12 +2,10 @@
 
 namespace Spatie\Crawler\UrlParsers;
 
-use Psr\Http\Message\UriInterface;
-use Spatie\Crawler\Crawler;
+use Spatie\Crawler\ExtractedUrl;
 
 interface UrlParser
 {
-    public function __construct(Crawler $crawler);
-
-    public function addFromHtml(string $html, UriInterface $foundOnUrl, ?UriInterface $originalUrl = null): void;
+    /** @return array<int, ExtractedUrl> */
+    public function extractUrls(string $html, string $baseUrl): array;
 }

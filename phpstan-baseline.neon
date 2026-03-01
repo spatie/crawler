@@ -1,0 +1,25 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to method setUrl\(\) on an unknown class Spatie\\Browsershot\\Browsershot\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/JavaScriptRenderers/BrowsershotRenderer.php
+
+		-
+			message: '#^Instantiated class Spatie\\Browsershot\\Browsershot not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/JavaScriptRenderers/BrowsershotRenderer.php
+
+		-
+			message: '#^Parameter \$browsershot of method Spatie\\Crawler\\JavaScriptRenderers\\BrowsershotRenderer\:\:__construct\(\) has invalid type Spatie\\Browsershot\\Browsershot\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/JavaScriptRenderers/BrowsershotRenderer.php
+
+		-
+			message: '#^Property Spatie\\Crawler\\JavaScriptRenderers\\BrowsershotRenderer\:\:\$browsershot has unknown class Spatie\\Browsershot\\Browsershot as its type\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/JavaScriptRenderers/BrowsershotRenderer.php

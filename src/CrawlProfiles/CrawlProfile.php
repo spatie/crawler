@@ -2,9 +2,7 @@
 
 namespace Spatie\Crawler\CrawlProfiles;
 
-use Psr\Http\Message\UriInterface;
-
-abstract class CrawlProfile
+interface CrawlProfile
 {
-    abstract public function shouldCrawl(UriInterface $url): bool;
+    public function shouldCrawl(string $url): bool;
 }

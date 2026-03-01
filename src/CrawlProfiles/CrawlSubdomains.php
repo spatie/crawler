@@ -2,29 +2,28 @@
 
 namespace Spatie\Crawler\CrawlProfiles;
 
-use GuzzleHttp\Psr7\Uri;
-use Psr\Http\Message\UriInterface;
-
-class CrawlSubdomains extends CrawlProfile
+class CrawlSubdomains implements CrawlProfile
 {
-    protected mixed $baseUrl;
+    protected string $baseHost;
 
-    public function __construct($baseUrl)
+    public function __construct(string $baseUrl)
     {
-        if (! $baseUrl instanceof UriInterface) {
-            $baseUrl = new Uri($baseUrl);
-        }
-
-        $this->baseUrl = $baseUrl;
+        $this->baseHost = parse_url($baseUrl, PHP_URL_HOST) ?? $baseUrl;
     }
 
-    public function shouldCrawl(UriInterface $url): bool
+    public function shouldCrawl(string $url): bool
     {
         return $this->isSubdomainOfHost($url);
     }
 
-    public function isSubdomainOfHost(UriInterface $url): bool
+    public function isSubdomainOfHost(string $url): bool
     {
-        return str_ends_with($url->getHost(), $this->baseUrl->getHost());
+        $host = parse_url($url, PHP_URL_HOST);
+
+        if ($host === null) {
+            return false;
+        }
+
+        return $host === $this->baseHost || str_ends_with($host, ".{$this->baseHost}");
     }
 }

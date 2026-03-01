@@ -9,12 +9,9 @@ use Spatie\Crawler\Crawler;
 
 class CrawlRequestFailed
 {
-    public function __construct(protected Crawler $crawler)
-    {
-        //
-    }
+    public function __construct(protected Crawler $crawler) {}
 
-    public function __invoke(Exception $exception, $index)
+    public function __invoke(Exception $exception, mixed $index): void
     {
         if ($exception instanceof ConnectException) {
             $exception = new RequestException($exception->getMessage(), $exception->getRequest());
@@ -23,9 +20,10 @@ class CrawlRequestFailed
         if ($exception instanceof RequestException) {
             $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
-            $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception);
+            $this->crawler->recordFailed();
+            $this->crawler->getCrawlObservers()->crawlFailed($crawlUrl, $exception, $this->crawler->getCrawlProgress());
         }
 
-        usleep($this->crawler->getDelayBetweenRequests());
+        $this->crawler->applyDelay();
     }
 }

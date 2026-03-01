@@ -16,18 +16,29 @@
         }
     ],
     "require": {
-        "php": "^8.2",
+        "php": "^8.4",
         "guzzlehttp/guzzle": "^7.3",
         "guzzlehttp/psr7": "^2.0",
-        "illuminate/collections": "^10.0|^11.0|^12.0|^13.0",
-        "nicmart/tree": "^0.10",
-        "spatie/browsershot": "^5.0.5",
         "spatie/robots-txt": "^2.0",
-        "symfony/dom-crawler": "^6.0|^7.0|^8.0"
+        "symfony/css-selector": "^7.0|^8.0",
+        "symfony/dom-crawler": "^7.0|^8.0"
     },
     "require-dev": {
-        "pestphp/pest": "^2.0|^3.0|^4.0",
+        "pestphp/pest": "^4.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.0",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "spatie/invade": "^2.1",
         "spatie/ray": "^1.37"
+    },
+    "scripts": {
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "format": "vendor/bin/pint"
+    },
+    "suggest": {
+        "spatie/browsershot": "Required for JavaScript rendering with BrowsershotRenderer (^5.0.5)"
     },
     "config": {
         "sort-packages": true,
@@ -44,6 +55,11 @@
     "autoload-dev": {
         "psr-4": {
             "Spatie\\Crawler\\Test\\": "tests"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-v9": "9.x-dev"
         }
     },
     "minimum-stability": "dev",

@@ -3,9 +3,11 @@
 namespace Spatie\Crawler\Test\TestClasses;
 
 use GuzzleHttp\Exception\RequestException;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
 use Spatie\Crawler\CrawlObservers\CrawlObserver;
+use Spatie\Crawler\CrawlProgress;
+use Spatie\Crawler\CrawlResponse;
+use Spatie\Crawler\Enums\FinishReason;
+use Spatie\Crawler\Enums\ResourceType;
 
 class CrawlLogger extends CrawlObserver
 {
@@ -20,40 +22,35 @@ class CrawlLogger extends CrawlObserver
         $this->observerId = $observerId;
     }
 
-    /**
-     * Called when the crawler will crawl the url.
-     */
-    public function willCrawl(UriInterface $url, ?string $linkText): void
+    public function willCrawl(string $url, ?string $linkText, ?ResourceType $resourceType = null): void
     {
         Log::putContents("{$this->observerId}willCrawl: {$url}");
     }
 
-    /**
-     * Called when the crawler has crawled the given url.
-     */
     public function crawled(
-        UriInterface $url,
-        ResponseInterface $response,
-        ?UriInterface $foundOnUrl = null,
-        ?string $linkText = null,
+        string $url,
+        CrawlResponse $response,
+        CrawlProgress $progress,
     ): void {
-        $this->logCrawl($url, $foundOnUrl, $linkText);
+        $this->logCrawl($url, $response->foundOnUrl(), $response->linkText());
     }
 
     public function crawlFailed(
-        UriInterface $url,
+        string $url,
         RequestException $requestException,
-        ?UriInterface $foundOnUrl = null,
+        CrawlProgress $progress,
+        ?string $foundOnUrl = null,
         ?string $linkText = null,
+        ?ResourceType $resourceType = null,
     ): void {
         $this->logCrawl($url, $foundOnUrl, $linkText);
     }
 
-    protected function logCrawl(UriInterface $url, ?UriInterface $foundOnUrl, ?string $linkText = null)
+    protected function logCrawl(string $url, ?string $foundOnUrl, ?string $linkText = null)
     {
         $logText = "{$this->observerId}hasBeenCrawled: {$url}";
 
-        if ((string) $foundOnUrl) {
+        if ($foundOnUrl) {
             $logText .= " - found on {$foundOnUrl}";
         }
 
@@ -64,10 +61,7 @@ class CrawlLogger extends CrawlObserver
         Log::putContents($logText);
     }
 
-    /**
-     * Called when the crawl has ended.
-     */
-    public function finishedCrawling(): void
+    public function finishedCrawling(FinishReason $reason, CrawlProgress $progress): void
     {
         Log::putContents("{$this->observerId}finished crawling");
     }
