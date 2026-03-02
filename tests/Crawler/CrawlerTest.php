@@ -51,6 +51,17 @@ it('will handle multiple observers', function () {
         ->toContain('Observer B');
 });
 
+it('can add multiple observers at once with variadic addObserver', function () {
+    Crawler::create('https://example.com')
+        ->fake(fullSiteFakes())
+        ->addObserver(new CrawlLogger('Observer A'), new CrawlLogger('Observer B'))
+        ->start();
+
+    expect(Log::getContents())
+        ->toContain('Observer A')
+        ->toContain('Observer B');
+});
+
 it('can crawl uris without scheme', function () {
     createCrawler('example.com')
         ->fake(fullSiteFakes())

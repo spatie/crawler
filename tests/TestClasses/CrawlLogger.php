@@ -8,6 +8,7 @@ use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Enums\FinishReason;
 use Spatie\Crawler\Enums\ResourceType;
+use Spatie\Crawler\TransferStatistics;
 
 class CrawlLogger extends CrawlObserver
 {
@@ -42,6 +43,7 @@ class CrawlLogger extends CrawlObserver
         ?string $foundOnUrl = null,
         ?string $linkText = null,
         ?ResourceType $resourceType = null,
+        ?TransferStatistics $transferStats = null,
     ): void {
         $this->logCrawl($url, $foundOnUrl, $linkText);
     }

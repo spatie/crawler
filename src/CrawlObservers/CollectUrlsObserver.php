@@ -7,6 +7,7 @@ use Spatie\Crawler\CrawledUrl;
 use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Enums\ResourceType;
+use Spatie\Crawler\TransferStatistics;
 
 class CollectUrlsObserver extends CrawlObserver
 {
@@ -34,6 +35,7 @@ class CollectUrlsObserver extends CrawlObserver
         ?string $foundOnUrl = null,
         ?string $linkText = null,
         ?ResourceType $resourceType = null,
+        ?TransferStatistics $transferStats = null,
     ): void {
         $response = $requestException->getResponse();
 

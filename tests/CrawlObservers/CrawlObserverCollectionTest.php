@@ -10,6 +10,7 @@ use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\Enums\FinishReason;
 use Spatie\Crawler\Enums\ResourceType;
+use Spatie\Crawler\TransferStatistics;
 
 function makeCrawlProgress(): CrawlProgress
 {
@@ -38,6 +39,7 @@ beforeEach(function () {
             ?string $foundOnUrl = null,
             ?string $linkText = null,
             ?ResourceType $resourceType = null,
+            ?TransferStatistics $transferStats = null,
         ): void {
             $this->failed = true;
         }

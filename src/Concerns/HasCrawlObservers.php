@@ -38,9 +38,11 @@ trait HasCrawlObservers
         return $this;
     }
 
-    public function addObserver(CrawlObserver $observer): self
+    public function addObserver(CrawlObserver ...$observers): self
     {
-        $this->crawlObservers->addObserver($observer);
+        foreach ($observers as $observer) {
+            $this->crawlObservers->addObserver($observer);
+        }
 
         return $this;
     }

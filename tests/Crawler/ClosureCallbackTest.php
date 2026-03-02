@@ -8,6 +8,7 @@ use Spatie\Crawler\Enums\FinishReason;
 use Spatie\Crawler\Enums\ResourceType;
 use Spatie\Crawler\Test\TestClasses\CrawlLogger;
 use Spatie\Crawler\Test\TestClasses\Log;
+use Spatie\Crawler\TransferStatistics;
 
 it('can use onWillCrawl closure', function () {
     $willCrawl = [];
@@ -132,4 +133,29 @@ it('onFailed closure receives foundOnUrl and linkText', function () {
     expect($failures[0]['foundOnUrl'])->toBe('https://example.com/');
     expect($failures[0]['linkText'])->toBe('Bad link');
     expect($failures[0]['resourceType'])->toBe(ResourceType::Link);
+});
+
+it('onFailed closure receives transferStats parameter', function () {
+    $receivedTransferStats = 'not_called';
+
+    Crawler::create('https://example.com')
+        ->fake([
+            'https://example.com' => '<html><a href="https:///invalid">Bad</a></html>',
+        ])
+        ->ignoreRobots()
+        ->onFailed(function (
+            string $url,
+            RequestException $exception,
+            CrawlProgress $progress,
+            ?string $foundOnUrl,
+            ?string $linkText,
+            ?ResourceType $resourceType,
+            ?TransferStatistics $transferStats,
+        ) use (&$receivedTransferStats) {
+            $receivedTransferStats = $transferStats;
+        })
+        ->start();
+
+    // Malformed URLs are reported without transfer stats (they were never requested)
+    expect($receivedTransferStats)->toBeNull();
 });

@@ -9,6 +9,7 @@ use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\CrawlUrl;
 use Spatie\Crawler\Enums\FinishReason;
 use Spatie\Crawler\Enums\ResourceType;
+use Spatie\Crawler\TransferStatistics;
 
 class CrawlObserverCollection
 {
@@ -63,8 +64,9 @@ class CrawlObserverCollection
                 ?string $foundOnUrl = null,
                 ?string $linkText = null,
                 ?ResourceType $resourceType = null,
+                ?TransferStatistics $transferStats = null,
             ): void {
-                ($this->callback)($url, $requestException, $progress, $foundOnUrl, $linkText, $resourceType);
+                ($this->callback)($url, $requestException, $progress, $foundOnUrl, $linkText, $resourceType, $transferStats);
             }
         };
     }
@@ -96,7 +98,7 @@ class CrawlObserverCollection
         }
     }
 
-    public function crawlFailed(CrawlUrl $crawlUrl, RequestException $exception, CrawlProgress $progress): void
+    public function crawlFailed(CrawlUrl $crawlUrl, RequestException $exception, CrawlProgress $progress, ?TransferStatistics $transferStats = null): void
     {
         foreach ($this->observers as $observer) {
             $observer->crawlFailed(
@@ -106,6 +108,7 @@ class CrawlObserverCollection
                 $crawlUrl->foundOnUrl,
                 $crawlUrl->linkText,
                 $crawlUrl->resourceType,
+                $transferStats,
             );
         }
     }

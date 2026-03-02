@@ -7,6 +7,7 @@ use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Enums\FinishReason;
 use Spatie\Crawler\Enums\ResourceType;
+use Spatie\Crawler\TransferStatistics;
 
 abstract class CrawlObserver
 {
@@ -25,6 +26,7 @@ abstract class CrawlObserver
         ?string $foundOnUrl = null,
         ?string $linkText = null,
         ?ResourceType $resourceType = null,
+        ?TransferStatistics $transferStats = null,
     ): void {}
 
     public function finishedCrawling(FinishReason $reason, CrawlProgress $progress): void {}

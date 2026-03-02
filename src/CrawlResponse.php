@@ -3,6 +3,7 @@
 namespace Spatie\Crawler;
 
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\RedirectMiddleware;
 use GuzzleHttp\TransferStats;
 use Psr\Http\Message\ResponseInterface;
 use Spatie\Crawler\Enums\ResourceType;
@@ -105,6 +106,17 @@ class CrawlResponse
         }
 
         return $this->cachedTransferStatistics ??= TransferStatistics::fromTransferStats($this->transferStats);
+    }
+
+    /** @return array<int, string> */
+    public function redirectHistory(): array
+    {
+        return $this->response->getHeader(RedirectMiddleware::HISTORY_HEADER);
+    }
+
+    public function wasRedirected(): bool
+    {
+        return $this->redirectHistory() !== [];
     }
 
     public function toPsrResponse(): ResponseInterface

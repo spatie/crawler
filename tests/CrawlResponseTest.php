@@ -1,6 +1,7 @@
 <?php
 
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\RedirectMiddleware;
 use Spatie\Crawler\CrawlResponse;
 
 it('can get the status code', function () {
@@ -87,6 +88,29 @@ it('can create a fake response', function () {
     expect($response->status())->toBe(200);
     expect($response->body())->toBe('<html>Test</html>');
     expect($response->header('X-Custom'))->toBe('value');
+});
+
+it('can get redirect history', function () {
+    $psrResponse = new Response(200, [
+        RedirectMiddleware::HISTORY_HEADER => [
+            'https://example.com/old',
+            'https://example.com/new',
+        ],
+    ]);
+    $response = new CrawlResponse($psrResponse);
+
+    expect($response->redirectHistory())->toBe([
+        'https://example.com/old',
+        'https://example.com/new',
+    ]);
+    expect($response->wasRedirected())->toBeTrue();
+});
+
+it('returns empty redirect history when no redirects occurred', function () {
+    $response = new CrawlResponse(new Response(200));
+
+    expect($response->redirectHistory())->toBe([]);
+    expect($response->wasRedirected())->toBeFalse();
 });
 
 it('can set a cached body', function () {

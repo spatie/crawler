@@ -57,6 +57,35 @@ Crawler::create()->startCrawling('https://example.com');
 Crawler::create('https://example.com')->start();
 ```
 
+### CrawlObserver::crawlFailed() has a new parameter
+
+The `crawlFailed()` method now accepts an optional `?TransferStatistics $transferStats` parameter at the end. If you have a custom `CrawlObserver` subclass that overrides `crawlFailed()`, add the new parameter to your signature:
+
+```php
+// Before
+public function crawlFailed(
+    string $url,
+    RequestException $requestException,
+    CrawlProgress $progress,
+    ?string $foundOnUrl = null,
+    ?string $linkText = null,
+    ?ResourceType $resourceType = null,
+): void {}
+
+// After
+use Spatie\Crawler\TransferStatistics;
+
+public function crawlFailed(
+    string $url,
+    RequestException $requestException,
+    CrawlProgress $progress,
+    ?string $foundOnUrl = null,
+    ?string $linkText = null,
+    ?ResourceType $resourceType = null,
+    ?TransferStatistics $transferStats = null,
+): void {}
+```
+
 ### CrawlObserver signatures
 
 All `UriInterface` parameters have been replaced with plain `string` URLs. The `ResponseInterface` parameter in `crawled()` is now a `CrawlResponse` object. All callbacks now receive a `CrawlProgress` object, and `finishedCrawling()` receives a `FinishReason` enum.

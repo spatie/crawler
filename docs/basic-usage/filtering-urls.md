@@ -23,6 +23,21 @@ Crawler::create('https://example.com')
     ->start();
 ```
 
+### Matching www and non-www
+
+By default, `internalOnly()` treats `example.com` and `www.example.com` as different hosts. If you want them to be treated as equivalent, chain the `matchWww()` method:
+
+```php
+use Spatie\Crawler\Crawler;
+
+Crawler::create('https://example.com')
+    ->internalOnly()
+    ->matchWww()
+    ->start();
+```
+
+This will crawl links on both `example.com` and `www.example.com`. It works in both directions: starting from `www.example.com` will also include `example.com` links.
+
 ## Inline filtering
 
 For custom filtering logic, use the `shouldCrawl` method with a closure:

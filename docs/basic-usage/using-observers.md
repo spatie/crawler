@@ -14,6 +14,7 @@ use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Enums\FinishReason;
 use Spatie\Crawler\Enums\ResourceType;
+use Spatie\Crawler\TransferStatistics;
 
 class MyCrawlObserver extends CrawlObserver
 {
@@ -37,6 +38,7 @@ class MyCrawlObserver extends CrawlObserver
         ?string $foundOnUrl = null,
         ?string $linkText = null,
         ?ResourceType $resourceType = null,
+        ?TransferStatistics $transferStats = null,
     ): void {
         // called when a URL could not be crawled
     }
@@ -58,11 +60,19 @@ Crawler::create('https://example.com')
 
 The `crawled()` method receives a `CrawlProgress` object with live crawl statistics and a `CrawlResponse` that provides access to `foundOnUrl()`, `linkText()`, `resourceType()`, and other response data. See [tracking progress](/docs/crawler/v9/basic-usage/tracking-progress) for more on `CrawlProgress`.
 
-The `crawlFailed()` method also includes `$foundOnUrl`, `$linkText`, and `$resourceType` parameters since there is no `CrawlResponse` available for failed requests.
+The `crawlFailed()` method also includes `$foundOnUrl`, `$linkText`, and `$resourceType` parameters since there is no `CrawlResponse` available for failed requests. The `$transferStats` parameter provides transfer timing data (connection time, total transfer time, etc.) for the failed request. This is useful for detecting timeouts: if `$transferStats->transferTimeInMs()` exceeds your threshold, the request likely timed out rather than returning an error.
 
 ## Using multiple observers
 
-You can add multiple observers. They will all be notified of every crawl event:
+You can add multiple observers. They will all be notified of every crawl event. The `addObserver()` method accepts multiple observers at once:
+
+```php
+Crawler::create('https://example.com')
+    ->addObserver(new LoggingObserver(), new MetricsObserver())
+    ->start();
+```
+
+You can also chain separate `addObserver()` calls:
 
 ```php
 Crawler::create('https://example.com')
