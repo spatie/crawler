@@ -19,6 +19,7 @@ Crawler::create('https://example.com')
 
 // Crawl URLs on the same host and its subdomains
 Crawler::create('https://example.com')
+    ->internalOnly()
     ->includeSubdomains()
     ->start();
 ```
@@ -37,6 +38,22 @@ Crawler::create('https://example.com')
 ```
 
 This will crawl links on both `example.com` and `www.example.com`. It works in both directions: starting from `www.example.com` will also include `example.com` links.
+
+### Combining matchWww and includeSubdomains
+
+Both `matchWww()` and `includeSubdomains()` can be used together. When `includeSubdomains()` is enabled, www is stripped from both hosts before the subdomain check. This means `blog.example.com` will match a base URL of `www.example.com`.
+
+```php
+use Spatie\Crawler\Crawler;
+
+Crawler::create('https://www.example.com')
+    ->internalOnly()
+    ->matchWww()
+    ->includeSubdomains()
+    ->start();
+```
+
+This will crawl `www.example.com`, `example.com`, `blog.example.com`, `cdn.example.com`, and any other subdomain of `example.com`.
 
 ## Inline filtering
 

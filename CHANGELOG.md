@@ -16,6 +16,7 @@ All notable changes to `spatie/crawler` will be documented in this file.
 ### Added
 - `stream()` method to opt-in to streaming HTTP responses for reduced memory usage
 - `matchWww()` method to treat `www.example.com` and `example.com` as equivalent when using `internalOnly()`
+- `includeSubdomains()` now works as a flag on `internalOnly()` and composes with `matchWww()`
 - `CrawlResponse::redirectHistory()` and `CrawlResponse::wasRedirected()` for inspecting redirect chains
 - `CrawlObserver::crawlFailed()` now receives a `?TransferStatistics` parameter for detecting timeouts
 - `addObserver()` now accepts variadic arguments: `addObserver($obs1, $obs2)`

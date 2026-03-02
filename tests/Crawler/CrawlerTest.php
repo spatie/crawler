@@ -189,6 +189,86 @@ it('matches non-www from www base when matchWww is enabled', function () {
     expect($crawled)->toContain('https://example.com/page');
 });
 
+it('crawls subdomains when includeSubdomains is enabled with internalOnly', function () {
+    $crawled = [];
+
+    Crawler::create('https://example.com')
+        ->fake([
+            'https://example.com' => '<html><body><a href="https://blog.example.com">Blog</a><a href="https://other.com">Other</a></body></html>',
+            'https://blog.example.com' => '<html><body>Blog content</body></html>',
+            'https://other.com' => '<html><body>Other site</body></html>',
+        ])
+        ->ignoreRobots()
+        ->internalOnly()
+        ->includeSubdomains()
+        ->onCrawled(function (string $url) use (&$crawled) {
+            $crawled[] = $url;
+        })
+        ->start();
+
+    expect($crawled)->toContain('https://blog.example.com');
+    expect($crawled)->not->toContain('https://other.com');
+});
+
+it('does not crawl subdomains by default with internalOnly', function () {
+    $crawled = [];
+
+    Crawler::create('https://example.com')
+        ->fake([
+            'https://example.com' => '<html><body><a href="https://blog.example.com">Blog</a></body></html>',
+            'https://blog.example.com' => '<html><body>Blog content</body></html>',
+        ])
+        ->ignoreRobots()
+        ->internalOnly()
+        ->onCrawled(function (string $url) use (&$crawled) {
+            $crawled[] = $url;
+        })
+        ->start();
+
+    expect($crawled)->not->toContain('https://blog.example.com');
+});
+
+it('includeSubdomains strips www before subdomain check', function () {
+    $crawled = [];
+
+    Crawler::create('https://www.example.com')
+        ->fake([
+            'https://www.example.com' => '<html><body><a href="https://blog.example.com">Blog</a></body></html>',
+            'https://blog.example.com' => '<html><body>Blog content</body></html>',
+        ])
+        ->ignoreRobots()
+        ->internalOnly()
+        ->includeSubdomains()
+        ->onCrawled(function (string $url) use (&$crawled) {
+            $crawled[] = $url;
+        })
+        ->start();
+
+    expect($crawled)->toContain('https://blog.example.com');
+});
+
+it('includeSubdomains works together with matchWww', function () {
+    $crawled = [];
+
+    Crawler::create('https://www.example.com')
+        ->fake([
+            'https://www.example.com' => '<html><body><a href="https://example.com/page">Main</a><a href="https://blog.example.com">Blog</a></body></html>',
+            'https://example.com/page' => '<html><body>Main page</body></html>',
+            'https://blog.example.com' => '<html><body>Blog content</body></html>',
+        ])
+        ->ignoreRobots()
+        ->internalOnly()
+        ->matchWww()
+        ->includeSubdomains()
+        ->onCrawled(function (string $url) use (&$crawled) {
+            $crawled[] = $url;
+        })
+        ->start();
+
+    expect($crawled)->toContain('https://example.com/page');
+    expect($crawled)->toContain('https://blog.example.com');
+});
+
 it('can handle pages with invalid urls', function () {
     $crawlProfile = new class implements CrawlProfile
     {
