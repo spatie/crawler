@@ -11,15 +11,13 @@ class CrawlerRobots
 
     protected RobotsMeta $robotsMeta;
 
-    protected bool $mustRespectRobots;
-
-    public function __construct(array $headers, string $body, bool $mustRespectRobots)
-    {
+    public function __construct(
+        array $headers,
+        string $body,
+        protected bool $mustRespectRobots,
+    ) {
         $this->robotsHeaders = RobotsHeaders::create($headers);
-
         $this->robotsMeta = RobotsMeta::create($body);
-
-        $this->mustRespectRobots = $mustRespectRobots;
     }
 
     public function mayIndex(): bool

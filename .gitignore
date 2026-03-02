@@ -5,7 +5,5 @@
 build
 composer.lock
 coverage
-docs
-psalm.xml
 vendor
 node_modules

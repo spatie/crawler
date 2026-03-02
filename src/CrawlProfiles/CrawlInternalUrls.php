@@ -2,24 +2,46 @@
 
 namespace Spatie\Crawler\CrawlProfiles;
 
-use GuzzleHttp\Psr7\Uri;
-use Psr\Http\Message\UriInterface;
-
-class CrawlInternalUrls extends CrawlProfile
+class CrawlInternalUrls implements CrawlProfile
 {
-    protected mixed $baseUrl;
+    protected string $baseHost;
 
-    public function __construct($baseUrl)
-    {
-        if (! $baseUrl instanceof UriInterface) {
-            $baseUrl = new Uri($baseUrl);
-        }
-
-        $this->baseUrl = $baseUrl;
+    public function __construct(
+        string $baseUrl,
+        protected bool $matchWww = false,
+        protected bool $includeSubdomains = false,
+    ) {
+        $this->baseHost = parse_url($baseUrl, PHP_URL_HOST) ?? $baseUrl;
     }
 
-    public function shouldCrawl(UriInterface $url): bool
+    public function shouldCrawl(string $url): bool
     {
-        return $this->baseUrl->getHost() === $url->getHost();
+        $host = parse_url($url, PHP_URL_HOST);
+
+        if ($this->baseHost === $host) {
+            return true;
+        }
+
+        if (! $this->matchWww && ! $this->includeSubdomains) {
+            return false;
+        }
+
+        $strippedBase = $this->stripWww($this->baseHost);
+        $strippedHost = $this->stripWww($host ?? '');
+
+        if ($this->matchWww && $strippedBase === $strippedHost) {
+            return true;
+        }
+
+        if ($this->includeSubdomains && str_ends_with($strippedHost, ".{$strippedBase}")) {
+            return true;
+        }
+
+        return false;
+    }
+
+    protected function stripWww(string $host): string
+    {
+        return str_starts_with($host, 'www.') ? substr($host, 4) : $host;
     }
 }

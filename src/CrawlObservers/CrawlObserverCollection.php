@@ -2,19 +2,22 @@
 
 namespace Spatie\Crawler\CrawlObservers;
 
-use ArrayAccess;
+use Closure;
 use GuzzleHttp\Exception\RequestException;
-use Iterator;
-use Psr\Http\Message\ResponseInterface;
+use Spatie\Crawler\CrawlProgress;
+use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\CrawlUrl;
+use Spatie\Crawler\Enums\FinishReason;
+use Spatie\Crawler\Enums\ResourceType;
+use Spatie\Crawler\TransferStatistics;
 
-class CrawlObserverCollection implements ArrayAccess, Iterator
+class CrawlObserverCollection
 {
-    protected int $position;
+    protected array $observers = [];
 
-    public function __construct(protected array $observers = [])
+    public function __construct(array $observers = [])
     {
-        $this->position = 0;
+        $this->observers = $observers;
     }
 
     public function addObserver(CrawlObserver $observer): void
@@ -22,76 +25,98 @@ class CrawlObserverCollection implements ArrayAccess, Iterator
         $this->observers[] = $observer;
     }
 
-    public function crawled(CrawlUrl $crawlUrl, ResponseInterface $response): void
+    public function onWillCrawl(Closure $callback): void
     {
-        foreach ($this->observers as $crawlObserver) {
-            $crawlObserver->crawled(
-                $crawlUrl->url,
-                $response,
-                $crawlUrl->foundOnUrl,
-                $crawlUrl->linkText,
-            );
+        $this->observers[] = new class($callback) extends CrawlObserver
+        {
+            public function __construct(protected Closure $callback) {}
+
+            public function willCrawl(string $url, ?string $linkText, ?ResourceType $resourceType = null): void
+            {
+                ($this->callback)($url, $linkText, $resourceType);
+            }
+        };
+    }
+
+    public function onCrawled(Closure $callback): void
+    {
+        $this->observers[] = new class($callback) extends CrawlObserver
+        {
+            public function __construct(protected Closure $callback) {}
+
+            public function crawled(string $url, CrawlResponse $response, CrawlProgress $progress): void
+            {
+                ($this->callback)($url, $response, $progress);
+            }
+        };
+    }
+
+    public function onFailed(Closure $callback): void
+    {
+        $this->observers[] = new class($callback) extends CrawlObserver
+        {
+            public function __construct(protected Closure $callback) {}
+
+            public function crawlFailed(
+                string $url,
+                RequestException $requestException,
+                CrawlProgress $progress,
+                ?string $foundOnUrl = null,
+                ?string $linkText = null,
+                ?ResourceType $resourceType = null,
+                ?TransferStatistics $transferStats = null,
+            ): void {
+                ($this->callback)($url, $requestException, $progress, $foundOnUrl, $linkText, $resourceType, $transferStats);
+            }
+        };
+    }
+
+    public function onFinished(Closure $callback): void
+    {
+        $this->observers[] = new class($callback) extends CrawlObserver
+        {
+            public function __construct(protected Closure $callback) {}
+
+            public function finishedCrawling(FinishReason $reason, CrawlProgress $progress): void
+            {
+                ($this->callback)($reason, $progress);
+            }
+        };
+    }
+
+    public function willCrawl(CrawlUrl $crawlUrl): void
+    {
+        foreach ($this->observers as $observer) {
+            $observer->willCrawl($crawlUrl->url, $crawlUrl->linkText, $crawlUrl->resourceType);
         }
     }
 
-    public function crawlFailed(CrawlUrl $crawlUrl, RequestException $exception): void
+    public function crawled(CrawlUrl $crawlUrl, CrawlResponse $response, CrawlProgress $progress): void
     {
-        foreach ($this->observers as $crawlObserver) {
-            $crawlObserver->crawlFailed(
+        foreach ($this->observers as $observer) {
+            $observer->crawled($crawlUrl->url, $response, $progress);
+        }
+    }
+
+    public function crawlFailed(CrawlUrl $crawlUrl, RequestException $exception, CrawlProgress $progress, ?TransferStatistics $transferStats = null): void
+    {
+        foreach ($this->observers as $observer) {
+            $observer->crawlFailed(
                 $crawlUrl->url,
                 $exception,
+                $progress,
                 $crawlUrl->foundOnUrl,
                 $crawlUrl->linkText,
+                $crawlUrl->resourceType,
+                $transferStats,
             );
         }
     }
 
-    public function current(): mixed
+    public function finishedCrawling(FinishReason $reason, CrawlProgress $progress): void
     {
-        return $this->observers[$this->position];
-    }
-
-    public function offsetGet(mixed $offset): mixed
-    {
-        return $this->observers[$offset] ?? null;
-    }
-
-    public function offsetSet(mixed $offset, mixed $value): void
-    {
-        if (is_null($offset)) {
-            $this->observers[] = $value;
-        } else {
-            $this->observers[$offset] = $value;
+        foreach ($this->observers as $observer) {
+            $observer->finishedCrawling($reason, $progress);
         }
-    }
-
-    public function offsetExists(mixed $offset): bool
-    {
-        return isset($this->observers[$offset]);
-    }
-
-    public function offsetUnset(mixed $offset): void
-    {
-        unset($this->observers[$offset]);
-    }
-
-    public function next(): void
-    {
-        $this->position++;
-    }
-
-    public function key(): mixed
-    {
-        return $this->position;
-    }
-
-    public function valid(): bool
-    {
-        return isset($this->observers[$this->position]);
-    }
-
-    public function rewind(): void
-    {
-        $this->position = 0;
     }
 }

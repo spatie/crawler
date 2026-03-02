@@ -2,6 +2,72 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 9.0.1 - 2026-03-02
+
+### Fixed
+- Fixed `allow_redirects` default: changed from `false` to `['track_redirects' => true]` so redirects are followed and the redirect history header is populated correctly
+- Non-parseable responses (e.g. binary files filtered by `allowedMimeTypes`) now notify observers via `crawled()` with an empty body instead of being silently skipped
+- URLs containing control characters are now detected and reported as malformed
+- Dot segments (`/../`, `/./`) in extracted URLs are now normalized per RFC 3986
+- Custom client options passed to `Crawler::create()` now merge with defaults instead of replacing them (pass `null` to remove a default)
+- `CrawlRequestFailed` now wraps non-`RequestException` errors so observers always receive a `RequestException`
+- Removed unused classes: `Url`, `ResponseWithCachedBody`, `InvalidUrl`
+
+### Added
+- `stream()` method to opt-in to streaming HTTP responses for reduced memory usage
+- `matchWww()` method to treat `www.example.com` and `example.com` as equivalent when using `internalOnly()`
+- `includeSubdomains()` now works as a flag on `internalOnly()` and composes with `matchWww()`
+- `CrawlResponse::redirectHistory()` and `CrawlResponse::wasRedirected()` for inspecting redirect chains
+- `CrawlObserver::crawlFailed()` now receives a `?TransferStatistics` parameter for detecting timeouts
+- `addObserver()` now accepts variadic arguments: `addObserver($obs1, $obs2)`
+- `CrawlRequestFailed` now preserves the original request from `ConnectException` (retaining custom headers like `X-Started-At`)
+
+## 9.0.0 - 2026-03-01
+
+Major rewrite. See [UPGRADING.md](UPGRADING.md) for a full list of breaking changes.
+
+### Changed
+- Replace `UriInterface` with plain `string` URLs throughout the API
+- Replace `ResponseInterface` with `CrawlResponse` in observer callbacks
+- `CrawlProfile` is now an interface instead of an abstract class
+- `CrawlObserverCollection` no longer implements `ArrayAccess` or `Iterator`
+- Default scheme changed from `http` to `https`
+- JavaScript rendering is now driver-based (Browsershot moved to `suggest`)
+- `UrlParser` interface redesigned to return `ExtractedUrl[]` instead of adding to queue directly
+- `CrawlQueue::has()` now accepts `string` instead of `CrawlUrl|UriInterface`
+- `start()` now returns a `FinishReason` enum
+- URL is now required in `Crawler::create()`
+
+### Added
+- `CrawlResponse` object with `status()`, `body()`, `dom()`, `header()`, `transferStats()`, and more
+- `CrawlProgress` tracking with `urlsCrawled`, `urlsFailed`, `urlsFound`, `urlsPending`
+- `FinishReason` enum: `Completed`, `CrawlLimitReached`, `TimeLimitReached`, `Interrupted`
+- Closure callbacks: `onCrawled()`, `onFailed()`, `onFinished()`, `onWillCrawl()`
+- `foundUrls()` to collect all URLs as `CrawledUrl` objects
+- `fake()` for testing without HTTP requests
+- Scope helpers: `internalOnly()`, `includeSubdomains()`, `shouldCrawl()`
+- Shorter method names: `depth()`, `concurrency()`, `delay()`, `limit()`, `userAgent()`
+- Throttling: `FixedDelayThrottle` and `AdaptiveThrottle`
+- Resource type extraction: `alsoExtract()`, `extractAll()`, `ResourceType` enum
+- URL normalization in `ArrayCrawlQueue`
+- Graceful shutdown via SIGINT/SIGTERM
+- `alwaysCrawl()` and `neverCrawl()` pattern overrides
+- `retry()` for automatic retries on connection errors and 5xx responses
+- `TransferStatistics` with typed timing accessors
+- `CloudflareRenderer` for JavaScript rendering
+- `JavaScriptRenderer` interface for custom renderers
+- Request configuration: `basicAuth()`, `token()`, `withoutVerifying()`, `proxy()`, `cookies()`, `queryParameters()`, `middleware()`
+
+### Removed
+- `CrawlUrl::create()` static factory (use `new CrawlUrl(...)` instead)
+- `Spatie\Crawler\Url` class
+- `ResponseWithCachedBody` (replaced by `CrawlResponse`)
+- `nicmart/tree` dependency
+- `spatie/browsershot` as a required dependency (moved to `suggest`)
+- `setBrowsershot()` and `getBrowsershot()` methods
+- `startCrawling()` method (use `start()`)
+- `setUrlParserClass()` (use `parseSitemaps()` or pass a `UrlParser` directly)
+
 ## 8.5.0 - 2026-02-21
 
 Add Laravel 13 support
