@@ -70,6 +70,40 @@ $stats->downloadSpeedInBytesPerSecond();   // ?float (average download speed)
 $stats->requestSizeInBytes();              // ?int (size of the HTTP request)
 ```
 
+## Redirect history
+
+When the crawler follows redirects (which is the default), you can inspect the redirect chain for any response:
+
+```php
+use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlResponse;
+
+Crawler::create('https://example.com')
+    ->onCrawled(function (string $url, CrawlResponse $response) {
+        if ($response->wasRedirected()) {
+            echo "{$url} redirected through: " . implode(' → ', $response->redirectHistory()) . "\n";
+        }
+    })
+    ->start();
+```
+
+The `redirectHistory()` method returns an array of URLs that were visited before reaching the final URL. The `wasRedirected()` method is a convenience that returns `true` when the redirect history is not empty.
+
+The crawler follows up to 5 redirects per request by default (Guzzle's built-in limit), which protects against infinite redirect loops. To change this limit, pass a custom `allow_redirects` option:
+
+```php
+use GuzzleHttp\RequestOptions;
+
+Crawler::create('https://example.com', [
+    RequestOptions::ALLOW_REDIRECTS => [
+        'max' => 10,
+        'track_redirects' => true,
+    ],
+])->start();
+```
+
+Keep `track_redirects` set to `true` if you want `redirectHistory()` and `wasRedirected()` to work. To disable following redirects entirely, set `allow_redirects` to `false`.
+
 ## Using the DOM crawler
 
 The `dom()` method returns a [Symfony DomCrawler](https://symfony.com/doc/current/components/dom_crawler.html) instance, which makes it easy to extract structured data from pages:

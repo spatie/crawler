@@ -531,6 +531,28 @@ it('should handle redirects correctly when tracking is active', function () {
     expectCrawledUrlCount(3);
 });
 
+it('exposes redirect history on crawl response', function () {
+    $redirectHistories = [];
+
+    Crawler::create('https://example.com')
+        ->fake([
+            'https://example.com' => '<html><a href="/old-page">Link</a></html>',
+            'https://example.com/old-page' => CrawlResponse::fake('', 301, ['Location' => 'https://example.com/new-page']),
+            'https://example.com/new-page' => '<html>New page</html>',
+        ])
+        ->ignoreRobots()
+        ->onCrawled(function (string $url, CrawlResponse $response) use (&$redirectHistories) {
+            $redirectHistories[$url] = [
+                'wasRedirected' => $response->wasRedirected(),
+                'history' => $response->redirectHistory(),
+            ];
+        })
+        ->start();
+
+    expect($redirectHistories['https://example.com/']['wasRedirected'])->toBeFalse();
+    expect($redirectHistories['https://example.com/']['history'])->toBe([]);
+});
+
 it('should handle redirects correctly when max depth is specified', function () {
     $fakes = fullSiteFakes();
     $fakes['https://example.com/redirect-home/'] = CrawlResponse::fake('', 301, ['Location' => 'https://example.com/']);
