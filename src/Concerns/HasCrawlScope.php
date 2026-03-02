@@ -7,7 +7,6 @@ use Spatie\Crawler\CrawlProfiles\ClosureCrawlProfile;
 use Spatie\Crawler\CrawlProfiles\CrawlAllUrls;
 use Spatie\Crawler\CrawlProfiles\CrawlInternalUrls;
 use Spatie\Crawler\CrawlProfiles\CrawlProfile;
-use Spatie\Crawler\CrawlProfiles\CrawlSubdomains;
 
 trait HasCrawlScope
 {
@@ -16,6 +15,8 @@ trait HasCrawlScope
     protected ?string $scopeMode = null;
 
     protected bool $matchWww = false;
+
+    protected bool $includeSubdomains = false;
 
     protected array $alwaysCrawlPatterns = [];
 
@@ -38,8 +39,12 @@ trait HasCrawlScope
 
     public function includeSubdomains(): self
     {
-        $this->scopeMode = 'subdomains';
-        $this->crawlProfile = null;
+        $this->includeSubdomains = true;
+
+        if ($this->scopeMode === null) {
+            $this->scopeMode = 'internal';
+            $this->crawlProfile = null;
+        }
 
         return $this;
     }
@@ -108,8 +113,7 @@ trait HasCrawlScope
         }
 
         $this->crawlProfile = match ($this->scopeMode) {
-            'internal' => new CrawlInternalUrls($this->baseUrl, $this->matchWww),
-            'subdomains' => new CrawlSubdomains($this->baseUrl),
+            'internal' => new CrawlInternalUrls($this->baseUrl, $this->matchWww, $this->includeSubdomains),
             default => new CrawlAllUrls,
         };
     }
