@@ -120,6 +120,64 @@ it('uses crawl profile for internal urls', function () {
         ->notToBeCrawled();
 });
 
+it('matches www variant when matchWww is enabled', function () {
+    $crawled = [];
+
+    Crawler::create('https://example.com')
+        ->fake([
+            'https://example.com' => '<html><body><a href="https://www.example.com/page">WWW page</a><a href="https://other.com">Other</a></body></html>',
+            'https://www.example.com/page' => '<html><body>WWW page content</body></html>',
+            'https://other.com' => '<html><body>Other site</body></html>',
+        ])
+        ->ignoreRobots()
+        ->internalOnly()
+        ->matchWww()
+        ->onCrawled(function (string $url) use (&$crawled) {
+            $crawled[] = $url;
+        })
+        ->start();
+
+    expect($crawled)->toContain('https://www.example.com/page');
+    expect($crawled)->not->toContain('https://other.com');
+});
+
+it('does not match www variant by default', function () {
+    $crawled = [];
+
+    Crawler::create('https://example.com')
+        ->fake([
+            'https://example.com' => '<html><body><a href="https://www.example.com/page">WWW page</a></body></html>',
+            'https://www.example.com/page' => '<html><body>WWW page content</body></html>',
+        ])
+        ->ignoreRobots()
+        ->internalOnly()
+        ->onCrawled(function (string $url) use (&$crawled) {
+            $crawled[] = $url;
+        })
+        ->start();
+
+    expect($crawled)->not->toContain('https://www.example.com/page');
+});
+
+it('matches non-www from www base when matchWww is enabled', function () {
+    $crawled = [];
+
+    Crawler::create('https://www.example.com')
+        ->fake([
+            'https://www.example.com' => '<html><body><a href="https://example.com/page">Non-WWW page</a></body></html>',
+            'https://example.com/page' => '<html><body>Page content</body></html>',
+        ])
+        ->ignoreRobots()
+        ->internalOnly()
+        ->matchWww()
+        ->onCrawled(function (string $url) use (&$crawled) {
+            $crawled[] = $url;
+        })
+        ->start();
+
+    expect($crawled)->toContain('https://example.com/page');
+});
+
 it('can handle pages with invalid urls', function () {
     $crawlProfile = new class implements CrawlProfile
     {

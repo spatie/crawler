@@ -15,6 +15,8 @@ trait HasCrawlScope
 
     protected ?string $scopeMode = null;
 
+    protected bool $matchWww = false;
+
     protected array $alwaysCrawlPatterns = [];
 
     protected array $neverCrawlPatterns = [];
@@ -23,6 +25,13 @@ trait HasCrawlScope
     {
         $this->scopeMode = 'internal';
         $this->crawlProfile = null;
+
+        return $this;
+    }
+
+    public function matchWww(): self
+    {
+        $this->matchWww = true;
 
         return $this;
     }
@@ -99,7 +108,7 @@ trait HasCrawlScope
         }
 
         $this->crawlProfile = match ($this->scopeMode) {
-            'internal' => new CrawlInternalUrls($this->baseUrl),
+            'internal' => new CrawlInternalUrls($this->baseUrl, $this->matchWww),
             'subdomains' => new CrawlSubdomains($this->baseUrl),
             default => new CrawlAllUrls,
         };

@@ -6,8 +6,10 @@ class CrawlInternalUrls implements CrawlProfile
 {
     protected string $baseHost;
 
-    public function __construct(string $baseUrl)
-    {
+    public function __construct(
+        string $baseUrl,
+        protected bool $matchWww = false,
+    ) {
         $this->baseHost = parse_url($baseUrl, PHP_URL_HOST) ?? $baseUrl;
     }
 
@@ -15,6 +17,19 @@ class CrawlInternalUrls implements CrawlProfile
     {
         $host = parse_url($url, PHP_URL_HOST);
 
-        return $this->baseHost === $host;
+        if ($this->baseHost === $host) {
+            return true;
+        }
+
+        if (! $this->matchWww) {
+            return false;
+        }
+
+        return $this->stripWww($this->baseHost) === $this->stripWww($host ?? '');
+    }
+
+    protected function stripWww(string $host): string
+    {
+        return str_starts_with($host, 'www.') ? substr($host, 4) : $host;
     }
 }
