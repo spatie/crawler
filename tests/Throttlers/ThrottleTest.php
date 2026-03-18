@@ -1,9 +1,11 @@
 <?php
 
 use Spatie\Crawler\Crawler;
+use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Test\TestClasses\Log;
 use Spatie\Crawler\Throttlers\AdaptiveThrottle;
 use Spatie\Crawler\Throttlers\FixedDelayThrottle;
+use Spatie\Crawler\Throttlers\Throttle;
 
 beforeEach(function () {
     Log::reset();
@@ -117,7 +119,7 @@ it('adaptive throttle converges over multiple recordings', function () {
 it('applies throttle on failed requests', function () {
     $sleepCount = 0;
 
-    $throttle = new class($sleepCount) implements \Spatie\Crawler\Throttlers\Throttle
+    $throttle = new class($sleepCount) implements Throttle
     {
         public function __construct(protected int &$sleepCount) {}
 
@@ -133,7 +135,7 @@ it('applies throttle on failed requests', function () {
         ->fake([
             'https://example.com/robots.txt' => '',
             'https://example.com' => '<a href="/missing">link</a>',
-            'https://example.com/missing' => \Spatie\Crawler\CrawlResponse::fake('', 404),
+            'https://example.com/missing' => CrawlResponse::fake('', 404),
         ])
         ->throttle($throttle)
         ->depth(1)

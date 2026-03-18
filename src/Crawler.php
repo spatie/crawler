@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\TransferStats;
+use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\Concerns\ConfiguresRequests;
 use Spatie\Crawler\Concerns\HasCrawlLimits;
 use Spatie\Crawler\Concerns\HasCrawlObservers;
@@ -208,7 +209,7 @@ class Crawler
     public function executeJavaScript(?JavaScriptRenderer $renderer = null): self
     {
         if ($renderer === null) {
-            if (! class_exists(\Spatie\Browsershot\Browsershot::class)) {
+            if (! class_exists(Browsershot::class)) {
                 throw MissingJavaScriptRenderer::browsershotNotInstalled();
             }
 

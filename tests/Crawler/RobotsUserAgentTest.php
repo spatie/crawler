@@ -1,13 +1,14 @@
 <?php
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use Spatie\Crawler\Crawler;
 
 beforeEach(function () {
-    $this->mockHandler = new \GuzzleHttp\Handler\MockHandler([
+    $this->mockHandler = new MockHandler([
         new Response(200, [], "User-agent: *\nDisallow: /admin"),
         new Response(200, [], '<html><body>Home</body></html>'),
     ]);
