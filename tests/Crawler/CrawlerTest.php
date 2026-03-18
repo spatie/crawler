@@ -9,9 +9,12 @@ use Spatie\Crawler\CrawlProfiles\CrawlSubdomains;
 use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Enums\FinishReason;
+use Spatie\Crawler\Enums\ResourceType;
 use Spatie\Crawler\Exceptions\InvalidCrawlRequestHandler;
+use Spatie\Crawler\ExtractedUrl;
 use Spatie\Crawler\Test\TestClasses\CrawlLogger;
 use Spatie\Crawler\Test\TestClasses\Log;
+use Spatie\Crawler\UrlParsers\UrlParser;
 use stdClass;
 
 beforeEach(function () {
@@ -727,6 +730,40 @@ it('should change the default base url scheme to https', function () {
 
     expect($crawler->getDefaultScheme())
         ->toEqual('https');
+});
+
+it('accepts a custom url parser', function () {
+    $customParser = new class implements UrlParser
+    {
+        public function extractUrls(string $html, string $baseUrl): array
+        {
+            return [
+                new ExtractedUrl(
+                    url: 'https://example.com/custom-parsed',
+                    linkText: 'Custom',
+                    resourceType: ResourceType::Link,
+                ),
+            ];
+        }
+    };
+
+    $crawled = [];
+
+    Crawler::create('https://example.com')
+        ->fake([
+            'https://example.com' => '<html><body><a href="/link1">Link1</a></body></html>',
+            'https://example.com/custom-parsed' => '<html><body>Custom parsed page</body></html>',
+            'https://example.com/link1' => '<html><body>Link1 page</body></html>',
+        ])
+        ->ignoreRobots()
+        ->urlParser($customParser)
+        ->onCrawled(function (string $url) use (&$crawled) {
+            $crawled[] = $url;
+        })
+        ->start();
+
+    expect($crawled)->toContain('https://example.com/custom-parsed');
+    expect($crawled)->not->toContain('https://example.com/link1');
 });
 
 it('should remember settings', function () {

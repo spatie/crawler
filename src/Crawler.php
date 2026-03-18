@@ -227,6 +227,13 @@ class Crawler
         return $this;
     }
 
+    public function urlParser(UrlParser $urlParser): self
+    {
+        $this->urlParser = $urlParser;
+
+        return $this;
+    }
+
     public function parseSitemaps(): self
     {
         $this->urlParser = new SitemapUrlParser;
