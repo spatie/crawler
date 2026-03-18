@@ -36,6 +36,16 @@ Each `ExtractedUrl` has the following properties:
 
 By default, the `LinkUrlParser` is used. It extracts URLs from `<a>` tags, `<link rel="next/prev">`, and `<link hreflang>` elements. When [resource extraction](/docs/crawler/v9/configuring-the-crawler/extracting-resources) is enabled, it also extracts images, scripts, stylesheets, and Open Graph images.
 
+To use your custom parser, pass it to the `urlParser` method:
+
+```php
+use Spatie\Crawler\Crawler;
+
+Crawler::create('https://example.com')
+    ->urlParser(new MyUrlParser())
+    ->start();
+```
+
 ## Crawling sitemaps
 
 There is a built-in option to parse sitemaps instead of (or in addition to) following links. It supports sitemap index files.
