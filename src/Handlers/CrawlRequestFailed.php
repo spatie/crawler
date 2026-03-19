@@ -15,6 +15,10 @@ class CrawlRequestFailed
 
     public function __invoke(Exception $exception, mixed $index): void
     {
+        if ($this->crawler->hasReachedLimits()) {
+            return;
+        }
+
         $crawlUrl = $this->crawler->getCrawlQueue()->getUrlById($index);
 
         if (! $exception instanceof RequestException) {

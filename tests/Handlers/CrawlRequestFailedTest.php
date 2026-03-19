@@ -43,6 +43,56 @@ it('preserves the original request from ConnectException', function () {
     expect($wrappedException->getPrevious())->toBe($connectException);
 });
 
+it('reports regular request timeouts', function () {
+    $capturedExceptions = [];
+
+    $crawlUrl = new CrawlUrl('https://example.com/slow-page');
+
+    $queue = new ArrayCrawlQueue;
+    $queue->add($crawlUrl);
+
+    $crawler = Crawler::create('https://example.com')
+        ->onFailed(function (
+            string $url,
+            RequestException $exception,
+        ) use (&$capturedExceptions) {
+            $capturedExceptions[] = $exception;
+        });
+
+    $crawler->crawlQueue($queue);
+
+    $handler = new CrawlRequestFailed($crawler);
+    $handler(new ConnectException('Connection timed out', new Request('GET', 'https://example.com/slow-page')), $crawlUrl->id);
+
+    expect($capturedExceptions)->toHaveCount(1);
+    expect($capturedExceptions[0]->getMessage())->toBe('Connection timed out');
+});
+
+it('does not report failure when crawler has reached limits', function () {
+    $capturedExceptions = [];
+
+    $crawlUrl = new CrawlUrl('https://example.com/timeout');
+
+    $queue = new ArrayCrawlQueue;
+    $queue->add($crawlUrl);
+
+    $crawler = Crawler::create('https://example.com')
+        ->limit(0)
+        ->onFailed(function (
+            string $url,
+            RequestException $exception,
+        ) use (&$capturedExceptions) {
+            $capturedExceptions[] = $exception;
+        });
+
+    $crawler->crawlQueue($queue);
+
+    $handler = new CrawlRequestFailed($crawler);
+    $handler(new ConnectException('Connection timed out', new Request('GET', 'https://example.com/timeout')), $crawlUrl->id);
+
+    expect($capturedExceptions)->toBeEmpty();
+});
+
 it('creates a fresh request for non-ConnectException errors', function () {
     $capturedExceptions = [];
 

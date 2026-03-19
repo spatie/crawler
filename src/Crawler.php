@@ -434,6 +434,13 @@ class Crawler
         );
     }
 
+    public function hasReachedLimits(): bool
+    {
+        return $this->shouldStop
+            || $this->reachedCrawlLimits()
+            || $this->reachedTimeLimits();
+    }
+
     public function applyDelay(): void
     {
         if ($this->throttle !== null) {
