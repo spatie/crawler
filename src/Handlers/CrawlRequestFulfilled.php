@@ -25,6 +25,7 @@ class CrawlRequestFulfilled
         try {
             $this->handle($response, $index);
         } finally {
+            $response->getBody()->close();
             $this->crawler->applyDelay();
         }
     }
