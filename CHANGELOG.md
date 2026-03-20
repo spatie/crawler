@@ -2,6 +2,14 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 9.2.1 - 2026-03-20
+
+### What's Changed
+
+* Close response body streams after processing by @freekmurze in https://github.com/spatie/crawler/pull/503
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/9.0.1...9.2.1
+
 ## 9.2.0 - 2026-03-19
 
 **Full Changelog**: https://github.com/spatie/crawler/compare/9.1.0...9.2.0
