@@ -32,6 +32,47 @@ it('stops crawling when shouldStop is set', function () {
     expect($reason)->toBe(FinishReason::Interrupted);
 });
 
+it('stops crawling when shouldStopCallback returns true immediately', function () {
+    $crawled = [];
+
+    $reason = Crawler::create('https://example.com')
+        ->fake(fullSiteFakes())
+        ->depth(3)
+        ->concurrency(1)
+        ->shouldStopCallback(fn (Crawler $crawler) => true)
+        ->onCrawled(function (string $url) use (&$crawled) {
+            $crawled[] = $url;
+        })
+        ->start();
+
+    expect($crawled)->toBeEmpty();
+    expect($reason)->toBe(FinishReason::Interrupted);
+});
+
+it('stops crawling when shouldStopCallback becomes true between requests', function () {
+    $crawled = [];
+    $shouldStop = false;
+
+    $reason = Crawler::create('https://example.com')
+        ->fake(fullSiteFakes())
+        ->depth(3)
+        ->concurrency(1)
+        ->shouldStopCallback(function (Crawler $crawler) use (&$shouldStop) {
+            return $shouldStop;
+        })
+        ->onCrawled(function (string $url) use (&$crawled, &$shouldStop) {
+            $crawled[] = $url;
+
+            if (count($crawled) === 1) {
+                $shouldStop = true;
+            }
+        })
+        ->start();
+
+    expect(count($crawled))->toBe(1);
+    expect($reason)->toBe(FinishReason::Interrupted);
+});
+
 it('calls finishedCrawling after graceful shutdown', function () {
     $finishedCalled = false;
 

@@ -75,6 +75,8 @@ class Crawler
 
     protected bool $shouldStop = false;
 
+    protected ?\Closure $shouldStopCallback = null;
+
     protected int $crawledUrlCount = 0;
 
     protected int $failedUrlCount = 0;
@@ -245,6 +247,21 @@ class Crawler
     public function fake(array $fakes): self
     {
         $this->fakes = $fakes;
+
+        return $this;
+    }
+
+    /**
+     * Register a callback that is evaluated before scheduling each next request.
+     * Returning true interrupts the crawl and makes start() return FinishReason::Interrupted.
+     *
+     * @param callable(self):bool $shouldStopCallback
+     */
+    public function shouldStopCallback(callable $shouldStopCallback): self
+    {
+        $this->shouldStopCallback = $shouldStopCallback instanceof \Closure
+            ? $shouldStopCallback
+            : \Closure::fromCallable($shouldStopCallback);
 
         return $this;
     }
@@ -513,6 +530,12 @@ class Crawler
             $this->reachedTimeLimits() === false &&
             $crawlUrl = $this->crawlQueue->getPendingUrl()
         ) {
+            if ($this->shouldStopCallback !== null && ($this->shouldStopCallback)($this)) {
+                $this->shouldStop = true;
+
+                break;
+            }
+
             if ($this->crawlQueue->hasAlreadyBeenProcessed($crawlUrl)) {
                 $this->crawlQueue->markAsProcessed($crawlUrl);
 
