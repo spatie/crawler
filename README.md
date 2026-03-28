@@ -52,6 +52,23 @@ Crawler::create('https://example.com')
     ->foundUrls();
 ```
 
+If you need to stop a crawl based on external state, you can register a callback that receives the current crawler instance and is checked before scheduling each next request:
+
+```php
+use Spatie\Crawler\Crawler;
+
+$shouldStop = false;
+
+Crawler::create('https://example.com')
+    ->shouldStopCallback(function (Crawler $crawler) use (&$shouldStop) {
+        return $shouldStop;
+    })
+    ->onCrawled(function (string $url) use (&$shouldStop) {
+        $shouldStop = true;
+    })
+    ->start();
+```
+
 ## Support us
 
 [<img src="https://github-ads.s3.eu-central-1.amazonaws.com/crawler.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/crawler)
