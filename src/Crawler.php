@@ -255,7 +255,7 @@ class Crawler
      * Register a callback that is evaluated before scheduling each next request.
      * Returning true interrupts the crawl and makes start() return FinishReason::Interrupted.
      *
-     * @param callable(self):bool $shouldStopCallback
+     * @param  callable(self):bool  $shouldStopCallback
      */
     public function shouldStopCallback(callable $shouldStopCallback): self
     {
