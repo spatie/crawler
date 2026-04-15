@@ -2,6 +2,14 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 9.3.0 - 2026-04-15
+
+### What's Changed
+
+* Add a shouldStopCallback hook for graceful external stops by @kissifrot in https://github.com/spatie/crawler/pull/504
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/9.2.1...9.3.0
+
 ## 9.2.1 - 2026-03-20
 
 ### What's Changed
