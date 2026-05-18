@@ -10,6 +10,14 @@ use Spatie\Crawler\CrawlProfiles\CrawlProfile;
 
 trait HasCrawlScope
 {
+    /**
+     * fnmatch() rejects strings longer than the platform's FILENAME_MAX with a
+     * warning (4096 on Linux, 1024 on macOS/BSD). We use the lowest common
+     * value so behavior is consistent across platforms; real URLs almost never
+     * exceed this anyway.
+     */
+    protected int $fnmatchMaxLength = 1024;
+
     protected ?CrawlProfile $crawlProfile = null;
 
     protected ?string $scopeMode = null;
@@ -81,6 +89,10 @@ trait HasCrawlScope
 
     public function matchesAlwaysCrawl(string $url): bool
     {
+        if (strlen($url) > $this->fnmatchMaxLength) {
+            return false;
+        }
+
         foreach ($this->alwaysCrawlPatterns as $pattern) {
             if (fnmatch($pattern, $url)) {
                 return true;
@@ -92,6 +104,10 @@ trait HasCrawlScope
 
     public function matchesNeverCrawl(string $url): bool
     {
+        if (strlen($url) > $this->fnmatchMaxLength) {
+            return false;
+        }
+
         foreach ($this->neverCrawlPatterns as $pattern) {
             if (fnmatch($pattern, $url)) {
                 return true;
