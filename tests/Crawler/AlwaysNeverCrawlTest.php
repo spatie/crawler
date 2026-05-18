@@ -105,3 +105,21 @@ it('alwaysCrawl bypasses crawl profile', function () {
 
     expect($crawled)->toContain('https://external.com/page');
 });
+
+it('does not crash when matching alwaysCrawl against a url longer than fnmatch can handle', function () {
+    $longUrl = 'https://example.com/'.str_repeat('a', 4200);
+
+    $crawler = Crawler::create('https://example.com')
+        ->alwaysCrawl(['https://example.com/*']);
+
+    expect($crawler->matchesAlwaysCrawl($longUrl))->toBeFalse();
+});
+
+it('does not crash when matching neverCrawl against a url longer than fnmatch can handle', function () {
+    $longUrl = 'https://example.com/'.str_repeat('a', 4200);
+
+    $crawler = Crawler::create('https://example.com')
+        ->neverCrawl(['https://example.com/*']);
+
+    expect($crawler->matchesNeverCrawl($longUrl))->toBeFalse();
+});
