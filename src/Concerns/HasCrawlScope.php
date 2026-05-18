@@ -16,7 +16,7 @@ trait HasCrawlScope
      * value so behavior is consistent across platforms; real URLs almost never
      * exceed this anyway.
      */
-    private const FNMATCH_MAX_LENGTH = 1024;
+    protected int $fnmatchMaxLength = 1024;
 
     protected ?CrawlProfile $crawlProfile = null;
 
@@ -89,7 +89,7 @@ trait HasCrawlScope
 
     public function matchesAlwaysCrawl(string $url): bool
     {
-        if (strlen($url) > self::FNMATCH_MAX_LENGTH) {
+        if (strlen($url) > $this->fnmatchMaxLength) {
             return false;
         }
 
@@ -104,7 +104,7 @@ trait HasCrawlScope
 
     public function matchesNeverCrawl(string $url): bool
     {
-        if (strlen($url) > self::FNMATCH_MAX_LENGTH) {
+        if (strlen($url) > $this->fnmatchMaxLength) {
             return false;
         }
 
