@@ -2,6 +2,14 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 9.3.1 - 2026-05-18
+
+### What's Changed
+
+* Skip fnmatch for URLs longer than FILENAME_MAX by @mattiasgeniar in https://github.com/spatie/crawler/pull/505
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/9.3.0...9.3.1
+
 ## 9.3.0 - 2026-04-15
 
 ### What's Changed
