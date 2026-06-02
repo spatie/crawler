@@ -1,6 +1,9 @@
 <?php
 
 use GuzzleHttp\Middleware;
+use GuzzleHttp\Promise\Promise;
+use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\RequestInterface;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Test\TestServer\TestServer;
@@ -143,6 +146,89 @@ it('throttle is called on real failed requests', function () {
 
     // sleep() should be called for both the parent page (fulfilled) and the 404 (failed).
     expect($sleepCount)->toBeGreaterThanOrEqual(2);
+});
+
+it('does not let delay block concurrent in-flight requests', function () {
+    $measureCrawl = function (int $delayInMilliseconds): array {
+        $count = 0;
+        $start = microtime(true);
+
+        Crawler::create('https://example.com/', [
+            'handler' => new class
+            {
+                /** @var array<int, array{Promise, string}> */
+                private array $pending = [];
+
+                public function __invoke(RequestInterface $request): Promise
+                {
+                    $promise = new Promise(function () {
+                        $this->resolvePendingRequests();
+                    });
+
+                    $this->pending[] = [$promise, (string) $request->getUri()];
+
+                    return $promise;
+                }
+
+                private function resolvePendingRequests(): void
+                {
+                    if ($this->pending === []) {
+                        return;
+                    }
+
+                    usleep(300_000);
+
+                    $pending = $this->pending;
+                    $this->pending = [];
+
+                    foreach ($pending as [$promise, $url]) {
+                        $promise->resolve(new Response(
+                            200,
+                            ['Content-Type' => 'text/html'],
+                            $this->htmlFor($url),
+                        ));
+                    }
+                }
+
+                private function htmlFor(string $url): string
+                {
+                    if (parse_url($url, PHP_URL_PATH) !== '/') {
+                        return '<html><body>leaf</body></html>';
+                    }
+
+                    $body = '<html><body>';
+
+                    for ($i = 1; $i <= 20; $i++) {
+                        $body .= "<a href=\"/p{$i}\">p{$i}</a>";
+                    }
+
+                    return $body.'</body></html>';
+                }
+            },
+        ])
+            ->ignoreRobots()
+            ->concurrency(20)
+            ->delay($delayInMilliseconds)
+            ->onCrawled(function () use (&$count) {
+                $count++;
+            })
+            ->start();
+
+        return [
+            'count' => $count,
+            'elapsed' => microtime(true) - $start,
+        ];
+    };
+
+    $withoutDelay = $measureCrawl(0);
+    $withDelay = $measureCrawl(100);
+
+    expect($withoutDelay['count'])->toBe(21);
+    expect($withDelay['count'])->toBe(21);
+
+    // The handler resolves each concurrent batch after 300ms.
+    // A 100ms crawl delay should not add roughly 21 * 100ms to the total runtime.
+    expect($withDelay['elapsed'])->toBeLessThan($withoutDelay['elapsed'] + 0.75);
 });
 
 it('respects robots.txt over real http', function () {
