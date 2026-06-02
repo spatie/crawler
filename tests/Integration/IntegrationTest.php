@@ -3,6 +3,7 @@
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\RequestInterface;
 use Spatie\Crawler\Crawler;
 use Spatie\Crawler\CrawlResponse;
 use Spatie\Crawler\Test\TestServer\TestServer;
@@ -10,7 +11,6 @@ use Spatie\Crawler\Throttlers\AdaptiveThrottle;
 use Spatie\Crawler\Throttlers\FixedDelayThrottle;
 use Spatie\Crawler\Throttlers\Throttle;
 use Spatie\Crawler\TransferStatistics;
-use Psr\Http\Message\RequestInterface;
 
 beforeAll(function () {
     TestServer::start();
