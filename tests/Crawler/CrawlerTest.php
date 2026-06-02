@@ -683,14 +683,18 @@ it('respects the total execution time limit', function () {
 
     $reason = $crawler->start();
 
-    // At 500ms delay per URL, only four URLs can be crawled in 2 seconds.
-    expectCrawledUrlCount(4);
+    // With a 500ms delay per request, the 2 second budget runs out long
+    // before the full 11 URL site is crawled.
     expect($reason)->toBe(FinishReason::TimeLimitReached);
+    $crawledAfterFirstRun = crawledUrlCount();
+    expect($crawledAfterFirstRun)->toBeGreaterThan(0)->toBeLessThan(11);
 
+    // The total time limit is cumulative across runs, so a second run cannot
+    // make any further progress.
     $reason = $crawler->start();
 
-    expectCrawledUrlCount(4);
     expect($reason)->toBe(FinishReason::TimeLimitReached);
+    expect(crawledUrlCount())->toBe($crawledAfterFirstRun);
 });
 
 it('respects the current execution time limit', function () {
@@ -703,11 +707,15 @@ it('respects the current execution time limit', function () {
 
     $crawler->start();
 
-    // At 500ms delay per URL, only four URLs can be crawled in 2 seconds.
-    expectCrawledUrlCount(4);
+    // A single 2 second execution only gets through part of the 11 URL site.
+    expect(crawledUrlCount())->toBeGreaterThan(0)->toBeLessThan(11);
 
-    $crawler->start();
+    // Each execution gets a fresh budget, so repeated runs eventually finish.
+    do {
+        $reason = $crawler->start();
+    } while ($reason === FinishReason::TimeLimitReached);
 
+    expect($reason)->toBe(FinishReason::Completed);
     expectCrawledUrlCount(11);
 });
 

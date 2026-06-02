@@ -7,6 +7,7 @@ use Generator;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\RequestOptions;
 use GuzzleHttp\TransferStats;
 use Spatie\Browsershot\Browsershot;
 use Spatie\Crawler\Concerns\ConfiguresRequests;
@@ -460,13 +461,11 @@ class Crawler
 
     public function applyDelay(): void
     {
-        if ($this->throttle !== null) {
-            $this->throttle->sleep();
-
-            return;
-        }
-
-        usleep($this->delayBetweenRequests);
+        // A plain `delay()` is applied non-blockingly through Guzzle's per-request
+        // `delay` option (see startCrawlingQueue), so it does not stall the pool.
+        // Throttles still sleep here: an adaptive throttle needs the response time
+        // to compute its next delay, so it can only run after a request completes.
+        $this->throttle?->sleep();
     }
 
     // Internal methods
@@ -496,11 +495,23 @@ class Crawler
             $this->reachedTimeLimits() === false &&
             $this->crawlQueue->hasPendingUrls()
         ) {
-            $pool = new Pool($client, $this->getCrawlRequests(), [
+            $poolOptions = [
                 'concurrency' => $this->concurrency,
                 'fulfilled' => new $this->crawlRequestFulfilledClass($this),
                 'rejected' => new $this->crawlRequestFailedClass($this),
-            ]);
+            ];
+
+            // Pace requests without blocking the pool. Guzzle's `delay` option is
+            // honored by the async cURL handler inside its event loop: the request
+            // start is deferred, while other in-flight requests keep progressing.
+            // A throttle keeps using the (blocking) applyDelay() path instead.
+            if ($this->throttle === null && $this->delayBetweenRequests > 0) {
+                $poolOptions['options'] = [
+                    RequestOptions::DELAY => $this->delayBetweenRequests / 1000,
+                ];
+            }
+
+            $pool = new Pool($client, $this->getCrawlRequests(), $poolOptions);
 
             $promise = $pool->promise();
 

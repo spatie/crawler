@@ -56,11 +56,14 @@ expect()->extend('toBeCrawledOnce', function () {
 
 function expectCrawledUrlCount(int $count): void
 {
-    $logContent = Log::getContents();
-
-    $actualCount = substr_count($logContent, 'hasBeenCrawled');
+    $actualCount = crawledUrlCount();
 
     assertEquals($count, $actualCount, "Crawled `{$actualCount}` urls instead of the expected {$count}");
+}
+
+function crawledUrlCount(): int
+{
+    return substr_count(Log::getContents(), 'hasBeenCrawled');
 }
 
 function createCrawler(string $url = 'https://example.com', $options = []): Crawler
