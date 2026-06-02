@@ -23,9 +23,11 @@ By default, there is no delay between requests. In some cases you might get rate
 use Spatie\Crawler\Crawler;
 
 Crawler::create('https://example.com')
-    ->delay(150) // wait 150ms after every page
+    ->delay(150) // wait 150ms before every request
     ->start();
 ```
+
+The delay is applied without blocking the crawler. When combined with `concurrency`, requests still run in parallel: the delay paces when each request starts, but it does not freeze requests that are already in flight.
 
 ## Throttling
 

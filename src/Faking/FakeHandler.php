@@ -30,6 +30,12 @@ class FakeHandler
 
     public function __invoke(RequestInterface $request, array $options = []): FulfilledPromise
     {
+        // Mirror how Guzzle's real handlers treat the `delay` request option, so a
+        // crawl configured with delay() still spends that time when using fakes.
+        if (isset($options['delay'])) {
+            usleep((int) ($options['delay'] * 1000));
+        }
+
         $response = $this->findResponse((string) $request->getUri());
 
         $redirectHistory = [];
