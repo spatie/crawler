@@ -563,7 +563,11 @@ class Crawler
 
     protected function registerSignalHandlers(): void
     {
-        if (! extension_loaded('pcntl')) {
+        if (
+            ! extension_loaded('pcntl') ||
+            ! function_exists('pcntl_async_signals') ||
+            ! function_exists('pcntl_signal')
+        ) {
             return;
         }
 
