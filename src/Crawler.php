@@ -563,7 +563,7 @@ class Crawler
 
     protected function registerSignalHandlers(): void
     {
-        if (! extension_loaded('pcntl')) {
+        if (! $this->canHandleSignals()) {
             return;
         }
 
@@ -580,11 +580,18 @@ class Crawler
 
     protected function unregisterSignalHandlers(): void
     {
-        if (! extension_loaded('pcntl')) {
+        if (! $this->canHandleSignals()) {
             return;
         }
 
         pcntl_signal(SIGINT, SIG_DFL);
         pcntl_signal(SIGTERM, SIG_DFL);
+    }
+
+    protected function canHandleSignals(): bool
+    {
+        return extension_loaded('pcntl')
+            && function_exists('pcntl_async_signals')
+            && function_exists('pcntl_signal');
     }
 }
