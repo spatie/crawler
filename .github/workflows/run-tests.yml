@@ -26,7 +26,7 @@ jobs:
                     coverage: none
 
             -   name: Install dependencies
-                run: composer update --${{ matrix.dependency-version }} --with="guzzlehttp/guzzle:${{ matrix.guzzle }}" --no-interaction --prefer-source
+                run: composer update --${{ matrix.dependency-version }} --with="guzzlehttp/guzzle:${{ matrix.guzzle }}" --no-interaction --prefer-dist
 
             -   name: Execute tests
                 run: vendor/bin/pest
