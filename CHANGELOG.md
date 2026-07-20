@@ -2,6 +2,10 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 9.4.0 - 2026-07-20
+
+Added support for Guzzle 8 alongside Guzzle 7.
+
 ## 9.3.2 - 2026-06-12
 
 ### What's Changed
