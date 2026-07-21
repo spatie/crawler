@@ -17,8 +17,8 @@
     ],
     "require": {
         "php": "^8.4",
-        "guzzlehttp/guzzle": "^7.3|^8.0",
-        "guzzlehttp/psr7": "^2.0|^3.0",
+        "guzzlehttp/guzzle": "^7.8.2 || ^8.0",
+        "guzzlehttp/psr7": "^2.6.3 || ^3.0",
         "psr/http-client": "^1.0",
         "spatie/robots-txt": "^2.0",
         "symfony/css-selector": "^7.0|^8.0",
