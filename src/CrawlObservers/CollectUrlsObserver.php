@@ -2,9 +2,7 @@
 
 namespace Spatie\Crawler\CrawlObservers;
 
-use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\TooManyRedirectsException;
 use Spatie\Crawler\CrawledUrl;
 use Spatie\Crawler\CrawlProgress;
 use Spatie\Crawler\CrawlResponse;
@@ -39,10 +37,11 @@ class CollectUrlsObserver extends CrawlObserver
         ?ResourceType $resourceType = null,
         ?TransferStatistics $transferStats = null,
     ): void {
-        // Guzzle 8 removed getResponse() from RequestException; it only lives on
-        // response-carrying subclasses. These expose it in both Guzzle 7 and 8,
-        // covering every failure that reaches here with a response.
-        $response = $requestException instanceof BadResponseException || $requestException instanceof TooManyRedirectsException
+        // Guzzle 8 removed getResponse() from the base RequestException; it now
+        // lives only on its response-carrying subclasses. method_exists() keeps
+        // this working across Guzzle 7 (where the base still has it) and 8, and
+        // covers every response-carrying exception, not just a hardcoded subset.
+        $response = method_exists($requestException, 'getResponse')
             ? $requestException->getResponse()
             : null;
 
