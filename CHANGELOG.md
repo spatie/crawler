@@ -2,6 +2,18 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 9.4.1 - 2026-07-22
+
+### What's Changed
+
+* Fix Guzzle 8 exception handling for responses and retries by @GrahamCampbell in https://github.com/spatie/crawler/pull/510
+
+### New Contributors
+
+* @GrahamCampbell made their first contribution in https://github.com/spatie/crawler/pull/510
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/9.4.0...9.4.1
+
 ## 9.4.0 - 2026-07-20
 
 Added support for Guzzle 8 alongside Guzzle 7.
