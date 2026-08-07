@@ -2,6 +2,18 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 9.4.2 - 2026-08-07
+
+### What's Changed
+
+* Fix SitemapUrlParser extracting no URLs from namespaced sitemaps by @witheez in https://github.com/spatie/crawler/pull/512
+
+### New Contributors
+
+* @witheez made their first contribution in https://github.com/spatie/crawler/pull/512
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/9.4.1...9.4.2
+
 ## 9.4.1 - 2026-07-22
 
 ### What's Changed
