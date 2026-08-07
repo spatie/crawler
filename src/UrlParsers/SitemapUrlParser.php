@@ -16,7 +16,9 @@ class SitemapUrlParser implements UrlParser
         $urls = [];
         $seen = [];
 
-        $domCrawler->filterXPath('//loc')->each(function (DomCrawler $node) use (&$urls, &$seen) {
+        $locXPath = '//*[local-name()="url" or local-name()="sitemap"]/*[local-name()="loc"]';
+
+        $domCrawler->filterXPath($locXPath)->each(function (DomCrawler $node) use (&$urls, &$seen) {
             $url = trim($node->text());
 
             if (! $url) {
