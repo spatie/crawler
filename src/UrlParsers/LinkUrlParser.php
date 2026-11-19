@@ -203,7 +203,7 @@ class LinkUrlParser implements UrlParser
         $linkText = $link->getNode()->textContent;
         if ($linkText) {
             // Limit link text to prevent excessive memory usage from large DOM nodes
-            $linkText = substr($linkText, 0, 4000);
+            $linkText = mb_strcut($linkText, 0, 4000, 'UTF-8');
         }
 
         return new ExtractedUrl(

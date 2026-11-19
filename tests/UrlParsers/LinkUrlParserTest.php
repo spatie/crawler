@@ -77,3 +77,13 @@ it('leaves urls without dot segments unchanged', function () {
     expect($urls)->not->toBeEmpty();
     expect($urls[0]->url)->toBe('https://example.com/a/b/c');
 });
+
+it('does not split a multibyte character when truncating long link text', function () {
+    $parser = new LinkUrlParser;
+
+    $html = '<html><body><a href="https://example.com/page">a'.str_repeat('é', 2000).'</a></body></html>';
+    $urls = $parser->extractUrls($html, 'https://example.com');
+
+    expect(mb_check_encoding($urls[0]->linkText, 'UTF-8'))->toBeTrue();
+    expect(strlen($urls[0]->linkText))->toBeLessThanOrEqual(4000);
+});
