@@ -2,6 +2,16 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 9.4.3 - 2026-11-23
+
+### What changed
+
+* Prevent truncated link text from splitting UTF-8 characters, avoiding malformed UTF-8 errors when JSON encoding crawl results. Thanks @mattiasgeniar! (#514)
+* Require `ext-mbstring` in Composer. The native PHP mbstring extension must be installed; the Symfony polyfill does not implement `mb_strcut()`.
+* Update the PHP 8.6 test matrix and compatible Pest dependencies. (#513)
+
+**Full changelog**: https://github.com/spatie/crawler/compare/9.4.2...9.4.3
+
 ## 9.4.2 - 2026-08-07
 
 ### What's Changed
