@@ -37,7 +37,13 @@ class CollectUrlsObserver extends CrawlObserver
         ?ResourceType $resourceType = null,
         ?TransferStatistics $transferStats = null,
     ): void {
-        $response = $requestException->getResponse();
+        // Guzzle 8 removed getResponse() from the base RequestException; it now
+        // lives only on its response-carrying subclasses. method_exists() keeps
+        // this working across Guzzle 7 (where the base still has it) and 8, and
+        // covers every response-carrying exception, not just a hardcoded subset.
+        $response = method_exists($requestException, 'getResponse')
+            ? $requestException->getResponse()
+            : null;
 
         $this->crawledUrls[] = new CrawledUrl(
             url: $url,

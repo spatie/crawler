@@ -9,9 +9,13 @@ on:
 
 jobs:
   phpstan:
-    name: phpstan
+    name: phpstan - Guzzle ${{ matrix.guzzle }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        guzzle: ['^7.3', '^8.0']
     steps:
       - uses: actions/checkout@v6
 
@@ -22,7 +26,7 @@ jobs:
           coverage: none
 
       - name: Install composer dependencies
-        uses: ramsey/composer-install@v3
+        run: composer update --with="guzzlehttp/guzzle:${{ matrix.guzzle }}" --no-interaction --prefer-dist
 
       - name: Run PHPStan
         run: ./vendor/bin/phpstan --error-format=github

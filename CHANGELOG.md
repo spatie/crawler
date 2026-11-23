@@ -2,6 +2,46 @@
 
 All notable changes to `spatie/crawler` will be documented in this file.
 
+## 9.4.2 - 2026-08-07
+
+### What's Changed
+
+* Fix SitemapUrlParser extracting no URLs from namespaced sitemaps by @witheez in https://github.com/spatie/crawler/pull/512
+
+### New Contributors
+
+* @witheez made their first contribution in https://github.com/spatie/crawler/pull/512
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/9.4.1...9.4.2
+
+## 9.4.1 - 2026-07-22
+
+### What's Changed
+
+* Fix Guzzle 8 exception handling for responses and retries by @GrahamCampbell in https://github.com/spatie/crawler/pull/510
+
+### New Contributors
+
+* @GrahamCampbell made their first contribution in https://github.com/spatie/crawler/pull/510
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/9.4.0...9.4.1
+
+## 9.4.0 - 2026-07-20
+
+Added support for Guzzle 8 alongside Guzzle 7.
+
+## 9.3.2 - 2026-06-12
+
+### What's Changed
+
+* Skip signal handler registration when pcntl functions are disabled by @poldixd in https://github.com/spatie/crawler/pull/508
+
+### New Contributors
+
+* @poldixd made their first contribution in https://github.com/spatie/crawler/pull/508
+
+**Full Changelog**: https://github.com/spatie/crawler/compare/9.3.1...9.3.2
+
 ## 9.3.1 - 2026-05-18
 
 ### What's Changed

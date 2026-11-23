@@ -6,3 +6,10 @@ parameters:
     paths:
         - src
     tmpDir: build/phpstan
+    ignoreErrors:
+        # The getResponse() guard is required for Guzzle 8, but always true for Guzzle 7.
+        -
+            message: '#^Call to function method_exists\(\) with GuzzleHttp\\Exception\\RequestException and ''getResponse'' will always evaluate to true\.$#'
+            identifier: function.alreadyNarrowedType
+            path: src/CrawlObservers/CollectUrlsObserver.php
+            reportUnmatched: false

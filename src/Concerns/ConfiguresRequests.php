@@ -10,6 +10,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\RequestOptions;
 use GuzzleHttp\TransferStats;
+use Psr\Http\Client\NetworkExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Spatie\Crawler\Faking\FakeHandler;
@@ -275,7 +276,11 @@ trait ConfiguresRequests
                     return false;
                 }
 
-                if ($exception instanceof ConnectException) {
+                // Guzzle 8 reclassifies read/operation timeouts as
+                // NetworkTimeoutException/NetworkException, which are not
+                // ConnectException subclasses. NetworkExceptionInterface covers
+                // the whole network-failure family in both Guzzle 7 and 8.
+                if ($exception instanceof ConnectException || $exception instanceof NetworkExceptionInterface) {
                     return true;
                 }
 

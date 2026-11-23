@@ -18,6 +18,30 @@ it('should extract child sitemaps from sitemap index', function () {
     ])->each->toBeCrawledOnce();
 });
 
+it('should extract urls from a sitemap that declares additional namespaces', function () {
+    createCrawler('https://example.com/sitemap_namespaced.xml')
+        ->fake(sitemapFakes())
+        ->parseSitemaps()
+        ->start();
+
+    expect([
+        ['url' => 'https://example.com/link1', 'foundOn' => 'https://example.com/sitemap_namespaced.xml'],
+        ['url' => 'https://example.com/link2', 'foundOn' => 'https://example.com/sitemap_namespaced.xml'],
+    ])->each->toBeCrawledOnce();
+});
+
+it('should not extract image urls from a sitemap using the image extension', function () {
+    createCrawler('https://example.com/sitemap_namespaced.xml')
+        ->fake(sitemapFakes())
+        ->parseSitemaps()
+        ->start();
+
+    expect([
+        'url' => 'https://example.com/image1.jpg',
+        'foundOn' => 'https://example.com/sitemap_namespaced.xml',
+    ])->notToBeCrawled();
+});
+
 it('should extract urls from sitemaps through sitemap index', function () {
     createCrawler('https://example.com/sitemap_index.xml')
         ->fake(sitemapFakes())

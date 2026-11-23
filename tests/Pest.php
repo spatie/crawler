@@ -177,6 +177,8 @@ function sitemapFakes(): array
 
     return [
         'https://example.com/sitemap_index.xml' => CrawlResponse::fake($sitemapIndex, 200, ['Content-Type' => 'text/xml; charset=utf-8']),
+        'https://example.com/sitemap_namespaced.xml' => CrawlResponse::fake(namespacedSitemap(), 200, ['Content-Type' => 'text/xml; charset=utf-8']),
+        'https://example.com/image1.jpg' => CrawlResponse::fake('image data', 200, ['Content-Type' => 'image/jpeg']),
         'https://example.com/sitemap1.xml' => CrawlResponse::fake($sitemap1, 200, ['Content-Type' => 'text/xml; charset=utf-8']),
         'https://example.com/sitemap2.xml' => CrawlResponse::fake($sitemap2, 200, ['Content-Type' => 'text/xml; charset=utf-8']),
         'https://example.com/' => 'Homepage',
@@ -186,4 +188,23 @@ function sitemapFakes(): array
         'https://example.com/link2' => 'Link 2',
         'https://example.com/link3' => 'Link 3',
     ];
+}
+
+function namespacedSitemap(): string
+{
+    return '<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+   <url>
+       <loc>https://example.com/link1</loc>
+       <lastmod>2016-01-01</lastmod>
+       <image:image>
+           <image:loc>https://example.com/image1.jpg</image:loc>
+       </image:image>
+   </url>
+   <url>
+       <loc>https://example.com/link2</loc>
+       <lastmod>2016-01-01</lastmod>
+   </url>
+</urlset>';
 }
