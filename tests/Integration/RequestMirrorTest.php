@@ -5,19 +5,17 @@ use Spatie\Crawler\CrawlResponse;
 
 $baseUrl = 'https://request-mirror.ohdear.app/crawler-test';
 
-beforeAll(function () use ($baseUrl) {
-    try {
-        $response = @file_get_contents($baseUrl, false, stream_context_create([
-            'http' => ['timeout' => 5],
-        ]));
+$mirrorIsReachable = false;
 
-        if ($response === false) {
-            throw new Exception('Unreachable');
-        }
-    } catch (Exception) {
-        markTestSkipped('request-mirror.ohdear.app is not reachable');
-    }
+beforeAll(function () use ($baseUrl, &$mirrorIsReachable) {
+    $mirrorIsReachable = @file_get_contents($baseUrl, false, stream_context_create([
+        'http' => ['timeout' => 5],
+    ])) !== false;
 });
+
+beforeEach()->skip(function () use (&$mirrorIsReachable) {
+    return ! $mirrorIsReachable;
+}, 'request-mirror.ohdear.app is not reachable');
 
 it('transmits custom user agent on every page', function () use ($baseUrl) {
     $results = [];
