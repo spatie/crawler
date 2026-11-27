@@ -13,3 +13,13 @@ parameters:
             identifier: function.alreadyNarrowedType
             path: src/CrawlObservers/CollectUrlsObserver.php
             reportUnmatched: false
+        # pcntl_signal_get_handler() can return a private or protected method of another class.
+        # The crawler cannot call that handler, so it must not replace it.
+        -
+            message: '#^Call to function is_callable\(\) with callable\(\)\: mixed will always evaluate to true\.$#'
+            identifier: function.alreadyNarrowedType
+            path: src/Crawler.php
+        -
+            message: '#^Result of && is always false\.$#'
+            identifier: booleanAnd.alwaysFalse
+            path: src/Crawler.php

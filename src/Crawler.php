@@ -77,6 +77,12 @@ class Crawler
 
     protected ?\Closure $shouldStopCallback = null;
 
+    /** @var array<int, callable|int> */
+    protected array $previousSignalHandlers = [];
+
+    /** @var array<int, mixed> */
+    protected array $receivedSignals = [];
+
     protected int $crawledUrlCount = 0;
 
     protected int $failedUrlCount = 0;
@@ -569,13 +575,23 @@ class Crawler
 
         pcntl_async_signals(true);
 
-        pcntl_signal(SIGINT, function () {
-            $this->shouldStop = true;
-        });
+        $this->previousSignalHandlers = [];
+        $this->receivedSignals = [];
 
-        pcntl_signal(SIGTERM, function () {
-            $this->shouldStop = true;
-        });
+        foreach ([SIGINT, SIGTERM] as $signal) {
+            $previousHandler = pcntl_signal_get_handler($signal);
+
+            if (! is_int($previousHandler) && ! is_callable($previousHandler)) {
+                continue;
+            }
+
+            $this->previousSignalHandlers[$signal] = $previousHandler;
+
+            pcntl_signal($signal, function (int $signal, mixed $signalInfo = null) {
+                $this->shouldStop = true;
+                $this->receivedSignals[$signal] = $signalInfo;
+            });
+        }
     }
 
     protected function unregisterSignalHandlers(): void
@@ -584,14 +600,24 @@ class Crawler
             return;
         }
 
-        pcntl_signal(SIGINT, SIG_DFL);
-        pcntl_signal(SIGTERM, SIG_DFL);
+        foreach ($this->previousSignalHandlers as $signal => $previousHandler) {
+            pcntl_signal($signal, $previousHandler);
+        }
+
+        foreach ($this->receivedSignals as $signal => $signalInfo) {
+            $previousHandler = $this->previousSignalHandlers[$signal];
+
+            if (is_callable($previousHandler)) {
+                $previousHandler($signal, $signalInfo);
+            }
+        }
     }
 
     protected function canHandleSignals(): bool
     {
         return extension_loaded('pcntl')
             && function_exists('pcntl_async_signals')
-            && function_exists('pcntl_signal');
+            && function_exists('pcntl_signal')
+            && function_exists('pcntl_signal_get_handler');
     }
 }
