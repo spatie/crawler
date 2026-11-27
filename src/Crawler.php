@@ -80,6 +80,9 @@ class Crawler
     /** @var array<int, callable|int> */
     protected array $previousSignalHandlers = [];
 
+    /** @var array<int, mixed> */
+    protected array $receivedSignals = [];
+
     protected int $crawledUrlCount = 0;
 
     protected int $failedUrlCount = 0;
@@ -572,6 +575,9 @@ class Crawler
 
         pcntl_async_signals(true);
 
+        $this->previousSignalHandlers = [];
+        $this->receivedSignals = [];
+
         foreach ([SIGINT, SIGTERM] as $signal) {
             $previousHandler = pcntl_signal_get_handler($signal);
 
@@ -583,12 +589,7 @@ class Crawler
 
             pcntl_signal($signal, function (int $signal, mixed $signalInfo = null) {
                 $this->shouldStop = true;
-
-                $previousHandler = $this->previousSignalHandlers[$signal] ?? SIG_DFL;
-
-                if (is_callable($previousHandler)) {
-                    $previousHandler($signal, $signalInfo);
-                }
+                $this->receivedSignals[$signal] = $signalInfo;
             });
         }
     }
@@ -603,7 +604,13 @@ class Crawler
             pcntl_signal($signal, $previousHandler);
         }
 
-        $this->previousSignalHandlers = [];
+        foreach ($this->receivedSignals as $signal => $signalInfo) {
+            $previousHandler = $this->previousSignalHandlers[$signal];
+
+            if (is_callable($previousHandler)) {
+                $previousHandler($signal, $signalInfo);
+            }
+        }
     }
 
     protected function canHandleSignals(): bool

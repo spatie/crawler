@@ -150,12 +150,14 @@ it('restores the signal handler that was installed before the crawl', function (
     }
 });
 
-it('passes a signal received during the crawl on to the handler that was installed before', function () {
+it('passes a signal on to the handler that was installed before, once the crawl has stopped', function () {
     if (! extension_loaded('pcntl')) {
         $this->markTestSkipped('pcntl extension is not loaded');
     }
 
     $receivedSignal = null;
+    $receivedSignalDuringCrawl = null;
+
     pcntl_signal(SIGTERM, function (int $signal) use (&$receivedSignal) {
         $receivedSignal = $signal;
     });
@@ -163,12 +165,16 @@ it('passes a signal received during the crawl on to the handler that was install
     try {
         $reason = Crawler::create('https://example.com')
             ->fake(fullSiteFakes())
-            ->depth(3)
-            ->concurrency(1)
-            ->onCrawled(fn () => posix_kill(getmypid(), SIGTERM))
+            ->depth(0)
+            ->onCrawled(function () use (&$receivedSignal, &$receivedSignalDuringCrawl) {
+                posix_kill(getmypid(), SIGTERM);
+
+                $receivedSignalDuringCrawl = $receivedSignal;
+            })
             ->start();
 
         expect($reason)->toBe(FinishReason::Interrupted);
+        expect($receivedSignalDuringCrawl)->toBeNull();
         expect($receivedSignal)->toBe(SIGTERM);
     } finally {
         pcntl_signal(SIGTERM, SIG_DFL);
