@@ -77,7 +77,7 @@ class Crawler
 
     protected ?\Closure $shouldStopCallback = null;
 
-    /** @var array<int, callable(int, mixed): mixed|int> */
+    /** @var array<int, callable|int> */
     protected array $previousSignalHandlers = [];
 
     protected int $crawledUrlCount = 0;
