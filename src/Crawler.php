@@ -80,8 +80,6 @@ class Crawler
     /** @var array<int, callable(int, mixed): mixed|int> */
     protected array $previousSignalHandlers = [];
 
-    protected bool $previousAsyncSignals = false;
-
     protected int $crawledUrlCount = 0;
 
     protected int $failedUrlCount = 0;
@@ -572,8 +570,6 @@ class Crawler
             return;
         }
 
-        $this->previousAsyncSignals = pcntl_async_signals();
-
         pcntl_async_signals(true);
 
         foreach ([SIGINT, SIGTERM] as $signal) {
@@ -602,8 +598,6 @@ class Crawler
         }
 
         $this->previousSignalHandlers = [];
-
-        pcntl_async_signals($this->previousAsyncSignals);
     }
 
     protected function canHandleSignals(): bool
