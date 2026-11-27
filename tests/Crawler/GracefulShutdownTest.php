@@ -181,7 +181,7 @@ it('passes a signal on to the handler that was installed before, once the crawl 
     }
 });
 
-it('leaves the default signal handler in place when none was installed before the crawl', function () {
+it('restores the default signal handler when none was installed before the crawl', function () {
     if (! extension_loaded('pcntl')) {
         $this->markTestSkipped('pcntl extension is not loaded');
     }
