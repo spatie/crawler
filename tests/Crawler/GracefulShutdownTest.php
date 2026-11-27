@@ -187,3 +187,33 @@ it('leaves the default signal handler in place when none was installed before th
 
     expect(pcntl_signal_get_handler(SIGTERM))->toBe(SIG_DFL);
 });
+
+it('leaves a signal handler alone when the crawler cannot put it back', function () {
+    if (! extension_loaded('pcntl')) {
+        $this->markTestSkipped('pcntl extension is not loaded');
+    }
+
+    $host = new class
+    {
+        public function listen(): void
+        {
+            pcntl_signal(SIGTERM, [$this, 'stop']);
+        }
+
+        private function stop(): void {}
+    };
+
+    $host->listen();
+
+    try {
+        $reason = Crawler::create('https://example.com')
+            ->fake(fullSiteFakes())
+            ->depth(0)
+            ->start();
+
+        expect($reason)->toBe(FinishReason::Completed);
+        expect(pcntl_signal_get_handler(SIGTERM))->toBe([$host, 'stop']);
+    } finally {
+        pcntl_signal(SIGTERM, SIG_DFL);
+    }
+});

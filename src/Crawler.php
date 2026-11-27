@@ -573,7 +573,13 @@ class Crawler
         pcntl_async_signals(true);
 
         foreach ([SIGINT, SIGTERM] as $signal) {
-            $this->previousSignalHandlers[$signal] = pcntl_signal_get_handler($signal);
+            $previousHandler = pcntl_signal_get_handler($signal);
+
+            if (! is_int($previousHandler) && ! is_callable($previousHandler)) {
+                continue;
+            }
+
+            $this->previousSignalHandlers[$signal] = $previousHandler;
 
             pcntl_signal($signal, function (int $signal, mixed $signalInfo = null) {
                 $this->shouldStop = true;
