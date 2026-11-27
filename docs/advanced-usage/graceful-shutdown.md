@@ -26,4 +26,6 @@ if ($reason === FinishReason::Interrupted) {
 
 No configuration is needed. This works out of the box on any system where the `pcntl` PHP extension is loaded.
 
+If your application registered its own handler for SIGINT or SIGTERM before the crawl started, that handler still runs when the signal arrives. A Laravel queue worker is an example. The crawler puts your handler back when the crawl ends.
+
 This is especially useful when combining with [crawling across requests](/docs/crawler/v9/advanced-usage/crawling-across-requests). A graceful shutdown ensures that the crawl queue remains in a consistent state, so you can resume crawling later.

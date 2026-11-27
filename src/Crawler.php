@@ -77,6 +77,11 @@ class Crawler
 
     protected ?\Closure $shouldStopCallback = null;
 
+    /** @var array<int, callable(int, mixed): mixed|int> */
+    protected array $previousSignalHandlers = [];
+
+    protected bool $previousAsyncSignals = false;
+
     protected int $crawledUrlCount = 0;
 
     protected int $failedUrlCount = 0;
@@ -567,15 +572,23 @@ class Crawler
             return;
         }
 
+        $this->previousAsyncSignals = pcntl_async_signals();
+
         pcntl_async_signals(true);
 
-        pcntl_signal(SIGINT, function () {
-            $this->shouldStop = true;
-        });
+        foreach ([SIGINT, SIGTERM] as $signal) {
+            $this->previousSignalHandlers[$signal] = pcntl_signal_get_handler($signal);
 
-        pcntl_signal(SIGTERM, function () {
-            $this->shouldStop = true;
-        });
+            pcntl_signal($signal, function (int $signal, mixed $signalInfo = null) {
+                $this->shouldStop = true;
+
+                $previousHandler = $this->previousSignalHandlers[$signal] ?? SIG_DFL;
+
+                if (is_callable($previousHandler)) {
+                    $previousHandler($signal, $signalInfo);
+                }
+            });
+        }
     }
 
     protected function unregisterSignalHandlers(): void
@@ -584,14 +597,20 @@ class Crawler
             return;
         }
 
-        pcntl_signal(SIGINT, SIG_DFL);
-        pcntl_signal(SIGTERM, SIG_DFL);
+        foreach ($this->previousSignalHandlers as $signal => $previousHandler) {
+            pcntl_signal($signal, $previousHandler);
+        }
+
+        $this->previousSignalHandlers = [];
+
+        pcntl_async_signals($this->previousAsyncSignals);
     }
 
     protected function canHandleSignals(): bool
     {
         return extension_loaded('pcntl')
             && function_exists('pcntl_async_signals')
-            && function_exists('pcntl_signal');
+            && function_exists('pcntl_signal')
+            && function_exists('pcntl_signal_get_handler');
     }
 }

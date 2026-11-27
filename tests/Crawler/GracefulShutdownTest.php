@@ -129,3 +129,61 @@ it('registers signal handlers when pcntl is available', function () {
     // If we got here, signal handlers were registered and restored without issues
     expect(true)->toBeTrue();
 });
+
+it('restores the signal handler that was installed before the crawl', function () {
+    if (! extension_loaded('pcntl')) {
+        $this->markTestSkipped('pcntl extension is not loaded');
+    }
+
+    $handler = function () {};
+    pcntl_signal(SIGTERM, $handler);
+
+    try {
+        Crawler::create('https://example.com')
+            ->fake(fullSiteFakes())
+            ->depth(0)
+            ->start();
+
+        expect(pcntl_signal_get_handler(SIGTERM))->toBe($handler);
+    } finally {
+        pcntl_signal(SIGTERM, SIG_DFL);
+    }
+});
+
+it('passes a signal received during the crawl on to the handler that was installed before', function () {
+    if (! extension_loaded('pcntl')) {
+        $this->markTestSkipped('pcntl extension is not loaded');
+    }
+
+    $receivedSignal = null;
+    pcntl_signal(SIGTERM, function (int $signal) use (&$receivedSignal) {
+        $receivedSignal = $signal;
+    });
+
+    try {
+        $reason = Crawler::create('https://example.com')
+            ->fake(fullSiteFakes())
+            ->depth(3)
+            ->concurrency(1)
+            ->onCrawled(fn () => posix_kill(getmypid(), SIGTERM))
+            ->start();
+
+        expect($reason)->toBe(FinishReason::Interrupted);
+        expect($receivedSignal)->toBe(SIGTERM);
+    } finally {
+        pcntl_signal(SIGTERM, SIG_DFL);
+    }
+});
+
+it('leaves the default signal handler in place when none was installed before the crawl', function () {
+    if (! extension_loaded('pcntl')) {
+        $this->markTestSkipped('pcntl extension is not loaded');
+    }
+
+    Crawler::create('https://example.com')
+        ->fake(fullSiteFakes())
+        ->depth(0)
+        ->start();
+
+    expect(pcntl_signal_get_handler(SIGTERM))->toBe(SIG_DFL);
+});
